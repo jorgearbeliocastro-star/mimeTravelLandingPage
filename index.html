@@ -952,7 +952,7 @@
 
       <div class="destinos-grid">
         <div class="destino-card">
-          <img src="https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=700&q=75" alt="Santorini, Grecia">
+          <img src="https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=700&q=75" alt="Santorini, Grecia" loading="lazy">
           <div class="destino-overlay">
             <span class="destino-price">Desde $1,450 USD</span>
             <span class="destino-name">Santorini, Grecia</span>
@@ -961,7 +961,7 @@
         </div>
 
         <div class="destino-card">
-          <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=700&q=75" alt="París, Francia">
+          <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=700&q=75" alt="París, Francia" loading="lazy">
           <div class="destino-overlay">
             <span class="destino-price">Desde $1,120 USD</span>
             <span class="destino-name">París, Francia</span>
@@ -970,7 +970,7 @@
         </div>
 
         <div class="destino-card">
-          <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=700&q=75" alt="Bali, Indonesia">
+          <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=700&q=75" alt="Bali, Indonesia" loading="lazy">
           <div class="destino-overlay">
             <span class="destino-price">Desde $980 USD</span>
             <span class="destino-name">Bali, Indonesia</span>
@@ -979,7 +979,7 @@
         </div>
 
         <div class="destino-card">
-          <img src="https://images.unsplash.com/photo-1587595431973-160d0d94add1?auto=format&fit=crop&w=700&q=75" alt="Machu Picchu, Perú">
+          <img src="https://images.unsplash.com/photo-1587595431973-160d0d94add1?auto=format&fit=crop&w=700&q=75" alt="Machu Picchu, Perú" loading="lazy">
           <div class="destino-overlay">
             <span class="destino-price">Desde $890 USD</span>
             <span class="destino-name">Machu Picchu, Perú</span>
@@ -1029,23 +1029,23 @@
 
       <div class="exp-grid">
         <div class="exp-card">
-          <img src="https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=900&q=75" alt="Aventura">
+          <img src="https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=900&q=75" alt="Aventura" loading="lazy">
           <div class="exp-label"><span>Aventura</span></div>
         </div>
         <div class="exp-card">
-          <img src="https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=700&q=75" alt="Relax">
+          <img src="https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=700&q=75" alt="Relax" loading="lazy">
           <div class="exp-label"><span>Relax</span></div>
         </div>
         <div class="exp-card">
-          <img src="https://images.unsplash.com/photo-1548574505-5e239809ee19?auto=format&fit=crop&w=700&q=75" alt="Cultura">
+          <img src="https://images.unsplash.com/photo-1548574505-5e239809ee19?auto=format&fit=crop&w=700&q=75" alt="Cultura" loading="lazy">
           <div class="exp-label"><span>Cultura</span></div>
         </div>
         <div class="exp-card">
-          <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=700&q=75" alt="Luna de miel">
+          <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=700&q=75" alt="Luna de miel" loading="lazy">
           <div class="exp-label"><span>Luna de miel</span></div>
         </div>
         <div class="exp-card">
-          <img src="https://images.unsplash.com/photo-1503220317375-aaad61436b1b?auto=format&fit=crop&w=700&q=75" alt="Naturaleza">
+          <img src="https://images.unsplash.com/photo-1503220317375-aaad61436b1b?auto=format&fit=crop&w=700&q=75" alt="Naturaleza" loading="lazy">
           <div class="exp-label"><span>Naturaleza</span></div>
         </div>
       </div>
@@ -1191,13 +1191,17 @@
     const menuToggle = document.getElementById('menuToggle');
     const mainNav = document.getElementById('mainNav');
     menuToggle.addEventListener('click', () => {
-      mainNav.classList.toggle('open');
-      menuToggle.textContent = mainNav.classList.contains('open') ? '✕' : '☰';
+      const isOpen = mainNav.classList.toggle('open');
+      menuToggle.textContent = isOpen ? '✕' : '☰';
+      menuToggle.setAttribute('aria-expanded', isOpen);
+      menuToggle.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
     });
     mainNav.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', () => {
         mainNav.classList.remove('open');
         menuToggle.textContent = '☰';
+        menuToggle.setAttribute('aria-expanded', 'false');
+        menuToggle.setAttribute('aria-label', 'Abrir menú');
       });
     });
 
