@@ -3,16 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mime Travel — Próximamente</title>
-<meta name="description" content="Mime Travel está en construcción. Muy pronto viviremos nuevas aventuras juntos.">
+<title>Mime Travel — El mundo no se imagina. Se vive.</title>
+<meta name="description" content="Mime Travel diseña viajes a la medida de quienes prefieren coleccionar momentos, no solo destinos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-1: #0f172a;
-    --bg-2: #1e293b;
-    --accent: #38bdf8;
-    --accent-2: #f472b6;
-    --text: #f1f5f9;
-    --text-dim: #94a3b8;
+    --primary: #1B3A5C;
+    --primary-dark: #122A44;
+    --coral: #FF7A59;
+    --coral-dark: #E8663F;
+    --arena: #F5E6D3;
+    --turquesa: #5FBFB3;
+    --dark: #1A1A1A;
+    --light: #FEFCF9;
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-body: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
   * {
@@ -21,223 +28,1158 @@
     box-sizing: border-box;
   }
 
-  html, body {
-    height: 100%;
+  html {
+    scroll-behavior: smooth;
   }
 
   body {
-    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
-    background: linear-gradient(160deg, var(--bg-1) 0%, var(--bg-2) 60%, #0b1120 100%);
-    color: var(--text);
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    font-family: var(--font-body);
+    color: var(--dark);
+    background: var(--light);
     overflow-x: hidden;
-    padding: 24px;
-    position: relative;
   }
 
-  /* fondo decorativo */
-  .glow {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(90px);
-    opacity: 0.35;
-    z-index: 0;
-    pointer-events: none;
+  img {
+    display: block;
+    max-width: 100%;
   }
 
-  .glow.one {
-    width: 45vmax;
-    height: 45vmax;
-    background: var(--accent);
-    top: -15vmax;
-    left: -10vmax;
-    animation: float1 14s ease-in-out infinite;
+  a {
+    color: inherit;
   }
 
-  .glow.two {
-    width: 40vmax;
-    height: 40vmax;
-    background: var(--accent-2);
-    bottom: -15vmax;
-    right: -10vmax;
-    animation: float2 16s ease-in-out infinite;
-  }
-
-  @keyframes float1 {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(6vmax, 4vmax) scale(1.1); }
-  }
-
-  @keyframes float2 {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(-5vmax, -5vmax) scale(1.05); }
-  }
-
-  .card {
-    position: relative;
-    z-index: 1;
+  .container {
     width: 100%;
-    max-width: 640px;
-    text-align: center;
-    padding: clamp(28px, 6vw, 56px);
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 24px;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 24px;
   }
 
-  .badge {
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    line-height: 1.15;
+  }
+
+  .btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
-    padding: 6px 16px;
+    padding: 14px 28px;
     border-radius: 999px;
-    background: rgba(56, 189, 248, 0.12);
-    border: 1px solid rgba(56, 189, 248, 0.3);
-    color: var(--accent);
-    font-size: clamp(11px, 2.5vw, 13px);
     font-weight: 600;
-    letter-spacing: 0.08em;
+    font-size: 15px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .btn-coral {
+    background: var(--coral);
+    color: var(--light);
+    box-shadow: 0 8px 24px rgba(255, 122, 89, 0.35);
+  }
+
+  .btn-coral:hover {
+    background: var(--coral-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(255, 122, 89, 0.45);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--light);
+    border: 1.5px solid rgba(255, 255, 255, 0.6);
+  }
+
+  .btn-outline:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .eyebrow {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
+    color: var(--coral);
+    margin-bottom: 12px;
+  }
+
+  /* ---------- HEADER ---------- */
+  header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 20px 0;
+    transition: background 0.3s ease, box-shadow 0.3s ease, padding 0.3s ease;
+  }
+
+  header.scrolled {
+    background: var(--primary);
+    padding: 12px 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  header .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--light);
+    text-decoration: none;
+    letter-spacing: 0.01em;
+  }
+
+  nav.main-nav {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+  }
+
+  nav.main-nav a.nav-link {
+    color: var(--light);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    opacity: 0.9;
+    transition: opacity 0.2s ease;
+  }
+
+  nav.main-nav a.nav-link:hover {
+    opacity: 1;
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--light);
+    font-size: 26px;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background:
+      linear-gradient(180deg, rgba(15, 30, 48, 0.55) 0%, rgba(15, 30, 48, 0.75) 100%),
+      url('https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1800&q=75') center/cover no-repeat;
+    color: var(--light);
+  }
+
+  .hero-content {
+    max-width: 700px;
+    padding-top: 90px;
+  }
+
+  .hero h1 {
+    font-size: clamp(38px, 6vw, 64px);
+    font-weight: 600;
     margin-bottom: 20px;
   }
 
-  .badge .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
-    animation: pulse 1.6s ease-in-out infinite;
+  .hero h1 em {
+    font-style: italic;
+    color: var(--turquesa);
   }
 
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.7); }
-  }
-
-  .icon {
-    font-size: clamp(40px, 10vw, 64px);
-    margin-bottom: 12px;
-    display: inline-block;
-    animation: bob 3s ease-in-out infinite;
-  }
-
-  @keyframes bob {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-10px) rotate(-6deg); }
-  }
-
-  h1 {
-    font-size: clamp(28px, 6vw, 44px);
-    font-weight: 800;
-    line-height: 1.15;
-    margin-bottom: 14px;
-    background: linear-gradient(90deg, var(--text), var(--accent) 60%, var(--accent-2));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  p.lead {
-    font-size: clamp(15px, 3.2vw, 18px);
-    color: var(--text-dim);
+  .hero p.subtitle {
+    font-size: clamp(16px, 2.2vw, 19px);
     line-height: 1.6;
-    margin-bottom: 32px;
-    max-width: 46ch;
+    color: rgba(255, 255, 255, 0.88);
+    max-width: 52ch;
+    margin-bottom: 36px;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+  }
+
+  .search-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 16px;
+    padding: 8px;
+    max-width: 640px;
+  }
+
+  .search-field {
+    flex: 1 1 140px;
+    display: flex;
+    flex-direction: column;
+    padding: 8px 16px;
+    min-width: 0;
+  }
+
+  .search-field label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 4px;
+  }
+
+  .search-field input {
+    background: transparent;
+    border: none;
+    color: var(--light);
+    font-family: var(--font-body);
+    font-size: 14px;
+    outline: none;
+    width: 100%;
+  }
+
+  .search-field input::placeholder {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .search-bar .btn-coral {
+    align-self: center;
+    margin: 4px;
+  }
+
+  /* ---------- SERVICIOS ---------- */
+  .servicios {
+    background: var(--light);
+  }
+
+  .servicios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 24px;
+  }
+
+  .servicio-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 32px 28px;
+    border-radius: 18px;
+    background: var(--arena);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .servicio-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 32px rgba(27, 58, 92, 0.14);
+  }
+
+  .servicio-icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: var(--primary);
+    font-size: 26px;
+  }
+
+  .servicio-card h3 {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--primary);
+  }
+
+  .servicio-card p {
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: #5a5a5a;
+  }
+
+  .servicio-link {
+    margin-top: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--coral);
+    text-decoration: none;
+    border-bottom: 1.5px solid var(--coral);
+    padding-bottom: 2px;
+  }
+
+  /* ---------- SECTION HEADINGS ---------- */
+  .section {
+    padding: 96px 0;
+  }
+
+  .section-heading {
+    max-width: 620px;
+    margin-bottom: 56px;
+  }
+
+  .section-heading.center {
     margin-left: auto;
     margin-right: auto;
+    text-align: center;
   }
 
-  .divider {
-    width: 60px;
-    height: 3px;
-    border-radius: 999px;
-    background: linear-gradient(90deg, var(--accent), var(--accent-2));
-    margin: 0 auto 32px;
+  .section-heading h2 {
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 14px;
   }
 
-  .socials {
+  .section-heading p {
+    font-size: 17px;
+    line-height: 1.65;
+    color: #5a5a5a;
+  }
+
+  /* ---------- DESTINOS ---------- */
+  .destinos {
+    background: var(--arena);
+  }
+
+  .destinos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 28px;
+  }
+
+  .destino-card {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    aspect-ratio: 3 / 4;
+    box-shadow: 0 12px 32px rgba(27, 58, 92, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .destino-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 44px rgba(27, 58, 92, 0.25);
+  }
+
+  .destino-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .destino-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.75) 100%);
     display: flex;
-    justify-content: center;
-    gap: 14px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 24px;
+    color: var(--light);
   }
 
-  .socials a {
-    width: 44px;
-    height: 44px;
+  .destino-price {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--turquesa);
+    margin-bottom: 6px;
+  }
+
+  .destino-name {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+
+  .destino-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--light);
+    text-decoration: none;
+    width: fit-content;
+    border-bottom: 1.5px solid var(--coral);
+    padding-bottom: 2px;
+    transition: gap 0.2s ease;
+  }
+
+  .destino-cta:hover {
+    gap: 10px;
+  }
+
+  /* ---------- POR QUÉ VIAJAR CON NOSOTROS ---------- */
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 40px;
+  }
+
+  .why-item {
+    text-align: center;
+    padding: 0 12px;
+  }
+
+  .why-icon {
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--text);
-    text-decoration: none;
+    background: rgba(95, 191, 179, 0.15);
+    font-size: 30px;
+  }
+
+  .why-item h3 {
+    font-family: var(--font-body);
     font-size: 18px;
-    transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 10px;
   }
 
-  .socials a:hover {
-    transform: translateY(-3px);
-    background: var(--accent);
-    color: #0b1120;
+  .why-item p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #5a5a5a;
   }
 
-  footer {
+  /* ---------- EXPERIENCIAS ---------- */
+  .experiencias {
+    background: var(--light);
+  }
+
+  .exp-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr 1fr;
+    grid-template-rows: repeat(2, 220px);
+    gap: 20px;
+  }
+
+  .exp-card {
     position: relative;
-    z-index: 1;
-    text-align: center;
-    color: var(--text-dim);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  .exp-card:first-child {
+    grid-row: span 2;
+  }
+
+  .exp-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  .exp-card:hover img {
+    transform: scale(1.06);
+  }
+
+  .exp-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    padding: 20px;
+    background: linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.7) 100%);
+  }
+
+  .exp-label span {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--light);
+  }
+
+  /* ---------- TESTIMONIOS ---------- */
+  .testimonios {
+    background: var(--primary);
+    color: var(--light);
+  }
+
+  .testimonios .section-heading h2,
+  .testimonios .section-heading p {
+    color: var(--light);
+  }
+
+  .testimonios .section-heading p {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .testi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 28px;
+  }
+
+  .testi-card {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    padding: 32px;
+  }
+
+  .testi-stars {
+    color: var(--coral);
+    font-size: 15px;
+    margin-bottom: 16px;
+    letter-spacing: 2px;
+  }
+
+  .testi-quote {
+    font-size: 15.5px;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 24px;
+  }
+
+  .testi-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .testi-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--turquesa);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--primary-dark);
+  }
+
+  .testi-author-name {
+    font-weight: 700;
+    font-size: 14.5px;
+  }
+
+  .testi-author-trip {
     font-size: 13px;
-    margin-top: 24px;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  /* ---------- NEWSLETTER ---------- */
+  .newsletter {
+    background: linear-gradient(120deg, var(--coral) 0%, #ffa07a 100%);
+    color: var(--light);
+    text-align: center;
+    padding: 80px 0;
+  }
+
+  .newsletter h2 {
+    font-size: clamp(26px, 4vw, 36px);
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+
+  .newsletter p {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.92);
+    max-width: 50ch;
+    margin: 0 auto 32px;
+    line-height: 1.6;
+  }
+
+  .newsletter-form {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    max-width: 460px;
+    margin: 0 auto;
+  }
+
+  .newsletter-form input[type="email"] {
+    flex: 1 1 240px;
+    min-width: 0;
+    padding: 15px 20px;
+    border-radius: 999px;
+    border: none;
+    font-family: var(--font-body);
+    font-size: 15px;
+    outline: none;
+  }
+
+  .newsletter-msg {
+    margin-top: 16px;
+    font-size: 14px;
+    font-weight: 600;
+    min-height: 20px;
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer {
+    background: var(--dark);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 64px 0 28px;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 48px;
+  }
+
+  .footer-brand .logo {
+    color: var(--light);
+    margin-bottom: 12px;
+    display: inline-block;
+  }
+
+  .footer-brand p {
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 30ch;
+    margin-bottom: 20px;
+  }
+
+  .footer-socials {
+    display: flex;
+    gap: 12px;
+  }
+
+  .footer-socials a {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    text-decoration: none;
+    font-size: 16px;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+
+  .footer-socials a:hover {
+    background: var(--coral);
+    transform: translateY(-2px);
+  }
+
+  .footer-col h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--light);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+
+  .footer-col ul {
+    list-style: none;
+  }
+
+  .footer-col li {
+    margin-bottom: 12px;
+  }
+
+  .footer-col a {
+    text-decoration: none;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    transition: color 0.2s ease;
+  }
+
+  .footer-col a:hover {
+    color: var(--light);
+  }
+
+  .footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .footer-bottom a {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .footer-bottom a:hover {
+    color: var(--light);
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 900px) {
+    .exp-grid {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: repeat(3, 200px);
+    }
+    .exp-card:first-child {
+      grid-column: span 2;
+      grid-row: span 1;
+    }
+    .footer-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 760px) {
+    nav.main-nav {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100vh;
+      width: min(78vw, 320px);
+      background: var(--primary);
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 28px;
+      padding: 100px 32px 32px;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      z-index: 90;
+    }
+
+    nav.main-nav.open {
+      transform: translateX(0);
+    }
+
+    .nav-actions .btn-outline {
+      display: none;
+    }
+
+    .menu-toggle {
+      display: block;
+      z-index: 110;
+    }
+
+    .section {
+      padding: 64px 0;
+    }
+
+    .exp-grid {
+      grid-template-columns: 1fr;
+      grid-template-rows: none;
+    }
+    .exp-card, .exp-card:first-child {
+      grid-column: auto;
+      grid-row: auto;
+      height: 220px;
+    }
+
+    .footer-grid {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .glow, .icon, .badge .dot {
+    * {
       animation: none !important;
+      transition: none !important;
     }
   }
 </style>
 </head>
 <body>
 
-  <div class="glow one"></div>
-  <div class="glow two"></div>
+  <!-- ================= HEADER ================= -->
+  <header id="siteHeader">
+    <div class="container">
+      <a href="#" class="logo">Mime Travel</a>
 
-  <main class="card">
-    <span class="badge"><span class="dot"></span> En construcción</span>
+      <nav class="main-nav" id="mainNav">
+        <a class="nav-link" href="#servicios">Servicios</a>
+        <a class="nav-link" href="#destinos">Destinos</a>
+        <a class="nav-link" href="#experiencias">Experiencias</a>
+        <a class="nav-link" href="#testimonios">Nosotros</a>
+        <a class="nav-link" href="#newsletter">Contacto</a>
+      </nav>
 
-    <div class="icon" aria-hidden="true">✈️</div>
-
-    <h1>Estamos preparando tu próximo viaje</h1>
-    <p class="lead">
-      Mime Travel está trabajando en algo nuevo. Muy pronto podrás explorar
-      nuestros destinos y planear tu próxima aventura con nosotros.
-    </p>
-
-    <div class="divider"></div>
-
-    <div class="socials">
-      <a href="#" aria-label="Instagram" title="Instagram">📷</a>
-      <a href="#" aria-label="Facebook" title="Facebook">📘</a>
-      <a href="#" aria-label="WhatsApp" title="WhatsApp">💬</a>
-      <a href="mailto:contacto@mimetravel.com" aria-label="Correo" title="Correo">✉️</a>
+      <div class="nav-actions">
+        <a href="#newsletter" class="btn btn-outline">Planea tu viaje</a>
+        <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">☰</button>
+      </div>
     </div>
-  </main>
+  </header>
 
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="container hero-content">
+      <span class="eyebrow" style="color: var(--turquesa);">Mime Travel</span>
+      <h1>El mundo no se <em>imagina</em>. Se vive.</h1>
+      <p class="subtitle">
+        Diseñamos viajes a la medida de quienes prefieren coleccionar momentos, no solo destinos.
+      </p>
+
+      <div class="hero-ctas">
+        <a href="#destinos" class="btn btn-coral">Descubre tu próximo destino</a>
+        <a href="#newsletter" class="btn btn-outline">Hablemos de tu viaje</a>
+      </div>
+
+      <form class="search-bar" id="searchForm">
+        <div class="search-field">
+          <label for="origen">Origen</label>
+          <input type="text" id="origen" placeholder="¿Desde dónde?">
+        </div>
+        <div class="search-field">
+          <label for="destino">Destino</label>
+          <input type="text" id="destino" placeholder="¿Hacia dónde?">
+        </div>
+        <div class="search-field">
+          <label for="fechas">Fechas</label>
+          <input type="text" id="fechas" placeholder="Elige tus fechas">
+        </div>
+        <button type="submit" class="btn btn-coral">Buscar</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ================= SERVICIOS ================= -->
+  <section class="section servicios" id="servicios">
+    <div class="container">
+      <div class="section-heading center">
+        <span class="eyebrow">Todo en un solo lugar</span>
+        <h2>Tu viaje completo, sin complicaciones</h2>
+        <p>Vuelos, cruceros, hospedaje y movilidad — coordinamos cada pieza de tu viaje para que tú solo te preocupes de disfrutarlo.</p>
+      </div>
+
+      <div class="servicios-grid">
+        <div class="servicio-card">
+          <div class="servicio-icon">✈️</div>
+          <h3>Vuelos</h3>
+          <p>Tarifas aéreas competitivas a los principales destinos del mundo, con las mejores aerolíneas.</p>
+          <a href="#newsletter" class="servicio-link">Buscar vuelos →</a>
+        </div>
+
+        <div class="servicio-card">
+          <div class="servicio-icon">🛳️</div>
+          <h3>Cruceros</h3>
+          <p>Navega por el Caribe, el Mediterráneo y más, con las mejores navieras y cabinas a tu medida.</p>
+          <a href="#newsletter" class="servicio-link">Ver cruceros →</a>
+        </div>
+
+        <div class="servicio-card">
+          <div class="servicio-icon">🏨</div>
+          <h3>Hoteles</h3>
+          <p>Desde boutique hasta resorts todo incluido, seleccionados para cada tipo de viajero y presupuesto.</p>
+          <a href="#newsletter" class="servicio-link">Reservar hotel →</a>
+        </div>
+
+        <div class="servicio-card">
+          <div class="servicio-icon">🚗</div>
+          <h3>Renta de autos</h3>
+          <p>Muévete a tu ritmo en tu destino, con las mejores tarifas y cobertura en más de 50 países.</p>
+          <a href="#newsletter" class="servicio-link">Rentar auto →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= DESTINOS DESTACADOS ================= -->
+  <section class="section destinos" id="destinos">
+    <div class="container">
+      <div class="section-heading">
+        <span class="eyebrow">Destinos destacados</span>
+        <h2>Destinos que están escritos para ti</h2>
+        <p>Curamos cada ruta pensando en experiencias, no en itinerarios genéricos. Estos son los lugares que más están enamorando a nuestros viajeros este mes.</p>
+      </div>
+
+      <div class="destinos-grid">
+        <div class="destino-card">
+          <img src="https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=700&q=75" alt="Santorini, Grecia">
+          <div class="destino-overlay">
+            <span class="destino-price">Desde $1,450 USD</span>
+            <span class="destino-name">Santorini, Grecia</span>
+            <a href="#newsletter" class="destino-cta">Quiero ir aquí →</a>
+          </div>
+        </div>
+
+        <div class="destino-card">
+          <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=700&q=75" alt="París, Francia">
+          <div class="destino-overlay">
+            <span class="destino-price">Desde $1,120 USD</span>
+            <span class="destino-name">París, Francia</span>
+            <a href="#newsletter" class="destino-cta">Quiero ir aquí →</a>
+          </div>
+        </div>
+
+        <div class="destino-card">
+          <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=700&q=75" alt="Bali, Indonesia">
+          <div class="destino-overlay">
+            <span class="destino-price">Desde $980 USD</span>
+            <span class="destino-name">Bali, Indonesia</span>
+            <a href="#newsletter" class="destino-cta">Quiero ir aquí →</a>
+          </div>
+        </div>
+
+        <div class="destino-card">
+          <img src="https://images.unsplash.com/photo-1587595431973-160d0d94add1?auto=format&fit=crop&w=700&q=75" alt="Machu Picchu, Perú">
+          <div class="destino-overlay">
+            <span class="destino-price">Desde $890 USD</span>
+            <span class="destino-name">Machu Picchu, Perú</span>
+            <a href="#newsletter" class="destino-cta">Quiero ir aquí →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= POR QUÉ VIAJAR CON NOSOTROS ================= -->
+  <section class="section">
+    <div class="container">
+      <div class="section-heading center">
+        <span class="eyebrow">Por qué Mime Travel</span>
+        <h2>Viajar tranquilo también es viajar bien</h2>
+      </div>
+
+      <div class="why-grid">
+        <div class="why-item">
+          <div class="why-icon">🧳</div>
+          <h3>Atención personalizada</h3>
+          <p>Un asesor de viajes real, no un chatbot, diseñando tu itinerario.</p>
+        </div>
+        <div class="why-item">
+          <div class="why-icon">💳</div>
+          <h3>Precios sin sorpresas</h3>
+          <p>Lo que ves es lo que pagas. Sin letra pequeña.</p>
+        </div>
+        <div class="why-item">
+          <div class="why-icon">🌍</div>
+          <h3>Soporte donde estés</h3>
+          <p>Acompañamiento antes, durante y después de tu viaje.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= EXPERIENCIAS ================= -->
+  <section class="section experiencias" id="experiencias">
+    <div class="container">
+      <div class="section-heading">
+        <span class="eyebrow">Experiencias</span>
+        <h2>Elige cómo quieres que el mundo te sorprenda</h2>
+        <p>Aventura, desconexión, romance o cultura — cada viajero tiene su propio ritmo. Encuentra el tuyo.</p>
+      </div>
+
+      <div class="exp-grid">
+        <div class="exp-card">
+          <img src="https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=900&q=75" alt="Aventura">
+          <div class="exp-label"><span>Aventura</span></div>
+        </div>
+        <div class="exp-card">
+          <img src="https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=700&q=75" alt="Relax">
+          <div class="exp-label"><span>Relax</span></div>
+        </div>
+        <div class="exp-card">
+          <img src="https://images.unsplash.com/photo-1548574505-5e239809ee19?auto=format&fit=crop&w=700&q=75" alt="Cultura">
+          <div class="exp-label"><span>Cultura</span></div>
+        </div>
+        <div class="exp-card">
+          <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=700&q=75" alt="Luna de miel">
+          <div class="exp-label"><span>Luna de miel</span></div>
+        </div>
+        <div class="exp-card">
+          <img src="https://images.unsplash.com/photo-1503220317375-aaad61436b1b?auto=format&fit=crop&w=700&q=75" alt="Naturaleza">
+          <div class="exp-label"><span>Naturaleza</span></div>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top: 48px;">
+        <a href="#newsletter" class="btn btn-coral">Explorar experiencias</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TESTIMONIOS ================= -->
+  <section class="section testimonios" id="testimonios">
+    <div class="container">
+      <div class="section-heading center">
+        <span class="eyebrow" style="color: var(--turquesa);">Confianza</span>
+        <h2>No lo decimos nosotros, lo dicen ellos</h2>
+        <p>Cientos de viajeros ya confiaron en nosotros para su próxima aventura. Esto es lo que tienen para contar.</p>
+      </div>
+
+      <div class="testi-grid">
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-quote">"Todo el itinerario se sintió hecho a mi medida. Nunca había viajado tan tranquila sabiendo que había alguien real detrás organizando todo."</p>
+          <div class="testi-author">
+            <div class="testi-avatar">C</div>
+            <div>
+              <div class="testi-author-name">Camila R.</div>
+              <div class="testi-author-trip">Santorini, Grecia</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-quote">"El precio que me dieron fue exactamente el que pagué. Cero sorpresas, cero letra pequeña. Así se gana la confianza de un cliente."</p>
+          <div class="testi-author">
+            <div class="testi-avatar">D</div>
+            <div>
+              <div class="testi-author-name">Daniel M.</div>
+              <div class="testi-author-trip">Machu Picchu, Perú</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-quote">"Tuvimos un imprevisto en el vuelo y nos resolvieron todo en minutos, a la distancia. Ese soporte marcó la diferencia en nuestra luna de miel."</p>
+          <div class="testi-author">
+            <div class="testi-avatar">L</div>
+            <div>
+              <div class="testi-author-name">Laura & Andrés</div>
+              <div class="testi-author-trip">Bali, Indonesia</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= NEWSLETTER ================= -->
+  <section class="newsletter" id="newsletter">
+    <div class="container">
+      <h2>Las mejores ofertas no se anuncian. Se susurran.</h2>
+      <p>Súmate a nuestra lista y sé el primero en enterarte de escapadas exclusivas y precios que no verás en ningún otro lado.</p>
+
+      <form class="newsletter-form" id="newsletterForm">
+        <input type="email" id="newsletterEmail" placeholder="tu@email.com" required autocomplete="email">
+        <button type="submit" class="btn" style="background: var(--dark); color: var(--light);">Quiero las mejores ofertas</button>
+      </form>
+      <p class="newsletter-msg" id="newsletterMsg"></p>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
   <footer>
-    &copy; <span id="year"></span> Mime Travel. Todos los derechos reservados.
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#" class="logo">Mime Travel</a>
+          <p>Porque cada viaje debería sentirse como una historia propia.</p>
+          <div class="footer-socials">
+            <a href="#" aria-label="Instagram" title="Instagram">📷</a>
+            <a href="#" aria-label="Facebook" title="Facebook">📘</a>
+            <a href="#" aria-label="WhatsApp" title="WhatsApp">💬</a>
+            <a href="mailto:contacto@mimetravel.com" aria-label="Correo" title="Correo">✉️</a>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h4>Servicios</h4>
+          <ul>
+            <li><a href="#servicios">Vuelos</a></li>
+            <li><a href="#servicios">Cruceros</a></li>
+            <li><a href="#servicios">Hoteles</a></li>
+            <li><a href="#servicios">Renta de autos</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Explora</h4>
+          <ul>
+            <li><a href="#destinos">Destinos</a></li>
+            <li><a href="#experiencias">Experiencias</a></li>
+            <li><a href="#testimonios">Testimonios</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Compañía</h4>
+          <ul>
+            <li><a href="#">Sobre nosotros</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Trabaja con nosotros</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Contacto</h4>
+          <ul>
+            <li><a href="mailto:contacto@mimetravel.com">contacto@mimetravel.com</a></li>
+            <li><a href="#">+1 (555) 123-4567</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>&copy; <span id="year"></span> Mime Travel. Todos los derechos reservados.</span>
+        <span><a href="#">Política de privacidad</a> · <a href="#">Términos y condiciones</a></span>
+      </div>
+    </div>
   </footer>
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Header solid on scroll
+    const header = document.getElementById('siteHeader');
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('scrolled', window.scrollY > 40);
+    });
+
+    // Mobile menu toggle
+    const menuToggle = document.getElementById('menuToggle');
+    const mainNav = document.getElementById('mainNav');
+    menuToggle.addEventListener('click', () => {
+      mainNav.classList.toggle('open');
+      menuToggle.textContent = mainNav.classList.contains('open') ? '✕' : '☰';
+    });
+    mainNav.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mainNav.classList.remove('open');
+        menuToggle.textContent = '☰';
+      });
+    });
+
+    // Search form (demo)
+    document.getElementById('searchForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      document.getElementById('newsletter').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Newsletter form (demo)
+    document.getElementById('newsletterForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      document.getElementById('newsletterMsg').textContent = '¡Gracias por unirte! Pronto recibirás nuestras mejores ofertas.';
+      this.reset();
+    });
   </script>
 </body>
 </html>
