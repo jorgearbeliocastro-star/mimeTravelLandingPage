@@ -1210,17 +1210,51 @@
       });
     });
 
-    // Search form (demo)
-    document.getElementById('searchForm').addEventListener('submit', function (e) {
+    // Envío de formularios vía FormSubmit (sin backend propio)
+    const FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ajax/contacto@mimetravel.com';
+
+    function sendToFormSubmit(form, subject) {
+      const data = Object.fromEntries(new FormData(form).entries());
+      data._subject = subject;
+      return fetch(FORMSUBMIT_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(data)
+      });
+    }
+
+    // Buscador del hero
+    const searchForm = document.getElementById('searchForm');
+    const searchMsg = document.getElementById('searchMsg');
+    searchForm.addEventListener('submit', function (e) {
       e.preventDefault();
-      document.getElementById('newsletter').scrollIntoView({ behavior: 'smooth' });
+      searchMsg.textContent = 'Enviando tu búsqueda...';
+      sendToFormSubmit(this, 'Nueva búsqueda de viaje — Mime Travel')
+        .then(res => {
+          if (!res.ok) throw new Error('request failed');
+          searchMsg.textContent = '¡Listo! Un asesor de viajes te contactará muy pronto.';
+          this.reset();
+        })
+        .catch(() => {
+          searchMsg.textContent = 'No pudimos enviar tu búsqueda. Escríbenos directo a contacto@mimetravel.com.';
+        });
     });
 
-    // Newsletter form (demo)
-    document.getElementById('newsletterForm').addEventListener('submit', function (e) {
+    // Newsletter
+    const newsletterForm = document.getElementById('newsletterForm');
+    const newsletterMsg = document.getElementById('newsletterMsg');
+    newsletterForm.addEventListener('submit', function (e) {
       e.preventDefault();
-      document.getElementById('newsletterMsg').textContent = '¡Gracias por unirte! Pronto recibirás nuestras mejores ofertas.';
-      this.reset();
+      newsletterMsg.textContent = 'Enviando...';
+      sendToFormSubmit(this, 'Nueva suscripción al newsletter — Mime Travel')
+        .then(res => {
+          if (!res.ok) throw new Error('request failed');
+          newsletterMsg.textContent = '¡Gracias por unirte! Pronto recibirás nuestras mejores ofertas.';
+          this.reset();
+        })
+        .catch(() => {
+          newsletterMsg.textContent = 'No pudimos procesar tu suscripción. Intenta de nuevo en unos minutos.';
+        });
     });
   </script>
 </body>
