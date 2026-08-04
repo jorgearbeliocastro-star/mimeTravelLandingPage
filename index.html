@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mime Travel — Próximamente</title>
+<meta name="description" content="Mime Travel está en construcción. Muy pronto viviremos nuevas aventuras juntos.">
+<style>
+  :root {
+    --bg-1: #0f172a;
+    --bg-2: #1e293b;
+    --accent: #38bdf8;
+    --accent-2: #f472b6;
+    --text: #f1f5f9;
+    --text-dim: #94a3b8;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(160deg, var(--bg-1) 0%, var(--bg-2) 60%, #0b1120 100%);
+    color: var(--text);
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+    padding: 24px;
+    position: relative;
+  }
+
+  /* fondo decorativo */
+  .glow {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.35;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .glow.one {
+    width: 45vmax;
+    height: 45vmax;
+    background: var(--accent);
+    top: -15vmax;
+    left: -10vmax;
+    animation: float1 14s ease-in-out infinite;
+  }
+
+  .glow.two {
+    width: 40vmax;
+    height: 40vmax;
+    background: var(--accent-2);
+    bottom: -15vmax;
+    right: -10vmax;
+    animation: float2 16s ease-in-out infinite;
+  }
+
+  @keyframes float1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(6vmax, 4vmax) scale(1.1); }
+  }
+
+  @keyframes float2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-5vmax, -5vmax) scale(1.05); }
+  }
+
+  .card {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 640px;
+    text-align: center;
+    padding: clamp(28px, 6vw, 56px);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: 999px;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: var(--accent);
+    font-size: clamp(11px, 2.5vw, 13px);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .badge .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .icon {
+    font-size: clamp(40px, 10vw, 64px);
+    margin-bottom: 12px;
+    display: inline-block;
+    animation: bob 3s ease-in-out infinite;
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(-6deg); }
+  }
+
+  h1 {
+    font-size: clamp(28px, 6vw, 44px);
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 14px;
+    background: linear-gradient(90deg, var(--text), var(--accent) 60%, var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  p.lead {
+    font-size: clamp(15px, 3.2vw, 18px);
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 32px;
+    max-width: 46ch;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .divider {
+    width: 60px;
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    margin: 0 auto 32px;
+  }
+
+  form.notify {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+
+  form.notify input[type="email"] {
+    flex: 1 1 240px;
+    min-width: 0;
+    padding: 13px 18px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text);
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+
+  form.notify input[type="email"]::placeholder {
+    color: var(--text-dim);
+  }
+
+  form.notify input[type="email"]:focus {
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.09);
+  }
+
+  form.notify button {
+    flex: 0 0 auto;
+    padding: 13px 26px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    color: #0b1120;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  form.notify button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(56, 189, 248, 0.35);
+  }
+
+  form.notify button:active {
+    transform: translateY(0);
+  }
+
+  .form-msg {
+    min-height: 20px;
+    font-size: 13px;
+    color: var(--accent);
+    margin-top: -14px;
+    margin-bottom: 20px;
+  }
+
+  .socials {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .socials a {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text);
+    text-decoration: none;
+    font-size: 18px;
+    transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+  }
+
+  .socials a:hover {
+    transform: translateY(-3px);
+    background: var(--accent);
+    color: #0b1120;
+  }
+
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-top: 24px;
+  }
+
+  @media (max-width: 420px) {
+    form.notify {
+      flex-direction: column;
+    }
+    form.notify button {
+      width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .glow, .icon, .badge .dot {
+      animation: none !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <div class="glow one"></div>
+  <div class="glow two"></div>
+
+  <main class="card">
+    <span class="badge"><span class="dot"></span> En construcción</span>
+
+    <div class="icon" aria-hidden="true">✈️</div>
+
+    <h1>Estamos preparando tu próximo viaje</h1>
+    <p class="lead">
+      Mime Travel está trabajando en algo nuevo. Muy pronto podrás explorar
+      nuestros destinos y planear tu próxima aventura con nosotros.
+    </p>
+
+    <div class="divider"></div>
+
+    <form class="notify" id="notifyForm">
+      <label for="email" class="sr-only" style="position:absolute;left:-9999px;">Correo electrónico</label>
+      <input type="email" id="email" name="email" placeholder="tu@email.com" required autocomplete="email">
+      <button type="submit">Avísame</button>
+    </form>
+    <p class="form-msg" id="formMsg"></p>
+
+    <div class="socials">
+      <a href="#" aria-label="Instagram" title="Instagram">📷</a>
+      <a href="#" aria-label="Facebook" title="Facebook">📘</a>
+      <a href="#" aria-label="WhatsApp" title="WhatsApp">💬</a>
+      <a href="mailto:contacto@mimetravel.com" aria-label="Correo" title="Correo">✉️</a>
+    </div>
+  </main>
+
+  <footer>
+    &copy; <span id="year"></span> Mime Travel. Todos los derechos reservados.
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    document.getElementById('notifyForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var msg = document.getElementById('formMsg');
+      msg.textContent = '¡Gracias! Te avisaremos en cuanto lancemos el sitio.';
+      this.reset();
+    });
+  </script>
+</body>
+</html>
