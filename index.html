@@ -161,66 +161,6 @@
     margin: 0 auto 32px;
   }
 
-  form.notify {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-bottom: 28px;
-  }
-
-  form.notify input[type="email"] {
-    flex: 1 1 240px;
-    min-width: 0;
-    padding: 13px 18px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.06);
-    color: var(--text);
-    font-size: 15px;
-    outline: none;
-    transition: border-color 0.2s ease, background 0.2s ease;
-  }
-
-  form.notify input[type="email"]::placeholder {
-    color: var(--text-dim);
-  }
-
-  form.notify input[type="email"]:focus {
-    border-color: var(--accent);
-    background: rgba(255, 255, 255, 0.09);
-  }
-
-  form.notify button {
-    flex: 0 0 auto;
-    padding: 13px 26px;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(90deg, var(--accent), var(--accent-2));
-    color: #0b1120;
-    font-weight: 700;
-    font-size: 15px;
-    cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-  }
-
-  form.notify button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 24px rgba(56, 189, 248, 0.35);
-  }
-
-  form.notify button:active {
-    transform: translateY(0);
-  }
-
-  .form-msg {
-    min-height: 20px;
-    font-size: 13px;
-    color: var(--accent);
-    margin-top: -14px;
-    margin-bottom: 20px;
-  }
-
   .socials {
     display: flex;
     justify-content: center;
@@ -258,15 +198,6 @@
     margin-top: 24px;
   }
 
-  @media (max-width: 420px) {
-    form.notify {
-      flex-direction: column;
-    }
-    form.notify button {
-      width: 100%;
-    }
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .glow, .icon, .badge .dot {
       animation: none !important;
@@ -292,13 +223,6 @@
 
     <div class="divider"></div>
 
-    <form class="notify" id="notifyForm">
-      <label for="email" class="sr-only" style="position:absolute;left:-9999px;">Correo electrónico</label>
-      <input type="email" id="email" name="email" placeholder="tu@email.com" required autocomplete="email">
-      <button type="submit">Avísame</button>
-    </form>
-    <p class="form-msg" id="formMsg"></p>
-
     <div class="socials">
       <a href="#" aria-label="Instagram" title="Instagram">📷</a>
       <a href="#" aria-label="Facebook" title="Facebook">📘</a>
@@ -313,13 +237,6 @@
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
-
-    document.getElementById('notifyForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-      var msg = document.getElementById('formMsg');
-      msg.textContent = '¡Gracias! Te avisaremos en cuanto lancemos el sitio.';
-      this.reset();
-    });
   </script>
 </body>
 </html>
