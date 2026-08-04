@@ -885,18 +885,23 @@
       <form class="search-bar" id="searchForm">
         <div class="search-field">
           <label for="origen">Origen</label>
-          <input type="text" id="origen" placeholder="¿Desde dónde?">
+          <input type="text" id="origen" name="origen" placeholder="¿Desde dónde?">
         </div>
         <div class="search-field">
           <label for="destino">Destino</label>
-          <input type="text" id="destino" placeholder="¿Hacia dónde?">
+          <input type="text" id="destino" name="destino" placeholder="¿Hacia dónde?">
         </div>
         <div class="search-field">
           <label for="fechas">Fechas</label>
-          <input type="text" id="fechas" placeholder="Elige tus fechas">
+          <input type="text" id="fechas" name="fechas" placeholder="Elige tus fechas">
+        </div>
+        <div class="search-field">
+          <label for="searchEmail">Tu correo</label>
+          <input type="email" id="searchEmail" name="email" placeholder="tu@email.com" required>
         </div>
         <button type="submit" class="btn btn-coral">Buscar</button>
       </form>
+      <p class="newsletter-msg" id="searchMsg" style="color: rgba(255,255,255,0.85);"></p>
     </div>
   </section>
 
