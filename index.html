@@ -824,9 +824,29 @@
       transition: none !important;
     }
   }
+
+  .skip-link {
+    position: absolute;
+    top: -100px;
+    left: 16px;
+    z-index: 200;
+    background: var(--coral);
+    color: var(--light);
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: top 0.2s ease;
+  }
+
+  .skip-link:focus {
+    top: 16px;
+  }
 </style>
 </head>
 <body>
+
+  <a href="#main-content" class="skip-link">Saltar al contenido</a>
 
   <!-- ================= HEADER ================= -->
   <header id="siteHeader">
