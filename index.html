@@ -1533,19 +1533,25 @@
     });
     applyServiceType('vuelos');
 
-    // La fecha de vuelta no puede ser anterior a la fecha de ida
-    const fechaIdaInput = document.getElementById('field3');
-    const fechaVueltaInput = document.getElementById('field4');
-    function syncFechaVueltaMin() {
-      if (fechaIdaInput.type !== 'date' || fechaVueltaInput.disabled) return;
-      fechaVueltaInput.min = fechaIdaInput.value || '';
-      if (fechaVueltaInput.value && fechaIdaInput.value && fechaVueltaInput.value < fechaIdaInput.value) {
-        fechaVueltaInput.value = fechaIdaInput.value;
+    // Una fecha "de regreso" (vuelta / salida) nunca puede ser anterior a la fecha "de ida" (ida / entrada)
+    // que la precede en el formulario. Aplica al par vuelos (field3→field4) y hoteles (field2→field3).
+    function syncAdjacentDateMins() {
+      for (let i = 1; i < FIELD_SLOT_COUNT; i++) {
+        const prev = document.getElementById('field' + i);
+        const next = document.getElementById('field' + (i + 1));
+        if (!prev || !next) continue;
+        if (prev.type !== 'date' || next.disabled || next.type !== 'date') continue;
+        next.min = prev.value || '';
+        if (next.value && prev.value && next.value < prev.value) {
+          next.value = prev.value;
+        }
       }
     }
-    fechaIdaInput.addEventListener('change', syncFechaVueltaMin);
-    searchTabs.addEventListener('click', syncFechaVueltaMin);
-    syncFechaVueltaMin();
+    for (let i = 1; i <= FIELD_SLOT_COUNT; i++) {
+      document.getElementById('field' + i).addEventListener('change', syncAdjacentDateMins);
+    }
+    searchTabs.addEventListener('click', syncAdjacentDateMins);
+    syncAdjacentDateMins();
 
     const searchForm = document.getElementById('searchForm');
     const searchMsg = document.getElementById('searchMsg');
