@@ -2021,6 +2021,56 @@
         });
     });
 
+    // Formulario inteligente de preventa: los CTA "Quiero ir aquí" de cada
+    // destino abren este modal con el destino ya precargado en vez de
+    // mandar a un formulario genérico.
+    const presaleOverlay = document.getElementById('presaleOverlay');
+    const presaleCloseBtn = document.getElementById('presaleCloseBtn');
+    const presaleForm = document.getElementById('presaleForm');
+    const presaleMsg = document.getElementById('presaleMsg');
+    const presaleDestinoLabel = document.getElementById('presaleDestinoLabel');
+    const presaleDestinoInput = document.getElementById('presaleDestinoInput');
+
+    function openPresaleModal(destino) {
+      presaleDestinoLabel.textContent = destino;
+      presaleDestinoInput.value = destino;
+      presaleMsg.textContent = '';
+      presaleOverlay.hidden = false;
+      document.body.style.overflow = 'hidden';
+      document.getElementById('presaleName').focus();
+    }
+
+    function closePresaleModal() {
+      presaleOverlay.hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('[data-presale-destino]').forEach(btn => {
+      btn.addEventListener('click', () => openPresaleModal(btn.dataset.presaleDestino));
+    });
+    presaleCloseBtn.addEventListener('click', closePresaleModal);
+    presaleOverlay.addEventListener('click', function (e) {
+      if (e.target === presaleOverlay) closePresaleModal();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !presaleOverlay.hidden) closePresaleModal();
+    });
+
+    presaleForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      presaleMsg.textContent = 'Enviando...';
+      sendToFormSubmit(this, 'Preventa: ' + presaleDestinoInput.value + ' — Mime Travel')
+        .then(res => {
+          if (!res.ok) throw new Error('request failed');
+          presaleMsg.textContent = '¡Listo! Un asesor te enviará tu propuesta a la medida muy pronto.';
+          this.reset();
+          setTimeout(closePresaleModal, 2000);
+        })
+        .catch(() => {
+          presaleMsg.textContent = 'No pudimos enviar tu solicitud. Escríbenos directo a contacto@mimetravel.com.';
+        });
+    });
+
     // Newsletter
     const newsletterForm = document.getElementById('newsletterForm');
     const newsletterMsg = document.getElementById('newsletterMsg');
