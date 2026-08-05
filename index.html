@@ -1375,12 +1375,13 @@
     <div class="container">
       <div class="section-heading">
         <span class="eyebrow">Destinos destacados</span>
-        <h2>Destinos que están escritos para ti</h2>
-        <p>Curamos cada ruta pensando en experiencias, no en itinerarios genéricos. Estos son los lugares que más están enamorando a nuestros viajeros este mes.</p>
+        <h2 id="destinosHeading">Destinos que están escritos para ti</h2>
+        <p id="destinosSubtext">Curamos cada ruta pensando en experiencias, no en itinerarios genéricos. Estos son los lugares que más están enamorando a nuestros viajeros este mes.</p>
+        <button type="button" class="destinos-clear-filter" id="destinosClearFilter" hidden>← Ver todos los destinos</button>
       </div>
 
-      <div class="destinos-grid">
-        <div class="destino-card">
+      <div class="destinos-grid" id="destinosGrid">
+        <div class="destino-card" data-categories="relax,luna-de-miel">
           <img src="https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=700&q=75" alt="Santorini, Grecia" loading="lazy">
           <div class="destino-overlay">
             <span class="destino-price">Desde $1,450 USD</span>
@@ -1389,7 +1390,7 @@
           </div>
         </div>
 
-        <div class="destino-card">
+        <div class="destino-card" data-categories="cultura,luna-de-miel">
           <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=700&q=75" alt="París, Francia" loading="lazy">
           <div class="destino-overlay">
             <span class="destino-price">Desde $1,120 USD</span>
@@ -1398,7 +1399,7 @@
           </div>
         </div>
 
-        <div class="destino-card">
+        <div class="destino-card" data-categories="relax,naturaleza,luna-de-miel">
           <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=700&q=75" alt="Bali, Indonesia" loading="lazy">
           <div class="destino-overlay">
             <span class="destino-price">Desde $980 USD</span>
@@ -1407,7 +1408,7 @@
           </div>
         </div>
 
-        <div class="destino-card">
+        <div class="destino-card" data-categories="aventura,cultura,naturaleza">
           <img src="https://images.unsplash.com/photo-1587595431973-160d0d94add1?auto=format&fit=crop&w=700&q=75" alt="Machu Picchu, Perú" loading="lazy">
           <div class="destino-overlay">
             <span class="destino-price">Desde $890 USD</span>
@@ -1415,6 +1416,8 @@
             <button type="button" class="destino-cta" data-presale-destino="Machu Picchu, Perú">Quiero ir aquí →</button>
           </div>
         </div>
+
+        <p class="destinos-empty" id="destinosEmpty" hidden>Aún no tenemos destinos publicados para esta experiencia — pero un asesor puede armarte uno a la medida. <a href="#newsletter">Escríbenos →</a></p>
       </div>
     </div>
   </section>
