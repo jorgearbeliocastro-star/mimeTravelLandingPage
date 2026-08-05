@@ -1562,7 +1562,7 @@
         const prev = document.getElementById('field' + i);
         const next = document.getElementById('field' + (i + 1));
         if (!prev || !next) continue;
-        if (prev.type !== 'date' || next.disabled || next.type !== 'date') continue;
+        if (prev.disabled || prev.type !== 'date' || next.disabled || next.type !== 'date') continue;
         next.min = prev.value || '';
         if (next.value && prev.value && next.value < prev.value) {
           next.value = prev.value;
