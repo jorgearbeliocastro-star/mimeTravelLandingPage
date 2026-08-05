@@ -232,6 +232,36 @@
     margin-bottom: 48px;
   }
 
+  .search-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .search-tab {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .search-tab:hover {
+    background: rgba(255, 255, 255, 0.22);
+  }
+
+  .search-tab.active {
+    background: var(--coral);
+    border-color: var(--coral);
+    color: var(--light);
+  }
+
   .search-bar {
     display: flex;
     flex-wrap: wrap;
