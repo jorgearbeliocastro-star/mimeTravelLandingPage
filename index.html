@@ -1408,7 +1408,10 @@
         const q = normalizeText(input.value);
         highlighted = -1;
         if (!q) { close(); return; }
-        matches = DESTINATIONS.filter(c => normalizeText(c).includes(q)).slice(0, 8);
+        matches = DESTINATIONS.filter(c => {
+          const nc = normalizeText(c);
+          return nc.includes(q) || q.includes(nc);
+        }).slice(0, 8);
         render();
         open();
       });
