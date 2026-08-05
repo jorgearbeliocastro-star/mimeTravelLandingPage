@@ -1157,38 +1157,49 @@
 
       <div class="nav-actions">
         <a href="#newsletter" class="btn btn-outline">Planea tu viaje</a>
-        <button type="button" class="btn btn-call" id="callbackOpenBtn">📞 Que te llamemos</button>
+        <button type="button" class="btn btn-call" id="callbackOpenBtn">🎙️ Llamar ahora</button>
         <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="mainNav">☰</button>
       </div>
     </div>
   </header>
 
-  <!-- ================= SOLICITAR LLAMADA (MODAL) ================= -->
+  <!-- ================= LLAMADA EN VIVO (MODAL) ================= -->
   <div class="modal-overlay" id="callbackOverlay" hidden>
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="callbackTitle">
       <button type="button" class="modal-close" id="callbackCloseBtn" aria-label="Cerrar">✕</button>
-      <h3 id="callbackTitle">¿Prefieres que te llamemos?</h3>
-      <p>Déjanos tus datos y un asesor de viajes te contactará a la brevedad.</p>
-      <form id="callbackForm">
-        <div class="modal-field">
-          <label for="callbackName">Nombre</label>
-          <input type="text" id="callbackName" name="nombre" placeholder="Tu nombre" required>
-        </div>
-        <div class="modal-field">
-          <label for="callbackPhone">Teléfono</label>
-          <input type="tel" id="callbackPhone" name="telefono" placeholder="+52 55 1234 5678" required>
-        </div>
-        <div class="modal-field">
-          <label for="callbackTime">Mejor horario para llamarte</label>
-          <select id="callbackTime" name="horario">
-            <option value="Mañana">Mañana</option>
-            <option value="Tarde">Tarde</option>
-            <option value="Noche">Noche</option>
-          </select>
-        </div>
-        <button type="submit" class="btn btn-coral" style="width: 100%;">Solicitar llamada</button>
-      </form>
-      <p class="newsletter-msg" id="callbackMsg" style="color: var(--dark);"></p>
+
+      <!-- Estado 1: probando el micrófono / conectando -->
+      <div id="callbackConnecting">
+        <h3 id="callbackTitle">Conectando tu llamada…</h3>
+        <p id="callbackConnectingMsg">Estamos revisando el micrófono de tu equipo. Si tu navegador te pide permiso, acéptalo para continuar.</p>
+        <div class="call-spinner" aria-hidden="true"></div>
+      </div>
+
+      <!-- Estado 2: formulario de respaldo (sin backend de llamadas todavía) -->
+      <div id="callbackFormWrap" hidden>
+        <h3 id="callbackFormTitle">Aún no disponible</h3>
+        <p id="callbackFallbackMsg">Las llamadas en vivo desde el sitio están en construcción. Mientras tanto, déjanos tus datos y un asesor real te llama.</p>
+        <form id="callbackForm">
+          <div class="modal-field">
+            <label for="callbackName">Nombre</label>
+            <input type="text" id="callbackName" name="nombre" placeholder="Tu nombre" required>
+          </div>
+          <div class="modal-field">
+            <label for="callbackPhone">Teléfono</label>
+            <input type="tel" id="callbackPhone" name="telefono" placeholder="+52 55 1234 5678" required>
+          </div>
+          <div class="modal-field">
+            <label for="callbackTime">Mejor horario para llamarte</label>
+            <select id="callbackTime" name="horario">
+              <option value="Mañana">Mañana</option>
+              <option value="Tarde">Tarde</option>
+              <option value="Noche">Noche</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-coral" style="width: 100%;">Solicitar llamada</button>
+        </form>
+        <p class="newsletter-msg" id="callbackMsg" style="color: var(--dark);"></p>
+      </div>
     </div>
   </div>
 
