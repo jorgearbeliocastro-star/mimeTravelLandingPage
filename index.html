@@ -1523,6 +1523,7 @@
           select.style.display = '';
           input.disabled = true;
           input.style.display = 'none';
+          group.classList.add('search-field--compact');
         } else {
           input.name = field.name;
           input.placeholder = field.placeholder || '';
@@ -1532,6 +1533,7 @@
           if (acList) acList.classList.remove('open');
           input.disabled = false;
           input.style.display = '';
+          group.classList.remove('search-field--compact');
           select.disabled = true;
           select.style.display = 'none';
         }
