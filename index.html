@@ -689,7 +689,40 @@
     overflow: hidden;
     aspect-ratio: 3 / 4;
     box-shadow: 0 12px 32px rgba(27, 58, 92, 0.15);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.25s ease;
+  }
+
+  .destino-card[hidden] {
+    display: none;
+  }
+
+  .destinos-clear-filter {
+    display: none;
+    margin-top: 16px;
+    background: none;
+    border: none;
+    font: inherit;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--coral);
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .destinos-clear-filter.visible {
+    display: inline-flex;
+  }
+
+  .destinos-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: rgba(26, 26, 26, 0.65);
+    padding: 32px 16px;
+  }
+
+  .destinos-empty a {
+    color: var(--coral);
+    font-weight: 600;
   }
 
   .destino-card:hover {
