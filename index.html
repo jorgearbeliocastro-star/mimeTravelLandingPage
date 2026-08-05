@@ -1313,6 +1313,30 @@
 
     const searchTabs = document.getElementById('searchTabs');
     const tipoServicioInput = document.getElementById('tipoServicio');
+    const field4Group = document.getElementById('field4Group');
+
+    function applyServiceType(type) {
+      const config = SEARCH_FIELD_CONFIG[type];
+      tipoServicioInput.value = config.label;
+      for (let i = 0; i < 4; i++) {
+        const input = document.getElementById('field' + (i + 1));
+        const group = i === 3 ? field4Group : input.closest('.search-field');
+        const field = config.fields[i];
+        if (field) {
+          const label = input.previousElementSibling;
+          label.textContent = field.label;
+          input.name = field.name;
+          input.placeholder = field.placeholder;
+          input.disabled = false;
+          group.style.display = '';
+        } else {
+          input.value = '';
+          input.disabled = true;
+          group.style.display = 'none';
+        }
+      }
+    }
+
     searchTabs.addEventListener('click', function (e) {
       const tab = e.target.closest('.search-tab');
       if (!tab) return;
@@ -1322,16 +1346,7 @@
       });
       tab.classList.add('active');
       tab.setAttribute('aria-selected', 'true');
-
-      const config = SEARCH_FIELD_CONFIG[tab.dataset.type];
-      tipoServicioInput.value = config.label;
-      config.fields.forEach((field, i) => {
-        const input = document.getElementById('field' + (i + 1));
-        const label = input.previousElementSibling;
-        label.textContent = field.label;
-        input.name = field.name;
-        input.placeholder = field.placeholder;
-      });
+      applyServiceType(tab.dataset.type);
     });
 
     const searchForm = document.getElementById('searchForm');
