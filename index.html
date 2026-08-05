@@ -924,19 +924,19 @@
         <input type="hidden" id="tipoServicio" name="tipo_servicio" value="Vuelos">
         <div class="search-field">
           <label for="field1">Origen</label>
-          <input type="text" id="field1" name="origen" placeholder="¿Desde dónde?">
+          <input type="text" id="field1" name="origen" placeholder="¿Desde dónde?" list="countryList" autocomplete="off">
         </div>
         <div class="search-field">
           <label for="field2">Destino</label>
-          <input type="text" id="field2" name="destino" placeholder="¿Hacia dónde?">
+          <input type="text" id="field2" name="destino" placeholder="¿Hacia dónde?" list="countryList" autocomplete="off">
         </div>
         <div class="search-field">
           <label for="field3">Fecha de ida</label>
-          <input type="text" id="field3" name="fecha_ida" placeholder="¿Cuándo te vas?">
+          <input type="date" id="field3" name="fecha_ida" placeholder="¿Cuándo te vas?">
         </div>
         <div class="search-field" id="field4Group" style="display: none;">
           <label for="field4">Fecha de vuelta</label>
-          <input type="text" id="field4" name="fecha_vuelta" placeholder="¿Cuándo regresas?" disabled>
+          <input type="date" id="field4" name="fecha_vuelta" placeholder="¿Cuándo regresas?" disabled>
         </div>
         <div class="search-field">
           <label for="searchEmail">Tu correo</label>
