@@ -1321,42 +1321,42 @@
       vuelos: {
         label: 'Vuelos',
         fields: [
-          { label: 'Origen', name: 'origen', placeholder: '¿Desde dónde?' },
-          { label: 'Destino', name: 'destino', placeholder: '¿Hacia dónde?' },
-          { label: 'Fecha de ida', name: 'fecha_ida', placeholder: '¿Cuándo te vas?' },
-          { label: 'Fecha de vuelta', name: 'fecha_vuelta', placeholder: '¿Cuándo regresas?' }
+          { label: 'Origen', name: 'origen', placeholder: '¿Desde dónde?', type: 'text', country: true },
+          { label: 'Destino', name: 'destino', placeholder: '¿Hacia dónde?', type: 'text', country: true },
+          { label: 'Fecha de ida', name: 'fecha_ida', placeholder: '¿Cuándo te vas?', type: 'date' },
+          { label: 'Fecha de vuelta', name: 'fecha_vuelta', placeholder: '¿Cuándo regresas?', type: 'date' }
         ]
       },
       cruceros: {
         label: 'Cruceros',
         fields: [
-          { label: 'Puerto de salida', name: 'puerto_salida', placeholder: '¿Desde qué puerto?' },
-          { label: 'Destino', name: 'destino', placeholder: '¿Hacia dónde?' },
-          { label: 'Fechas', name: 'fechas', placeholder: 'Elige tus fechas' }
+          { label: 'Puerto de salida', name: 'puerto_salida', placeholder: '¿Desde qué puerto?', type: 'text', country: true },
+          { label: 'Destino', name: 'destino', placeholder: '¿Hacia dónde?', type: 'text', country: true },
+          { label: 'Fecha de salida', name: 'fechas', placeholder: 'Elige tus fechas', type: 'date' }
         ]
       },
       hoteles: {
         label: 'Hoteles',
         fields: [
-          { label: 'Destino', name: 'destino', placeholder: '¿Dónde te hospedas?' },
-          { label: 'Fechas', name: 'fechas', placeholder: 'Entrada - Salida' },
-          { label: 'Huéspedes', name: 'huespedes', placeholder: 'N.º de huéspedes' }
+          { label: 'Destino', name: 'destino', placeholder: '¿Dónde te hospedas?', type: 'text', country: true },
+          { label: 'Fecha de entrada', name: 'fechas', placeholder: 'Entrada', type: 'date' },
+          { label: 'Huéspedes', name: 'huespedes', placeholder: 'N.º de huéspedes', type: 'text' }
         ]
       },
       autos: {
         label: 'Renta de autos',
         fields: [
-          { label: 'Ciudad', name: 'ciudad_recogida', placeholder: '¿Dónde recoges el auto?' },
-          { label: 'Fechas', name: 'fechas', placeholder: 'Recogida - Devolución' },
-          { label: 'Tipo de auto', name: 'tipo_auto', placeholder: 'Económico, SUV...' }
+          { label: 'Ciudad', name: 'ciudad_recogida', placeholder: '¿Dónde recoges el auto?', type: 'text', country: true },
+          { label: 'Fecha de recogida', name: 'fechas', placeholder: 'Recogida', type: 'date' },
+          { label: 'Tipo de auto', name: 'tipo_auto', placeholder: 'Económico, SUV...', type: 'text' }
         ]
       },
       paquete: {
         label: 'Todo en uno',
         fields: [
-          { label: 'Destinos', name: 'destinos', placeholder: 'Ej. Cancún, Roma, Santorini...' },
-          { label: 'Fechas', name: 'fechas', placeholder: 'Elige tus fechas' },
-          { label: 'Servicios que buscas', name: 'servicios_incluidos', placeholder: 'Vuelo + crucero + hotel + auto...' }
+          { label: 'Destinos', name: 'destinos', placeholder: 'Ej. Cancún, Roma, Santorini...', type: 'text', country: true },
+          { label: 'Fecha de inicio', name: 'fechas', placeholder: 'Elige tus fechas', type: 'date' },
+          { label: 'Servicios que buscas', name: 'servicios_incluidos', placeholder: 'Vuelo + crucero + hotel + auto...', type: 'text' }
         ]
       }
     };
