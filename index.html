@@ -1886,20 +1886,64 @@
         });
     });
 
-    // Solicitud de llamada (modal)
+    // Llamada en vivo (modal) — hoy prueba el micrófono del visitante;
+    // cuando "la expansión" tenga su endpoint de señalización WebRTC,
+    // ese es el punto donde se conecta la llamada real en vez del fallback.
     const callbackOverlay = document.getElementById('callbackOverlay');
     const callbackOpenBtn = document.getElementById('callbackOpenBtn');
     const callbackCloseBtn = document.getElementById('callbackCloseBtn');
+    const callbackConnecting = document.getElementById('callbackConnecting');
+    const callbackConnectingMsg = document.getElementById('callbackConnectingMsg');
+    const callbackFormWrap = document.getElementById('callbackFormWrap');
+    const callbackFallbackMsg = document.getElementById('callbackFallbackMsg');
     const callbackForm = document.getElementById('callbackForm');
     const callbackMsg = document.getElementById('callbackMsg');
+    let micStream = null;
+
+    function stopMicStream() {
+      if (micStream) {
+        micStream.getTracks().forEach(track => track.stop());
+        micStream = null;
+      }
+    }
+
+    function showCallbackFallback(message) {
+      callbackFallbackMsg.textContent = message;
+      callbackConnecting.hidden = true;
+      callbackFormWrap.hidden = false;
+      document.getElementById('callbackName').focus();
+    }
 
     function openCallbackModal() {
       callbackOverlay.hidden = false;
       document.body.style.overflow = 'hidden';
-      document.getElementById('callbackName').focus();
+      callbackConnecting.hidden = false;
+      callbackFormWrap.hidden = true;
+      callbackConnectingMsg.textContent = 'Estamos revisando el micrófono de tu equipo. Si tu navegador te pide permiso, acéptalo para continuar.';
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setTimeout(() => showCallbackFallback('Tu navegador no permite llamadas en vivo desde aquí. Mientras tanto, déjanos tus datos y un asesor real te llama.'), 900);
+        return;
+      }
+
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+          micStream = stream;
+          callbackConnectingMsg.textContent = 'Micrófono listo. Conectando con un asesor…';
+          // Aquí es donde se abrirá la conexión WebRTC real contra "la expansión"
+          // en cuanto ese endpoint exista. Por ahora caemos al formulario de respaldo.
+          setTimeout(() => {
+            stopMicStream();
+            showCallbackFallback('Las llamadas en vivo desde el sitio están en construcción. Mientras tanto, déjanos tus datos y un asesor real te llama.');
+          }, 2500);
+        })
+        .catch(() => {
+          showCallbackFallback('Tu equipo no permitió el uso del micrófono, así que no podemos conectar la llamada todavía. Déjanos tus datos y te llamamos nosotros.');
+        });
     }
 
     function closeCallbackModal() {
+      stopMicStream();
       callbackOverlay.hidden = true;
       document.body.style.overflow = '';
     }
