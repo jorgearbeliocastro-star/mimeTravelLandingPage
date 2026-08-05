@@ -342,39 +342,82 @@
   }
 
   .checklist {
+    position: relative;
+  }
+
+  .checklist-trigger {
     display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--light);
+    font-family: var(--font-body);
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .checklist-trigger .placeholder {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .checklist-trigger .arrow {
+    flex: none;
+    width: 10px;
+    height: 10px;
+    border-right: 1.5px solid var(--light);
+    border-bottom: 1.5px solid var(--light);
+    transform: rotate(45deg);
+    margin-top: -4px;
+    transition: transform 0.15s ease;
+  }
+
+  .checklist.open .checklist-trigger .arrow {
+    transform: rotate(225deg);
+    margin-top: 4px;
+  }
+
+  .checklist-panel {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 190px;
+    background: var(--primary);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    z-index: 20;
+    padding: 6px;
+  }
+
+  .checklist.open .checklist-panel {
+    display: block;
   }
 
   .checklist-option {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 5px;
-    font-size: 13px;
-    font-weight: 500;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 14px;
     color: var(--light);
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    border-radius: 999px;
-    padding: 5px 12px;
     cursor: pointer;
-    transition: background 0.2s ease, border-color 0.2s ease;
   }
 
   .checklist-option:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 122, 89, 0.2);
   }
 
   .checklist-option input {
     accent-color: var(--coral);
     cursor: pointer;
     margin: 0;
-  }
-
-  .checklist-option.checked {
-    background: rgba(255, 122, 89, 0.25);
-    border-color: var(--coral);
   }
 
   .search-field input[type="date"]::-webkit-calendar-picker-indicator {
