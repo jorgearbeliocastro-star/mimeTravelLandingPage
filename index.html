@@ -1507,6 +1507,7 @@
 
         if (!field) {
           group.style.display = 'none';
+          group.classList.remove('search-field--compact');
           input.value = '';
           input.disabled = true;
           select.disabled = true;
