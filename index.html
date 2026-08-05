@@ -1859,6 +1859,48 @@
         });
     });
 
+    // Solicitud de llamada (modal)
+    const callbackOverlay = document.getElementById('callbackOverlay');
+    const callbackOpenBtn = document.getElementById('callbackOpenBtn');
+    const callbackCloseBtn = document.getElementById('callbackCloseBtn');
+    const callbackForm = document.getElementById('callbackForm');
+    const callbackMsg = document.getElementById('callbackMsg');
+
+    function openCallbackModal() {
+      callbackOverlay.hidden = false;
+      document.body.style.overflow = 'hidden';
+      document.getElementById('callbackName').focus();
+    }
+
+    function closeCallbackModal() {
+      callbackOverlay.hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    callbackOpenBtn.addEventListener('click', openCallbackModal);
+    callbackCloseBtn.addEventListener('click', closeCallbackModal);
+    callbackOverlay.addEventListener('click', function (e) {
+      if (e.target === callbackOverlay) closeCallbackModal();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !callbackOverlay.hidden) closeCallbackModal();
+    });
+
+    callbackForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      callbackMsg.textContent = 'Enviando...';
+      sendToFormSubmit(this, 'Solicitud de llamada — Mime Travel')
+        .then(res => {
+          if (!res.ok) throw new Error('request failed');
+          callbackMsg.textContent = '¡Listo! Te llamaremos pronto.';
+          this.reset();
+          setTimeout(closeCallbackModal, 2000);
+        })
+        .catch(() => {
+          callbackMsg.textContent = 'No pudimos enviar tu solicitud. Escríbenos directo a contacto@mimetravel.com.';
+        });
+    });
+
     // Newsletter
     const newsletterForm = document.getElementById('newsletterForm');
     const newsletterMsg = document.getElementById('newsletterMsg');
