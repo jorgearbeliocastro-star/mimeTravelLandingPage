@@ -1377,6 +1377,12 @@
           label.textContent = field.label;
           input.name = field.name;
           input.placeholder = field.placeholder;
+          input.type = field.type || 'text';
+          if (field.country) {
+            input.setAttribute('list', 'countryList');
+          } else {
+            input.removeAttribute('list');
+          }
           input.disabled = false;
           group.style.display = '';
         } else {
