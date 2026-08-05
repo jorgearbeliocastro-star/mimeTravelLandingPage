@@ -1622,9 +1622,12 @@
           input.style.display = 'none';
           select.disabled = true;
           select.style.display = 'none';
-          checklist.innerHTML = field.options.map(o =>
-            '<label class="checklist-option"><input type="checkbox" value="' + o + '">' + o + '</label>'
-          ).join('');
+          checklist.classList.remove('open');
+          checklist.innerHTML =
+            '<button type="button" class="checklist-trigger"><span class="placeholder">Selecciona...</span><span class="arrow"></span></button>' +
+            '<div class="checklist-panel">' +
+            field.options.map(o => '<label class="checklist-option"><input type="checkbox" value="' + o + '">' + o + '</label>').join('') +
+            '</div>';
           checklist.style.display = '';
           group.classList.remove('search-field--compact');
         } else {
