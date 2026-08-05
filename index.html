@@ -1547,12 +1547,15 @@
         const label = input.previousElementSibling;
         const field = config.fields[i];
 
+        const checklist = document.getElementById('field' + (i + 1) + 'Checklist');
+
         if (!field) {
           group.style.display = 'none';
           group.classList.remove('search-field--compact');
           input.value = '';
           input.disabled = true;
           select.disabled = true;
+          if (checklist) checklist.style.display = 'none';
           continue;
         }
 
@@ -1566,7 +1569,20 @@
           select.style.display = '';
           input.disabled = true;
           input.style.display = 'none';
+          if (checklist) checklist.style.display = 'none';
           group.classList.add('search-field--compact');
+        } else if (field.type === 'checklist' && checklist) {
+          input.name = field.name;
+          input.value = '';
+          input.disabled = false;
+          input.style.display = 'none';
+          select.disabled = true;
+          select.style.display = 'none';
+          checklist.innerHTML = field.options.map(o =>
+            '<label class="checklist-option"><input type="checkbox" value="' + o + '">' + o + '</label>'
+          ).join('');
+          checklist.style.display = '';
+          group.classList.remove('search-field--compact');
         } else {
           input.name = field.name;
           input.placeholder = field.placeholder || '';
@@ -1576,6 +1592,7 @@
           if (acList) acList.classList.remove('open');
           input.disabled = false;
           input.style.display = '';
+          if (checklist) checklist.style.display = 'none';
           group.classList.remove('search-field--compact');
           select.disabled = true;
           select.style.display = 'none';
