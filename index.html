@@ -1472,63 +1472,48 @@
 
     const searchTabs = document.getElementById('searchTabs');
     const tipoServicioInput = document.getElementById('tipoServicio');
-    const field4Group = document.getElementById('field4Group');
-
-    const field4Select = document.getElementById('field4Select');
+    const FIELD_SLOT_COUNT = 5;
 
     function applyServiceType(type) {
       const config = SEARCH_FIELD_CONFIG[type];
       tipoServicioInput.value = config.label;
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < FIELD_SLOT_COUNT; i++) {
         const input = document.getElementById('field' + (i + 1));
+        const select = document.getElementById('field' + (i + 1) + 'Select');
         const group = input.closest('.search-field');
+        const label = input.previousElementSibling;
         const field = config.fields[i];
-        if (field) {
-          const label = input.previousElementSibling;
-          label.textContent = field.label;
+
+        if (!field) {
+          group.style.display = 'none';
+          input.value = '';
+          input.disabled = true;
+          select.disabled = true;
+          continue;
+        }
+
+        group.style.display = '';
+        label.textContent = field.label;
+
+        if (field.type === 'select') {
+          select.name = field.name;
+          select.innerHTML = field.options.map(o => '<option value="' + o + '">' + o + '</option>').join('');
+          select.disabled = false;
+          select.style.display = '';
+          input.disabled = true;
+          input.style.display = 'none';
+        } else {
           input.name = field.name;
-          input.placeholder = field.placeholder;
+          input.placeholder = field.placeholder || '';
           input.type = field.type || 'text';
           input.dataset.autocomplete = field.country ? 'true' : 'false';
           const acList = document.getElementById('field' + (i + 1) + 'List');
           if (acList) acList.classList.remove('open');
           input.disabled = false;
-          group.style.display = '';
-        } else {
-          input.value = '';
-          input.disabled = true;
-          group.style.display = 'none';
+          input.style.display = '';
+          select.disabled = true;
+          select.style.display = 'none';
         }
-      }
-
-      // 4º campo: puede ser fecha (input) o selector (select), según el servicio
-      const field4Input = document.getElementById('field4');
-      const label4 = field4Input.previousElementSibling;
-      const field = config.fields[3];
-      if (field) {
-        field4Group.style.display = '';
-        label4.textContent = field.label;
-        if (field.type === 'select') {
-          field4Select.name = field.name;
-          field4Select.innerHTML = field.options.map(o => '<option value="' + o + '">' + o + '</option>').join('');
-          field4Select.disabled = false;
-          field4Select.style.display = '';
-          field4Input.disabled = true;
-          field4Input.style.display = 'none';
-        } else {
-          field4Input.name = field.name;
-          field4Input.placeholder = field.placeholder;
-          field4Input.type = field.type || 'text';
-          field4Input.disabled = false;
-          field4Input.style.display = '';
-          field4Select.disabled = true;
-          field4Select.style.display = 'none';
-        }
-      } else {
-        field4Group.style.display = 'none';
-        field4Input.value = '';
-        field4Input.disabled = true;
-        field4Select.disabled = true;
       }
     }
 
