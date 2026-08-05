@@ -2122,6 +2122,61 @@
         });
     });
 
+    // Filtrado dinámico: al elegir una experiencia (Aventura, Relax, Cultura...)
+    // la sección de Destinos destacados se filtra para mostrar solo los
+    // destinos que corresponden a esa experiencia.
+    const EXP_LABELS = {
+      aventura: 'Aventura',
+      relax: 'Relax',
+      cultura: 'Cultura',
+      'luna-de-miel': 'Luna de miel',
+      naturaleza: 'Naturaleza'
+    };
+    const destinosGrid = document.getElementById('destinosGrid');
+    const destinosHeading = document.getElementById('destinosHeading');
+    const destinosSubtext = document.getElementById('destinosSubtext');
+    const destinosEmpty = document.getElementById('destinosEmpty');
+    const destinosClearFilter = document.getElementById('destinosClearFilter');
+    const destinoCards = Array.from(destinosGrid.querySelectorAll('.destino-card'));
+    const expCards = document.querySelectorAll('.exp-card');
+    const DESTINOS_DEFAULT_HEADING = destinosHeading.textContent;
+    const DESTINOS_DEFAULT_SUBTEXT = destinosSubtext.textContent;
+
+    function filterDestinosByCategory(category) {
+      let visibleCount = 0;
+      destinoCards.forEach(card => {
+        const categories = (card.dataset.categories || '').split(',');
+        const matches = categories.includes(category);
+        card.hidden = !matches;
+        if (matches) visibleCount++;
+      });
+
+      destinosEmpty.hidden = visibleCount > 0;
+      destinosHeading.textContent = 'Destinos para ' + EXP_LABELS[category];
+      destinosSubtext.textContent = 'Estos son los destinos que mejor encajan con lo que buscas.';
+      destinosClearFilter.hidden = false;
+      destinosClearFilter.classList.add('visible');
+
+      expCards.forEach(c => c.classList.toggle('active', c.dataset.expCategory === category));
+
+      document.getElementById('destinos').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function clearDestinosFilter() {
+      destinoCards.forEach(card => { card.hidden = false; });
+      destinosEmpty.hidden = true;
+      destinosHeading.textContent = DESTINOS_DEFAULT_HEADING;
+      destinosSubtext.textContent = DESTINOS_DEFAULT_SUBTEXT;
+      destinosClearFilter.hidden = true;
+      destinosClearFilter.classList.remove('visible');
+      expCards.forEach(c => c.classList.remove('active'));
+    }
+
+    expCards.forEach(card => {
+      card.addEventListener('click', () => filterDestinosByCategory(card.dataset.expCategory));
+    });
+    destinosClearFilter.addEventListener('click', clearDestinosFilter);
+
     // Newsletter
     const newsletterForm = document.getElementById('newsletterForm');
     const newsletterMsg = document.getElementById('newsletterMsg');
