@@ -912,18 +912,26 @@
         <a href="#newsletter" class="btn btn-outline">Hablemos de tu viaje</a>
       </div>
 
+      <div class="search-tabs" id="searchTabs" role="tablist" aria-label="Tipo de servicio">
+        <button type="button" class="search-tab active" data-type="vuelos" role="tab" aria-selected="true">Vuelos</button>
+        <button type="button" class="search-tab" data-type="cruceros" role="tab" aria-selected="false">Cruceros</button>
+        <button type="button" class="search-tab" data-type="hoteles" role="tab" aria-selected="false">Hoteles</button>
+        <button type="button" class="search-tab" data-type="autos" role="tab" aria-selected="false">Renta de autos</button>
+      </div>
+
       <form class="search-bar" id="searchForm">
+        <input type="hidden" id="tipoServicio" name="tipo_servicio" value="Vuelos">
         <div class="search-field">
-          <label for="origen">Origen</label>
-          <input type="text" id="origen" name="origen" placeholder="¿Desde dónde?">
+          <label for="field1">Origen</label>
+          <input type="text" id="field1" name="origen" placeholder="¿Desde dónde?">
         </div>
         <div class="search-field">
-          <label for="destino">Destino</label>
-          <input type="text" id="destino" name="destino" placeholder="¿Hacia dónde?">
+          <label for="field2">Destino</label>
+          <input type="text" id="field2" name="destino" placeholder="¿Hacia dónde?">
         </div>
         <div class="search-field">
-          <label for="fechas">Fechas</label>
-          <input type="text" id="fechas" name="fechas" placeholder="Elige tus fechas">
+          <label for="field3">Fechas</label>
+          <input type="text" id="field3" name="fechas" placeholder="Elige tus fechas">
         </div>
         <div class="search-field">
           <label for="searchEmail">Tu correo</label>
