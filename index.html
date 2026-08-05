@@ -1682,17 +1682,34 @@
 
     const searchForm = document.getElementById('searchForm');
 
-    // Checklists (ej. "Servicios que buscas" en Todo en uno): sincroniza las
-    // casillas marcadas con el input oculto que realmente se envía en el formulario.
+    // Checklists desplegables (ej. "Servicios que buscas" en Todo en uno):
+    // sincroniza las casillas marcadas con el input oculto que se envía en el formulario
+    // y actualiza el texto del botón que las despliega.
+    searchForm.addEventListener('click', function (e) {
+      const trigger = e.target.closest('.checklist-trigger');
+      if (trigger) {
+        const checklist = trigger.closest('.checklist');
+        const wasOpen = checklist.classList.contains('open');
+        document.querySelectorAll('.checklist.open').forEach(c => c.classList.remove('open'));
+        if (!wasOpen) checklist.classList.add('open');
+        return;
+      }
+      if (!e.target.closest('.checklist')) {
+        document.querySelectorAll('.checklist.open').forEach(c => c.classList.remove('open'));
+      }
+    });
+
     searchForm.addEventListener('change', function (e) {
       const checkbox = e.target.closest('.checklist-option input[type="checkbox"]');
       if (!checkbox) return;
       const checklist = checkbox.closest('.checklist');
       const group = checklist.closest('.search-field');
       const hiddenInput = group.querySelector('input:not([type="checkbox"])');
-      checkbox.closest('.checklist-option').classList.toggle('checked', checkbox.checked);
       const selected = Array.from(checklist.querySelectorAll('input[type="checkbox"]:checked')).map(c => c.value);
       hiddenInput.value = selected.join(' + ');
+      const triggerLabel = checklist.querySelector('.checklist-trigger span');
+      triggerLabel.textContent = selected.length ? selected.join(', ') : 'Selecciona...';
+      triggerLabel.classList.toggle('placeholder', selected.length === 0);
     });
 
     const searchMsg = document.getElementById('searchMsg');
