@@ -1465,11 +1465,9 @@
           input.name = field.name;
           input.placeholder = field.placeholder;
           input.type = field.type || 'text';
-          if (field.country) {
-            input.setAttribute('list', 'destinationList');
-          } else {
-            input.removeAttribute('list');
-          }
+          input.dataset.autocomplete = field.country ? 'true' : 'false';
+          const acList = document.getElementById('field' + (i + 1) + 'List');
+          if (acList) acList.classList.remove('open');
           input.disabled = false;
           group.style.display = '';
         } else {
