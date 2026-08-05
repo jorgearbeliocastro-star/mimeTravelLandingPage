@@ -1468,12 +1468,14 @@
     const tipoServicioInput = document.getElementById('tipoServicio');
     const field4Group = document.getElementById('field4Group');
 
+    const field4Select = document.getElementById('field4Select');
+
     function applyServiceType(type) {
       const config = SEARCH_FIELD_CONFIG[type];
       tipoServicioInput.value = config.label;
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < 3; i++) {
         const input = document.getElementById('field' + (i + 1));
-        const group = i === 3 ? field4Group : input.closest('.search-field');
+        const group = input.closest('.search-field');
         const field = config.fields[i];
         if (field) {
           const label = input.previousElementSibling;
@@ -1491,6 +1493,36 @@
           input.disabled = true;
           group.style.display = 'none';
         }
+      }
+
+      // 4º campo: puede ser fecha (input) o selector (select), según el servicio
+      const field4Input = document.getElementById('field4');
+      const label4 = field4Input.previousElementSibling;
+      const field = config.fields[3];
+      if (field) {
+        field4Group.style.display = '';
+        label4.textContent = field.label;
+        if (field.type === 'select') {
+          field4Select.name = field.name;
+          field4Select.innerHTML = field.options.map(o => '<option value="' + o + '">' + o + '</option>').join('');
+          field4Select.disabled = false;
+          field4Select.style.display = '';
+          field4Input.disabled = true;
+          field4Input.style.display = 'none';
+        } else {
+          field4Input.name = field.name;
+          field4Input.placeholder = field.placeholder;
+          field4Input.type = field.type || 'text';
+          field4Input.disabled = false;
+          field4Input.style.display = '';
+          field4Select.disabled = true;
+          field4Select.style.display = 'none';
+        }
+      } else {
+        field4Group.style.display = 'none';
+        field4Input.value = '';
+        field4Input.disabled = true;
+        field4Select.disabled = true;
       }
     }
 
