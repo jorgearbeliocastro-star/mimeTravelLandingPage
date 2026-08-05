@@ -1494,13 +1494,16 @@
     // La fecha de vuelta no puede ser anterior a la fecha de ida
     const fechaIdaInput = document.getElementById('field3');
     const fechaVueltaInput = document.getElementById('field4');
-    fechaIdaInput.addEventListener('change', function () {
+    function syncFechaVueltaMin() {
       if (fechaIdaInput.type !== 'date' || fechaVueltaInput.disabled) return;
-      fechaVueltaInput.min = fechaIdaInput.value;
-      if (fechaVueltaInput.value && fechaVueltaInput.value < fechaIdaInput.value) {
+      fechaVueltaInput.min = fechaIdaInput.value || '';
+      if (fechaVueltaInput.value && fechaIdaInput.value && fechaVueltaInput.value < fechaIdaInput.value) {
         fechaVueltaInput.value = fechaIdaInput.value;
       }
-    });
+    }
+    fechaIdaInput.addEventListener('change', syncFechaVueltaMin);
+    searchTabs.addEventListener('click', syncFechaVueltaMin);
+    syncFechaVueltaMin();
 
     const searchForm = document.getElementById('searchForm');
     const searchMsg = document.getElementById('searchMsg');
