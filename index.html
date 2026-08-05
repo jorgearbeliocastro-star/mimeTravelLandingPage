@@ -1573,6 +1573,7 @@
           group.classList.add('search-field--compact');
         } else if (field.type === 'checklist' && checklist) {
           input.name = field.name;
+          input.type = 'text';
           input.value = '';
           input.disabled = false;
           input.style.display = 'none';
