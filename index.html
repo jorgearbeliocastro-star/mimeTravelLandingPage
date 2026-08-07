@@ -1168,7 +1168,7 @@
 </head>
 <body>
 
-  <a href="#main-content" class="skip-link">Saltar al contenido</a>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Saltar al contenido</a>
 
   <!-- ================= HEADER ================= -->
   <header id="siteHeader">
@@ -1176,15 +1176,19 @@
       <a href="#" class="logo">Mime Travel</a>
 
       <nav class="main-nav" id="mainNav">
-        <a class="nav-link" href="#main-content">Servicios</a>
-        <a class="nav-link" href="#destinos">Destinos</a>
-        <a class="nav-link" href="#experiencias">Experiencias</a>
-        <a class="nav-link" href="#testimonios">Nosotros</a>
-        <a class="nav-link" href="#newsletter">Contacto</a>
+        <a class="nav-link" href="#main-content" data-i18n="navServices">Servicios</a>
+        <a class="nav-link" href="#destinos" data-i18n="navDestinations">Destinos</a>
+        <a class="nav-link" href="#experiencias" data-i18n="navExperiences">Experiencias</a>
+        <a class="nav-link" href="#testimonios" data-i18n="navAbout">Nosotros</a>
+        <a class="nav-link" href="#newsletter" data-i18n="navContact">Contacto</a>
       </nav>
 
       <div class="nav-actions">
-        <a href="#newsletter" class="btn btn-outline">Planea tu viaje</a>
+        <div class="lang-toggle" id="langToggle">
+          <button type="button" data-lang="es">ES</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+        <a href="#newsletter" class="btn btn-outline" data-i18n="navPlanTrip">Planea tu viaje</a>
         <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="mainNav">☰</button>
       </div>
     </div>
