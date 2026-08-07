@@ -2299,13 +2299,16 @@
       }
     }
 
+    // Un solo botón que actúa como interruptor: por defecto el viaje es
+    // "ida y vuelta" (sin tocar nada); tocar "Solo ida" lo marca como activo
+    // y oculta la fecha de vuelta. Tocarlo de nuevo vuelve a ida y vuelta.
     const tripTypeToggle = document.getElementById('tripTypeToggle');
     tripTypeToggle.addEventListener('click', function (e) {
       const btn = e.target.closest('.trip-type-btn');
       if (!btn) return;
-      tripTypeToggle.querySelectorAll('.trip-type-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('tripTypeValue').value = btn.dataset.tripType;
+      const isNowOneway = !btn.classList.contains('active');
+      btn.classList.toggle('active', isNowOneway);
+      document.getElementById('tripTypeValue').value = isNowOneway ? 'oneway' : 'roundtrip';
       applyReturnDateVisibility();
     });
 
