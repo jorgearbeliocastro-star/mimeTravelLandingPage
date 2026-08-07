@@ -112,20 +112,7 @@
     transform: translateY(-2px);
   }
 
-  .btn-call {
-    background: var(--coral);
-    color: var(--light);
-    box-shadow: 0 6px 18px rgba(255, 122, 89, 0.35);
-    padding: 12px 22px;
-    font-size: 14px;
-  }
-
-  .btn-call:hover {
-    background: var(--coral-dark);
-    transform: translateY(-2px);
-  }
-
-  /* ---------- CALLBACK MODAL ---------- */
+  /* ---------- MODAL (formulario de preventa) ---------- */
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -1307,6 +1294,10 @@
           <select id="field6Select" disabled style="display: none;"></select>
         </div>
         <div class="search-field">
+          <label for="searchName">Tu nombre</label>
+          <input type="text" id="searchName" name="nombre" placeholder="¿Cómo te llamas?" required>
+        </div>
+        <div class="search-field">
           <label for="searchEmail">Tu correo</label>
           <input type="email" id="searchEmail" name="email" placeholder="tu@email.com" required>
         </div>
@@ -1691,6 +1682,7 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -1717,6 +1709,107 @@
         menuToggle.setAttribute('aria-label', 'Abrir menú');
       });
     });
+
+    // ===== Integración con "la expansión" (app de agentes) =====
+    // Los pedidos de cotización se mandan directo a la misma base de Supabase
+    // que usa la app — quedan en quote_requests exactamente igual que si un
+    // Agente los viera creados desde ahí. La anon key es pública a propósito
+    // (protegida por Row Level Security en la base), igual que el
+    // WEBHOOK_SECRET de aviso — mismo criterio que usa la app misma.
+    const LA_EXPANCION_SUPABASE_URL = 'https://ihrfaprvzdafclquuhlh.supabase.co';
+    const LA_EXPANCION_SUPABASE_ANON_KEY = 'sb_publishable_lcWymV25nHd2_iOMjRwD4A_XOXvOdPK';
+    const LA_EXPANCION_WEBHOOK_SECRET = '9aa883ff6caef8d5b41e2c749cccaf121860629737147d12';
+    const LA_EXPANCION_FUNCTIONS_URL = LA_EXPANCION_SUPABASE_URL + '/functions/v1/send-request-notification';
+    const laExpancion = window.supabase.createClient(LA_EXPANCION_SUPABASE_URL, LA_EXPANCION_SUPABASE_ANON_KEY);
+
+    // Identifica este navegador como "cliente sin cuenta" — mismo patrón que
+    // el token que la app guarda en el teléfono, pero acá vive en localStorage.
+    function getOrCreateWebClientToken() {
+      const KEY = 'la-expancion.client-token';
+      let token = localStorage.getItem(KEY);
+      if (!token) {
+        token = crypto.randomUUID();
+        localStorage.setItem(KEY, token);
+      }
+      return token;
+    }
+
+    // Idioma detectado del navegador (nunca se le pregunta al visitante),
+    // igual que la app lo detecta del locale del teléfono.
+    async function resolveWebClientLanguage() {
+      const detected = (navigator.language || '').split('-')[0] || null;
+      if (!detected) return null;
+      try {
+        const { data, error } = await laExpancion.rpc('resolve_client_language', { p_language: detected });
+        if (error) return detected;
+        return data || detected;
+      } catch {
+        return detected;
+      }
+    }
+
+    // Avisa a la Edge Function que hay un pedido nuevo para notificar al
+    // Agente (push). No bloqueante: si falla, el pedido ya quedó guardado igual.
+    function notifyLaExpancion(record) {
+      fetch(LA_EXPANCION_FUNCTIONS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': LA_EXPANCION_WEBHOOK_SECRET },
+        body: JSON.stringify({ type: 'INSERT', table: 'quote_requests', record }),
+      }).catch(() => {});
+    }
+
+    // Crea el pedido de cotización directo en Supabase — mismos campos que
+    // usa la app (ver src/services/quoteService.ts de "la expansión"). Los
+    // datos del pasajero se piden recién después de que el cliente acepta
+    // una cotización, así que acá siempre van null.
+    async function createLaExpancionQuoteRequest(payload) {
+      const clientToken = getOrCreateWebClientToken();
+      const clientLanguage = await resolveWebClientLanguage();
+      let preferredAgentId = null;
+      try {
+        const { data } = await laExpancion.rpc('get_preferred_agent_for_client', { p_token: clientToken });
+        preferredAgentId = data || null;
+      } catch {
+        // no bloqueante — si falla, el pedido cae al pool general de agentes
+      }
+
+      const { error } = await laExpancion.from('quote_requests').insert({
+        client_token: clientToken,
+        claimed_by_agent_id: preferredAgentId,
+        category: payload.category,
+        origin: payload.origin,
+        destination: payload.destination,
+        trip_type: payload.tripType,
+        search_mode: payload.searchMode,
+        search_date: payload.searchDate,
+        search_week_start: null,
+        search_month: null,
+        return_date: payload.returnDate,
+        return_week_start: null,
+        return_month: null,
+        end_date: payload.endDate,
+        contact_name: payload.contactName,
+        contact_email: payload.contactEmail,
+        contact_phone: payload.contactPhone || null,
+        notes: payload.notes,
+        client_language: clientLanguage,
+        passenger_full_name: null,
+        passenger_document: null,
+        passenger_date_of_birth: null,
+        passenger_passport_expiry: null,
+        passenger_nationality: null,
+      });
+      if (error) throw error;
+
+      notifyLaExpancion({ origin: payload.origin, destination: payload.destination, claimedByAgentId: preferredAgentId });
+    }
+
+    // Junta varias notas sueltas (categoría, huéspedes, presupuesto...) en un
+    // solo texto para el campo "notes", saltando las que vengan vacías.
+    function buildQuoteNotes(parts) {
+      const clean = parts.filter(Boolean);
+      return clean.length ? clean.join(' · ') : null;
+    }
 
     // Envío de formularios vía FormSubmit (sin backend propio)
     const FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ajax/contacto@mimetravel.com';
@@ -2004,18 +2097,111 @@
       triggerLabel.classList.toggle('placeholder', selected.length === 0);
     });
 
+    // Arma el pedido de cotización para "la expansión" según la pestaña
+    // activa (Vuelos/Cruceros/Hoteles/Autos/Todo en uno) — cada una guarda
+    // sus campos en quote_requests de forma distinta.
+    function buildSearchQuotePayload(type, data) {
+      const base = { contactName: data.nombre, contactEmail: data.email, contactPhone: null };
+      switch (type) {
+        case 'vuelos':
+          return {
+            ...base,
+            category: 'flight',
+            origin: data.origen || null,
+            destination: data.destino || '',
+            tripType: data.fecha_vuelta ? 'roundtrip' : 'oneway',
+            searchMode: 'exact_date',
+            searchDate: data.fecha_ida || null,
+            returnDate: data.fecha_vuelta || null,
+            endDate: null,
+            notes: buildQuoteNotes([data.clase ? 'Clase: ' + data.clase : null]),
+          };
+        case 'cruceros':
+          return {
+            ...base,
+            category: 'cruise',
+            origin: data.puerto_salida || null,
+            destination: data.destino || '',
+            tripType: 'oneway',
+            searchMode: 'exact_date',
+            searchDate: data.fechas || null,
+            returnDate: null,
+            endDate: null,
+            notes: buildQuoteNotes([data.naviera ? 'Naviera preferida: ' + data.naviera : null]),
+          };
+        case 'hoteles':
+          return {
+            ...base,
+            category: 'hotel',
+            origin: null,
+            destination: data.destino || '',
+            tripType: 'oneway',
+            searchMode: 'exact_date',
+            searchDate: data.fecha_entrada || null,
+            returnDate: null,
+            endDate: data.fecha_salida || null,
+            notes: buildQuoteNotes([
+              data.huespedes ? 'Huéspedes: ' + data.huespedes : null,
+              data.habitaciones || null,
+              data.estrellas || null,
+            ]),
+          };
+        case 'autos':
+          return {
+            ...base,
+            category: 'car',
+            origin: data.ciudad_recogida || null,
+            destination: data.ciudad_entrega || data.ciudad_recogida || '',
+            tripType: 'oneway',
+            searchMode: 'exact_date',
+            searchDate: data.fechas || null,
+            returnDate: null,
+            endDate: null,
+            notes: buildQuoteNotes([data.tipo_auto ? 'Tipo de auto: ' + data.tipo_auto : null]),
+          };
+        case 'paquete':
+        default:
+          return {
+            ...base,
+            category: 'package',
+            origin: null,
+            destination: data.destinos || '',
+            tripType: 'oneway',
+            searchMode: 'exact_date',
+            searchDate: data.fechas || null,
+            returnDate: null,
+            endDate: null,
+            notes: buildQuoteNotes([data.servicios_incluidos ? 'Servicios: ' + data.servicios_incluidos : null]),
+          };
+      }
+    }
+
     const searchMsg = document.getElementById('searchMsg');
     searchForm.addEventListener('submit', function (e) {
       e.preventDefault();
       searchMsg.textContent = 'Enviando tu búsqueda...';
-      sendToFormSubmit(this, 'Nueva búsqueda de viaje — Mime Travel')
-        .then(res => {
-          if (!res.ok) throw new Error('request failed');
+      const form = this;
+      const activeType = searchTabs.querySelector('.search-tab.active')?.dataset.type || 'vuelos';
+      const data = Object.fromEntries(new FormData(form).entries());
+      const payload = buildSearchQuotePayload(activeType, data);
+
+      createLaExpancionQuoteRequest(payload)
+        .then(() => {
           searchMsg.textContent = '¡Listo! Un asesor de viajes te contactará muy pronto.';
-          this.reset();
+          form.reset();
         })
         .catch(() => {
-          searchMsg.textContent = 'No pudimos enviar tu búsqueda. Escríbenos directo a contacto@mimetravel.com.';
+          // Si falla el envío directo a la app, no se pierde el pedido —
+          // cae al correo de respaldo de siempre.
+          sendToFormSubmit(form, 'Nueva búsqueda de viaje — Mime Travel')
+            .then(res => {
+              if (!res.ok) throw new Error('request failed');
+              searchMsg.textContent = '¡Listo! Un asesor de viajes te contactará muy pronto.';
+              form.reset();
+            })
+            .catch(() => {
+              searchMsg.textContent = 'No pudimos enviar tu búsqueda. Escríbenos directo a contacto@mimetravel.com.';
+            });
         });
     });
 
@@ -2143,15 +2329,45 @@
     presaleForm.addEventListener('submit', function (e) {
       e.preventDefault();
       presaleMsg.textContent = 'Enviando...';
-      sendToFormSubmit(this, 'Preventa: ' + presaleDestinoInput.value + ' — Mime Travel')
-        .then(res => {
-          if (!res.ok) throw new Error('request failed');
+      const form = this;
+      const data = Object.fromEntries(new FormData(form).entries());
+      const payload = {
+        contactName: data.nombre,
+        contactEmail: data.email,
+        contactPhone: null,
+        category: 'package',
+        origin: null,
+        destination: data.destino || '',
+        tripType: 'oneway',
+        searchMode: 'exact_date',
+        searchDate: data.fecha_tentativa || null,
+        returnDate: null,
+        endDate: null,
+        notes: buildQuoteNotes([
+          data.viajeros ? 'Viajeros: ' + data.viajeros : null,
+          data.presupuesto ? 'Presupuesto: ' + data.presupuesto : null,
+        ]),
+      };
+
+      createLaExpancionQuoteRequest(payload)
+        .then(() => {
           presaleMsg.textContent = '¡Listo! Un asesor te enviará tu propuesta a la medida muy pronto.';
-          this.reset();
+          form.reset();
           setTimeout(closePresaleModal, 2000);
         })
         .catch(() => {
-          presaleMsg.textContent = 'No pudimos enviar tu solicitud. Escríbenos directo a contacto@mimetravel.com.';
+          // Si falla el envío directo a la app, no se pierde el pedido —
+          // cae al correo de respaldo de siempre.
+          sendToFormSubmit(form, 'Preventa: ' + payload.destination + ' — Mime Travel')
+            .then(res => {
+              if (!res.ok) throw new Error('request failed');
+              presaleMsg.textContent = '¡Listo! Un asesor te enviará tu propuesta a la medida muy pronto.';
+              form.reset();
+              setTimeout(closePresaleModal, 2000);
+            })
+            .catch(() => {
+              presaleMsg.textContent = 'No pudimos enviar tu solicitud. Escríbenos directo a contacto@mimetravel.com.';
+            });
         });
     });
 
