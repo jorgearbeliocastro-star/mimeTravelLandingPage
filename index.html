@@ -2030,7 +2030,7 @@
         if (!matches.length) {
           const empty = document.createElement('div');
           empty.className = 'autocomplete-empty';
-          empty.textContent = 'Sin coincidencias';
+          empty.textContent = t('noMatches');
           list.appendChild(empty);
           return;
         }
