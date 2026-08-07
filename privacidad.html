@@ -62,6 +62,31 @@
   }
   .legal-header a.back:hover { color: var(--light); }
 
+  .header-right { display: flex; align-items: center; gap: 16px; }
+
+  .lang-toggle {
+    display: flex;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 999px;
+    padding: 3px;
+  }
+  .lang-toggle button {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.7);
+    background: none;
+    border: none;
+    border-radius: 999px;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  .lang-toggle button.active {
+    background: var(--light);
+    color: var(--primary);
+  }
+
   main {
     max-width: 780px;
     margin: 0 auto;
@@ -119,92 +144,181 @@
 <header class="legal-header">
   <div class="container">
     <a href="index.html" class="logo">Mime Travel</a>
-    <a href="index.html" class="back">← Volver al sitio</a>
+    <div class="header-right">
+      <div class="lang-toggle" id="langToggle">
+        <button type="button" data-lang="es">ES</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+      <a href="index.html" class="back" data-i18n="back">← Volver al sitio</a>
+    </div>
   </div>
 </header>
 
 <main>
-  <h1>Política de privacidad</h1>
-  <p class="updated">Última actualización: 7 de agosto de 2026</p>
+  <h1 data-i18n="title">Política de privacidad</h1>
+  <p class="updated" data-i18n="updated">Última actualización: 7 de agosto de 2026</p>
 
-  <p>En Mime Travel diseñamos viajes a la medida — y eso empieza por ser claros sobre qué información nos das, para qué la usamos y cuándo dejamos de tenerla. Esta política aplica al sitio <strong>mimetravel.com</strong> y a la app de nuestros agentes de viaje ("la expancion"), que comparten la misma base de datos de solicitudes de cotización.</p>
+  <p data-i18n="intro">En Mime Travel diseñamos viajes a la medida — y eso empieza por ser claros sobre qué información nos das, para qué la usamos y cuándo dejamos de tenerla. Esta política aplica al sitio <strong>mimetravel.com</strong> y a la app de nuestros agentes de viaje ("la expancion"), que comparten la misma base de datos de solicitudes de cotización.</p>
 
-  <h2>1. Quién es responsable de tus datos</h2>
-  <p><strong>Mime Travel</strong> es responsable del tratamiento de los datos que recolectamos a través de este sitio. Podés contactarnos en cualquier momento en <a href="mailto:contacto@mimetravel.com">contacto@mimetravel.com</a>.</p>
+  <h2 data-i18n="h1">1. Quién es responsable de tus datos</h2>
+  <p data-i18n="p1"><strong>Mime Travel</strong> es responsable del tratamiento de los datos que recolectamos a través de este sitio. Podés contactarnos en cualquier momento en <a href="mailto:contacto@mimetravel.com">contacto@mimetravel.com</a>.</p>
 
-  <h2>2. Qué información recolectamos</h2>
-  <p>Recolectamos datos únicamente cuando vos los proporcionás voluntariamente, a través de:</p>
+  <h2 data-i18n="h2">2. Qué información recolectamos</h2>
+  <p data-i18n="p2intro">Recolectamos datos únicamente cuando vos los proporcionás voluntariamente, a través de:</p>
   <ul>
-    <li><strong>El buscador de viajes y el formulario de preventa</strong> ("Quiero ir aquí"): nombre, correo electrónico, teléfono (opcional), destino, fechas de interés, y cualquier nota adicional que agregues (número de viajeros, presupuesto, servicios de interés, etc.).</li>
-    <li><strong>El formulario de newsletter</strong>: únicamente tu correo electrónico.</li>
-    <li><strong>Un identificador anónimo</strong> (<code>client_token</code>), generado al azar y guardado en el almacenamiento local de tu navegador, que usamos para reconocer tus solicitudes previas y asignarte el mismo agente si ya te había atendido antes. Este identificador no incluye datos personales por sí mismo y es distinto en cada navegador o dispositivo que uses.</li>
+    <li data-i18n="p2li1"><strong>El buscador de viajes y el formulario de preventa</strong> ("Quiero ir aquí"): nombre, correo electrónico, teléfono (opcional), destino, fechas de interés, y cualquier nota adicional que agregues (número de viajeros, presupuesto, servicios de interés, etc.).</li>
+    <li data-i18n="p2li2"><strong>El formulario de newsletter</strong>: únicamente tu correo electrónico.</li>
+    <li data-i18n="p2li3"><strong>Un identificador anónimo</strong> (<code>client_token</code>), generado al azar y guardado en el almacenamiento local de tu navegador, que usamos para reconocer tus solicitudes previas y asignarte el mismo agente si ya te había atendido antes. Este identificador no incluye datos personales por sí mismo y es distinto en cada navegador o dispositivo que uses.</li>
   </ul>
-  <p>No pedimos documentos de identidad, pasaporte ni datos de pago en este sitio. Esa información, si es necesaria para confirmar una reserva ya aceptada, se solicita más adelante y de forma directa por tu agente asignado — nunca a través de este formulario web.</p>
+  <p data-i18n="p2outro">No pedimos documentos de identidad, pasaporte ni datos de pago en este sitio. Esa información, si es necesaria para confirmar una reserva ya aceptada, se solicita más adelante y de forma directa por tu agente asignado — nunca a través de este formulario web.</p>
 
-  <h2>3. Para qué usamos tu información</h2>
+  <h2 data-i18n="h3">3. Para qué usamos tu información</h2>
   <ul>
-    <li>Para preparar y enviarte una cotización de viaje ajustada a lo que pediste.</li>
-    <li>Para que un agente de Mime Travel se ponga en contacto con vos por correo, teléfono o dentro de la app.</li>
-    <li>Para enviarte novedades por correo, si te suscribiste al newsletter.</li>
-    <li>Para notificar internamente a nuestro equipo de agentes que hay una solicitud pendiente (incluyendo un aviso por correo y una notificación en la app, como respaldo uno del otro).</li>
+    <li data-i18n="p3li1">Para preparar y enviarte una cotización de viaje ajustada a lo que pediste.</li>
+    <li data-i18n="p3li2">Para que un agente de Mime Travel se ponga en contacto con vos por correo, teléfono o dentro de la app.</li>
+    <li data-i18n="p3li3">Para enviarte novedades por correo, si te suscribiste al newsletter.</li>
+    <li data-i18n="p3li4">Para notificar internamente a nuestro equipo de agentes que hay una solicitud pendiente (incluyendo un aviso por correo y una notificación en la app, como respaldo uno del otro).</li>
   </ul>
-  <p>No usamos tu información para publicidad dirigida ni la vendemos a terceros.</p>
+  <p data-i18n="p3outro">No usamos tu información para publicidad dirigida ni la vendemos a terceros.</p>
 
-  <h2>4. Con quién compartimos tu información</h2>
+  <h2 data-i18n="h4">4. Con quién compartimos tu información</h2>
   <ul>
-    <li><strong>Nuestro propio equipo de agentes</strong>, a través de la base de datos compartida entre este sitio y la app "la expancion" (alojada en Supabase). Solo el agente asignado a tu solicitud puede ver tus datos de contacto.</li>
-    <li><strong>FormSubmit</strong>, un servicio externo de envío de correo, usado como respaldo cuando el registro directo en nuestra base de datos falla, y siempre en paralelo como alerta adicional para que tu solicitud no quede sin atender.</li>
-    <li><strong>Proveedores de viaje</strong> (aerolíneas, cruceras, hoteles, rentadoras de auto) — pero solo si aceptás una cotización y avanzás hacia la reserva; ese paso ocurre fuera de este sitio, acompañado por tu agente.</li>
+    <li data-i18n="p4li1"><strong>Nuestro propio equipo de agentes</strong>, a través de la base de datos compartida entre este sitio y la app "la expancion" (alojada en Supabase). Solo el agente asignado a tu solicitud puede ver tus datos de contacto.</li>
+    <li data-i18n="p4li2"><strong>FormSubmit</strong>, un servicio externo de envío de correo, usado como respaldo cuando el registro directo en nuestra base de datos falla, y siempre en paralelo como alerta adicional para que tu solicitud no quede sin atender.</li>
+    <li data-i18n="p4li3"><strong>Proveedores de viaje</strong> (aerolíneas, cruceras, hoteles, rentadoras de auto) — pero solo si aceptás una cotización y avanzás hacia la reserva; ese paso ocurre fuera de este sitio, acompañado por tu agente.</li>
   </ul>
 
-  <h2>5. Cuánto tiempo conservamos tu información</h2>
-  <p>Aplicamos un principio de retención mínima:</p>
+  <h2 data-i18n="h5">5. Cuánto tiempo conservamos tu información</h2>
+  <p data-i18n="p5intro">Aplicamos un principio de retención mínima:</p>
   <ul>
-    <li>Si tu solicitud de cotización queda <strong>sin atender</strong>, expira automáticamente a los <strong>14 días</strong>.</li>
-    <li>Si <strong>aceptás</strong> una cotización, conservamos tu nombre y correo únicamente mientras dura el viaje — como un "enlace" activo entre vos y tu agente para poder avisarte de cambios de itinerario o reenviarte confirmaciones de proveedores. Una vez que el viaje termina, ese registro se <strong>elimina automáticamente</strong> de forma permanente.</li>
-    <li>Los registros de pago asociados a una compra confirmada se conservan un poco más — hasta 120 días después de finalizado el viaje — únicamente por la ventana habitual en la que un banco puede abrir una disputa de cobro (contracargo). Pasado ese plazo, también se eliminan.</li>
+    <li data-i18n="p5li1">Si tu solicitud de cotización queda <strong>sin atender</strong>, expira automáticamente a los <strong>14 días</strong>.</li>
+    <li data-i18n="p5li2">Si <strong>aceptás</strong> una cotización, conservamos tu nombre y correo únicamente mientras dura el viaje — como un "enlace" activo entre vos y tu agente para poder avisarte de cambios de itinerario o reenviarte confirmaciones de proveedores. Una vez que el viaje termina, ese registro se <strong>elimina automáticamente</strong> de forma permanente.</li>
+    <li data-i18n="p5li3">Los registros de pago asociados a una compra confirmada se conservan un poco más — hasta 120 días después de finalizado el viaje — únicamente por la ventana habitual en la que un banco puede abrir una disputa de cobro (contracargo). Pasado ese plazo, también se eliminan.</li>
   </ul>
-  <div class="callout">
+  <div class="callout" data-i18n="callout">
     El identificador anónimo que queda guardado en tu navegador no tiene ningún valor por sí solo una vez que tu solicitud fue eliminada de nuestra base de datos — es solo una referencia local, no un archivo con tus datos.
   </div>
 
-  <h2>6. Recursos externos que carga este sitio</h2>
-  <p>Para que la página funcione y se vea como está pensada, tu navegador carga algunos recursos alojados fuera de nuestros servidores:</p>
+  <h2 data-i18n="h6">6. Recursos externos que carga este sitio</h2>
+  <p data-i18n="p6intro">Para que la página funcione y se vea como está pensada, tu navegador carga algunos recursos alojados fuera de nuestros servidores:</p>
   <ul>
-    <li><strong>Google Fonts</strong>, para las tipografías del sitio.</li>
-    <li><strong>Unsplash</strong>, para algunas imágenes de destinos.</li>
-    <li><strong>Supabase</strong>, la base de datos donde vive tu solicitud de cotización.</li>
+    <li data-i18n="p6li1"><strong>Google Fonts</strong>, para las tipografías del sitio.</li>
+    <li data-i18n="p6li2"><strong>Unsplash</strong>, para algunas imágenes de destinos.</li>
+    <li data-i18n="p6li3"><strong>Supabase</strong>, la base de datos donde vive tu solicitud de cotización.</li>
   </ul>
-  <p>Cargar estos recursos puede exponer tu dirección IP a esos proveedores, de forma similar a visitar cualquier sitio que use fuentes o imágenes externas. No usamos estos servicios para rastrearte con fines publicitarios.</p>
+  <p data-i18n="p6outro">Cargar estos recursos puede exponer tu dirección IP a esos proveedores, de forma similar a visitar cualquier sitio que use fuentes o imágenes externas. No usamos estos servicios para rastrearte con fines publicitarios.</p>
 
-  <h2>7. Seguridad</h2>
-  <p>Tu información viaja siempre cifrada (HTTPS) y se almacena con reglas de acceso a nivel de fila (Row Level Security), de forma que solo el agente asignado a tu solicitud pueda leer tus datos de contacto — ni otros agentes ni terceros tienen acceso general a la base.</p>
+  <h2 data-i18n="h7">7. Seguridad</h2>
+  <p data-i18n="p7">Tu información viaja siempre cifrada (HTTPS) y se almacena con reglas de acceso a nivel de fila (Row Level Security), de forma que solo el agente asignado a tu solicitud pueda leer tus datos de contacto — ni otros agentes ni terceros tienen acceso general a la base.</p>
 
-  <h2>8. Tus derechos</h2>
-  <p>Podés en cualquier momento pedirnos:</p>
+  <h2 data-i18n="h8">8. Tus derechos</h2>
+  <p data-i18n="p8intro">Podés en cualquier momento pedirnos:</p>
   <ul>
-    <li>Acceder a los datos que tenemos sobre vos.</li>
-    <li>Corregir información incorrecta.</li>
-    <li>Eliminar tu solicitud antes de que expire automáticamente.</li>
-    <li>Darte de baja del newsletter (también podés hacerlo desde el propio correo que recibas).</li>
+    <li data-i18n="p8li1">Acceder a los datos que tenemos sobre vos.</li>
+    <li data-i18n="p8li2">Corregir información incorrecta.</li>
+    <li data-i18n="p8li3">Eliminar tu solicitud antes de que expire automáticamente.</li>
+    <li data-i18n="p8li4">Darte de baja del newsletter (también podés hacerlo desde el propio correo que recibas).</li>
   </ul>
-  <p>Para ejercer cualquiera de estos derechos, escribinos a <a href="mailto:contacto@mimetravel.com">contacto@mimetravel.com</a>.</p>
+  <p data-i18n="p8outro">Para ejercer cualquiera de estos derechos, escribinos a <a href="mailto:contacto@mimetravel.com">contacto@mimetravel.com</a>.</p>
 
-  <h2>9. Menores de edad</h2>
-  <p>Este sitio no está dirigido a menores de edad. Si sos menor, pedile a un adulto responsable que gestione la solicitud de viaje por vos.</p>
+  <h2 data-i18n="h9">9. Menores de edad</h2>
+  <p data-i18n="p9">Este sitio no está dirigido a menores de edad. Si sos menor, pedile a un adulto responsable que gestione la solicitud de viaje por vos.</p>
 
-  <h2>10. Cambios a esta política</h2>
-  <p>Si actualizamos esta política, publicaremos la nueva versión en esta misma página con la fecha de actualización correspondiente.</p>
+  <h2 data-i18n="h10">10. Cambios a esta política</h2>
+  <p data-i18n="p10">Si actualizamos esta política, publicaremos la nueva versión en esta misma página con la fecha de actualización correspondiente.</p>
 
   <div class="contact-box">
-    <h2>¿Dudas sobre tus datos?</h2>
-    <p>Escribinos a <a href="mailto:contacto@mimetravel.com">contacto@mimetravel.com</a> y te respondemos directamente.</p>
+    <h2 data-i18n="contactTitle">¿Dudas sobre tus datos?</h2>
+    <p data-i18n="contactBody">Escribinos a <a href="mailto:contacto@mimetravel.com">contacto@mimetravel.com</a> y te respondemos directamente.</p>
   </div>
 </main>
 
 <footer class="legal-footer">
-  &copy; 2026 Mime Travel. Todos los derechos reservados. · <a href="terminos.html">Términos y condiciones</a>
+  &copy; 2026 Mime Travel. <span data-i18n="footerRights">Todos los derechos reservados.</span> · <a href="terminos.html" data-i18n="footerTerms">Términos y condiciones</a>
 </footer>
+
+<script>
+  const LANG_STORAGE_KEY = 'mimetravel.lang';
+  let currentLang = localStorage.getItem(LANG_STORAGE_KEY)
+    || (((navigator.language || 'es').toLowerCase().startsWith('es')) ? 'es' : 'en');
+
+  const I18N_EN = {
+    back: '← Back to site',
+    title: 'Privacy Policy',
+    updated: 'Last updated: August 7, 2026',
+    intro: 'At Mime Travel we design tailor-made trips — and that starts with being clear about what information you give us, what we use it for, and when we stop having it. This policy applies to <strong>mimetravel.com</strong> and to our travel agents\' app ("la expancion"), which share the same quote-request database.',
+    h1: '1. Who is responsible for your data',
+    p1: '<strong>Mime Travel</strong> is responsible for processing the data we collect through this site. You can contact us at any time at <a href="mailto:contacto@mimetravel.com">contacto@mimetravel.com</a>.',
+    h2: '2. What information we collect',
+    p2intro: 'We only collect data when you voluntarily provide it, through:',
+    p2li1: '<strong>The trip search bar and the pre-sale form</strong> ("I want to go here"): name, email, phone (optional), destination, travel dates, and any additional notes you add (number of travelers, budget, services of interest, etc.).',
+    p2li2: '<strong>The newsletter form</strong>: only your email address.',
+    p2li3: '<strong>An anonymous identifier</strong> (<code>client_token</code>), randomly generated and stored in your browser\'s local storage, which we use to recognize your previous requests and assign you the same agent if they\'ve helped you before. This identifier does not include personal data by itself and is different on every browser or device you use.',
+    p2outro: 'We do not ask for ID documents, passports, or payment details on this site. That information, if needed to confirm an already-accepted booking, is requested later and directly by your assigned agent — never through this web form.',
+    h3: '3. What we use your information for',
+    p3li1: 'To prepare and send you a travel quote tailored to what you asked for.',
+    p3li2: 'So a Mime Travel agent can reach out to you by email, phone, or within the app.',
+    p3li3: 'To send you updates by email, if you subscribed to the newsletter.',
+    p3li4: 'To notify our agent team internally that there\'s a pending request (including an email alert and an in-app notification, as backups for each other).',
+    p3outro: 'We do not use your information for targeted advertising or sell it to third parties.',
+    h4: '4. Who we share your information with',
+    p4li1: '<strong>Our own agent team</strong>, through the database shared between this site and the "la expancion" app (hosted on Supabase). Only the agent assigned to your request can see your contact details.',
+    p4li2: '<strong>FormSubmit</strong>, an external email delivery service, used as a backup when the direct write to our database fails, and always in parallel as an extra alert so your request doesn\'t go unattended.',
+    p4li3: '<strong>Travel providers</strong> (airlines, cruise lines, hotels, car rental companies) — but only if you accept a quote and move forward with a booking; that step happens outside this site, with your agent\'s help.',
+    h5: '5. How long we keep your information',
+    p5intro: 'We apply a minimum-retention principle:',
+    p5li1: 'If your quote request goes <strong>unanswered</strong>, it automatically expires after <strong>14 days</strong>.',
+    p5li2: 'If you <strong>accept</strong> a quote, we keep your name and email only for the duration of the trip — as an active "link" between you and your agent so they can notify you of itinerary changes or forward provider confirmations. Once the trip is over, that record is <strong>automatically and permanently deleted</strong>.',
+    p5li3: 'Payment records tied to a confirmed purchase are kept a bit longer — up to 120 days after the trip ends — solely for the usual window in which a bank can open a chargeback dispute. After that period, they\'re deleted too.',
+    callout: 'The anonymous identifier stored in your browser has no value on its own once your request has been deleted from our database — it\'s just a local reference, not a file with your data.',
+    h6: '6. External resources this site loads',
+    p6intro: 'For the page to work and look as intended, your browser loads a few resources hosted outside our own servers:',
+    p6li1: '<strong>Google Fonts</strong>, for the site\'s typefaces.',
+    p6li2: '<strong>Unsplash</strong>, for some destination images.',
+    p6li3: '<strong>Supabase</strong>, the database where your quote request lives.',
+    p6outro: 'Loading these resources may expose your IP address to those providers, similar to visiting any site that uses external fonts or images. We don\'t use these services to track you for advertising purposes.',
+    h7: '7. Security',
+    p7: 'Your information always travels encrypted (HTTPS) and is stored with row-level access rules (Row Level Security), so only the agent assigned to your request can read your contact details — no other agents or third parties have general access to the database.',
+    h8: '8. Your rights',
+    p8intro: 'You can ask us at any time to:',
+    p8li1: 'Access the data we have about you.',
+    p8li2: 'Correct inaccurate information.',
+    p8li3: 'Delete your request before it automatically expires.',
+    p8li4: 'Unsubscribe from the newsletter (you can also do this from the email itself).',
+    p8outro: 'To exercise any of these rights, write to us at <a href="mailto:contacto@mimetravel.com">contacto@mimetravel.com</a>.',
+    h9: '9. Minors',
+    p9: 'This site is not directed at minors. If you\'re a minor, please have a responsible adult manage the travel request for you.',
+    h10: '10. Changes to this policy',
+    p10: 'If we update this policy, we\'ll publish the new version on this same page along with the corresponding update date.',
+    contactTitle: 'Questions about your data?',
+    contactBody: 'Write to us at <a href="mailto:contacto@mimetravel.com">contacto@mimetravel.com</a> and we\'ll respond directly.',
+    footerRights: 'All rights reserved.',
+    footerTerms: 'Terms and conditions',
+  };
+
+  const i18nEls = Array.from(document.querySelectorAll('[data-i18n]'));
+  const i18nOriginal = new Map(i18nEls.map(el => [el, el.innerHTML]));
+  const langToggle = document.getElementById('langToggle');
+
+  function applyLanguage(lang) {
+    currentLang = lang === 'en' ? 'en' : 'es';
+    localStorage.setItem(LANG_STORAGE_KEY, currentLang);
+    document.documentElement.lang = currentLang;
+    langToggle.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.lang === currentLang));
+    i18nEls.forEach(el => {
+      const key = el.dataset.i18n;
+      el.innerHTML = (currentLang === 'en' && I18N_EN[key] !== undefined) ? I18N_EN[key] : i18nOriginal.get(el);
+    });
+  }
+
+  langToggle.addEventListener('click', function (e) {
+    const btn = e.target.closest('button[data-lang]');
+    if (!btn) return;
+    applyLanguage(btn.dataset.lang);
+  });
+
+  applyLanguage(currentLang);
+</script>
 
 </body>
 </html>
