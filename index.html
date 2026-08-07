@@ -2069,6 +2069,17 @@
     for (let i = 1; i <= FIELD_SLOT_COUNT; i++) {
       document.getElementById('field' + i).addEventListener('change', syncAdjacentDateMins);
     }
+
+    // form.reset() restaura el input oculto a su valor por defecto (roundtrip)
+    // pero no toca las clases .active de los botones — hay que resincronizarlas.
+    searchForm.addEventListener('reset', function () {
+      setTimeout(() => {
+        tripTypeToggle.querySelectorAll('.trip-type-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.tripType === 'roundtrip');
+        });
+        applyReturnDateVisibility();
+      }, 0);
+    });
     searchTabs.addEventListener('click', syncAdjacentDateMins);
     syncAdjacentDateMins();
 
