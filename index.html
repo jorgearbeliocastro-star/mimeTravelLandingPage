@@ -2254,7 +2254,7 @@
           select.style.display = 'none';
           checklist.classList.remove('open');
           checklist.innerHTML =
-            '<button type="button" class="checklist-trigger"><span class="placeholder">Selecciona...</span><span class="arrow"></span></button>' +
+            '<button type="button" class="checklist-trigger"><span class="placeholder">' + t('selectPlaceholder') + '</span><span class="arrow"></span></button>' +
             '<div class="checklist-panel">' +
             field.options.map(o => '<label class="checklist-option"><input type="checkbox" value="' + o + '">' + o + '</label>').join('') +
             '</div>';
