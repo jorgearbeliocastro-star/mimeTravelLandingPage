@@ -2476,7 +2476,7 @@
 
       createLaExpancionQuoteRequest(payload)
         .then(() => {
-          searchMsg.textContent = '¡Listo! Un asesor de viajes te contactará muy pronto.';
+          searchMsg.textContent = t('msgSearchSuccess');
           // Aviso por correo además de la notificación push de la app —
           // así llega la alerta aunque el agente tenga la app cerrada.
           // No bloqueante: si falla, el pedido ya quedó guardado igual.
@@ -2489,7 +2489,7 @@
           sendToFormSubmit(form, 'Nueva búsqueda de viaje — Mime Travel')
             .then(res => {
               if (!res.ok) throw new Error('request failed');
-              searchMsg.textContent = '¡Listo! Un asesor de viajes te contactará muy pronto.';
+              searchMsg.textContent = t('msgSearchSuccess');
               form.reset();
             })
             .catch(() => {
