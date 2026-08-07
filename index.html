@@ -2642,15 +2642,15 @@
     const newsletterMsg = document.getElementById('newsletterMsg');
     newsletterForm.addEventListener('submit', function (e) {
       e.preventDefault();
-      newsletterMsg.textContent = 'Enviando...';
+      newsletterMsg.textContent = t('msgNewsletterSending');
       sendToFormSubmit(this, 'Nueva suscripción al newsletter — Mime Travel')
         .then(res => {
           if (!res.ok) throw new Error('request failed');
-          newsletterMsg.textContent = '¡Gracias por unirte! Pronto recibirás nuestras mejores ofertas.';
+          newsletterMsg.textContent = t('msgNewsletterSuccess');
           this.reset();
         })
         .catch(() => {
-          newsletterMsg.textContent = 'No pudimos procesar tu suscripción. Intenta de nuevo en unos minutos.';
+          newsletterMsg.textContent = t('msgNewsletterError');
         });
     });
   </script>
