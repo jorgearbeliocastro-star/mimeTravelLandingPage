@@ -2382,7 +2382,7 @@
       const selected = Array.from(checklist.querySelectorAll('input[type="checkbox"]:checked')).map(c => c.value);
       hiddenInput.value = selected.join(' + ');
       const triggerLabel = checklist.querySelector('.checklist-trigger span');
-      triggerLabel.textContent = selected.length ? selected.join(', ') : 'Selecciona...';
+      triggerLabel.textContent = selected.length ? selected.join(', ') : t('selectPlaceholder');
       triggerLabel.classList.toggle('placeholder', selected.length === 0);
     });
 
