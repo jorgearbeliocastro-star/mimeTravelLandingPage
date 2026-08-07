@@ -2099,7 +2099,7 @@
     setupAutocomplete('field1');
     setupAutocomplete('field2');
 
-    const SEARCH_FIELD_CONFIG = {
+    const SEARCH_FIELD_CONFIG_ES = {
       vuelos: {
         label: 'Vuelos',
         fields: [
@@ -2149,12 +2149,70 @@
       }
     };
 
+    // Misma estructura que SEARCH_FIELD_CONFIG_ES, en inglés. Los valores de
+    // las opciones de "select" quedan como notas de texto libre para el
+    // Agente (ver buildQuoteNotes) — no hace falta que coincidan con ningún
+    // enum de la base de datos.
+    const SEARCH_FIELD_CONFIG_EN = {
+      vuelos: {
+        label: 'Flights',
+        fields: [
+          { label: 'Origin', name: 'origen', placeholder: 'From where?', type: 'text', country: true },
+          { label: 'Destination', name: 'destino', placeholder: 'To where?', type: 'text', country: true },
+          { label: 'Departure date', name: 'fecha_ida', placeholder: 'When do you leave?', type: 'date' },
+          { label: 'Return date', name: 'fecha_vuelta', placeholder: 'When do you come back?', type: 'date' },
+          { label: 'Class', name: 'clase', type: 'select', options: ['Economy', 'Premium Economy', 'Business', 'First Class'] }
+        ]
+      },
+      cruceros: {
+        label: 'Cruises',
+        fields: [
+          { label: 'Departure port', name: 'puerto_salida', placeholder: 'From which port?', type: 'text', country: true },
+          { label: 'Destination', name: 'destino', placeholder: 'To where?', type: 'text', country: true },
+          { label: 'Cruise line', name: 'naviera', type: 'select', options: ['Any cruise line', 'Carnival', 'Royal Caribbean', 'MSC Cruises', 'Norwegian (NCL)', 'Disney Cruise Line', 'Princess Cruises', 'Celebrity Cruises', 'Costa Cruises', 'Holland America Line', 'Cunard', 'P&O Cruises', 'Oceania Cruises', 'Regent Seven Seas', 'Silversea', 'Seabourn', 'Viking Ocean Cruises', 'Windstar Cruises', 'Azamara', 'Virgin Voyages', 'Explora Journeys', 'Crystal Cruises', 'AIDA Cruises', 'TUI Cruises', 'Marella Cruises', 'Saga Cruises', 'Ponant', 'Hurtigruten', 'Star Clippers', 'Fred. Olsen Cruise Lines', 'Dream Cruises', 'Resorts World Cruises', 'Star Cruises', 'Lindblad Expeditions', 'Atlas Ocean Voyages'] },
+          { label: 'Departure date', name: 'fechas', placeholder: 'Pick your dates', type: 'date' }
+        ]
+      },
+      hoteles: {
+        label: 'Hotels',
+        fields: [
+          { label: 'Destination', name: 'destino', placeholder: 'Where are you staying?', type: 'text', country: true },
+          { label: 'Check-in', name: 'fecha_entrada', placeholder: 'Check-in', type: 'date' },
+          { label: 'Check-out', name: 'fecha_salida', placeholder: 'Check-out', type: 'date' },
+          { label: 'Guests', name: 'huespedes', placeholder: 'Number of guests', type: 'text' },
+          { label: 'Rooms', name: 'habitaciones', type: 'select', options: ['1 room', '2 rooms', '3 rooms', '4+ rooms'] },
+          { label: 'Category', name: 'estrellas', type: 'select', options: ['Any category', '3 stars', '4 stars', '5 stars', '5 stars Luxury'] }
+        ]
+      },
+      autos: {
+        label: 'Car rental',
+        fields: [
+          { label: 'Pick up in', name: 'ciudad_recogida', placeholder: 'Where do you pick up the car?', type: 'text', country: true },
+          { label: 'Drop off in', name: 'ciudad_entrega', placeholder: 'Where do you drop it off?', type: 'text', country: true },
+          { label: 'Pick-up date', name: 'fechas', placeholder: 'Pick-up', type: 'date' },
+          { label: 'Car type', name: 'tipo_auto', type: 'select', options: ['Any type', 'Economy', 'Compact', 'Intermediate / Sedan', 'Standard', 'Full size', 'Compact SUV', 'Large SUV', 'Minivan / Van', 'Pickup', 'Luxury', 'Convertible'] }
+        ]
+      },
+      paquete: {
+        label: 'All-in-one',
+        fields: [
+          { label: 'Destinations', name: 'destinos', placeholder: 'E.g. Cancún, Rome, Santorini...', type: 'text', country: true },
+          { label: 'Start date', name: 'fechas', placeholder: 'Pick your dates', type: 'date' },
+          { label: 'Services you need', name: 'servicios_incluidos', type: 'checklist', options: ['Flight', 'Cruise', 'Hotel', 'Car rental'] }
+        ]
+      }
+    };
+
+    function getSearchFieldConfig() {
+      return currentLang === 'en' ? SEARCH_FIELD_CONFIG_EN : SEARCH_FIELD_CONFIG_ES;
+    }
+
     const searchTabs = document.getElementById('searchTabs');
     const tipoServicioInput = document.getElementById('tipoServicio');
     const FIELD_SLOT_COUNT = 6;
 
     function applyServiceType(type) {
-      const config = SEARCH_FIELD_CONFIG[type];
+      const config = getSearchFieldConfig()[type];
       tipoServicioInput.value = config.label;
       for (let i = 0; i < FIELD_SLOT_COUNT; i++) {
         const input = document.getElementById('field' + (i + 1));
