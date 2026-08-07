@@ -2116,7 +2116,7 @@
             category: 'flight',
             origin: data.origen || null,
             destination: data.destino || '',
-            tripType: data.fecha_vuelta ? 'roundtrip' : 'oneway',
+            tripType: data.tipo_viaje === 'oneway' ? 'oneway' : 'roundtrip',
             searchMode: 'exact_date',
             searchDate: data.fecha_ida || null,
             returnDate: data.fecha_vuelta || null,
