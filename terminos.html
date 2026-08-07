@@ -62,6 +62,31 @@
   }
   .legal-header a.back:hover { color: var(--light); }
 
+  .header-right { display: flex; align-items: center; gap: 16px; }
+
+  .lang-toggle {
+    display: flex;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 999px;
+    padding: 3px;
+  }
+  .lang-toggle button {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.7);
+    background: none;
+    border: none;
+    border-radius: 999px;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  .lang-toggle button.active {
+    background: var(--light);
+    color: var(--primary);
+  }
+
   main {
     max-width: 780px;
     margin: 0 auto;
@@ -119,61 +144,130 @@
 <header class="legal-header">
   <div class="container">
     <a href="index.html" class="logo">Mime Travel</a>
-    <a href="index.html" class="back">← Volver al sitio</a>
+    <div class="header-right">
+      <div class="lang-toggle" id="langToggle">
+        <button type="button" data-lang="es">ES</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+      <a href="index.html" class="back" data-i18n="back">← Volver al sitio</a>
+    </div>
   </div>
 </header>
 
 <main>
-  <h1>Términos y condiciones</h1>
-  <p class="updated">Última actualización: 7 de agosto de 2026</p>
+  <h1 data-i18n="title">Términos y condiciones</h1>
+  <p class="updated" data-i18n="updated">Última actualización: 7 de agosto de 2026</p>
 
-  <p>Estos términos regulan el uso del sitio <strong>mimetravel.com</strong> y el proceso de solicitud de cotizaciones de viaje a través de él. Al usar este sitio, aceptás lo siguiente.</p>
+  <p data-i18n="intro">Estos términos regulan el uso del sitio <strong>mimetravel.com</strong> y el proceso de solicitud de cotizaciones de viaje a través de él. Al usar este sitio, aceptás lo siguiente.</p>
 
-  <h2>1. Qué es Mime Travel</h2>
-  <p>Mime Travel es una agencia de viajes que actúa como <strong>intermediaria</strong> entre vos y los proveedores reales del servicio (aerolíneas, cruceras, cadenas hoteleras, rentadoras de auto y operadores turísticos). No somos dueños de esos servicios ni los operamos directamente.</p>
+  <h2 data-i18n="h1">1. Qué es Mime Travel</h2>
+  <p data-i18n="p1">Mime Travel es una agencia de viajes que actúa como <strong>intermediaria</strong> entre vos y los proveedores reales del servicio (aerolíneas, cruceras, cadenas hoteleras, rentadoras de auto y operadores turísticos). No somos dueños de esos servicios ni los operamos directamente.</p>
 
-  <h2>2. Este sitio no procesa reservas ni pagos</h2>
-  <p>Lo que completás en este sitio — el buscador del inicio o el formulario "Quiero ir aquí" — es una <strong>solicitud de cotización</strong>, no una reserva confirmada ni un cobro. Un agente humano de Mime Travel revisa tu solicitud y te contacta con una propuesta a la medida.</p>
-  <div class="callout">
+  <h2 data-i18n="h2">2. Este sitio no procesa reservas ni pagos</h2>
+  <p data-i18n="p2">Lo que completás en este sitio — el buscador del inicio o el formulario "Quiero ir aquí" — es una <strong>solicitud de cotización</strong>, no una reserva confirmada ni un cobro. Un agente humano de Mime Travel revisa tu solicitud y te contacta con una propuesta a la medida.</p>
+  <div class="callout" data-i18n="callout">
     Ninguna reserva queda confirmada, ni se realiza ningún cobro, hasta que aceptás explícitamente una cotización con tu agente y completás el pago por los canales que él te indique.
   </div>
 
-  <h2>3. Precios y disponibilidad</h2>
-  <p>Los precios, tarifas, fechas y disponibilidad mostrados o mencionados en cualquier etapa previa a la confirmación de tu reserva están sujetos a cambio sin previo aviso, ya que dependen en última instancia de los proveedores del servicio. Tu agente te confirmará el precio final vigente al momento de aceptar tu cotización.</p>
+  <h2 data-i18n="h3">3. Precios y disponibilidad</h2>
+  <p data-i18n="p3">Los precios, tarifas, fechas y disponibilidad mostrados o mencionados en cualquier etapa previa a la confirmación de tu reserva están sujetos a cambio sin previo aviso, ya que dependen en última instancia de los proveedores del servicio. Tu agente te confirmará el precio final vigente al momento de aceptar tu cotización.</p>
 
-  <h2>4. Exactitud de la información que nos das</h2>
-  <p>Sos responsable de que el nombre, correo, teléfono y demás datos que ingresás en el formulario sean correctos. Una información de contacto errónea puede retrasar o impedir que un agente te contacte.</p>
+  <h2 data-i18n="h4">4. Exactitud de la información que nos das</h2>
+  <p data-i18n="p4">Sos responsable de que el nombre, correo, teléfono y demás datos que ingresás en el formulario sean correctos. Una información de contacto errónea puede retrasar o impedir que un agente te contacte.</p>
 
-  <h2>5. Documentos de viaje</h2>
-  <p>Es tu responsabilidad contar con pasaporte, visas y demás documentación vigente y válida para el destino elegido. Mime Travel puede orientarte al respecto, pero la responsabilidad final de cumplir los requisitos de entrada de cada país es tuya.</p>
+  <h2 data-i18n="h5">5. Documentos de viaje</h2>
+  <p data-i18n="p5">Es tu responsabilidad contar con pasaporte, visas y demás documentación vigente y válida para el destino elegido. Mime Travel puede orientarte al respecto, pero la responsabilidad final de cumplir los requisitos de entrada de cada país es tuya.</p>
 
-  <h2>6. Cambios, cancelaciones y reembolsos</h2>
-  <p>Las políticas de cambio, cancelación y reembolso dependen del proveedor específico (aerolínea, hotel, crucera, etc.) contratado en cada reserva, y te serán informadas por tu agente antes de confirmar el pago. Mime Travel no controla esas políticas.</p>
+  <h2 data-i18n="h6">6. Cambios, cancelaciones y reembolsos</h2>
+  <p data-i18n="p6">Las políticas de cambio, cancelación y reembolso dependen del proveedor específico (aerolínea, hotel, crucera, etc.) contratado en cada reserva, y te serán informadas por tu agente antes de confirmar el pago. Mime Travel no controla esas políticas.</p>
 
-  <h2>7. Responsabilidad</h2>
-  <p>Mime Travel no es responsable por incumplimientos, cambios de itinerario, cancelaciones, huelgas, condiciones climáticas u otros eventos fuera de nuestro control causados por los proveedores del servicio. Nuestro rol es asistirte antes, durante y después de la compra para resolver cualquier inconveniente que surja con ellos.</p>
+  <h2 data-i18n="h7">7. Responsabilidad</h2>
+  <p data-i18n="p7">Mime Travel no es responsable por incumplimientos, cambios de itinerario, cancelaciones, huelgas, condiciones climáticas u otros eventos fuera de nuestro control causados por los proveedores del servicio. Nuestro rol es asistirte antes, durante y después de la compra para resolver cualquier inconveniente que surja con ellos.</p>
 
-  <h2>8. Uso aceptable del sitio</h2>
-  <p>Te pedimos no usar los formularios de este sitio para enviar información falsa, spam, o intentar acceder sin autorización a nuestros sistemas o a los de nuestros proveedores.</p>
+  <h2 data-i18n="h8">8. Uso aceptable del sitio</h2>
+  <p data-i18n="p8">Te pedimos no usar los formularios de este sitio para enviar información falsa, spam, o intentar acceder sin autorización a nuestros sistemas o a los de nuestros proveedores.</p>
 
-  <h2>9. Propiedad intelectual</h2>
-  <p>El nombre "Mime Travel", el diseño, los textos y los elementos gráficos de este sitio son propiedad de Mime Travel, salvo las imágenes de destinos de terceros usadas con fines ilustrativos.</p>
+  <h2 data-i18n="h9">9. Propiedad intelectual</h2>
+  <p data-i18n="p9">El nombre "Mime Travel", el diseño, los textos y los elementos gráficos de este sitio son propiedad de Mime Travel, salvo las imágenes de destinos de terceros usadas con fines ilustrativos.</p>
 
-  <h2>10. Cambios a estos términos</h2>
-  <p>Podemos actualizar estos términos en cualquier momento. La versión vigente es siempre la publicada en esta página, con su fecha de actualización.</p>
+  <h2 data-i18n="h10">10. Cambios a estos términos</h2>
+  <p data-i18n="p10">Podemos actualizar estos términos en cualquier momento. La versión vigente es siempre la publicada en esta página, con su fecha de actualización.</p>
 
-  <h2>11. Ley aplicable</h2>
-  <p>Ante cualquier disputa, procuraremos primero una resolución directa contactándote por los medios provistos. <em>(La jurisdicción y ley aplicable formal quedan pendientes de definir junto con asesoría legal, según el país de constitución de Mime Travel.)</em></p>
+  <h2 data-i18n="h11">11. Ley aplicable</h2>
+  <p data-i18n="p11">Ante cualquier disputa, procuraremos primero una resolución directa contactándote por los medios provistos. <em>(La jurisdicción y ley aplicable formal quedan pendientes de definir junto con asesoría legal, según el país de constitución de Mime Travel.)</em></p>
 
   <div class="contact-box">
-    <h2>¿Preguntas sobre estos términos?</h2>
-    <p>Escribinos a <a href="mailto:contacto@mimetravel.com">contacto@mimetravel.com</a>.</p>
+    <h2 data-i18n="contactTitle">¿Preguntas sobre estos términos?</h2>
+    <p data-i18n="contactBody">Escribinos a <a href="mailto:contacto@mimetravel.com">contacto@mimetravel.com</a>.</p>
   </div>
 </main>
 
 <footer class="legal-footer">
-  &copy; 2026 Mime Travel. Todos los derechos reservados. · <a href="privacidad.html">Política de privacidad</a>
+  &copy; 2026 Mime Travel. <span data-i18n="footerRights">Todos los derechos reservados.</span> · <a href="privacidad.html" data-i18n="footerPrivacy">Política de privacidad</a>
 </footer>
+
+<script>
+  const LANG_STORAGE_KEY = 'mimetravel.lang';
+  let currentLang = localStorage.getItem(LANG_STORAGE_KEY)
+    || (((navigator.language || 'es').toLowerCase().startsWith('es')) ? 'es' : 'en');
+
+  const I18N_EN = {
+    back: '← Back to site',
+    title: 'Terms and Conditions',
+    updated: 'Last updated: August 7, 2026',
+    intro: 'These terms govern the use of <strong>mimetravel.com</strong> and the process of requesting travel quotes through it. By using this site, you agree to the following.',
+    h1: '1. What Mime Travel is',
+    p1: 'Mime Travel is a travel agency that acts as an <strong>intermediary</strong> between you and the actual service providers (airlines, cruise lines, hotel chains, car rental companies, and tour operators). We do not own those services or operate them directly.',
+    h2: '2. This site does not process bookings or payments',
+    p2: 'What you fill out on this site — the search bar on the homepage or the "I want to go here" form — is a <strong>quote request</strong>, not a confirmed booking or a charge. A human Mime Travel agent reviews your request and contacts you with a tailored proposal.',
+    callout: 'No booking is confirmed, and no charge is made, until you explicitly accept a quote with your agent and complete payment through the channels they indicate.',
+    h3: '3. Prices and availability',
+    p3: 'Prices, fares, dates, and availability shown or mentioned at any stage prior to confirming your booking are subject to change without notice, since they ultimately depend on the service providers. Your agent will confirm the final price in effect at the time you accept your quote.',
+    h4: '4. Accuracy of the information you give us',
+    p4: 'You are responsible for making sure the name, email, phone, and other data you enter in the form are correct. Incorrect contact information may delay or prevent an agent from reaching you.',
+    h5: '5. Travel documents',
+    p5: 'It is your responsibility to have a valid passport, visas, and any other documentation required and up to date for your chosen destination. Mime Travel can advise you on this, but the final responsibility for meeting each country\'s entry requirements is yours.',
+    h6: '6. Changes, cancellations, and refunds',
+    p6: 'Change, cancellation, and refund policies depend on the specific provider (airline, hotel, cruise line, etc.) booked for each reservation, and will be communicated to you by your agent before confirming payment. Mime Travel does not control those policies.',
+    h7: '7. Liability',
+    p7: 'Mime Travel is not liable for breaches, itinerary changes, cancellations, strikes, weather conditions, or other events beyond our control caused by service providers. Our role is to support you before, during, and after your purchase to resolve any issue that comes up with them.',
+    h8: '8. Acceptable use of the site',
+    p8: 'We ask that you not use this site\'s forms to submit false information, spam, or attempt unauthorized access to our systems or those of our providers.',
+    h9: '9. Intellectual property',
+    p9: 'The "Mime Travel" name, design, text, and graphic elements of this site are the property of Mime Travel, except for third-party destination images used for illustrative purposes.',
+    h10: '10. Changes to these terms',
+    p10: 'We may update these terms at any time. The version in effect is always the one published on this page, along with its update date.',
+    h11: '11. Governing law',
+    p11: 'In the event of any dispute, we will first seek a direct resolution by contacting you through the channels provided. <em>(The formal jurisdiction and governing law are still to be defined together with legal counsel, based on Mime Travel\'s country of incorporation.)</em>',
+    contactTitle: 'Questions about these terms?',
+    contactBody: 'Write to us at <a href="mailto:contacto@mimetravel.com">contacto@mimetravel.com</a>.',
+    footerRights: 'All rights reserved.',
+    footerPrivacy: 'Privacy policy',
+  };
+
+  const i18nEls = Array.from(document.querySelectorAll('[data-i18n]'));
+  const i18nOriginal = new Map(i18nEls.map(el => [el, el.innerHTML]));
+  const langToggle = document.getElementById('langToggle');
+
+  function applyLanguage(lang) {
+    currentLang = lang === 'en' ? 'en' : 'es';
+    localStorage.setItem(LANG_STORAGE_KEY, currentLang);
+    document.documentElement.lang = currentLang;
+    langToggle.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.lang === currentLang));
+    i18nEls.forEach(el => {
+      const key = el.dataset.i18n;
+      el.innerHTML = (currentLang === 'en' && I18N_EN[key] !== undefined) ? I18N_EN[key] : i18nOriginal.get(el);
+    });
+  }
+
+  langToggle.addEventListener('click', function (e) {
+    const btn = e.target.closest('button[data-lang]');
+    if (!btn) return;
+    applyLanguage(btn.dataset.lang);
+  });
+
+  applyLanguage(currentLang);
+</script>
 
 </body>
 </html>
