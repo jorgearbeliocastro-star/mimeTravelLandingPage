@@ -1887,14 +1887,14 @@
       const isOpen = mainNav.classList.toggle('open');
       menuToggle.textContent = isOpen ? '✕' : '☰';
       menuToggle.setAttribute('aria-expanded', isOpen);
-      menuToggle.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
+      menuToggle.setAttribute('aria-label', isOpen ? t('menuClose') : t('menuOpen'));
     });
     mainNav.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', () => {
         mainNav.classList.remove('open');
         menuToggle.textContent = '☰';
         menuToggle.setAttribute('aria-expanded', 'false');
-        menuToggle.setAttribute('aria-label', 'Abrir menú');
+        menuToggle.setAttribute('aria-label', t('menuOpen'));
       });
     });
 
