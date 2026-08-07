@@ -52,7 +52,7 @@ Three forms, three different behaviors:
 
 The Supabase URL/anon key and the notification webhook secret are hardcoded client-side on purpose — they're meant to be public (RLS-protected on the anon-key side; the webhook secret is a low-stakes anti-spam check), the same way they ship inside the mobile app's bundle. A visitor is identified by a random `client_token` UUID stored in `localStorage` (key `la-expancion.client-token`), mirroring the app's own `AsyncStorage`-based device token — the two are **not** shared or synced; each browser/device gets its own.
 
-The **"🎙️ Llamar ahora"** header button is not yet wired to a real call. Today it only requests microphone permission (to test whether the visitor's browser/OS allows it) and then falls back to a phone-callback request form — a real WebRTC connection (mirroring `useVoiceCall` in la expancion) is a separate, not-yet-built integration.
+There is intentionally **no in-browser call button**. One existed briefly (mic-permission test + WebRTC placeholder) but was removed — not every visitor's machine supports it, and it risked confusing people expecting a real call. If a live-call entry point comes back, it belongs on mobile (the app already has `useVoiceCall`/`call_requests`), not here.
 
 ### Destination filtering
 
