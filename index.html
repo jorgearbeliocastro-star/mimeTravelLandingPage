@@ -1691,6 +1691,189 @@
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
+    // ===== Idioma del sitio (detección + traducción) =====
+    // El contenido "vive" en español directo en el HTML (data-i18n="clave"
+    // marca lo traducible). Al iniciar, guardamos ese texto original y solo
+    // lo pisamos con el diccionario en inglés cuando corresponde — así nunca
+    // duplicamos el español en JS. `currentLang` se usa también para armar
+    // mensajes dinámicos (formularios, buscador) que no viven en el DOM.
+    const LANG_STORAGE_KEY = 'mimetravel.lang';
+    let currentLang = localStorage.getItem(LANG_STORAGE_KEY)
+      || (((navigator.language || 'es').toLowerCase().startsWith('es')) ? 'es' : 'en');
+
+    // Textos que solo existen en JS (mensajes de formularios, aria-labels
+    // dinámicos, etc.) — necesitan versión en ambos idiomas porque no hay
+    // ningún nodo del DOM en español del que "revertir".
+    const I18N_ES = {
+      menuOpen: 'Abrir menú',
+      menuClose: 'Cerrar menú',
+      noMatches: 'Sin coincidencias',
+      selectPlaceholder: 'Selecciona...',
+      msgSearchSending: 'Enviando tu búsqueda...',
+      msgSearchSuccess: '¡Listo! Un asesor de viajes te contactará muy pronto.',
+      msgSearchError: 'No pudimos enviar tu búsqueda. Escríbenos directo a contacto@mimetravel.com.',
+      msgPresaleSending: 'Enviando...',
+      msgPresaleSuccess: '¡Listo! Un asesor te enviará tu propuesta a la medida muy pronto.',
+      msgPresaleError: 'No pudimos enviar tu solicitud. Escríbenos directo a contacto@mimetravel.com.',
+      msgNewsletterSending: 'Enviando...',
+      msgNewsletterSuccess: '¡Gracias por unirte! Pronto recibirás nuestras mejores ofertas.',
+      msgNewsletterError: 'No pudimos procesar tu suscripción. Intenta de nuevo en unos minutos.',
+      destinosFilteredHeadingPrefix: 'Destinos para ',
+      destinosFilteredSubtext: 'Estos son los destinos que mejor encajan con lo que buscas.',
+      destinoPricePrefix: 'Desde',
+      destinoCta: 'Quiero ir aquí →',
+    };
+
+    // Diccionario en inglés — cubre tanto las claves data-i18n del HTML
+    // (marcado con data-i18n="clave") como las claves de I18N_ES de arriba.
+    const I18N_EN = {
+      skipLink: 'Skip to content',
+      navServices: 'Services',
+      navDestinations: 'Destinations',
+      navExperiences: 'Experiences',
+      navAbout: 'About us',
+      navContact: 'Contact',
+      navPlanTrip: 'Plan your trip',
+      modalCloseAria: 'Close',
+      presaleTitlePrefix: 'Tell us about your trip to',
+      presaleIntro: 'Pre-fill your info and an advisor will build your custom proposal — no obligation.',
+      presaleNameLabel: 'Name',
+      presaleNamePlaceholder: 'Your name',
+      presaleTravelersLabel: 'Number of travelers',
+      presaleTravelersPlaceholder: 'E.g. 2 adults, 1 child',
+      presaleDatesLabel: 'Tentative travel date',
+      presaleBudgetLabel: 'Approximate budget',
+      budget1: 'Less than $1,000 USD',
+      budget4: 'More than $5,000 USD',
+      presaleEmailLabel: 'Your email',
+      presaleSubmit: 'I want my proposal',
+      heroTitle: 'The world isn’t <em>imagined</em>. It’s lived.',
+      heroSubtitle: 'We design trips tailored for those who prefer collecting moments, not just destinations.',
+      heroCta1: 'Discover your next destination',
+      heroCta2: 'Let’s talk about your trip',
+      tabFlights: 'Flights',
+      tabCruises: 'Cruises',
+      tabHotels: 'Hotels',
+      tabCars: 'Car rental',
+      tabPackage: 'All-in-one',
+      tripTypeLabel: 'Trip type',
+      tripTypeRoundtrip: 'Round trip',
+      tripTypeOneway: 'One way',
+      searchNameLabel: 'Your name',
+      searchNamePlaceholder: 'What’s your name?',
+      searchEmailLabel: 'Your email',
+      searchSubmit: 'Search',
+      destinosEyebrow: 'Featured destinations',
+      destinosClearFilter: '← View all destinations',
+      destinosEmpty: 'We don’t have published destinations for this experience yet — but an advisor can build one tailored for you. <a href="#newsletter">Contact us →</a>',
+      whyEyebrow: 'Why Mime Travel',
+      whyTitle: 'Traveling worry-free is traveling well',
+      why1Title: 'Personalized attention',
+      why1Body: 'A real travel advisor, not a chatbot, designing your itinerary.',
+      why2Title: 'No-surprise pricing',
+      why2Body: 'What you see is what you pay. No fine print.',
+      why3Title: 'Support wherever you are',
+      why3Body: 'Support before, during, and after your trip.',
+      expEyebrow: 'Experiences',
+      expTitle: 'Choose how you want the world to surprise you',
+      expBody: 'Adventure, relaxation, romance, or culture — every traveler has their own rhythm. Find yours.',
+      expAventura: 'Adventure',
+      expRelax: 'Relax',
+      expCultura: 'Culture',
+      expLunaDeMiel: 'Honeymoon',
+      expNaturaleza: 'Nature',
+      expCta: 'Explore experiences',
+      testiEyebrow: 'Trust',
+      testiTitle: 'Don’t take our word for it',
+      testiBody: 'Hundreds of travelers have already trusted us with their next adventure. Here’s what they have to say.',
+      testi1Quote: '"The whole itinerary felt made just for me. I’d never traveled so at ease knowing there was a real person behind the scenes organizing everything."',
+      testi2Quote: '"The price they gave me was exactly what I paid. Zero surprises, zero fine print. That’s how you earn a customer’s trust."',
+      testi3Quote: '"We had a flight mishap and they sorted everything out in minutes, remotely. That support made all the difference on our honeymoon."',
+      nlTitle: 'The best deals aren’t announced. They’re whispered.',
+      nlBody: 'Join our list and be the first to know about exclusive getaways and prices you won’t find anywhere else.',
+      nlSubmit: 'I want the best deals',
+      footerTagline: 'Because every trip should feel like your own story.',
+      footerServicesHeading: 'Services',
+      footerExploreHeading: 'Explore',
+      footerTestimonials: 'Testimonials',
+      footerCompanyHeading: 'Company',
+      footerAbout: 'About us',
+      footerBlog: 'Blog',
+      footerCareers: 'Work with us',
+      footerWriteUs: 'Contact us',
+      footerRights: 'All rights reserved.',
+      footerPrivacy: 'Privacy policy',
+      footerTerms: 'Terms and conditions',
+      // claves que también viven en I18N_ES (mensajes dinámicos, no-DOM)
+      menuOpen: 'Open menu',
+      menuClose: 'Close menu',
+      noMatches: 'No matches',
+      selectPlaceholder: 'Select...',
+      msgSearchSending: 'Sending your search...',
+      msgSearchSuccess: 'All set! A travel advisor will contact you very soon.',
+      msgSearchError: 'We couldn’t send your search. Email us directly at contacto@mimetravel.com.',
+      msgPresaleSending: 'Sending...',
+      msgPresaleSuccess: 'All set! An advisor will send you your custom proposal very soon.',
+      msgPresaleError: 'We couldn’t send your request. Email us directly at contacto@mimetravel.com.',
+      msgNewsletterSending: 'Sending...',
+      msgNewsletterSuccess: 'Thanks for joining! You’ll get our best deals soon.',
+      msgNewsletterError: 'We couldn’t process your subscription. Try again in a few minutes.',
+      destinosFilteredHeadingPrefix: 'Destinations for ',
+      destinosFilteredSubtext: 'These are the destinations that best match what you’re looking for.',
+      destinoPricePrefix: 'From',
+      destinoCta: 'I want to go here →',
+    };
+
+    // Traduce un texto libre (mensajes JS, no-DOM) según el idioma activo.
+    function t(key) {
+      const dict = currentLang === 'en' ? I18N_EN : I18N_ES;
+      return dict[key] !== undefined ? dict[key] : (I18N_ES[key] || key);
+    }
+
+    // Nombres de país que aparecen en "Ciudad, País" (tarjetas de destino y
+    // testimonios) — la ciudad no se traduce, solo el país.
+    const COUNTRY_TRANSLATIONS = {
+      'Grecia': 'Greece', 'Francia': 'France', 'Indonesia': 'Indonesia', 'Perú': 'Peru',
+      'Suiza': 'Switzerland', 'Canadá': 'Canada', 'Jordania': 'Jordan', 'México': 'Mexico',
+      'Japón': 'Japan', 'Argentina': 'Argentina', 'Colombia': 'Colombia', 'Tanzania': 'Tanzania',
+      'Marruecos': 'Morocco', 'Polinesia Francesa': 'French Polynesia', 'Nueva Zelanda': 'New Zealand',
+      'Australia': 'Australia', 'Maldivas': 'Maldives',
+    };
+
+    function translateDestinationName(nameEs) {
+      if (currentLang !== 'en') return nameEs;
+      const parts = nameEs.split(', ');
+      if (parts.length < 2) return nameEs;
+      const country = parts[parts.length - 1];
+      const translatedCountry = COUNTRY_TRANSLATIONS[country] || country;
+      return parts.slice(0, -1).join(', ') + ', ' + translatedCountry;
+    }
+
+    // Elementos con data-i18n / data-i18n-placeholder / data-i18n-aria: se
+    // captura su contenido original (español) una sola vez, así "volver a
+    // español" es simplemente restaurar lo que ya estaba en el HTML.
+    const i18nEls = Array.from(document.querySelectorAll('[data-i18n]'));
+    const i18nOriginal = new Map(i18nEls.map(el => [el, el.innerHTML]));
+    const i18nPlaceholderEls = Array.from(document.querySelectorAll('[data-i18n-placeholder]'));
+    const i18nPlaceholderOriginal = new Map(i18nPlaceholderEls.map(el => [el, el.placeholder]));
+    const i18nAriaEls = Array.from(document.querySelectorAll('[data-i18n-aria]'));
+    const i18nAriaOriginal = new Map(i18nAriaEls.map(el => [el, el.getAttribute('aria-label')]));
+
+    function applyStaticI18n(lang) {
+      i18nEls.forEach(el => {
+        const key = el.dataset.i18n;
+        el.innerHTML = (lang === 'en' && I18N_EN[key] !== undefined) ? I18N_EN[key] : i18nOriginal.get(el);
+      });
+      i18nPlaceholderEls.forEach(el => {
+        const key = el.dataset.i18nPlaceholder;
+        el.placeholder = (lang === 'en' && I18N_EN[key] !== undefined) ? I18N_EN[key] : i18nPlaceholderOriginal.get(el);
+      });
+      i18nAriaEls.forEach(el => {
+        const key = el.dataset.i18nAria;
+        el.setAttribute('aria-label', (lang === 'en' && I18N_EN[key] !== undefined) ? I18N_EN[key] : i18nAriaOriginal.get(el));
+      });
+    }
+
     // Header solid on scroll
     const header = document.getElementById('siteHeader');
     window.addEventListener('scroll', () => {
