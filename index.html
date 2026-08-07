@@ -259,6 +259,32 @@
     gap: 20px;
   }
 
+  .lang-toggle {
+    display: flex;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 999px;
+    padding: 3px;
+  }
+
+  .lang-toggle button {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.7);
+    background: none;
+    border: none;
+    border-radius: 999px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .lang-toggle button.active {
+    background: var(--light);
+    color: var(--primary);
+  }
+
   .menu-toggle {
     display: none;
     background: none;
