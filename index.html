@@ -2468,7 +2468,7 @@
     const searchMsg = document.getElementById('searchMsg');
     searchForm.addEventListener('submit', function (e) {
       e.preventDefault();
-      searchMsg.textContent = 'Enviando tu búsqueda...';
+      searchMsg.textContent = t('msgSearchSending');
       const form = this;
       const activeType = searchTabs.querySelector('.search-tab.active')?.dataset.type || 'vuelos';
       const data = Object.fromEntries(new FormData(form).entries());
