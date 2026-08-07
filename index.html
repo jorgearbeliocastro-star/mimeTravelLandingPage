@@ -2005,7 +2005,39 @@
           select.style.display = 'none';
         }
       }
+
+      const tripTypeGroup = document.getElementById('tripTypeGroup');
+      tripTypeGroup.style.display = type === 'vuelos' ? '' : 'none';
+      if (type === 'vuelos') applyReturnDateVisibility();
     }
+
+    // El campo "Fecha de vuelta" solo tiene sentido si el cliente eligió
+    // "Ida y vuelta" — con "Solo ida" se oculta y se deshabilita para que
+    // no se envíe (y quede claro que ida y vuelta no es lo asumido por defecto).
+    function applyReturnDateVisibility() {
+      const tripTypeValueInput = document.getElementById('tripTypeValue');
+      const field4Group = document.getElementById('field4Group');
+      const field4 = document.getElementById('field4');
+      if (!tripTypeValueInput || !field4Group || !field4) return;
+      if (tripTypeValueInput.value === 'oneway') {
+        field4Group.style.display = 'none';
+        field4.value = '';
+        field4.disabled = true;
+      } else {
+        field4Group.style.display = '';
+        field4.disabled = false;
+      }
+    }
+
+    const tripTypeToggle = document.getElementById('tripTypeToggle');
+    tripTypeToggle.addEventListener('click', function (e) {
+      const btn = e.target.closest('.trip-type-btn');
+      if (!btn) return;
+      tripTypeToggle.querySelectorAll('.trip-type-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tripTypeValue').value = btn.dataset.tripType;
+      applyReturnDateVisibility();
+    });
 
     searchTabs.addEventListener('click', function (e) {
       const tab = e.target.closest('.search-tab');
