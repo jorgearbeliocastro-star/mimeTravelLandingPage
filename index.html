@@ -2679,6 +2679,70 @@
           newsletterMsg.textContent = t('msgNewsletterError');
         });
     });
+
+    // ===== Traducción de tarjetas de destino y testimonios =====
+    // El precio y el CTA son idénticos en las 24 tarjetas — se traducen por
+    // patrón en vez de necesitar una clave data-i18n por tarjeta. El nombre
+    // ("Ciudad, País") solo traduce el país (ver COUNTRY_TRANSLATIONS). El
+    // texto original en español se guarda en el propio elemento la primera
+    // vez que corre, así "volver a español" es solo restaurarlo.
+    function applyDestinoTranslations() {
+      document.querySelectorAll('.destino-card').forEach(card => {
+        const priceEl = card.querySelector('.destino-price');
+        const nameEl = card.querySelector('.destino-name');
+        const ctaBtn = card.querySelector('.destino-cta');
+        if (!card.dataset.priceEs) card.dataset.priceEs = priceEl.textContent;
+        if (!card.dataset.nameEs) card.dataset.nameEs = nameEl.textContent;
+
+        if (currentLang === 'en') {
+          priceEl.textContent = card.dataset.priceEs.replace(/^Desde/, t('destinoPricePrefix'));
+          const nameEn = translateDestinationName(card.dataset.nameEs);
+          nameEl.textContent = nameEn;
+          ctaBtn.textContent = t('destinoCta');
+          ctaBtn.dataset.presaleDestino = nameEn;
+        } else {
+          priceEl.textContent = card.dataset.priceEs;
+          nameEl.textContent = card.dataset.nameEs;
+          ctaBtn.textContent = t('destinoCta');
+          ctaBtn.dataset.presaleDestino = card.dataset.nameEs;
+        }
+      });
+
+      document.querySelectorAll('.testi-author-trip').forEach(el => {
+        if (!el.dataset.tripEs) el.dataset.tripEs = el.textContent;
+        el.textContent = currentLang === 'en' ? translateDestinationName(el.dataset.tripEs) : el.dataset.tripEs;
+      });
+    }
+
+    // ===== Selector de idioma (aplica todo lo anterior + persiste la elección) =====
+    const langToggle = document.getElementById('langToggle');
+
+    function applyLanguage(lang) {
+      currentLang = lang === 'en' ? 'en' : 'es';
+      localStorage.setItem(LANG_STORAGE_KEY, currentLang);
+      document.documentElement.lang = currentLang;
+
+      langToggle.querySelectorAll('button').forEach(b => {
+        b.classList.toggle('active', b.dataset.lang === currentLang);
+      });
+
+      applyStaticI18n(currentLang);
+      applyDestinoTranslations();
+      renderDestinosHeading();
+
+      // El buscador del hero arma sus labels/placeholders/opciones desde
+      // SEARCH_FIELD_CONFIG_ES/EN — hay que re-renderizar la pestaña activa.
+      const activeTabType = searchTabs.querySelector('.search-tab.active')?.dataset.type || 'vuelos';
+      applyServiceType(activeTabType);
+    }
+
+    langToggle.addEventListener('click', function (e) {
+      const btn = e.target.closest('button[data-lang]');
+      if (!btn) return;
+      applyLanguage(btn.dataset.lang);
+    });
+
+    applyLanguage(currentLang);
   </script>
 </body>
 </html>
