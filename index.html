@@ -1147,6 +1147,231 @@
     }
   }
 
+  /* ---------- PANEL DE COTIZACIÓN / CHAT ---------- */
+  .quote-panel {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 300;
+    width: min(380px, calc(100vw - 40px));
+    max-height: min(600px, calc(100vh - 40px));
+    background: var(--light);
+    border-radius: 20px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .quote-panel[hidden] {
+    display: none;
+  }
+
+  .quote-panel-header {
+    background: var(--primary);
+    color: var(--light);
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .quote-panel-header-text {
+    min-width: 0;
+  }
+
+  .quote-panel-header-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 16px;
+  }
+
+  .quote-panel-header-route {
+    font-size: 12.5px;
+    color: rgba(255, 255, 255, 0.7);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .quote-panel-close {
+    background: none;
+    border: none;
+    color: var(--light);
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+    flex: none;
+  }
+
+  .quote-status-bar {
+    padding: 12px 18px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    font-size: 13.5px;
+    background: var(--arena);
+  }
+
+  .quote-status-searching {
+    font-weight: 600;
+    color: var(--primary);
+    animation: quote-blink 1.8s ease-in-out infinite;
+  }
+
+  @keyframes quote-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  .quote-status-price {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 8px;
+  }
+
+  .quote-status-decision {
+    display: flex;
+    gap: 8px;
+  }
+
+  .quote-decision-btn {
+    flex: 1;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 700;
+    border: none;
+    border-radius: 999px;
+    padding: 9px 12px;
+    cursor: pointer;
+  }
+
+  .quote-decision-accept {
+    background: var(--coral);
+    color: var(--light);
+  }
+
+  .quote-decision-decline {
+    background: transparent;
+    border: 1.5px solid rgba(27, 58, 92, 0.3);
+    color: var(--primary);
+  }
+
+  .quote-status-resolved {
+    font-weight: 600;
+    color: var(--primary);
+  }
+
+  .quote-chat-messages {
+    flex: 1;
+    min-height: 160px;
+    max-height: 280px;
+    overflow-y: auto;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .quote-chat-empty {
+    font-size: 13px;
+    color: rgba(26, 26, 26, 0.5);
+    text-align: center;
+    margin-top: 12px;
+  }
+
+  .quote-chat-bubble {
+    max-width: 82%;
+    padding: 9px 13px;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .quote-chat-bubble-client {
+    align-self: flex-end;
+    background: var(--primary);
+    color: var(--light);
+    border-bottom-right-radius: 4px;
+  }
+
+  .quote-chat-bubble-agent {
+    align-self: flex-start;
+    background: var(--arena);
+    color: var(--dark);
+    border-bottom-left-radius: 4px;
+  }
+
+  .quote-chat-form {
+    display: flex;
+    gap: 8px;
+    padding: 12px 14px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .quote-chat-input {
+    flex: 1;
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
+    border-radius: 999px;
+    padding: 9px 14px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    outline: none;
+    min-width: 0;
+  }
+
+  .quote-chat-input:focus {
+    border-color: var(--turquesa);
+  }
+
+  .quote-chat-send {
+    flex: none;
+    background: var(--coral);
+    color: var(--light);
+    border: none;
+    border-radius: 999px;
+    width: 38px;
+    height: 38px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .quote-reopen-btn {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 290;
+    background: var(--coral);
+    color: var(--light);
+    border: none;
+    border-radius: 999px;
+    padding: 12px 20px;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 14px;
+    box-shadow: 0 12px 28px rgba(255, 122, 89, 0.4);
+    cursor: pointer;
+  }
+
+  .quote-reopen-btn[hidden] {
+    display: none;
+  }
+
+  @media (max-width: 480px) {
+    .quote-panel {
+      right: 10px;
+      left: 10px;
+      bottom: 10px;
+      width: auto;
+    }
+    .quote-reopen-btn {
+      right: 10px;
+      bottom: 10px;
+    }
+  }
+
   .skip-link {
     position: absolute;
     top: -100px;
@@ -1686,6 +1911,28 @@
     </div>
   </footer>
 
+  <!-- ================= PANEL DE COTIZACIÓN / CHAT ================= -->
+  <button type="button" class="quote-reopen-btn" id="quoteReopenBtn" hidden data-i18n="quoteReopenBtn">Ver mi cotización</button>
+
+  <div class="quote-panel" id="quotePanel" hidden role="dialog" aria-labelledby="quotePanelTitle">
+    <div class="quote-panel-header">
+      <div class="quote-panel-header-text">
+        <div class="quote-panel-header-title" id="quotePanelTitle" data-i18n="quotePanelTitle">Tu cotización</div>
+        <div class="quote-panel-header-route" id="quotePanelRoute"></div>
+      </div>
+      <button type="button" class="quote-panel-close" id="quotePanelClose" aria-label="Cerrar" data-i18n-aria="modalCloseAria">✕</button>
+    </div>
+
+    <div class="quote-status-bar" id="quoteStatusBar"></div>
+
+    <div class="quote-chat-messages" id="quoteChatMessages"></div>
+
+    <form class="quote-chat-form" id="quoteChatForm">
+      <input type="text" class="quote-chat-input" id="quoteChatInput" data-i18n-placeholder="quoteChatPlaceholder" placeholder="Escribí tu mensaje..." autocomplete="off">
+      <button type="submit" class="quote-chat-send" aria-label="Enviar" data-i18n-aria="quoteChatSendAria">➤</button>
+    </form>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
@@ -1721,6 +1968,17 @@
       destinosFilteredSubtext: 'Estos son los destinos que mejor encajan con lo que buscas.',
       destinoPricePrefix: 'Desde',
       destinoCta: 'Quiero ir aquí →',
+      quoteStatusSearching: 'Tu agente está buscando tu vuelo…',
+      quoteStatusPricePrefix: 'Precio cotizado: ',
+      quoteDecisionAccept: 'Aceptar',
+      quoteDecisionDecline: 'Rechazar',
+      quoteDecisionAccepted: 'Aceptaste esta cotización — tu agente te va a escribir por acá para coordinar el pago.',
+      quoteDecisionDeclined: 'Rechazaste esta cotización.',
+      quoteChatEmpty: 'Todavía no hay mensajes. Escribí para empezar.',
+      quoteDecisionConfirm: '¿Aceptás esta cotización?',
+      quoteDecisionError: 'No pudimos registrar tu decisión — intentá de nuevo.',
+      quoteChatSendError: 'No se pudo enviar el mensaje — intentá de nuevo.',
+      quoteStatusExpired: 'Esta solicitud venció sin que llegáramos a cotizarla — escribinos por acá si todavía te interesa.',
     };
 
     // Diccionario en inglés — cubre tanto las claves data-i18n del HTML
@@ -1821,6 +2079,21 @@
       destinosFilteredSubtext: 'These are the destinations that best match what you’re looking for.',
       destinoPricePrefix: 'From',
       destinoCta: 'I want to go here →',
+      quoteReopenBtn: 'View my quote',
+      quotePanelTitle: 'Your quote',
+      quoteChatPlaceholder: 'Write your message...',
+      quoteChatSendAria: 'Send',
+      quoteStatusSearching: 'Your agent is looking for your flight…',
+      quoteStatusPricePrefix: 'Quoted price: ',
+      quoteDecisionAccept: 'Accept',
+      quoteDecisionDecline: 'Decline',
+      quoteDecisionAccepted: 'You accepted this quote — your agent will message you here to arrange payment.',
+      quoteDecisionDeclined: 'You declined this quote.',
+      quoteChatEmpty: 'No messages yet. Write something to start.',
+      quoteDecisionConfirm: 'Accept this quote?',
+      quoteDecisionError: 'We couldn’t record your decision — please try again.',
+      quoteChatSendError: 'Couldn’t send the message — please try again.',
+      quoteStatusExpired: 'This request expired before we could quote it — message us here if you’re still interested.',
     };
 
     // Traduce un texto libre (mensajes JS, no-DOM) según el idioma activo.
@@ -1960,7 +2233,7 @@
         // no bloqueante — si falla, el pedido cae al pool general de agentes
       }
 
-      const { error } = await laExpancion.from('quote_requests').insert({
+      const { data: inserted, error } = await laExpancion.from('quote_requests').insert({
         client_token: clientToken,
         claimed_by_agent_id: preferredAgentId,
         category: payload.category,
@@ -1985,10 +2258,12 @@
         passenger_date_of_birth: null,
         passenger_passport_expiry: null,
         passenger_nationality: null,
-      });
+      }).select('id').single();
       if (error) throw error;
 
       notifyLaExpancion({ origin: payload.origin, destination: payload.destination, claimedByAgentId: preferredAgentId });
+
+      return inserted.id;
     }
 
     // Junta varias notas sueltas (categoría, huéspedes, presupuesto...) en un
@@ -2475,13 +2750,14 @@
       const payload = buildSearchQuotePayload(activeType, data);
 
       createLaExpancionQuoteRequest(payload)
-        .then(() => {
+        .then((quoteId) => {
           searchMsg.textContent = t('msgSearchSuccess');
           // Aviso por correo además de la notificación push de la app —
           // así llega la alerta aunque el agente tenga la app cerrada.
           // No bloqueante: si falla, el pedido ya quedó guardado igual.
           sendToFormSubmit(form, 'Nueva búsqueda de viaje — Mime Travel').catch(() => {});
           form.reset();
+          openQuotePanel(quoteId, payload.origin ? payload.origin + ' → ' + payload.destination : payload.destination);
         })
         .catch(() => {
           // Si falla el envío directo a la app, no se pierde el pedido —
@@ -2557,7 +2833,7 @@
       };
 
       createLaExpancionQuoteRequest(payload)
-        .then(() => {
+        .then((quoteId) => {
           presaleMsg.textContent = t('msgPresaleSuccess');
           // Aviso por correo además de la notificación push de la app —
           // así llega la alerta aunque el agente tenga la app cerrada.
@@ -2565,6 +2841,7 @@
           sendToFormSubmit(form, 'Preventa: ' + payload.destination + ' — Mime Travel').catch(() => {});
           form.reset();
           setTimeout(closePresaleModal, 2000);
+          openQuotePanel(quoteId, payload.destination);
         })
         .catch(() => {
           // Si falla el envío directo a la app, no se pierde el pedido —
@@ -2679,6 +2956,215 @@
           newsletterMsg.textContent = t('msgNewsletterError');
         });
     });
+
+    // ===== Panel de cotización / chat con el agente =====
+    // Todo esto llama directo a los mismos RPCs que ya usa la app móvil
+    // (ver src/services/quoteService.ts de "la expansión") — verificados
+    // por client_token en el servidor, no por sesión, así que funcionan
+    // igual desde acá sin necesitar login. Se actualiza por polling (mismo
+    // criterio que la app: ver POLL_MS en ClientQuoteChatScreen.tsx), no
+    // por Realtime.
+    const QUOTE_POLL_MS = 5000;
+    const QUOTE_ID_STORAGE_KEY = 'la-expancion.active-quote-id';
+
+    const quotePanel = document.getElementById('quotePanel');
+    const quotePanelRoute = document.getElementById('quotePanelRoute');
+    const quotePanelClose = document.getElementById('quotePanelClose');
+    const quoteStatusBar = document.getElementById('quoteStatusBar');
+    const quoteChatMessages = document.getElementById('quoteChatMessages');
+    const quoteChatForm = document.getElementById('quoteChatForm');
+    const quoteChatInput = document.getElementById('quoteChatInput');
+    const quoteReopenBtn = document.getElementById('quoteReopenBtn');
+
+    let activeQuoteId = null;
+    let activeQuoteRouteLabel = '';
+    let quotePollInterval = null;
+    let quoteDecisionInFlight = false;
+
+    // Mismo webhook que usa notifyLaExpancion() más arriba — avisa al
+    // Agente por push apenas el cliente acepta o rechaza desde acá.
+    function notifyQuoteDecisionWeb(quoteRequestId) {
+      fetch(LA_EXPANCION_FUNCTIONS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': LA_EXPANCION_WEBHOOK_SECRET },
+        body: JSON.stringify({ type: 'DECISION', table: 'quote_decision', record: { quoteRequestId } }),
+      }).catch(() => {});
+    }
+
+    function renderQuoteStatus(quote) {
+      quoteStatusBar.innerHTML = '';
+      if (quote.status === 'pending') {
+        const span = document.createElement('span');
+        span.className = 'quote-status-searching';
+        span.textContent = t('quoteStatusSearching');
+        quoteStatusBar.appendChild(span);
+        return;
+      }
+      if (quote.status === 'quoted' && !quote.client_decision) {
+        const price = document.createElement('div');
+        price.className = 'quote-status-price';
+        price.textContent = t('quoteStatusPricePrefix') + 'USD ' + quote.quoted_price_usd;
+        const actions = document.createElement('div');
+        actions.className = 'quote-status-decision';
+        actions.innerHTML =
+          '<button type="button" class="quote-decision-btn quote-decision-accept" data-decision="accept">' + t('quoteDecisionAccept') + '</button>' +
+          '<button type="button" class="quote-decision-btn quote-decision-decline" data-decision="decline">' + t('quoteDecisionDecline') + '</button>';
+        quoteStatusBar.appendChild(price);
+        quoteStatusBar.appendChild(actions);
+        return;
+      }
+      if (quote.status === 'decided') {
+        const p = document.createElement('p');
+        p.className = 'quote-status-resolved';
+        p.textContent = quote.client_decision === 'accepted' ? t('quoteDecisionAccepted') : t('quoteDecisionDeclined');
+        quoteStatusBar.appendChild(p);
+        return;
+      }
+      if (quote.status === 'expired') {
+        const p = document.createElement('p');
+        p.className = 'quote-status-resolved';
+        p.textContent = t('quoteStatusExpired');
+        quoteStatusBar.appendChild(p);
+      }
+    }
+
+    quoteStatusBar.addEventListener('click', function (e) {
+      const btn = e.target.closest('.quote-decision-btn');
+      if (!btn || quoteDecisionInFlight || !activeQuoteId) return;
+      const accept = btn.dataset.decision === 'accept';
+      if (!window.confirm(t('quoteDecisionConfirm'))) return;
+      quoteDecisionInFlight = true;
+      const clientToken = getOrCreateWebClientToken();
+      laExpancion.rpc('decide_quote_request', { p_token: clientToken, p_id: activeQuoteId, p_accept: accept })
+        .then(({ error }) => {
+          if (error) throw error;
+          notifyQuoteDecisionWeb(activeQuoteId);
+          return pollQuote();
+        })
+        .catch(() => {
+          window.alert(t('quoteDecisionError'));
+        })
+        .finally(() => {
+          quoteDecisionInFlight = false;
+        });
+    });
+
+    function renderChatMessages(messages) {
+      const wasNearBottom = quoteChatMessages.scrollHeight - quoteChatMessages.scrollTop - quoteChatMessages.clientHeight < 40;
+      quoteChatMessages.innerHTML = '';
+      if (!messages.length) {
+        const empty = document.createElement('p');
+        empty.className = 'quote-chat-empty';
+        empty.textContent = t('quoteChatEmpty');
+        quoteChatMessages.appendChild(empty);
+        return;
+      }
+      messages.forEach((m) => {
+        const bubble = document.createElement('div');
+        bubble.className = 'quote-chat-bubble ' + (m.sender === 'client' ? 'quote-chat-bubble-client' : 'quote-chat-bubble-agent');
+        bubble.textContent = m.body;
+        quoteChatMessages.appendChild(bubble);
+      });
+      if (wasNearBottom) quoteChatMessages.scrollTop = quoteChatMessages.scrollHeight;
+    }
+
+    async function pollQuote() {
+      if (!activeQuoteId) return;
+      const clientToken = getOrCreateWebClientToken();
+      try {
+        const { data: quotes, error } = await laExpancion.rpc('get_quote_requests_by_token', { p_token: clientToken });
+        if (error) throw error;
+        const quote = (quotes || []).find((q) => q.id === activeQuoteId);
+        if (quote) {
+          renderQuoteStatus(quote);
+          activeQuoteRouteLabel = quote.origin ? quote.origin + ' → ' + quote.destination : quote.destination;
+          quotePanelRoute.textContent = activeQuoteRouteLabel;
+        }
+        const { data: messages, error: msgError } = await laExpancion.rpc('get_quote_request_messages', {
+          p_token: clientToken,
+          p_quote_request_id: activeQuoteId,
+        });
+        if (!msgError) renderChatMessages(messages || []);
+      } catch {
+        // no bloqueante — se reintenta en el próximo tick del polling
+      }
+    }
+
+    function startQuotePolling() {
+      stopQuotePolling();
+      pollQuote();
+      quotePollInterval = setInterval(pollQuote, QUOTE_POLL_MS);
+    }
+
+    function stopQuotePolling() {
+      if (quotePollInterval) {
+        clearInterval(quotePollInterval);
+        quotePollInterval = null;
+      }
+    }
+
+    function openQuotePanel(quoteId, routeLabel) {
+      activeQuoteId = quoteId;
+      activeQuoteRouteLabel = routeLabel || '';
+      localStorage.setItem(QUOTE_ID_STORAGE_KEY, quoteId);
+      quotePanelRoute.textContent = activeQuoteRouteLabel;
+      renderQuoteStatus({ status: 'pending' });
+      quoteChatMessages.innerHTML = '';
+      quotePanel.hidden = false;
+      quoteReopenBtn.hidden = true;
+      startQuotePolling();
+    }
+
+    function closeQuotePanel() {
+      quotePanel.hidden = true;
+      stopQuotePolling();
+      if (activeQuoteId) quoteReopenBtn.hidden = false;
+    }
+
+    quotePanelClose.addEventListener('click', closeQuotePanel);
+
+    quoteChatForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const body = quoteChatInput.value.trim();
+      if (!body || !activeQuoteId) return;
+      quoteChatInput.value = '';
+      const clientToken = getOrCreateWebClientToken();
+      laExpancion.rpc('send_client_message', { p_token: clientToken, p_quote_request_id: activeQuoteId, p_body: body })
+        .then(({ error }) => {
+          if (error) throw error;
+          return pollQuote();
+        })
+        .catch(() => {
+          quoteChatInput.value = body;
+          window.alert(t('quoteChatSendError'));
+        });
+    });
+
+    quoteReopenBtn.addEventListener('click', function () {
+      openQuotePanel(activeQuoteId, activeQuoteRouteLabel);
+    });
+
+    // Si el visitante ya tenía una cotización en curso en este navegador
+    // (recargó la página, volvió más tarde), se ofrece un botón para
+    // retomarla en vez de forzar el panel abierto de entrada.
+    (function restoreStoredQuote() {
+      const storedId = localStorage.getItem(QUOTE_ID_STORAGE_KEY);
+      if (!storedId) return;
+      const clientToken = getOrCreateWebClientToken();
+      laExpancion.rpc('get_quote_requests_by_token', { p_token: clientToken })
+        .then(({ data, error }) => {
+          if (error) throw error;
+          const found = (data || []).find((q) => q.id === storedId);
+          if (found) {
+            activeQuoteId = storedId;
+            activeQuoteRouteLabel = found.origin ? found.origin + ' → ' + found.destination : found.destination;
+            quoteReopenBtn.hidden = false;
+          } else {
+            localStorage.removeItem(QUOTE_ID_STORAGE_KEY);
+          }
+        })
+        .catch(() => {});
+    })();
 
     // ===== Traducción de tarjetas de destino y testimonios =====
     // El precio y el CTA son idénticos en las 24 tarjetas — se traducen por
