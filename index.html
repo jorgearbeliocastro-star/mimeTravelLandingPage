@@ -2535,7 +2535,7 @@
 
     presaleForm.addEventListener('submit', function (e) {
       e.preventDefault();
-      presaleMsg.textContent = 'Enviando...';
+      presaleMsg.textContent = t('msgPresaleSending');
       const form = this;
       const data = Object.fromEntries(new FormData(form).entries());
       const payload = {
