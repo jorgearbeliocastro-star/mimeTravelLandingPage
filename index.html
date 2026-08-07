@@ -2347,9 +2347,7 @@
     // pero no toca las clases .active de los botones — hay que resincronizarlas.
     searchForm.addEventListener('reset', function () {
       setTimeout(() => {
-        tripTypeToggle.querySelectorAll('.trip-type-btn').forEach(b => {
-          b.classList.toggle('active', b.dataset.tripType === 'roundtrip');
-        });
+        tripTypeToggle.querySelectorAll('.trip-type-btn').forEach(b => b.classList.remove('active'));
         applyReturnDateVisibility();
       }, 0);
     });
