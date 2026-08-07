@@ -1197,37 +1197,37 @@
   <!-- ================= FORMULARIO DE PREVENTA (MODAL) ================= -->
   <div class="modal-overlay" id="presaleOverlay" hidden>
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="presaleTitle">
-      <button type="button" class="modal-close" id="presaleCloseBtn" aria-label="Cerrar">✕</button>
-      <h3 id="presaleTitle">Cuéntanos de tu viaje a <span id="presaleDestinoLabel">este destino</span></h3>
-      <p>Precarga tus datos y un asesor arma tu propuesta a la medida — sin compromiso.</p>
+      <button type="button" class="modal-close" id="presaleCloseBtn" aria-label="Cerrar" data-i18n-aria="modalCloseAria">✕</button>
+      <h3 id="presaleTitle" data-i18n="presaleTitlePrefix">Cuéntanos de tu viaje a <span id="presaleDestinoLabel">este destino</span></h3>
+      <p data-i18n="presaleIntro">Precarga tus datos y un asesor arma tu propuesta a la medida — sin compromiso.</p>
       <form id="presaleForm">
         <input type="hidden" id="presaleDestinoInput" name="destino">
         <div class="modal-field">
-          <label for="presaleName">Nombre</label>
-          <input type="text" id="presaleName" name="nombre" placeholder="Tu nombre" required>
+          <label for="presaleName" data-i18n="presaleNameLabel">Nombre</label>
+          <input type="text" id="presaleName" name="nombre" placeholder="Tu nombre" required data-i18n-placeholder="presaleNamePlaceholder">
         </div>
         <div class="modal-field">
-          <label for="presaleTravelers">N.º de viajeros</label>
-          <input type="text" id="presaleTravelers" name="viajeros" placeholder="Ej. 2 adultos, 1 niño" required>
+          <label for="presaleTravelers" data-i18n="presaleTravelersLabel">N.º de viajeros</label>
+          <input type="text" id="presaleTravelers" name="viajeros" placeholder="Ej. 2 adultos, 1 niño" required data-i18n-placeholder="presaleTravelersPlaceholder">
         </div>
         <div class="modal-field">
-          <label for="presaleDates">Fecha tentativa de viaje</label>
+          <label for="presaleDates" data-i18n="presaleDatesLabel">Fecha tentativa de viaje</label>
           <input type="date" id="presaleDates" name="fecha_tentativa">
         </div>
         <div class="modal-field">
-          <label for="presaleBudget">Presupuesto aproximado</label>
+          <label for="presaleBudget" data-i18n="presaleBudgetLabel">Presupuesto aproximado</label>
           <select id="presaleBudget" name="presupuesto">
-            <option value="Menos de $1,000 USD">Menos de $1,000 USD</option>
+            <option value="Menos de $1,000 USD" data-i18n="budget1">Menos de $1,000 USD</option>
             <option value="$1,000 – $2,500 USD">$1,000 – $2,500 USD</option>
             <option value="$2,500 – $5,000 USD">$2,500 – $5,000 USD</option>
-            <option value="Más de $5,000 USD">Más de $5,000 USD</option>
+            <option value="Más de $5,000 USD" data-i18n="budget4">Más de $5,000 USD</option>
           </select>
         </div>
         <div class="modal-field">
-          <label for="presaleEmail">Tu correo</label>
+          <label for="presaleEmail" data-i18n="presaleEmailLabel">Tu correo</label>
           <input type="email" id="presaleEmail" name="email" placeholder="tu@email.com" required>
         </div>
-        <button type="submit" class="btn btn-coral" style="width: 100%;">Quiero mi propuesta</button>
+        <button type="submit" class="btn btn-coral" style="width: 100%;" data-i18n="presaleSubmit">Quiero mi propuesta</button>
       </form>
       <p class="newsletter-msg" id="presaleMsg" style="color: var(--dark);"></p>
     </div>
