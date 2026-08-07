@@ -342,6 +342,35 @@
     color: var(--light);
   }
 
+  .trip-type-toggle {
+    display: flex;
+    gap: 6px;
+  }
+
+  .trip-type-btn {
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    padding: 6px 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .trip-type-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .trip-type-btn.active {
+    background: var(--turquesa);
+    border-color: var(--turquesa);
+    color: var(--primary-dark);
+  }
+
   .search-bar {
     display: flex;
     flex-wrap: wrap;
