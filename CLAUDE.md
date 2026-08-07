@@ -34,7 +34,7 @@ This site is the public front-end for a companion app, **"la expancion"** (`../l
 
 ## Page structure (in `index.html`, top to bottom)
 
-Header (fixed, transparent → solid on scroll, includes a "🎙️ Llamar ahora" call button) → two hidden modals (llamada en vivo / formulario de preventa) → Hero (with a demo "search" form) → Destinos destacados (destination cards, filterable by experience category) → "Why Mime Travel" trust points → Experiencias (category mosaic that drives the destination filter) → Testimonios → Newsletter signup → Footer.
+Header (fixed, transparent → solid on scroll) → a hidden modal (formulario de preventa) → Hero (with a demo "search" form) → Destinos destacados (destination cards, filterable by experience category) → "Why Mime Travel" trust points → Experiencias (category mosaic that drives the destination filter) → Testimonios → Newsletter signup → Footer.
 
 There is no standalone "Servicios" section — it was removed as redundant with the Hero's own search tabs; nav/footer links that used to point at it now point at `#main-content` (the Hero) instead.
 
