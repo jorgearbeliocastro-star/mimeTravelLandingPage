@@ -2208,6 +2208,10 @@
       createLaExpancionQuoteRequest(payload)
         .then(() => {
           presaleMsg.textContent = '¡Listo! Un asesor te enviará tu propuesta a la medida muy pronto.';
+          // Aviso por correo además de la notificación push de la app —
+          // así llega la alerta aunque el agente tenga la app cerrada.
+          // No bloqueante: si falla, el pedido ya quedó guardado igual.
+          sendToFormSubmit(form, 'Preventa: ' + payload.destination + ' — Mime Travel').catch(() => {});
           form.reset();
           setTimeout(closePresaleModal, 2000);
         })
