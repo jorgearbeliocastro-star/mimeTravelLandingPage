@@ -2650,6 +2650,17 @@
       const tripTypeGroup = document.getElementById('tripTypeGroup');
       tripTypeGroup.style.display = type === 'vuelos' ? '' : 'none';
       if (type === 'vuelos') applyReturnDateVisibility();
+
+      // Asiento/equipaje solo tienen sentido para vuelos — llegan junto con
+      // el pedido inicial (van al campo `notes`) para que el agente ya
+      // cotice contemplando eso, en vez de descubrirlo después de aceptar.
+      const seatVisible = type === 'vuelos';
+      document.getElementById('searchSeatGroup').style.display = seatVisible ? '' : 'none';
+      document.getElementById('searchBaggageGroup').style.display = seatVisible ? '' : 'none';
+      if (!seatVisible) {
+        document.getElementById('searchSeat').value = '';
+        document.getElementById('searchBaggage').value = '';
+      }
     }
 
     // El campo "Fecha de vuelta" solo tiene sentido si el cliente eligió
