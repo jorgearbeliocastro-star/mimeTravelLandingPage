@@ -1541,63 +1541,69 @@
 
       <form class="search-bar" id="searchForm">
         <input type="hidden" id="tipoServicio" name="tipo_servicio" value="Vuelos">
-        <div class="search-field" id="tripTypeGroup" style="display: none;">
-          <label data-i18n="tripTypeLabel">Tipo de viaje</label>
-          <div class="trip-type-toggle" id="tripTypeToggle">
-            <button type="button" class="trip-type-btn" data-trip-type="oneway" data-i18n="tripTypeOneway">Solo ida</button>
+        <div id="searchStep1" style="display: contents;">
+          <div class="search-field" id="tripTypeGroup" style="display: none;">
+            <label data-i18n="tripTypeLabel">Tipo de viaje</label>
+            <div class="trip-type-toggle" id="tripTypeToggle">
+              <button type="button" class="trip-type-btn" data-trip-type="oneway" data-i18n="tripTypeOneway">Solo ida</button>
+            </div>
+            <input type="hidden" id="tripTypeValue" name="tipo_viaje" value="roundtrip">
           </div>
-          <input type="hidden" id="tripTypeValue" name="tipo_viaje" value="roundtrip">
+          <div class="search-field autocomplete-wrap">
+            <label for="field1">Origen</label>
+            <input type="text" id="field1" name="origen" placeholder="¿Desde dónde?" autocomplete="off">
+            <select id="field1Select" disabled style="display: none;"></select>
+            <div class="autocomplete-list" id="field1List"></div>
+          </div>
+          <div class="search-field autocomplete-wrap">
+            <label for="field2">Destino</label>
+            <input type="text" id="field2" name="destino" placeholder="¿Hacia dónde?" autocomplete="off">
+            <select id="field2Select" disabled style="display: none;"></select>
+            <div class="autocomplete-list" id="field2List"></div>
+          </div>
+          <div class="search-field">
+            <label for="field3">Fecha de ida</label>
+            <input type="date" id="field3" name="fecha_ida" placeholder="¿Cuándo te vas?">
+            <select id="field3Select" disabled style="display: none;"></select>
+            <div class="checklist" id="field3Checklist" style="display: none;"></div>
+          </div>
+          <div class="search-field" id="field4Group" style="display: none;">
+            <label for="field4">Fecha de vuelta</label>
+            <input type="date" id="field4" name="fecha_vuelta" placeholder="¿Cuándo regresas?" disabled>
+            <select id="field4Select" disabled style="display: none;"></select>
+          </div>
+          <div class="search-field" id="field5Group" style="display: none;">
+            <label for="field5">Categoría</label>
+            <input type="text" id="field5" name="extra" placeholder="" disabled style="display: none;">
+            <select id="field5Select" disabled style="display: none;"></select>
+          </div>
+          <div class="search-field" id="field6Group" style="display: none;">
+            <label for="field6">Habitaciones</label>
+            <input type="text" id="field6" name="extra2" placeholder="" disabled style="display: none;">
+            <select id="field6Select" disabled style="display: none;"></select>
+          </div>
+          <button type="button" class="btn btn-coral" id="searchStep1Continue" data-i18n="searchContinue">Continuar</button>
         </div>
-        <div class="search-field autocomplete-wrap">
-          <label for="field1">Origen</label>
-          <input type="text" id="field1" name="origen" placeholder="¿Desde dónde?" autocomplete="off">
-          <select id="field1Select" disabled style="display: none;"></select>
-          <div class="autocomplete-list" id="field1List"></div>
+        <div id="searchStep2" style="display: none;">
+          <button type="button" class="search-back-btn" id="searchStep2Back" data-i18n="searchBack">← Atrás</button>
+          <div class="search-field" id="searchSeatGroup" style="display: none;">
+            <label data-i18n="searchSeatLabel">Preferencia de asiento (opcional)</label>
+            <input type="text" id="searchSeat" name="asiento_preferido" data-i18n-placeholder="searchSeatPlaceholder" placeholder="Ej. ventanilla, pasillo, filas de adelante...">
+          </div>
+          <div class="search-field" id="searchBaggageGroup" style="display: none;">
+            <label data-i18n="searchBaggageLabel">Equipaje adicional (opcional)</label>
+            <input type="text" id="searchBaggage" name="equipaje_adicional" data-i18n-placeholder="searchBaggagePlaceholder" placeholder="Ej. 1 maleta de 23kg">
+          </div>
+          <div class="search-field">
+            <label for="searchName" data-i18n="searchNameLabel">Tu nombre</label>
+            <input type="text" id="searchName" name="nombre" placeholder="¿Cómo te llamas?" required data-i18n-placeholder="searchNamePlaceholder">
+          </div>
+          <div class="search-field">
+            <label for="searchEmail" data-i18n="searchEmailLabel">Tu correo</label>
+            <input type="email" id="searchEmail" name="email" placeholder="tu@email.com" required>
+          </div>
+          <button type="submit" class="btn btn-coral" data-i18n="searchSubmit">Buscar</button>
         </div>
-        <div class="search-field autocomplete-wrap">
-          <label for="field2">Destino</label>
-          <input type="text" id="field2" name="destino" placeholder="¿Hacia dónde?" autocomplete="off">
-          <select id="field2Select" disabled style="display: none;"></select>
-          <div class="autocomplete-list" id="field2List"></div>
-        </div>
-        <div class="search-field">
-          <label for="field3">Fecha de ida</label>
-          <input type="date" id="field3" name="fecha_ida" placeholder="¿Cuándo te vas?">
-          <select id="field3Select" disabled style="display: none;"></select>
-          <div class="checklist" id="field3Checklist" style="display: none;"></div>
-        </div>
-        <div class="search-field" id="field4Group" style="display: none;">
-          <label for="field4">Fecha de vuelta</label>
-          <input type="date" id="field4" name="fecha_vuelta" placeholder="¿Cuándo regresas?" disabled>
-          <select id="field4Select" disabled style="display: none;"></select>
-        </div>
-        <div class="search-field" id="field5Group" style="display: none;">
-          <label for="field5">Categoría</label>
-          <input type="text" id="field5" name="extra" placeholder="" disabled style="display: none;">
-          <select id="field5Select" disabled style="display: none;"></select>
-        </div>
-        <div class="search-field" id="field6Group" style="display: none;">
-          <label for="field6">Habitaciones</label>
-          <input type="text" id="field6" name="extra2" placeholder="" disabled style="display: none;">
-          <select id="field6Select" disabled style="display: none;"></select>
-        </div>
-        <div class="search-field" id="searchSeatGroup" style="display: none;">
-          <label data-i18n="searchSeatLabel">Preferencia de asiento (opcional)</label>
-          <input type="text" id="searchSeat" name="asiento_preferido" data-i18n-placeholder="searchSeatPlaceholder" placeholder="Ej. ventanilla, pasillo, filas de adelante...">
-        </div>
-        <div class="search-field" id="searchBaggageGroup" style="display: none;">
-          <label data-i18n="searchBaggageLabel">Equipaje adicional (opcional)</label>
-          <input type="text" id="searchBaggage" name="equipaje_adicional" data-i18n-placeholder="searchBaggagePlaceholder" placeholder="Ej. 1 maleta de 23kg">
-        </div>
-        <div class="search-field">
-          <label for="searchName" data-i18n="searchNameLabel">Tu nombre</label>
-          <input type="text" id="searchName" name="nombre" placeholder="¿Cómo te llamas?" required data-i18n-placeholder="searchNamePlaceholder">
-        </div>
-        <div class="search-field">
-          <label for="searchEmail" data-i18n="searchEmailLabel">Tu correo</label>
-          <input type="email" id="searchEmail" name="email" placeholder="tu@email.com" required>
-        </div>
-        <button type="submit" class="btn btn-coral" data-i18n="searchSubmit">Buscar</button>
       </form>
       <p class="newsletter-msg" id="searchMsg" style="color: rgba(255,255,255,0.85);"></p>
     </div>
