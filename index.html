@@ -3101,6 +3101,11 @@
         '<input type="date" class="quote-pax-input" name="expiry" required>' +
         '<label class="quote-pax-label">' + t('quotePaxNationality') + '</label>' +
         '<input type="text" class="quote-pax-input" name="nationality" required>' +
+        '<label class="quote-pax-label">' + t('quotePaxSeatPreference') + '</label>' +
+        '<input type="text" class="quote-pax-input" name="seatPreference" placeholder="' + t('quotePaxSeatPlaceholder') + '">' +
+        '<label class="quote-pax-label">' + t('quotePaxExtraBaggage') + '</label>' +
+        '<input type="text" class="quote-pax-input" name="extraBaggage" placeholder="' + t('quotePaxBaggagePlaceholder') + '">' +
+        '<p class="quote-pax-addons-note">' + t('quotePaxAddonsNote') + '</p>' +
         '<div class="quote-pax-actions">' +
         '<button type="submit" class="quote-decision-btn quote-decision-accept">' + (mode === 'accept' ? t('quotePaxSubmitAccept') : t('quotePaxSubmitOnly')) + '</button>' +
         '<button type="button" class="quote-decision-btn quote-decision-decline" data-pax-cancel="true">' + t('quotePaxCancel') + '</button>' +
