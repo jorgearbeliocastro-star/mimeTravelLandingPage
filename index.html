@@ -2730,6 +2730,11 @@
       document.getElementById('field' + i).addEventListener('change', syncAdjacentDateMins);
     }
 
+    searchTabs.addEventListener('click', syncAdjacentDateMins);
+    syncAdjacentDateMins();
+
+    const searchForm = document.getElementById('searchForm');
+
     // form.reset() restaura el input oculto a su valor por defecto (roundtrip)
     // pero no toca las clases .active de los botones — hay que resincronizarlas.
     searchForm.addEventListener('reset', function () {
@@ -2738,10 +2743,6 @@
         applyReturnDateVisibility();
       }, 0);
     });
-    searchTabs.addEventListener('click', syncAdjacentDateMins);
-    syncAdjacentDateMins();
-
-    const searchForm = document.getElementById('searchForm');
 
     // Checklists desplegables (ej. "Servicios que buscas" en Todo en uno):
     // sincroniza las casillas marcadas con el input oculto que se envía en el formulario
