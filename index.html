@@ -2785,7 +2785,11 @@
             searchDate: data.fecha_ida || null,
             returnDate: data.fecha_vuelta || null,
             endDate: null,
-            notes: buildQuoteNotes([data.clase ? 'Clase: ' + data.clase : null]),
+            notes: buildQuoteNotes([
+              data.clase ? 'Clase: ' + data.clase : null,
+              data.asiento_preferido ? 'Asiento preferido: ' + data.asiento_preferido : null,
+              data.equipaje_adicional ? 'Equipaje adicional: ' + data.equipaje_adicional : null,
+            ]),
           };
         case 'cruceros':
           return {
