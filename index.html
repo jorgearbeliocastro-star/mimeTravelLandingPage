@@ -3142,10 +3142,25 @@
               notifyQuoteDecisionWeb(activeQuoteId);
             })
           : Promise.resolve();
+        // Asiento/equipaje no son campos de submit_quote_passenger_info (esa
+        // función solo maneja lo necesario para emitir el pasaje) — como el
+        // precio de estos add-ons lo define el agente según la aerolínea, se
+        // mandan como mensaje al chat para que quede a la vista y el agente
+        // pueda confirmar el costo extra antes del link de pago.
+        const addonParts = [];
+        if (data.seatPreference?.trim()) addonParts.push(t('quotePaxSeatPreference').replace(' (opcional)', '') + ': ' + data.seatPreference.trim());
+        if (data.extraBaggage?.trim()) addonParts.push(t('quotePaxExtraBaggage').replace(' (optional)', '').replace(' (opcional)', '') + ': ' + data.extraBaggage.trim());
+        const addonsMessage = addonParts.length ? t('quotePaxAddonsMessage') + addonParts.join(' · ') : null;
+
         decideStep
           .then(() => laExpancion.rpc('submit_quote_passenger_info', passengerParams))
           .then(({ error }) => {
             if (error) throw error;
+            if (addonsMessage) {
+              return laExpancion.rpc('send_client_message', { p_token: clientToken, p_quote_request_id: activeQuoteId, p_body: addonsMessage }).catch(() => {});
+            }
+          })
+          .then(() => {
             showingPassengerForm = false;
             return pollQuote();
           })
