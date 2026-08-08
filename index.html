@@ -2334,7 +2334,13 @@
         // no bloqueante — si falla, el pedido cae al pool general de agentes
       }
 
-      const { data: inserted, error } = await laExpancion.from('quote_requests').insert({
+      // OJO: nunca encadenar .select() acá — "anon" no tiene permiso de
+      // SELECT sobre quote_requests (a propósito, por privacidad: solo se
+      // puede leer vía RPC verificado por token). Pedirle a PostgREST que
+      // devuelva la fila insertada dispara ese SELECT y el insert ENTERO
+      // falla por RLS, aunque el insert en sí sería válido. Por eso el id
+      // se recupera aparte, con el mismo RPC que ya usa el resto de la web.
+      const { error } = await laExpancion.from('quote_requests').insert({
         client_token: clientToken,
         claimed_by_agent_id: preferredAgentId,
         category: payload.category,
@@ -2359,10 +2365,15 @@
         passenger_date_of_birth: null,
         passenger_passport_expiry: null,
         passenger_nationality: null,
-      }).select('id').single();
+      });
       if (error) throw error;
 
       notifyLaExpancion({ origin: payload.origin, destination: payload.destination, claimedByAgentId: preferredAgentId });
+
+      // La fila recién insertada es la más nueva de este client_token — el
+      // propio RPC ya ordena por created_at desc, así que es la primera.
+      const { data: myQuotes, error: fetchError } = await laExpancion.rpc('get_quote_requests_by_token', { p_token: clientToken });
+      const inserted = !fetchError && myQuotes && myQuotes.length ? myQuotes[0] : null;
 
       return inserted.id;
     }
