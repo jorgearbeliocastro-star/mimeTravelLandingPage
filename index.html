@@ -2375,7 +2375,10 @@
       const { data: myQuotes, error: fetchError } = await laExpancion.rpc('get_quote_requests_by_token', { p_token: clientToken });
       const inserted = !fetchError && myQuotes && myQuotes.length ? myQuotes[0] : null;
 
-      return inserted.id;
+      // Si por lo que sea no se pudo recuperar el id (nunca debería pasar,
+      // el insert de arriba ya tuvo éxito), no se rompe el flujo: el pedido
+      // ya quedó guardado, simplemente no se abre el panel de chat.
+      return inserted ? inserted.id : null;
     }
 
     // Junta varias notas sueltas (categoría, huéspedes, presupuesto...) en un
