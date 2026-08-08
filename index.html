@@ -1232,6 +1232,16 @@
     margin-bottom: 8px;
   }
 
+  .quote-status-notes {
+    font-size: 13px;
+    line-height: 1.5;
+    color: rgba(26, 26, 26, 0.75);
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+  }
+
   .quote-status-decision {
     display: flex;
     gap: 8px;
@@ -3004,12 +3014,21 @@
         const price = document.createElement('div');
         price.className = 'quote-status-price';
         price.textContent = t('quoteStatusPricePrefix') + 'USD ' + quote.quoted_price_usd;
+        quoteStatusBar.appendChild(price);
+        // Notas del agente (ej. condiciones de la tarifa, si el equipaje
+        // está incluido o se paga aparte) — mismo campo `agent_notes` que
+        // ya llena el agente al cotizar, ahora visible acá también.
+        if (quote.agent_notes) {
+          const notes = document.createElement('div');
+          notes.className = 'quote-status-notes';
+          notes.textContent = quote.agent_notes;
+          quoteStatusBar.appendChild(notes);
+        }
         const actions = document.createElement('div');
         actions.className = 'quote-status-decision';
         actions.innerHTML =
           '<button type="button" class="quote-decision-btn quote-decision-accept" data-decision="accept">' + t('quoteDecisionAccept') + '</button>' +
           '<button type="button" class="quote-decision-btn quote-decision-decline" data-decision="decline">' + t('quoteDecisionDecline') + '</button>';
-        quoteStatusBar.appendChild(price);
         quoteStatusBar.appendChild(actions);
         return;
       }
