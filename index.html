@@ -3352,6 +3352,7 @@
     }
 
     function openQuotePanel(quoteId, routeLabel) {
+      if (!quoteId) return; // el pedido ya quedó guardado igual, solo no hay chat para abrir
       activeQuoteId = quoteId;
       activeQuoteRouteLabel = routeLabel || '';
       localStorage.setItem(QUOTE_ID_STORAGE_KEY, quoteId);
