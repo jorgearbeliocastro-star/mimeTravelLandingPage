@@ -2046,6 +2046,7 @@
       quoteDecisionError: 'No pudimos registrar tu decisión — intentá de nuevo.',
       quoteChatSendError: 'No se pudo enviar el mensaje — intentá de nuevo.',
       quoteStatusExpired: 'Esta solicitud venció sin que llegáramos a cotizarla — escribinos por acá si todavía te interesa.',
+      quoteStatusPurchased: '¡Listo! Tu compra quedó confirmada y ya te mandamos el tiquet por correo. Cualquier duda, escribinos por acá.',
       quotePaxIntro: 'Antes de mandar la aceptación, necesitamos esto para emitir tu pasaje — nunca te vamos a pedir la tarjeta por acá.',
       quotePaxFullName: 'Nombre completo',
       quotePaxDocument: 'Pasaporte / documento',
@@ -2178,6 +2179,7 @@
       quoteDecisionError: 'We couldn’t record your decision — please try again.',
       quoteChatSendError: 'Couldn’t send the message — please try again.',
       quoteStatusExpired: 'This request expired before we could quote it — message us here if you’re still interested.',
+      quoteStatusPurchased: 'All set! Your purchase is confirmed and we already emailed you the ticket. Any questions, message us here.',
       quotePaxIntro: 'Before we send the acceptance, we need this to issue your ticket — we’ll never ask for your card here.',
       quotePaxFullName: 'Full name',
       quotePaxDocument: 'Passport / ID document',
@@ -3265,6 +3267,13 @@
         const p = document.createElement('p');
         p.className = 'quote-status-resolved';
         p.textContent = t('quoteStatusExpired');
+        quoteStatusBar.appendChild(p);
+        return;
+      }
+      if (quote.status === 'purchased') {
+        const p = document.createElement('p');
+        p.className = 'quote-status-resolved';
+        p.textContent = t('quoteStatusPurchased');
         quoteStatusBar.appendChild(p);
       }
     }
