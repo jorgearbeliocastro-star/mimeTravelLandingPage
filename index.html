@@ -3130,6 +3130,18 @@
       }).catch(() => {});
     }
 
+    // Sin esto, un mensaje del cliente por el chat de la web nunca le avisa
+    // a nadie — el Agente solo lo ve si tiene ESA conversación puntual
+    // abierta en la app. Mismo patrón que la app usa para agent_message,
+    // ahora también del lado del cliente.
+    function notifyClientMessageWeb(quoteRequestId) {
+      fetch(LA_EXPANCION_FUNCTIONS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': LA_EXPANCION_WEBHOOK_SECRET },
+        body: JSON.stringify({ type: 'INSERT', table: 'client_message', record: { quoteRequestId } }),
+      }).catch(() => {});
+    }
+
     // Card con los 5 campos que la app pide para emitir el pasaje (mismos
     // que ClientPassengerInfoScreen.tsx / submit_quote_passenger_info) — acá
     // se muestran ANTES de mandar la aceptación, y se envían los dos juntos
@@ -3390,6 +3402,7 @@
       laExpancion.rpc('send_client_message', { p_token: clientToken, p_quote_request_id: activeQuoteId, p_body: body })
         .then(({ error }) => {
           if (error) throw error;
+          notifyClientMessageWeb(activeQuoteId);
           return pollQuote();
         })
         .catch(() => {
