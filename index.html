@@ -1242,6 +1242,39 @@
     margin-bottom: 10px;
   }
 
+  .quote-pax-form {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  .quote-pax-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(26, 26, 26, 0.6);
+    margin-top: 6px;
+  }
+
+  .quote-pax-input {
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    outline: none;
+  }
+
+  .quote-pax-input:focus {
+    border-color: var(--turquesa);
+  }
+
+  .quote-pax-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
   .quote-status-decision {
     display: flex;
     gap: 8px;
@@ -1989,6 +2022,18 @@
       quoteDecisionError: 'No pudimos registrar tu decisión — intentá de nuevo.',
       quoteChatSendError: 'No se pudo enviar el mensaje — intentá de nuevo.',
       quoteStatusExpired: 'Esta solicitud venció sin que llegáramos a cotizarla — escribinos por acá si todavía te interesa.',
+      quotePaxIntro: 'Antes de mandar la aceptación, necesitamos esto para emitir tu pasaje — nunca te vamos a pedir la tarjeta por acá.',
+      quotePaxFullName: 'Nombre completo',
+      quotePaxDocument: 'Pasaporte / documento',
+      quotePaxDob: 'Fecha de nacimiento',
+      quotePaxExpiry: 'Vencimiento del pasaporte',
+      quotePaxNationality: 'Nacionalidad',
+      quotePaxSubmitAccept: 'Aceptar y enviar mis datos',
+      quotePaxSubmitOnly: 'Enviar mis datos',
+      quotePaxCancel: 'Cancelar',
+      quotePaxMissing: 'Completá todos los campos para continuar.',
+      quotePaxError: 'No pudimos guardar tus datos — intentá de nuevo.',
+      quotePaxPendingTitle: 'Faltan tus datos para emitir el pasaje.',
     };
 
     // Diccionario en inglés — cubre tanto las claves data-i18n del HTML
@@ -2104,6 +2149,18 @@
       quoteDecisionError: 'We couldn’t record your decision — please try again.',
       quoteChatSendError: 'Couldn’t send the message — please try again.',
       quoteStatusExpired: 'This request expired before we could quote it — message us here if you’re still interested.',
+      quotePaxIntro: 'Before we send the acceptance, we need this to issue your ticket — we’ll never ask for your card here.',
+      quotePaxFullName: 'Full name',
+      quotePaxDocument: 'Passport / ID document',
+      quotePaxDob: 'Date of birth',
+      quotePaxExpiry: 'Passport expiry',
+      quotePaxNationality: 'Nationality',
+      quotePaxSubmitAccept: 'Accept and submit my info',
+      quotePaxSubmitOnly: 'Submit my info',
+      quotePaxCancel: 'Cancel',
+      quotePaxMissing: 'Fill in every field to continue.',
+      quotePaxError: 'We couldn’t save your info — please try again.',
+      quotePaxPendingTitle: 'We still need your info to issue the ticket.',
     };
 
     // Traduce un texto libre (mensajes JS, no-DOM) según el idioma activo.
@@ -2990,6 +3047,10 @@
     let activeQuoteRouteLabel = '';
     let quotePollInterval = null;
     let quoteDecisionInFlight = false;
+    // Mientras la card de datos del pasajero está abierta, el polling no
+    // debe pisarla (perdería lo que el cliente ya tipeó) — se congela el
+    // status bar hasta que se cancela o se manda el formulario.
+    let showingPassengerForm = false;
 
     // Mismo webhook que usa notifyLaExpancion() más arriba — avisa al
     // Agente por push apenas el cliente acepta o rechaza desde acá.
@@ -3001,7 +3062,87 @@
       }).catch(() => {});
     }
 
+    // Card con los 5 campos que la app pide para emitir el pasaje (mismos
+    // que ClientPassengerInfoScreen.tsx / submit_quote_passenger_info) — acá
+    // se muestran ANTES de mandar la aceptación, y se envían los dos juntos
+    // en el mismo paso. `mode` es 'accept' (todavía no decidió) o 'complete'
+    // (ya había aceptado antes, pero le faltaban los datos).
+    function renderPassengerForm(mode) {
+      showingPassengerForm = true;
+      quoteStatusBar.innerHTML = '';
+
+      const intro = document.createElement('p');
+      intro.className = 'quote-status-notes';
+      intro.textContent = t('quotePaxIntro');
+      quoteStatusBar.appendChild(intro);
+
+      const form = document.createElement('form');
+      form.className = 'quote-pax-form';
+      form.innerHTML =
+        '<label class="quote-pax-label">' + t('quotePaxFullName') + '</label>' +
+        '<input type="text" class="quote-pax-input" name="fullName" required>' +
+        '<label class="quote-pax-label">' + t('quotePaxDocument') + '</label>' +
+        '<input type="text" class="quote-pax-input" name="document" required>' +
+        '<label class="quote-pax-label">' + t('quotePaxDob') + '</label>' +
+        '<input type="date" class="quote-pax-input" name="dob" required>' +
+        '<label class="quote-pax-label">' + t('quotePaxExpiry') + '</label>' +
+        '<input type="date" class="quote-pax-input" name="expiry" required>' +
+        '<label class="quote-pax-label">' + t('quotePaxNationality') + '</label>' +
+        '<input type="text" class="quote-pax-input" name="nationality" required>' +
+        '<div class="quote-pax-actions">' +
+        '<button type="submit" class="quote-decision-btn quote-decision-accept">' + (mode === 'accept' ? t('quotePaxSubmitAccept') : t('quotePaxSubmitOnly')) + '</button>' +
+        '<button type="button" class="quote-decision-btn quote-decision-decline" data-pax-cancel="true">' + t('quotePaxCancel') + '</button>' +
+        '</div>';
+      quoteStatusBar.appendChild(form);
+
+      form.querySelector('[data-pax-cancel]').addEventListener('click', function () {
+        showingPassengerForm = false;
+        pollQuote();
+      });
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (quoteDecisionInFlight) return;
+        const data = Object.fromEntries(new FormData(form).entries());
+        if (!data.fullName?.trim() || !data.document?.trim() || !data.dob || !data.expiry || !data.nationality?.trim()) {
+          window.alert(t('quotePaxMissing'));
+          return;
+        }
+        quoteDecisionInFlight = true;
+        const clientToken = getOrCreateWebClientToken();
+        const passengerParams = {
+          p_token: clientToken,
+          p_id: activeQuoteId,
+          p_full_name: data.fullName.trim(),
+          p_document: data.document.trim(),
+          p_date_of_birth: data.dob,
+          p_passport_expiry: data.expiry,
+          p_nationality: data.nationality.trim(),
+        };
+        const decideStep = mode === 'accept'
+          ? laExpancion.rpc('decide_quote_request', { p_token: clientToken, p_id: activeQuoteId, p_accept: true }).then(({ error }) => {
+              if (error) throw error;
+              notifyQuoteDecisionWeb(activeQuoteId);
+            })
+          : Promise.resolve();
+        decideStep
+          .then(() => laExpancion.rpc('submit_quote_passenger_info', passengerParams))
+          .then(({ error }) => {
+            if (error) throw error;
+            showingPassengerForm = false;
+            return pollQuote();
+          })
+          .catch(() => {
+            window.alert(t('quotePaxError'));
+          })
+          .finally(() => {
+            quoteDecisionInFlight = false;
+          });
+      });
+    }
+
     function renderQuoteStatus(quote) {
+      if (showingPassengerForm) return;
       quoteStatusBar.innerHTML = '';
       if (quote.status === 'pending') {
         const span = document.createElement('span');
@@ -3037,6 +3178,21 @@
         p.className = 'quote-status-resolved';
         p.textContent = quote.client_decision === 'accepted' ? t('quoteDecisionAccepted') : t('quoteDecisionDeclined');
         quoteStatusBar.appendChild(p);
+        // Si aceptó pero por lo que sea todavía no mandó los datos del
+        // pasajero (cerró el panel a mitad de camino, etc.), se le vuelve a
+        // ofrecer completar acá mismo.
+        if (quote.client_decision === 'accepted' && !quote.passenger_full_name) {
+          const pending = document.createElement('p');
+          pending.className = 'quote-status-notes';
+          pending.textContent = t('quotePaxPendingTitle');
+          quoteStatusBar.appendChild(pending);
+          const completeBtn = document.createElement('button');
+          completeBtn.type = 'button';
+          completeBtn.className = 'quote-decision-btn quote-decision-accept';
+          completeBtn.textContent = t('quotePaxSubmitOnly');
+          completeBtn.addEventListener('click', () => renderPassengerForm('complete'));
+          quoteStatusBar.appendChild(completeBtn);
+        }
         return;
       }
       if (quote.status === 'expired') {
@@ -3050,7 +3206,14 @@
     quoteStatusBar.addEventListener('click', function (e) {
       const btn = e.target.closest('.quote-decision-btn');
       if (!btn || quoteDecisionInFlight || !activeQuoteId) return;
+      if (!btn.dataset.decision) return; // el submit de la card de pasajero tiene su propio handler
       const accept = btn.dataset.decision === 'accept';
+      if (accept) {
+        // Antes de mandar la aceptación, se piden los datos del pasajero —
+        // los dos viajan juntos al servidor apenas confirma el formulario.
+        renderPassengerForm('accept');
+        return;
+      }
       if (!window.confirm(t('quoteDecisionConfirm'))) return;
       quoteDecisionInFlight = true;
       const clientToken = getOrCreateWebClientToken();
