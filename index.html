@@ -240,6 +240,11 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    /* Sin esto, "space-between" deja el espacio en 0 apenas el contenido no
+       entra del todo (ventana angosta, no necesariamente celular) — el logo
+       queda pegado directo al primer link del menú. `gap` garantiza un
+       mínimo siempre, sin importar cuánto se achique la ventana. */
+    gap: 24px;
   }
 
   .logo {
