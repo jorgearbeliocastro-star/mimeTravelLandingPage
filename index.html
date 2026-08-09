@@ -266,6 +266,24 @@
     -webkit-text-fill-color: transparent;
   }
 
+  /* Logo real (isotipo circular) en el header — reemplaza el texto "Mime
+     Travel" en degradé. 44px de alto encaja con el padding vertical del
+     header (20px arriba/abajo con logo de 44px ≈ misma altura visual que el
+     texto de 24px que tenía antes + su line-height). */
+  header .logo-img {
+    display: block;
+    height: 44px;
+    width: 44px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: height 0.3s ease, width 0.3s ease;
+  }
+
+  header.scrolled .logo-img {
+    height: 36px;
+    width: 36px;
+  }
+
   nav.main-nav {
     display: flex;
     align-items: center;
