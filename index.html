@@ -2350,12 +2350,20 @@
       });
       if (error) throw error;
 
-      notifyLaExpancion({ origin: payload.origin, destination: payload.destination, claimedByAgentId: preferredAgentId });
-
       // La fila recién insertada es la más nueva de este client_token — el
       // propio RPC ya ordena por created_at desc, así que es la primera.
+      // Se busca ANTES de avisar para poder mandar el id en la notificación
+      // — sin eso, tocar el aviso en el teléfono no lleva a ningún pedido
+      // puntual, solo abre la app "a ciegas".
       const { data: myQuotes, error: fetchError } = await laExpancion.rpc('get_quote_requests_by_token', { p_token: clientToken });
       const inserted = !fetchError && myQuotes && myQuotes.length ? myQuotes[0] : null;
+
+      notifyLaExpancion({
+        origin: payload.origin,
+        destination: payload.destination,
+        claimedByAgentId: preferredAgentId,
+        quoteRequestId: inserted ? inserted.id : null,
+      });
 
       // Si por lo que sea no se pudo recuperar el id (nunca debería pasar,
       // el insert de arriba ya tuvo éxito), no se rompe el flujo: el pedido
