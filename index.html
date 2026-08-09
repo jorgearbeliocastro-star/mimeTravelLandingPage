@@ -3507,17 +3507,13 @@
       });
     }
 
-    // ===== Selector de idioma (aplica todo lo anterior + persiste la elección) =====
-    const langToggle = document.getElementById('langToggle');
-
+    // ===== Idioma =====
+    // 100% automático, sin botón para cambiarlo a mano: español si el
+    // navegador está en español, inglés para cualquier otro idioma —
+    // mismo criterio que usa la app con el idioma del teléfono.
     function applyLanguage(lang) {
       currentLang = lang === 'en' ? 'en' : 'es';
-      localStorage.setItem(LANG_STORAGE_KEY, currentLang);
       document.documentElement.lang = currentLang;
-
-      langToggle.querySelectorAll('button').forEach(b => {
-        b.classList.toggle('active', b.dataset.lang === currentLang);
-      });
 
       applyStaticI18n(currentLang);
       applyDestinoTranslations();
@@ -3528,12 +3524,6 @@
       const activeTabType = searchTabs.querySelector('.search-tab.active')?.dataset.type || 'vuelos';
       applyServiceType(activeTabType);
     }
-
-    langToggle.addEventListener('click', function (e) {
-      const btn = e.target.closest('button[data-lang]');
-      if (!btn) return;
-      applyLanguage(btn.dataset.lang);
-    });
 
     applyLanguage(currentLang);
   </script>
