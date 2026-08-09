@@ -234,9 +234,7 @@
 </footer>
 
 <script>
-  const LANG_STORAGE_KEY = 'mimetravel.lang';
-  let currentLang = localStorage.getItem(LANG_STORAGE_KEY)
-    || (((navigator.language || 'es').toLowerCase().startsWith('es')) ? 'es' : 'en');
+  let currentLang = ((navigator.language || 'es').toLowerCase().startsWith('es')) ? 'es' : 'en';
 
   const I18N_EN = {
     back: '← Back to site',
