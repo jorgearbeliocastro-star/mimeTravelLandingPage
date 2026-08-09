@@ -251,13 +251,19 @@
     font-family: var(--font-display);
     font-size: 24px;
     font-weight: 700;
-    /* Blanco, igual que el texto "Mime Travel" del logo real (círculo
-       globo/avión turquesa-dorado) — reemplaza el azul de Facebook de antes. */
-    color: var(--light);
     text-decoration: none;
     letter-spacing: 0.01em;
     white-space: nowrap;
     flex-shrink: 0;
+    /* Degradé turquesa → dorado, tomado del círculo del logo real (globo +
+       avión) — antes había quedado en blanco liso, que es el color que ya
+       tenía de fábrica, así que no se notaba ningún cambio. `color` es el
+       respaldo para navegadores viejos sin soporte de background-clip:text. */
+    color: var(--turquesa);
+    background: linear-gradient(120deg, #6FD6C4 0%, #5FBFB3 35%, #E8C888 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   nav.main-nav {
