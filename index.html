@@ -107,6 +107,19 @@
     border: 1.5px solid rgba(255, 255, 255, 0.6);
   }
 
+  .btn-help {
+    background: rgba(95, 191, 179, 0.18);
+    color: var(--light);
+    border: 1.5px solid var(--turquesa);
+    padding: 9px 16px;
+    font-size: 13px;
+  }
+
+  .btn-help:hover {
+    background: var(--turquesa);
+    color: var(--primary-dark);
+  }
+
   .btn-outline:hover {
     background: rgba(255, 255, 255, 0.12);
     transform: translateY(-2px);
@@ -177,7 +190,8 @@
   }
 
   .modal-field input,
-  .modal-field select {
+  .modal-field select,
+  .modal-field textarea {
     padding: 12px 14px;
     border-radius: 10px;
     border: 1.5px solid rgba(0, 0, 0, 0.12);
@@ -187,7 +201,8 @@
   }
 
   .modal-field input:focus,
-  .modal-field select:focus {
+  .modal-field select:focus,
+  .modal-field textarea:focus {
     outline: none;
     border-color: var(--turquesa);
   }
@@ -1464,6 +1479,7 @@
       </nav>
 
       <div class="nav-actions">
+        <button type="button" class="btn btn-help" id="needHelpBtn" data-i18n="needHelpBtn">¿Necesitás ayuda?</button>
         <a href="#newsletter" class="btn btn-outline" data-i18n="navPlanTrip">Planea tu viaje</a>
         <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="mainNav">☰</button>
       </div>
@@ -1506,6 +1522,31 @@
         <button type="submit" class="btn btn-coral" style="width: 100%;" data-i18n="presaleSubmit">Quiero mi propuesta</button>
       </form>
       <p class="newsletter-msg" id="presaleMsg" style="color: var(--dark);"></p>
+    </div>
+  </div>
+
+  <!-- ================= MODAL "NECESITO AYUDA" ================= -->
+  <div class="modal-overlay" id="helpOverlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <button type="button" class="modal-close" id="helpCloseBtn" aria-label="Cerrar" data-i18n-aria="modalCloseAria">✕</button>
+      <h3 id="helpTitle" data-i18n="helpTitle">¿En qué te podemos ayudar?</h3>
+      <p data-i18n="helpIntro">Si ya sos cliente, te conectamos directo con tu agente. Si es tu primera vez, te atiende el primero disponible.</p>
+      <form id="helpForm">
+        <div class="modal-field">
+          <label for="helpName" data-i18n="presaleNameLabel">Nombre</label>
+          <input type="text" id="helpName" name="nombre" placeholder="Tu nombre" required data-i18n-placeholder="presaleNamePlaceholder">
+        </div>
+        <div class="modal-field">
+          <label for="helpEmail" data-i18n="presaleEmailLabel">Tu correo</label>
+          <input type="email" id="helpEmail" name="email" placeholder="tu@email.com" required>
+        </div>
+        <div class="modal-field">
+          <label for="helpMessage" data-i18n="helpMessageLabel">Contanos qué necesitás</label>
+          <textarea id="helpMessage" name="mensaje" rows="3" style="resize: vertical;" data-i18n-placeholder="helpMessagePlaceholder" placeholder="Ej. Necesito cambiar la fecha de mi vuelo, tengo una duda sobre mi reserva..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-coral" style="width: 100%;" data-i18n="helpSubmit">Iniciar chat</button>
+      </form>
+      <p class="newsletter-msg" id="helpMsg" style="color: var(--dark);"></p>
     </div>
   </div>
 
@@ -2057,6 +2098,7 @@
       navAbout: 'About us',
       navContact: 'Contact',
       navPlanTrip: 'Plan your trip',
+      needHelpBtn: 'Need help?',
       modalCloseAria: 'Close',
       presaleTitlePrefix: 'Tell us about your trip to',
       presaleIntro: 'Pre-fill your info and an advisor will build your custom proposal — no obligation.',
@@ -2070,6 +2112,13 @@
       budget4: 'More than $5,000 USD',
       presaleEmailLabel: 'Your email',
       presaleSubmit: 'I want my proposal',
+      helpTitle: 'How can we help?',
+      helpIntro: 'If you’re already a client, we connect you straight to your agent. First time here? The first available agent will help.',
+      helpMessageLabel: 'Tell us what you need',
+      helpMessagePlaceholder: 'E.g. I need to change my flight date, I have a question about my booking...',
+      helpSubmit: 'Start chat',
+      supportStatusText: 'Write your message, your agent will reply here.',
+      supportRouteLabel: 'General inquiry',
       heroEyebrow: 'Get your quote',
       heroTitle: 'A real advisor plans your trip — not an automated search engine.',
       heroSubtitle: 'Flights, cruises, hotels, and cars, in a single request. Tell us where you want to go and we’ll get back to you with a real price.',
@@ -3089,6 +3138,7 @@
     // por Realtime.
     const QUOTE_POLL_MS = 5000;
     const QUOTE_ID_STORAGE_KEY = 'la-expancion.active-quote-id';
+    const QUOTE_MODE_STORAGE_KEY = 'la-expancion.active-quote-mode';
 
     const quotePanel = document.getElementById('quotePanel');
     const quotePanelRoute = document.getElementById('quotePanelRoute');
@@ -3101,6 +3151,10 @@
 
     let activeQuoteId = null;
     let activeQuoteRouteLabel = '';
+    // 'quote' = pedido de viaje normal (precio, aceptar/rechazar, etc.);
+    // 'support' = consulta general ("Necesito ayuda") — mismo panel y
+    // mismo chat, pero sin nada de precio/decisión, porque no aplica.
+    let activePanelMode = 'quote';
     let quotePollInterval = null;
     let quoteDecisionInFlight = false;
     // Mientras la card de datos del pasajero está abierta, el polling no
@@ -3212,6 +3266,14 @@
     function renderQuoteStatus(quote) {
       if (showingPassengerForm) return;
       quoteStatusBar.innerHTML = '';
+      // Modo "consulta" (botón "Necesito ayuda"): nada de precio ni
+      // aceptar/rechazar, es solo chat con el agente.
+      if (activePanelMode === 'support') {
+        const span = document.createElement('span');
+        span.textContent = t('supportStatusText');
+        quoteStatusBar.appendChild(span);
+        return;
+      }
       if (quote.status === 'pending') {
         const span = document.createElement('span');
         span.className = 'quote-status-searching';
@@ -3360,11 +3422,13 @@
       }
     }
 
-    function openQuotePanel(quoteId, routeLabel) {
+    function openQuotePanel(quoteId, routeLabel, mode) {
       if (!quoteId) return; // el pedido ya quedó guardado igual, solo no hay chat para abrir
       activeQuoteId = quoteId;
       activeQuoteRouteLabel = routeLabel || '';
+      activePanelMode = mode === 'support' ? 'support' : 'quote';
       localStorage.setItem(QUOTE_ID_STORAGE_KEY, quoteId);
+      localStorage.setItem(QUOTE_MODE_STORAGE_KEY, activePanelMode);
       quotePanelRoute.textContent = activeQuoteRouteLabel;
       renderQuoteStatus({ status: 'pending' });
       quoteChatMessages.innerHTML = '';
@@ -3400,15 +3464,16 @@
     });
 
     quoteReopenBtn.addEventListener('click', function () {
-      openQuotePanel(activeQuoteId, activeQuoteRouteLabel);
+      openQuotePanel(activeQuoteId, activeQuoteRouteLabel, activePanelMode);
     });
 
-    // Si el visitante ya tenía una cotización en curso en este navegador
-    // (recargó la página, volvió más tarde), se ofrece un botón para
-    // retomarla en vez de forzar el panel abierto de entrada.
+    // Si el visitante ya tenía una cotización o consulta en curso en este
+    // navegador (recargó la página, volvió más tarde), se ofrece un botón
+    // para retomarla en vez de forzar el panel abierto de entrada.
     (function restoreStoredQuote() {
       const storedId = localStorage.getItem(QUOTE_ID_STORAGE_KEY);
       if (!storedId) return;
+      const storedMode = localStorage.getItem(QUOTE_MODE_STORAGE_KEY) === 'support' ? 'support' : 'quote';
       const clientToken = getOrCreateWebClientToken();
       laExpancion.rpc('get_quote_requests_by_token', { p_token: clientToken })
         .then(({ data, error }) => {
@@ -3416,14 +3481,173 @@
           const found = (data || []).find((q) => q.id === storedId);
           if (found) {
             activeQuoteId = storedId;
-            activeQuoteRouteLabel = found.origin ? found.origin + ' → ' + found.destination : found.destination;
+            activePanelMode = storedMode;
+            activeQuoteRouteLabel = storedMode === 'support'
+              ? t('supportRouteLabel')
+              : (found.origin ? found.origin + ' → ' + found.destination : found.destination);
             quoteReopenBtn.hidden = false;
           } else {
             localStorage.removeItem(QUOTE_ID_STORAGE_KEY);
+            localStorage.removeItem(QUOTE_MODE_STORAGE_KEY);
           }
         })
         .catch(() => {});
     })();
+
+    // ===== "Necesito ayuda" (botón fijo, siempre visible) =====
+    // La app solo existe para Android — para un cliente de iPhone, este
+    // botón CUMPLE EL ROL de la app: entrar al chat con su agente (o con el
+    // pool, si es la primera vez) desde cualquier momento, no solo después
+    // de cotizar. Si ya tiene una cotización o consulta abierta en ESTE
+    // navegador, `restoreStoredQuote()` ya la retoma con `quoteReopenBtn` —
+    // este botón es para el resto de los casos.
+    const needHelpBtn = document.getElementById('needHelpBtn');
+    const helpOverlay = document.getElementById('helpOverlay');
+    const helpCloseBtn = document.getElementById('helpCloseBtn');
+    const helpForm = document.getElementById('helpForm');
+    const helpMsg = document.getElementById('helpMsg');
+
+    function openHelpModal() {
+      helpMsg.textContent = '';
+      helpOverlay.hidden = false;
+      document.body.style.overflow = 'hidden';
+      document.getElementById('helpName').focus();
+    }
+
+    function closeHelpModal() {
+      helpOverlay.hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    needHelpBtn.addEventListener('click', function () {
+      // Si ya hay una cotización o consulta en curso en este navegador, no
+      // tiene sentido abrir el modal de nuevo a pedir los mismos datos —
+      // se retoma directo el panel que ya existe.
+      if (activeQuoteId) {
+        openQuotePanel(activeQuoteId, activeQuoteRouteLabel, activePanelMode);
+        return;
+      }
+      openHelpModal();
+    });
+    helpCloseBtn.addEventListener('click', closeHelpModal);
+    helpOverlay.addEventListener('click', function (e) {
+      if (e.target === helpOverlay) closeHelpModal();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !helpOverlay.hidden) closeHelpModal();
+    });
+
+    // Reconocimiento "silencioso" solo por client_token (sin correo todavía)
+    // — si este mismo navegador ya cotizó antes con un Agente, el botón lo
+    // dice de entrada, antes incluso de abrir el modal. Si no reconoce nada
+    // acá, no es un error: simplemente todavía no sabemos el correo, que es
+    // el otro camino de reconocimiento (ver el submit de #helpForm abajo).
+    (function personalizeNeedHelpBtn() {
+      if (activeQuoteId) return; // ya tiene botón de retomar, no hace falta
+      const clientToken = getOrCreateWebClientToken();
+      laExpancion.rpc('get_preferred_agent_name_for_client', { p_token: clientToken })
+        .then(({ data }) => {
+          if (!data) return;
+          needHelpBtn.textContent = (currentLang === 'en' ? 'Chat with ' : 'Hablar con ') + data;
+        })
+        .catch(() => {});
+    })();
+
+    helpForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      helpMsg.textContent = t('msgPresaleSending');
+      const form = this;
+      const data = Object.fromEntries(new FormData(form).entries());
+      const clientToken = getOrCreateWebClientToken();
+
+      // Mismo mecanismo de "link" cliente-agente que usa la app, pero acá
+      // además de client_token se prueba con el correo — así, si el cliente
+      // ya cotizó antes desde OTRO dispositivo (ej. su compu de casa) y
+      // ahora escribe desde el teléfono, lo reconecta con el mismo Agente
+      // en vez de mandarlo al pool general. Ver migración
+      // 0049_agent_link_across_devices.sql en "la expansión".
+      laExpancion.rpc('get_preferred_agent_for_client', { p_token: clientToken, p_email: data.email })
+        .then(({ data: preferredAgentId }) => {
+          return resolveWebClientLanguage().then((clientLanguage) => {
+            return laExpancion.from('quote_requests').insert({
+              client_token: clientToken,
+              claimed_by_agent_id: preferredAgentId || null,
+              category: 'package',
+              origin: null,
+              // No es un destino real — es la etiqueta que identifica esta
+              // fila como una consulta general y no un pedido de cotización
+              // (la columna es NOT NULL, no puede quedar vacía).
+              destination: 'Consulta general',
+              trip_type: 'oneway',
+              search_mode: 'exact_date',
+              search_date: null,
+              search_week_start: null,
+              search_month: null,
+              return_date: null,
+              return_week_start: null,
+              return_month: null,
+              end_date: null,
+              contact_name: data.nombre,
+              contact_email: data.email,
+              contact_phone: null,
+              notes: buildQuoteNotes([data.mensaje]),
+              client_language: clientLanguage,
+              passenger_full_name: null,
+              passenger_document: null,
+              passenger_date_of_birth: null,
+              passenger_passport_expiry: null,
+              passenger_nationality: null,
+            }).then(({ error }) => {
+              if (error) throw error;
+              return preferredAgentId;
+            });
+          });
+        })
+        // OJO: mismo motivo que en createLaExpancionQuoteRequest() — nunca
+        // encadenar .select() sobre el insert de arriba (RLS lo rompe). El
+        // id se recupera aparte, con el mismo RPC de siempre.
+        .then((preferredAgentId) =>
+          laExpancion.rpc('get_quote_requests_by_token', { p_token: clientToken }).then(({ data: myQuotes, error }) => {
+            if (error) throw error;
+            const inserted = (myQuotes || [])[0];
+            if (!inserted) throw new Error('insert sin resultado');
+            notifyLaExpancion({
+              origin: null,
+              destination: 'Consulta general',
+              claimedByAgentId: preferredAgentId || null,
+              quoteRequestId: inserted.id,
+            });
+            return { quoteId: inserted.id, preferredAgentId };
+          })
+        )
+        .then(({ quoteId, preferredAgentId }) => {
+          return (preferredAgentId
+            ? laExpancion.rpc('get_preferred_agent_name_for_client', { p_token: clientToken, p_email: data.email }).then(({ data: name }) => name)
+            : Promise.resolve(null)
+          ).then((agentName) => {
+            helpMsg.textContent = t('msgPresaleSuccess');
+            sendToFormSubmit(form, 'Necesito ayuda — Mime Travel').catch(() => {});
+            form.reset();
+            setTimeout(closeHelpModal, 1200);
+            const routeLabel = agentName ? (currentLang === 'en' ? 'Chat with ' + agentName : 'Hablar con ' + agentName) : t('supportRouteLabel');
+            openQuotePanel(quoteId, routeLabel, 'support');
+          });
+        })
+        .catch(() => {
+          // Si falla el envío directo a la app, no se pierde el pedido —
+          // cae al correo de respaldo de siempre.
+          sendToFormSubmit(form, 'Necesito ayuda — Mime Travel')
+            .then(res => {
+              if (!res.ok) throw new Error('request failed');
+              helpMsg.textContent = t('msgPresaleSuccess');
+              form.reset();
+              setTimeout(closeHelpModal, 2000);
+            })
+            .catch(() => {
+              helpMsg.textContent = t('msgPresaleError');
+            });
+        });
+    });
 
     // ===== Traducción de tarjetas de destino y testimonios =====
     // El precio y el CTA son idénticos en las 24 tarjetas — se traducen por
