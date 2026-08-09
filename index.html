@@ -2026,9 +2026,9 @@
     // lo pisamos con el diccionario en inglés cuando corresponde — así nunca
     // duplicamos el español en JS. `currentLang` se usa también para armar
     // mensajes dinámicos (formularios, buscador) que no viven en el DOM.
-    const LANG_STORAGE_KEY = 'mimetravel.lang';
-    let currentLang = localStorage.getItem(LANG_STORAGE_KEY)
-      || (((navigator.language || 'es').toLowerCase().startsWith('es')) ? 'es' : 'en');
+    // Sin selector manual: español si el navegador está en español,
+    // inglés para cualquier otro idioma — nunca se le pregunta al visitante.
+    let currentLang = ((navigator.language || 'es').toLowerCase().startsWith('es')) ? 'es' : 'en';
 
     // Textos que solo existen en JS (mensajes de formularios, aria-labels
     // dinámicos, etc.) — necesitan versión en ambos idiomas porque no hay
