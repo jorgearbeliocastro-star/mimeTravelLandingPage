@@ -1488,15 +1488,6 @@
           </select>
         </div>
         <div class="modal-field">
-          <label for="presaleSeat" data-i18n="searchSeatLabel">Preferencia de asiento (opcional)</label>
-          <input type="text" id="presaleSeat" name="asiento_preferido" data-i18n-placeholder="searchSeatPlaceholder" placeholder="Ej. ventanilla, pasillo, filas de adelante...">
-        </div>
-        <div class="modal-field">
-          <label for="presaleBaggage" data-i18n="searchBaggageLabel">Equipaje adicional (opcional)</label>
-          <input type="text" id="presaleBaggage" name="equipaje_adicional" data-i18n-placeholder="searchBaggagePlaceholder" placeholder="Ej. 1 maleta de 23kg">
-        </div>
-        <p style="font-size: 12px; color: rgba(26,26,26,0.55); margin: -8px 0 16px;" data-i18n="searchAddonsNote">Los asientos específicos y el equipaje adicional suelen tener costo aparte — tu agente te confirma el precio exacto junto con la cotización.</p>
-        <div class="modal-field">
           <label for="presaleEmail" data-i18n="presaleEmailLabel">Tu correo</label>
           <input type="email" id="presaleEmail" name="email" placeholder="tu@email.com" required>
         </div>
@@ -1570,14 +1561,6 @@
         </div>
         <div id="searchStep2" style="display: none;">
           <button type="button" class="search-back-btn" id="searchStep2Back" data-i18n="searchBack">← Atrás</button>
-          <div class="search-field" id="searchSeatGroup" style="display: none;">
-            <label data-i18n="searchSeatLabel">Preferencia de asiento (opcional)</label>
-            <input type="text" id="searchSeat" name="asiento_preferido" data-i18n-placeholder="searchSeatPlaceholder" placeholder="Ej. ventanilla, pasillo, filas de adelante...">
-          </div>
-          <div class="search-field" id="searchBaggageGroup" style="display: none;">
-            <label data-i18n="searchBaggageLabel">Equipaje adicional (opcional)</label>
-            <input type="text" id="searchBaggage" name="equipaje_adicional" data-i18n-placeholder="searchBaggagePlaceholder" placeholder="Ej. 1 maleta de 23kg">
-          </div>
           <div class="search-field">
             <label for="searchName" data-i18n="searchNameLabel">Tu nombre</label>
             <input type="text" id="searchName" name="nombre" placeholder="¿Cómo te llamas?" required data-i18n-placeholder="searchNamePlaceholder">
@@ -1922,6 +1905,7 @@
             <a href="#" aria-label="WhatsApp" title="WhatsApp">💬</a>
             <a href="mailto:contacto@mimetravel.com" aria-label="Correo" title="Correo">✉️</a>
           </div>
+          <p class="footer-iata" data-i18n="footerIata">Agente de viajes independiente, afiliado a Fora Travel — IATA #33520476</p>
         </div>
 
         <div class="footer-col">
@@ -2043,11 +2027,6 @@
       quotePaxDob: 'Fecha de nacimiento',
       quotePaxExpiry: 'Vencimiento del pasaporte',
       quotePaxNationality: 'Nacionalidad',
-      searchSeatLabel: 'Preferencia de asiento (opcional)',
-      searchSeatPlaceholder: 'Ej. ventanilla, pasillo, filas de adelante...',
-      searchBaggageLabel: 'Equipaje adicional (opcional)',
-      searchBaggagePlaceholder: 'Ej. 1 maleta de 23kg',
-      searchAddonsNote: 'Los asientos específicos y el equipaje adicional suelen tener costo aparte — tu agente te confirma el precio exacto junto con la cotización.',
       quotePaxSubmitAccept: 'Aceptar y enviar mis datos',
       quotePaxSubmitOnly: 'Enviar mis datos',
       quotePaxCancel: 'Cancelar',
@@ -2179,11 +2158,6 @@
       quotePaxDob: 'Date of birth',
       quotePaxExpiry: 'Passport expiry',
       quotePaxNationality: 'Nationality',
-      searchSeatLabel: 'Seat preference (optional)',
-      searchSeatPlaceholder: 'E.g. window, aisle, front rows...',
-      searchBaggageLabel: 'Extra baggage (optional)',
-      searchBaggagePlaceholder: 'E.g. 1 bag, 23kg',
-      searchAddonsNote: 'Specific seats and extra baggage usually cost extra — your agent will confirm the exact price together with the quote.',
       quotePaxSubmitAccept: 'Accept and submit my info',
       quotePaxSubmitOnly: 'Submit my info',
       quotePaxCancel: 'Cancel',
@@ -2664,17 +2638,6 @@
       const tripTypeGroup = document.getElementById('tripTypeGroup');
       tripTypeGroup.style.display = type === 'vuelos' ? '' : 'none';
       if (type === 'vuelos') applyReturnDateVisibility();
-
-      // Asiento/equipaje solo tienen sentido para vuelos — llegan junto con
-      // el pedido inicial (van al campo `notes`) para que el agente ya
-      // cotice contemplando eso, en vez de descubrirlo después de aceptar.
-      const seatVisible = type === 'vuelos';
-      document.getElementById('searchSeatGroup').style.display = seatVisible ? '' : 'none';
-      document.getElementById('searchBaggageGroup').style.display = seatVisible ? '' : 'none';
-      if (!seatVisible) {
-        document.getElementById('searchSeat').value = '';
-        document.getElementById('searchBaggage').value = '';
-      }
     }
 
     // El campo "Fecha de vuelta" solo tiene sentido si el cliente eligió
@@ -2817,11 +2780,7 @@
             searchDate: data.fecha_ida || null,
             returnDate: data.fecha_vuelta || null,
             endDate: null,
-            notes: buildQuoteNotes([
-              data.clase ? 'Clase: ' + data.clase : null,
-              data.asiento_preferido ? 'Asiento preferido: ' + data.asiento_preferido : null,
-              data.equipaje_adicional ? 'Equipaje adicional: ' + data.equipaje_adicional : null,
-            ]),
+            notes: buildQuoteNotes([data.clase ? 'Clase: ' + data.clase : null]),
           };
         case 'cruceros':
           return {
@@ -2972,8 +2931,6 @@
         notes: buildQuoteNotes([
           data.viajeros ? 'Viajeros: ' + data.viajeros : null,
           data.presupuesto ? 'Presupuesto: ' + data.presupuesto : null,
-          data.asiento_preferido ? 'Asiento preferido: ' + data.asiento_preferido : null,
-          data.equipaje_adicional ? 'Equipaje adicional: ' + data.equipaje_adicional : null,
         ]),
       };
 
