@@ -3551,7 +3551,7 @@
       laExpancion.rpc('get_preferred_agent_name_for_client', { p_token: clientToken })
         .then(({ data }) => {
           if (!data) return;
-          needHelpBtn.textContent = (currentLang === 'en' ? 'Chat with ' : 'Hablar con ') + data;
+          needHelpBtn.textContent = (currentLang === 'en' ? 'Agent ' : 'Agente ') + data;
         })
         .catch(() => {});
     })();
