@@ -1117,6 +1117,10 @@
     }
   }
 
+  /* Umbral propio (1024px), más ancho que el resto del layout responsive de
+     abajo (760px) — el menú de 5 links + logo + botones deja de entrar
+     bastante antes que el resto del contenido se vea apretado (ventana de
+     escritorio no maximizada, no hace falta ser "celular" para que pase). */
   @media (max-width: 1024px) {
     nav.main-nav {
       position: fixed;
@@ -1151,7 +1155,9 @@
       display: block;
       z-index: 110;
     }
+  }
 
+  @media (max-width: 760px) {
     .section {
       padding: 64px 0;
     }
