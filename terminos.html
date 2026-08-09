@@ -241,24 +241,15 @@
 
   const i18nEls = Array.from(document.querySelectorAll('[data-i18n]'));
   const i18nOriginal = new Map(i18nEls.map(el => [el, el.innerHTML]));
-  const langToggle = document.getElementById('langToggle');
 
   function applyLanguage(lang) {
     currentLang = lang === 'en' ? 'en' : 'es';
-    localStorage.setItem(LANG_STORAGE_KEY, currentLang);
     document.documentElement.lang = currentLang;
-    langToggle.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.lang === currentLang));
     i18nEls.forEach(el => {
       const key = el.dataset.i18n;
       el.innerHTML = (currentLang === 'en' && I18N_EN[key] !== undefined) ? I18N_EN[key] : i18nOriginal.get(el);
     });
   }
-
-  langToggle.addEventListener('click', function (e) {
-    const btn = e.target.closest('button[data-lang]');
-    if (!btn) return;
-    applyLanguage(btn.dataset.lang);
-  });
 
   applyLanguage(currentLang);
 </script>
