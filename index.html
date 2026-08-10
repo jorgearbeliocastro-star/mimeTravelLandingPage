@@ -115,11 +115,12 @@
     box-shadow: 0 12px 28px rgba(95, 191, 179, 0.4);
   }
 
-  /* Solo estos dos (no el resto de .btn-coral): texto blanco pedido puntualmente. */
+  /* Solo "Continuar" (no el resto de .btn-coral): texto blanco pedido
+     puntualmente. ("Ver mi cotización" se resuelve en su propia regla
+     .quote-reopen-btn más abajo — puesta acá arriba quedaba sin efecto,
+     pisada por esa definición posterior). */
   #searchStep1Continue,
-  #searchStep1Continue:hover,
-  .quote-reopen-btn,
-  .quote-reopen-btn:hover {
+  #searchStep1Continue:hover {
     color: var(--light);
   }
 
