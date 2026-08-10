@@ -411,15 +411,19 @@
     color: var(--turquesa);
   }
 
-  /* Llama la atención por color, no por volumen: texto en turquesa (acento
-     de marca) y negrita, sin fondo ni sombra, para no sumar peso visual. */
+  /* Llama la atención con un contorno tipo píldora (sin relleno sólido,
+     para no volver a sentirse pesado como el badge de fondo que sacamos). */
   .hero p.subtitle {
-    display: inline;
+    display: inline-block;
+    vertical-align: middle;
     font-size: clamp(16px, 1.8vw, 20px);
     font-weight: 700;
-    line-height: 1.5;
+    line-height: 1.4;
     color: var(--turquesa);
-    margin: 0 0 0 12px;
+    border: 2px solid var(--turquesa);
+    border-radius: 999px;
+    padding: 4px 16px;
+    margin: 0 0 6px 12px;
     text-shadow: 0 1px 12px rgba(15, 30, 48, 0.4);
   }
 
