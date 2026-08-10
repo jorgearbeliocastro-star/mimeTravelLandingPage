@@ -311,6 +311,21 @@
     height: 148px;
   }
 
+  /* En mobile, 180px de logo tapaba el título del Hero (el ancho de
+     pantalla no da tanto margen como en desktop) — se achica solo acá. */
+  @media (max-width: 600px) {
+    header .logo-img {
+      width: 100px;
+      height: 100px;
+      top: 14px;
+      left: 8px;
+    }
+    header.scrolled .logo-img {
+      width: 84px;
+      height: 84px;
+    }
+  }
+
   nav.main-nav {
     display: flex;
     align-items: center;
