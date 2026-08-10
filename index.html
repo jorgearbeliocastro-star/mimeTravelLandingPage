@@ -95,16 +95,22 @@
     white-space: nowrap;
   }
 
+  /* Mismo estilo que el botón "Agente [nombre]" del header (.btn-help):
+     fondo turquesa semitransparente + borde turquesa, en vez de relleno
+     sólido — para que todos los CTA del sitio se vean consistentes y
+     transmitan la misma calma/confianza. */
   .btn-coral {
-    background: var(--coral);
+    background: rgba(95, 191, 179, 0.3);
     color: var(--light);
-    box-shadow: 0 8px 24px rgba(95, 191, 179, 0.35);
+    border: 1.5px solid var(--turquesa);
+    box-shadow: 0 8px 24px rgba(95, 191, 179, 0.25);
   }
 
   .btn-coral:hover {
-    background: var(--coral-dark);
+    background: var(--turquesa);
+    color: var(--primary-dark);
     transform: translateY(-2px);
-    box-shadow: 0 12px 28px rgba(95, 191, 179, 0.45);
+    box-shadow: 0 12px 28px rgba(95, 191, 179, 0.4);
   }
 
   .btn-outline {
