@@ -480,23 +480,26 @@
     font-family: var(--font-body);
     font-size: 13px;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.75);
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: var(--light);
+    background: rgba(95, 191, 179, 0.3);
+    border: 1.5px solid var(--turquesa);
     border-radius: 999px;
     padding: 8px 16px;
     cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   }
 
   .search-tab:hover {
-    background: rgba(255, 255, 255, 0.22);
+    background: var(--turquesa);
+    color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(95, 191, 179, 0.4);
   }
 
   .search-tab.active {
-    background: rgba(95, 191, 179, 0.3);
+    background: var(--turquesa);
     border-color: var(--turquesa);
-    color: var(--light);
+    color: var(--primary-dark);
   }
 
   .trip-type-toggle {
