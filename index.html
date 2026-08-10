@@ -428,6 +428,7 @@
   }
 
   .search-bar {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     gap: 1px;
@@ -440,21 +441,20 @@
     max-width: 640px;
   }
 
-  /* Sello redondo de "Agente Independiente" — ancla a `.hero` (ya es
-     `position: relative`), esquina superior derecha de la FOTO, no de la
-     tarjeta de búsqueda — así queda fijo en ese lugar sin importar cómo se
-     acomoden los campos del formulario debajo. Tamaño grande (84px) y
-     tipografía a 10-11px para que el texto se lea bien, a diferencia del
-     primer intento (60px / 7px, ilegible). */
-  .hero-seal {
+  /* Sello redondo de "Agente Independiente" — se asoma arriba a la derecha
+     de la tarjeta de búsqueda (`.search-bar`, ya `position: relative`),
+     encima del campo "Origen". `.search-tabs` tiene el margin-bottom
+     agrandado (38px) para dejarle aire y que no pise las pestañas de
+     arriba. Grande (80px) y con tipografía a 10-11px para que se lea. */
+  .search-bar-seal {
     position: absolute;
-    top: 96px;
-    right: 24px;
+    top: -34px;
+    right: -10px;
     z-index: 5;
-    width: 84px;
-    height: 84px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
-    background: rgba(15, 30, 48, 0.6);
+    background: rgba(15, 30, 48, 0.65);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     border: 2px solid rgba(255, 255, 255, 0.45);
@@ -467,13 +467,13 @@
     padding: 6px;
   }
 
-  .hero-seal-icon {
+  .search-bar-seal-icon {
     font-size: 16px;
     line-height: 1;
     margin-bottom: 2px;
   }
 
-  .hero-seal-label {
+  .search-bar-seal-label {
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.03em;
@@ -485,7 +485,7 @@
   /* Vacío por ahora a propósito — se llena con el número de licencia
      apenas esté a mano; el sello ya queda listo con el hueco reservado
      para no tener que rearmar el layout después. */
-  .hero-seal-license {
+  .search-bar-seal-license {
     font-size: 8.5px;
     font-weight: 600;
     letter-spacing: 0.02em;
@@ -495,19 +495,19 @@
   }
 
   @media (max-width: 480px) {
-    .hero-seal {
-      top: 80px;
-      right: 14px;
-      width: 68px;
-      height: 68px;
+    .search-bar-seal {
+      top: -28px;
+      right: -6px;
+      width: 64px;
+      height: 64px;
     }
-    .hero-seal-icon {
+    .search-bar-seal-icon {
       font-size: 13px;
     }
-    .hero-seal-label {
+    .search-bar-seal-label {
       font-size: 8px;
     }
-    .hero-seal-license {
+    .search-bar-seal-license {
       font-size: 7px;
     }
   }
