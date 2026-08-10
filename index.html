@@ -148,10 +148,12 @@
     box-shadow: 0 12px 28px rgba(95, 191, 179, 0.4);
   }
 
-  /* Botón oscuro (newsletter): mismo efecto de "iluminarse" en turquesa. */
+  /* Mismo transparente/turquesa tenue que Continuar en reposo (antes era
+     fondo oscuro sólido, no encajaba con el resto de los botones). */
   .btn-dark {
-    background: var(--dark);
-    color: var(--light);
+    background: rgba(95, 191, 179, 0.3);
+    color: var(--primary-dark);
+    border: 1.5px solid var(--turquesa);
   }
 
   .btn-dark:hover {
