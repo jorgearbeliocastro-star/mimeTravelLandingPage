@@ -266,22 +266,41 @@
     -webkit-text-fill-color: transparent;
   }
 
-  /* Logo real (isotipo circular) en el header — reemplaza el texto "Mime
-     Travel" en degradé. 44px de alto encaja con el padding vertical del
-     header (20px arriba/abajo con logo de 44px ≈ misma altura visual que el
-     texto de 24px que tenía antes + su line-height). */
-  header .logo-img {
+  /* Logo real (isotipo circular) en el header. `header .logo` se queda con
+     el tamaño chico original (44px / 36px con scroll) SOLO para reservar el
+     mismo espacio en el flex del header — así el menú no se corre. La
+     imagen adentro es 3 veces ese tamaño y `position: absolute` para no
+     quedar encerrada en el ancho/alto de ese hueco: se sale de la franja
+     azul del header por arriba y por abajo, quedando parte sobre la foto
+     del Hero en vez de contenida en la barra. */
+  header .logo {
+    position: relative;
     display: block;
-    height: 44px;
     width: 44px;
-    border-radius: 50%;
+    height: 44px;
     flex-shrink: 0;
-    transition: height 0.3s ease, width 0.3s ease;
+    transition: width 0.3s ease, height 0.3s ease;
+  }
+
+  header.scrolled .logo {
+    width: 36px;
+    height: 36px;
+  }
+
+  header .logo-img {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 132px;
+    height: 132px;
+    border-radius: 50%;
+    transition: width 0.3s ease, height 0.3s ease;
   }
 
   header.scrolled .logo-img {
-    height: 36px;
-    width: 36px;
+    width: 108px;
+    height: 108px;
   }
 
   nav.main-nav {
