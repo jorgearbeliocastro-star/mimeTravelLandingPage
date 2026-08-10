@@ -374,6 +374,17 @@
     color: var(--light);
   }
 
+  /* En mobile el formulario hace que el contenido del hero sea más alto
+     que la pantalla — con align-items:center (el default de arriba) eso
+     empuja el bloque de texto hacia ARRIBA para centrarlo, metiéndolo
+     debajo del logo agrandado del header. Acá lo anclamos arriba y dejamos
+     que el padding-top de .hero-content sea el que de verdad manda. */
+  @media (max-width: 600px) {
+    .hero {
+      align-items: flex-start;
+    }
+  }
+
   .hero-content {
     max-width: 700px;
     padding-top: 140px;
