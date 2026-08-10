@@ -494,6 +494,18 @@
     min-height: 9px;
   }
 
+  /* Desde ~660px la tarjeta ya llegó a su max-width (640px) y le sobra
+     espacio a la derecha antes del borde del Hero — ahí el sello se saca
+     del todo afuera de la tarjeta (queda flotando sobre la foto) en vez de
+     asomarse arriba, porque a este ancho el formulario muestra 4 campos
+     por fila y "arriba a la derecha" cae justo sobre "Fecha de ida". */
+  @media (min-width: 660px) {
+    .search-bar-seal {
+      top: 4px;
+      right: -76px;
+    }
+  }
+
   @media (max-width: 480px) {
     .search-bar-seal {
       top: -28px;
