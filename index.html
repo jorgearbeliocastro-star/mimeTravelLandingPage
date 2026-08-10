@@ -428,7 +428,6 @@
   }
 
   .search-bar {
-    position: relative;
     display: flex;
     flex-wrap: wrap;
     gap: 1px;
@@ -439,43 +438,6 @@
     border-radius: 16px;
     padding: 8px;
     max-width: 640px;
-  }
-
-  /* Sello real de "Agente Independiente" (imagen, no armado con CSS) — se
-     asoma arriba a la derecha de la tarjeta de búsqueda (`.search-bar`, ya
-     `position: relative`), encima del campo "Origen". `.search-tabs` tiene
-     el margin-bottom agrandado (38px) para dejarle aire y que no pise las
-     pestañas de arriba. */
-  .search-bar-seal {
-    position: absolute;
-    top: -34px;
-    right: -10px;
-    z-index: 5;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    box-shadow: 0 8px 24px rgba(15, 30, 48, 0.4);
-  }
-
-  /* Desde ~660px la tarjeta ya llegó a su max-width (640px) y le sobra
-     espacio a la derecha antes del borde del Hero — ahí el sello se saca
-     del todo afuera de la tarjeta (queda flotando sobre la foto) en vez de
-     asomarse arriba, porque a este ancho el formulario muestra 4 campos
-     por fila y "arriba a la derecha" cae justo sobre "Fecha de ida". */
-  @media (min-width: 660px) {
-    .search-bar-seal {
-      top: 4px;
-      right: -76px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .search-bar-seal {
-      top: -28px;
-      right: -6px;
-      width: 64px;
-      height: 64px;
-    }
   }
 
   .search-field {
