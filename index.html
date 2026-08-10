@@ -289,9 +289,12 @@
 
   header .logo-img {
     position: absolute;
-    top: 50%;
+    /* `top: 6px` (no `top: 50%` centrado) a propósito — centrado hacía que
+       el logo se saliera para ARRIBA, más allá del borde de la ventana, y
+       quedaba cortado. Con esto arranca casi pegado al techo del header y
+       todo el sobrante de tamaño se va para abajo, sobre la foto del Hero. */
+    top: 6px;
     left: 0;
-    transform: translateY(-50%);
     /* Sin esto, la regla global `img { max-width: 100% }` recorta el ancho
        al del contenedor `.logo` (44px) sin tocar el alto — quedaba ovalado
        en vez de circular. */
