@@ -376,13 +376,26 @@
 
   .hero-content {
     max-width: 700px;
-    padding-top: 90px;
+    padding-top: 140px;
+  }
+
+  /* Título + subtítulo agrupados en flex: el subtítulo queda pegado a
+     continuación del signo de pregunta, más chico y tenue, y si no entra
+     en el ancho disponible baja solo a la línea siguiente (en vez del
+     salto grande que había antes entre h1 y p). */
+  .hero-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 14px;
+    row-gap: 6px;
+    margin-bottom: 36px;
   }
 
   .hero h1 {
     font-size: clamp(38px, 6vw, 64px);
     font-weight: 600;
-    margin-bottom: 20px;
+    margin: 0;
     text-shadow: 0 2px 18px rgba(15, 30, 48, 0.45);
   }
 
@@ -392,11 +405,12 @@
   }
 
   .hero p.subtitle {
-    font-size: clamp(16px, 2.2vw, 19px);
-    line-height: 1.6;
-    color: rgba(255, 255, 255, 0.92);
+    font-size: clamp(14px, 1.6vw, 17px);
+    font-weight: 400;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.72);
     max-width: 52ch;
-    margin-bottom: 36px;
+    margin: 0;
     text-shadow: 0 1px 12px rgba(15, 30, 48, 0.4);
   }
 
