@@ -390,20 +390,16 @@
     padding-top: 140px;
   }
 
-  /* Título + subtítulo agrupados en flex: el subtítulo queda pegado a
-     continuación del signo de pregunta, más chico y tenue, y si no entra
-     en el ancho disponible baja solo a la línea siguiente (en vez del
-     salto grande que había antes entre h1 y p). */
+  /* Título + subtítulo fluyen como texto corrido (ambos display:inline):
+     el subtítulo continúa en el mismo renglón donde termina la pregunta
+     ("...precio? Comparalo...") como si fuera una sola oración, y solo
+     baja de línea por falta de espacio, como cualquier texto que wrapea. */
   .hero-heading {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    column-gap: 14px;
-    row-gap: 6px;
     margin-bottom: 36px;
   }
 
   .hero h1 {
+    display: inline;
     font-size: clamp(38px, 6vw, 64px);
     font-weight: 600;
     margin: 0;
