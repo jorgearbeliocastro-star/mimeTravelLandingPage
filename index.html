@@ -134,11 +134,31 @@
   .btn-help:hover {
     background: var(--turquesa);
     color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(95, 191, 179, 0.4);
   }
 
+  /* Mismo "se ilumina" que .btn-coral: pasa de transparente a turquesa
+     sólido + se levanta, en vez del sutil tinte blanco que tenía antes. */
   .btn-outline:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: var(--turquesa);
+    color: var(--primary-dark);
+    border-color: var(--turquesa);
     transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(95, 191, 179, 0.4);
+  }
+
+  /* Botón oscuro (newsletter): mismo efecto de "iluminarse" en turquesa. */
+  .btn-dark {
+    background: var(--dark);
+    color: var(--light);
+  }
+
+  .btn-dark:hover {
+    background: var(--turquesa);
+    color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(95, 191, 179, 0.4);
   }
 
   /* ---------- MODAL (formulario de preventa) ---------- */
