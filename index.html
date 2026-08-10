@@ -98,10 +98,12 @@
   /* Mismo estilo que el botón "Agente [nombre]" del header (.btn-help):
      fondo turquesa semitransparente + borde turquesa, en vez de relleno
      sólido — para que todos los CTA del sitio se vean consistentes y
-     transmitan la misma calma/confianza. */
+     transmitan la misma calma/confianza. Texto oscuro (no blanco como en
+     .btn-help) porque la mayoría de estos botones están sobre tarjetas o
+     modales blancos, no sobre la foto — con texto blanco no se leería. */
   .btn-coral {
     background: rgba(95, 191, 179, 0.3);
-    color: var(--light);
+    color: var(--primary-dark);
     border: 1.5px solid var(--turquesa);
     box-shadow: 0 8px 24px rgba(95, 191, 179, 0.25);
   }
