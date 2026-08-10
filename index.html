@@ -292,6 +292,10 @@
     top: 50%;
     left: 0;
     transform: translateY(-50%);
+    /* Sin esto, la regla global `img { max-width: 100% }` recorta el ancho
+       al del contenedor `.logo` (44px) sin tocar el alto — quedaba ovalado
+       en vez de circular. */
+    max-width: none;
     width: 132px;
     height: 132px;
     border-radius: 50%;
