@@ -411,20 +411,16 @@
     color: var(--turquesa);
   }
 
-  /* Badge en vez de texto plano: usa el color de las CTAs (coral) para que
-     "gratis, sin compromiso" llame la atención y no se pierda en la foto. */
+  /* Llama la atención por color, no por volumen: texto en turquesa (acento
+     de marca) y negrita, sin fondo ni sombra, para no sumar peso visual. */
   .hero p.subtitle {
-    display: inline-block;
-    vertical-align: middle;
-    font-size: clamp(13px, 1.4vw, 15px);
+    display: inline;
+    font-size: clamp(14px, 1.6vw, 18px);
     font-weight: 700;
-    line-height: 1.4;
-    color: var(--light);
-    background: var(--coral);
-    padding: 6px 16px;
-    border-radius: 999px;
-    margin: 0 0 6px 12px;
-    box-shadow: 0 6px 16px rgba(255, 122, 89, 0.4);
+    line-height: 1.5;
+    color: var(--turquesa);
+    margin: 0 0 0 12px;
+    text-shadow: 0 1px 12px rgba(15, 30, 48, 0.4);
   }
 
   .hero-ctas {
