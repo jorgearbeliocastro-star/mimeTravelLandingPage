@@ -2889,13 +2889,29 @@
     }
 
     // Nombres de país que aparecen en "Ciudad, País" (tarjetas de destino y
-    // testimonios) — la ciudad no se traduce, solo el país.
+    // testimonios) — la ciudad no se traduce, solo el país. Uno por idioma.
     const COUNTRY_TRANSLATIONS = {
-      'Grecia': 'Greece', 'Francia': 'France', 'Indonesia': 'Indonesia', 'Perú': 'Peru',
-      'Suiza': 'Switzerland', 'Canadá': 'Canada', 'Jordania': 'Jordan', 'México': 'Mexico',
-      'Japón': 'Japan', 'Argentina': 'Argentina', 'Colombia': 'Colombia', 'Tanzania': 'Tanzania',
-      'Marruecos': 'Morocco', 'Polinesia Francesa': 'French Polynesia', 'Nueva Zelanda': 'New Zealand',
-      'Australia': 'Australia', 'Maldivas': 'Maldives',
+      en: {
+        'Grecia': 'Greece', 'Francia': 'France', 'Indonesia': 'Indonesia', 'Perú': 'Peru',
+        'Suiza': 'Switzerland', 'Canadá': 'Canada', 'Jordania': 'Jordan', 'México': 'Mexico',
+        'Japón': 'Japan', 'Argentina': 'Argentina', 'Colombia': 'Colombia', 'Tanzania': 'Tanzania',
+        'Marruecos': 'Morocco', 'Polinesia Francesa': 'French Polynesia', 'Nueva Zelanda': 'New Zealand',
+        'Australia': 'Australia', 'Maldivas': 'Maldives',
+      },
+      it: {
+        'Grecia': 'Grecia', 'Francia': 'Francia', 'Indonesia': 'Indonesia', 'Perú': 'Perù',
+        'Suiza': 'Svizzera', 'Canadá': 'Canada', 'Jordania': 'Giordania', 'México': 'Messico',
+        'Japón': 'Giappone', 'Argentina': 'Argentina', 'Colombia': 'Colombia', 'Tanzania': 'Tanzania',
+        'Marruecos': 'Marocco', 'Polinesia Francesa': 'Polinesia Francese', 'Nueva Zelanda': 'Nuova Zelanda',
+        'Australia': 'Australia', 'Maldivas': 'Maldive',
+      },
+      pt: {
+        'Grecia': 'Grécia', 'Francia': 'França', 'Indonesia': 'Indonésia', 'Perú': 'Peru',
+        'Suiza': 'Suíça', 'Canadá': 'Canadá', 'Jordania': 'Jordânia', 'México': 'México',
+        'Japón': 'Japão', 'Argentina': 'Argentina', 'Colombia': 'Colômbia', 'Tanzania': 'Tanzânia',
+        'Marruecos': 'Marrocos', 'Polinesia Francesa': 'Polinésia Francesa', 'Nueva Zelanda': 'Nova Zelândia',
+        'Australia': 'Austrália', 'Maldivas': 'Maldivas',
+      },
     };
 
     function translateDestinationName(nameEs) {
