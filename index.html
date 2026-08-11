@@ -2918,17 +2918,18 @@
     const i18nAriaOriginal = new Map(i18nAriaEls.map(el => [el, el.getAttribute('aria-label')]));
 
     function applyStaticI18n(lang) {
+      const dict = LANG_DICTS[lang];
       i18nEls.forEach(el => {
         const key = el.dataset.i18n;
-        el.innerHTML = (lang === 'en' && I18N_EN[key] !== undefined) ? I18N_EN[key] : i18nOriginal.get(el);
+        el.innerHTML = (dict && dict[key] !== undefined) ? dict[key] : i18nOriginal.get(el);
       });
       i18nPlaceholderEls.forEach(el => {
         const key = el.dataset.i18nPlaceholder;
-        el.placeholder = (lang === 'en' && I18N_EN[key] !== undefined) ? I18N_EN[key] : i18nPlaceholderOriginal.get(el);
+        el.placeholder = (dict && dict[key] !== undefined) ? dict[key] : i18nPlaceholderOriginal.get(el);
       });
       i18nAriaEls.forEach(el => {
         const key = el.dataset.i18nAria;
-        el.setAttribute('aria-label', (lang === 'en' && I18N_EN[key] !== undefined) ? I18N_EN[key] : i18nAriaOriginal.get(el));
+        el.setAttribute('aria-label', (dict && dict[key] !== undefined) ? dict[key] : i18nAriaOriginal.get(el));
       });
     }
 
