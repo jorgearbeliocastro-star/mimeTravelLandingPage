@@ -2980,6 +2980,14 @@
       return currentLang === 'en' ? SEARCH_FIELD_CONFIG_EN : SEARCH_FIELD_CONFIG_ES;
     }
 
+    // Los campos de fecha arrancan con la fecha de hoy cargada (en vez de
+    // vacíos) para que el visitante solo tenga que cambiarla si su viaje es
+    // en otra fecha, en vez de tener que elegir una desde cero.
+    function todayISO() {
+      const d = new Date();
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
     const searchTabs = document.getElementById('searchTabs');
     const tipoServicioInput = document.getElementById('tipoServicio');
     const FIELD_SLOT_COUNT = 7;
