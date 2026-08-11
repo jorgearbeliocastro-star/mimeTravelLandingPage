@@ -445,10 +445,12 @@
     }
   }
 
-  /* A la altura de los links de nav (Servicios/Destinos/...), bien arriba. */
+  /* padding-top ya estaba en 0 (el límite) — para seguir subiendo se usa
+     margin-top negativo, que sí permite superponerse hacia arriba. */
   .hero-content {
     max-width: 700px;
     padding-top: 0px;
+    margin-top: -150px;
   }
 
   /* Título + subtítulo fluyen como texto corrido (ambos display:inline):
