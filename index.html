@@ -2915,11 +2915,12 @@
     };
 
     function translateDestinationName(nameEs) {
-      if (currentLang !== 'en') return nameEs;
+      if (currentLang === 'es') return nameEs;
       const parts = nameEs.split(', ');
       if (parts.length < 2) return nameEs;
       const country = parts[parts.length - 1];
-      const translatedCountry = COUNTRY_TRANSLATIONS[country] || country;
+      const table = COUNTRY_TRANSLATIONS[currentLang] || {};
+      const translatedCountry = table[country] || country;
       return parts.slice(0, -1).join(', ') + ', ' + translatedCountry;
     }
 
