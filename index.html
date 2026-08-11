@@ -321,7 +321,7 @@
 
   header.scrolled .logo {
     width: 36px;
-    height: 36px;
+ñ    height: 36px;
   }
 
   header .logo-img {
@@ -3292,6 +3292,57 @@
       return (worldAirportsData || [])
         .filter(a => normalizeText(a.city + ' ' + a.iata).includes(q))
         .map(a => a.city + ' (' + a.iata + ')');
+    }
+
+    // Set de ciudades con aeropuerto real — para filtrar la lista curada
+    // DESTINATIONS/COUNTRY_CITIES en los campos de Vuelos: sin esto,
+    // ciudades sin aeropuerto (ej. Sancti Spíritus) aparecían igual como
+    // sugerencia de "Destino" solo porque estaban en la lista de destinos
+    // turísticos populares (que sí tiene sentido para Hoteles/Autos, pero
+    // no para un vuelo).
+    function worldAirportCitySet() {
+      return new Set((worldAirportsData || []).map(a => a.city));
+    }
+
+    // Base pública de puertos marítimos del mundo (~1.600, liviana) — mismo
+    // criterio que worldAirportsData pero para Cruceros: un "Destino"/
+    // "Puerto de salida" de crucero necesita puerto real, no cualquier
+    // ciudad turística de la lista curada.
+    let worldPortsData = null;
+    let worldPortsPromise = null;
+    function loadWorldPorts() {
+      if (worldPortsData) return Promise.resolve(worldPortsData);
+      if (worldPortsPromise) return worldPortsPromise;
+      worldPortsPromise = fetch('https://raw.githubusercontent.com/marchah/sea-ports/master/lib/ports.json')
+        .then(r => r.json())
+        .then(json => {
+          const seen = new Set();
+          const list = [];
+          Object.values(json).forEach(p => {
+            if (!p || !p.city || !p.code) return;
+            const key = p.city + '|' + p.code;
+            if (seen.has(key)) return;
+            seen.add(key);
+            list.push({ city: p.city, code: p.code });
+          });
+          worldPortsData = list;
+          return list;
+        })
+        .catch(() => {
+          worldPortsData = [];
+          return worldPortsData;
+        });
+      return worldPortsPromise;
+    }
+
+    function worldPortLabels(q) {
+      return (worldPortsData || [])
+        .filter(p => normalizeText(p.city).includes(q))
+        .map(p => p.city);
+    }
+
+    function worldPortCitySet() {
+      return new Set((worldPortsData || []).map(p => p.city));
     }
 
     // Base pública de ciudades del mundo (170,000+, incluye pueblos y
