@@ -2759,11 +2759,7 @@
         highlighted = -1;
       }
 
-      input.addEventListener('input', function () {
-        if (input.dataset.autocomplete !== 'true') return;
-        const q = normalizeText(input.value);
-        highlighted = -1;
-        if (!q) { close(); return; }
+      function computeMatches(q) {
         const cityMatches = DESTINATIONS.filter(c => {
           const nc = normalizeText(c);
           return nc.includes(q) || q.includes(nc);
@@ -2774,14 +2770,40 @@
         const countryCityMatches = Object.keys(COUNTRY_CITIES)
           .filter(country => normalizeText(country).includes(q))
           .flatMap(country => COUNTRY_CITIES[country]);
-        matches = [...new Set([...cityMatches, ...countryCityMatches])].slice(0, 8);
+        // Base de aeropuertos del mundo (miles), cargada aparte — cubre
+        // cualquier ciudad/aeropuerto que no esté en la lista curada de
+        // arriba. Mientras carga, se usan solo las coincidencias locales;
+        // apenas está lista, se vuelve a calcular (ver más abajo).
+        const worldMatches = (worldAirportsData || []).filter(label => normalizeText(label).includes(q));
+        matches = [...new Set([...cityMatches, ...countryCityMatches, ...worldMatches])].slice(0, 8);
+      }
+
+      input.addEventListener('input', function () {
+        if (input.dataset.autocomplete !== 'true') return;
+        const q = normalizeText(input.value);
+        highlighted = -1;
+        if (!q) { close(); return; }
+        computeMatches(q);
         render();
         open();
+
+        // La base mundial es pesada (miles de aeropuertos) — se pide una
+        // sola vez y se cachea. Si todavía no había terminado de cargar
+        // cuando se calcularon las coincidencias de arriba, se vuelve a
+        // renderizar apenas esté lista (solo si el usuario no borró/cambió
+        // lo que había escrito mientras tanto).
+        loadWorldAirports().then(() => {
+          if (normalizeText(input.value) === q) {
+            computeMatches(q);
+            render();
+          }
+        });
       });
 
       input.addEventListener('focus', function () {
-        if (input.dataset.autocomplete === 'true' && input.value.trim()) {
-          input.dispatchEvent(new Event('input'));
+        if (input.dataset.autocomplete === 'true') {
+          loadWorldAirports();
+          if (input.value.trim()) input.dispatchEvent(new Event('input'));
         }
       });
 
