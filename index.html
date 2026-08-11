@@ -2723,6 +2723,39 @@
       return str.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
     }
 
+    // Base pública y gratuita de aeropuertos del mundo (miles de entradas,
+    // sin necesitar API key) — se pide una sola vez y se cachea en memoria,
+    // para que el autocompletado de origen/destino cubra cualquier lugar
+    // real del mundo, no solo los ~190 destinos curados de DESTINATIONS.
+    // Formato de cada sugerencia: "Ciudad (CÓDIGO)" — el código IATA ayuda
+    // a distinguir ciudades con nombres repetidos entre países.
+    let worldAirportsData = null;
+    let worldAirportsPromise = null;
+    function loadWorldAirports() {
+      if (worldAirportsData) return Promise.resolve(worldAirportsData);
+      if (worldAirportsPromise) return worldAirportsPromise;
+      worldAirportsPromise = fetch('https://raw.githubusercontent.com/mwgg/Airports/master/airports.json')
+        .then(r => r.json())
+        .then(json => {
+          const seen = new Set();
+          const list = [];
+          Object.values(json).forEach(a => {
+            if (!a || !a.iata || !a.city) return;
+            const label = a.city + ' (' + a.iata + ')';
+            if (seen.has(label)) return;
+            seen.add(label);
+            list.push(label);
+          });
+          worldAirportsData = list;
+          return list;
+        })
+        .catch(() => {
+          worldAirportsData = [];
+          return worldAirportsData;
+        });
+      return worldAirportsPromise;
+    }
+
     function setupAutocomplete(fieldId) {
       const input = document.getElementById(fieldId);
       const list = document.getElementById(fieldId + 'List');
