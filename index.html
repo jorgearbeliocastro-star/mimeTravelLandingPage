@@ -3047,6 +3047,7 @@
           input.placeholder = field.placeholder || '';
           input.type = field.type || 'text';
           input.dataset.autocomplete = field.country ? 'true' : 'false';
+          if (field.type === 'date' && !input.value) input.value = todayISO();
           const acList = document.getElementById('field' + (i + 1) + 'List');
           if (acList) acList.classList.remove('open');
           input.disabled = false;
