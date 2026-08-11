@@ -2298,7 +2298,11 @@
       destinoCta: 'Quiero ir aquí →',
       quoteStatusSearching: 'Tu agente está buscando tu vuelo…',
       quoteStatusPricePrefix: 'Precio cotizado: ',
+      quoteStatusPriceBasicPrefix: 'Precio básico (sin maleta): ',
+      quoteStatusPriceFullPrefix: 'Precio completo: ',
       quoteDecisionAccept: 'Aceptar',
+      quoteDecisionAcceptBasic: 'Aceptar básico',
+      quoteDecisionAcceptFull: 'Aceptar completo',
       quoteDecisionDecline: 'Rechazar',
       quoteDecisionAccepted: 'Aceptaste esta cotización — tu agente te está enviando un link de pago a tu correo para que completes la compra.',
       quoteDecisionDeclined: 'Rechazaste esta cotización.',
@@ -2446,7 +2450,11 @@
       quoteChatSendAria: 'Send',
       quoteStatusSearching: 'Your agent is looking for your flight…',
       quoteStatusPricePrefix: 'Quoted price: ',
+      quoteStatusPriceBasicPrefix: 'Basic price (no bag): ',
+      quoteStatusPriceFullPrefix: 'Full price: ',
       quoteDecisionAccept: 'Accept',
+      quoteDecisionAcceptBasic: 'Accept basic',
+      quoteDecisionAcceptFull: 'Accept full',
       quoteDecisionDecline: 'Decline',
       quoteDecisionAccepted: 'You accepted this quote — your agent is sending a payment link to your email so you can complete the purchase.',
       quoteDecisionDeclined: 'You declined this quote.',
@@ -3646,6 +3654,9 @@
     let activePanelMode = 'quote';
     let quotePollInterval = null;
     let quoteDecisionInFlight = false;
+    // Qué precio (básico/completo) tocó el cliente antes de abrir el
+    // formulario de pasajero — se usa recién al mandar la aceptación.
+    let selectedQuoteTier = 'basic';
     // Mientras la card de datos del pasajero está abierta, el polling no
     // debe pisarla (perdería lo que el cliente ya tipeó) — se congela el
     // status bar hasta que se cancela o se manda el formulario.
@@ -3794,7 +3805,7 @@
         quoteDecisionInFlight = true;
         const clientToken = getOrCreateWebClientToken();
         const decideStep = mode === 'accept'
-          ? laExpancion.rpc('decide_quote_request', { p_token: clientToken, p_id: activeQuoteId, p_accept: true }).then(({ error }) => {
+          ? laExpancion.rpc('decide_quote_request_with_tier', { p_token: clientToken, p_id: activeQuoteId, p_accept: true, p_tier: selectedQuoteTier }).then(({ error }) => {
               if (error) throw error;
               notifyQuoteDecisionWeb(activeQuoteId);
             })
@@ -3834,9 +3845,22 @@
         return;
       }
       if (quote.status === 'quoted' && !quote.client_decision) {
+        // Si el agente cargó precio completo (con maleta+asiento), se
+        // muestran los dos y el cliente elige cuál acepta — si no, es el
+        // mismo comportamiento de siempre (un solo precio, un botón).
+        const hasTwoTiers = quote.quoted_price_full_usd != null;
         const price = document.createElement('div');
         price.className = 'quote-status-price';
-        price.textContent = t('quoteStatusPricePrefix') + 'USD ' + quote.quoted_price_usd;
+        if (hasTwoTiers) {
+          let fullLine = t('quoteStatusPriceFullPrefix') + 'USD ' + quote.quoted_price_full_usd;
+          if (quote.quoted_seat) fullLine += ' · ' + quote.quoted_seat;
+          if (quote.quoted_checked_bags) fullLine += ' · ' + quote.quoted_checked_bags;
+          price.innerHTML =
+            '<div>' + t('quoteStatusPriceBasicPrefix') + 'USD ' + quote.quoted_price_basic_usd + '</div>' +
+            '<div>' + fullLine + '</div>';
+        } else {
+          price.textContent = t('quoteStatusPricePrefix') + 'USD ' + quote.quoted_price_usd;
+        }
         quoteStatusBar.appendChild(price);
         // Notas del agente (ej. condiciones de la tarifa, si el equipaje
         // está incluido o se paga aparte) — mismo campo `agent_notes` que
@@ -3849,9 +3873,12 @@
         }
         const actions = document.createElement('div');
         actions.className = 'quote-status-decision';
-        actions.innerHTML =
-          '<button type="button" class="quote-decision-btn quote-decision-accept" data-decision="accept">' + t('quoteDecisionAccept') + '</button>' +
-          '<button type="button" class="quote-decision-btn quote-decision-decline" data-decision="decline">' + t('quoteDecisionDecline') + '</button>';
+        actions.innerHTML = hasTwoTiers
+          ? '<button type="button" class="quote-decision-btn quote-decision-accept" data-decision="accept" data-tier="basic">' + t('quoteDecisionAcceptBasic') + '</button>' +
+            '<button type="button" class="quote-decision-btn quote-decision-accept" data-decision="accept" data-tier="full">' + t('quoteDecisionAcceptFull') + '</button>' +
+            '<button type="button" class="quote-decision-btn quote-decision-decline" data-decision="decline">' + t('quoteDecisionDecline') + '</button>'
+          : '<button type="button" class="quote-decision-btn quote-decision-accept" data-decision="accept" data-tier="basic">' + t('quoteDecisionAccept') + '</button>' +
+            '<button type="button" class="quote-decision-btn quote-decision-decline" data-decision="decline">' + t('quoteDecisionDecline') + '</button>';
         quoteStatusBar.appendChild(actions);
         return;
       }
@@ -3898,6 +3925,10 @@
       if (!btn.dataset.decision) return; // el submit de la card de pasajero tiene su propio handler
       const accept = btn.dataset.decision === 'accept';
       if (accept) {
+        // Qué precio eligió (básico/completo) — lo usa renderPassengerForm
+        // cuando manda la aceptación. Si el pedido solo tiene un precio,
+        // esto no tiene efecto (el RPC lo ignora sin precio "full" cargado).
+        selectedQuoteTier = btn.dataset.tier || 'basic';
         // Antes de mandar la aceptación, se piden los datos del pasajero —
         // los dos viajan juntos al servidor apenas confirma el formulario.
         renderPassengerForm('accept');
@@ -3906,7 +3937,7 @@
       if (!window.confirm(t('quoteDecisionConfirm'))) return;
       quoteDecisionInFlight = true;
       const clientToken = getOrCreateWebClientToken();
-      laExpancion.rpc('decide_quote_request', { p_token: clientToken, p_id: activeQuoteId, p_accept: accept })
+      laExpancion.rpc('decide_quote_request_with_tier', { p_token: clientToken, p_id: activeQuoteId, p_accept: accept, p_tier: 'basic' })
         .then(({ error }) => {
           if (error) throw error;
           notifyQuoteDecisionWeb(activeQuoteId);
