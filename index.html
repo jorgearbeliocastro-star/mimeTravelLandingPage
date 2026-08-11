@@ -3217,7 +3217,8 @@
             returnDate: null,
             endDate: data.fecha_salida || null,
             notes: buildQuoteNotes([
-              data.huespedes ? 'Huéspedes: ' + data.huespedes : null,
+              data.huespedes ? 'Adultos: ' + data.huespedes : null,
+              data.ninos ? 'Niños: ' + data.ninos : null,
               data.habitaciones || null,
               data.estrellas || null,
             ]),
