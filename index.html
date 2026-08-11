@@ -2878,9 +2878,14 @@
     };
 
     // Traduce un texto libre (mensajes JS, no-DOM) según el idioma activo.
+    // Un solo mapa por idioma en vez de comparar "currentLang === 'en'" en
+    // cada función — agregar un idioma nuevo es sumar una entrada acá, no
+    // tocar cada ternario suelto por el archivo.
+    const LANG_DICTS = { en: I18N_EN, it: I18N_IT, pt: I18N_PT };
+
     function t(key) {
-      const dict = currentLang === 'en' ? I18N_EN : I18N_ES;
-      return dict[key] !== undefined ? dict[key] : (I18N_ES[key] || key);
+      const dict = LANG_DICTS[currentLang];
+      return (dict && dict[key] !== undefined) ? dict[key] : (I18N_ES[key] || key);
     }
 
     // Nombres de país que aparecen en "Ciudad, País" (tarjetas de destino y
