@@ -4814,12 +4814,12 @@
         if (!card.dataset.priceEs) card.dataset.priceEs = priceEl.textContent;
         if (!card.dataset.nameEs) card.dataset.nameEs = nameEl.textContent;
 
-        if (currentLang === 'en') {
+        if (currentLang !== 'es') {
           priceEl.textContent = card.dataset.priceEs.replace(/^Desde/, t('destinoPricePrefix'));
-          const nameEn = translateDestinationName(card.dataset.nameEs);
-          nameEl.textContent = nameEn;
+          const nameTranslated = translateDestinationName(card.dataset.nameEs);
+          nameEl.textContent = nameTranslated;
           ctaBtn.textContent = t('destinoCta');
-          ctaBtn.dataset.presaleDestino = nameEn;
+          ctaBtn.dataset.presaleDestino = nameTranslated;
         } else {
           priceEl.textContent = card.dataset.priceEs;
           nameEl.textContent = card.dataset.nameEs;
@@ -4830,16 +4830,18 @@
 
       document.querySelectorAll('.testi-author-trip').forEach(el => {
         if (!el.dataset.tripEs) el.dataset.tripEs = el.textContent;
-        el.textContent = currentLang === 'en' ? translateDestinationName(el.dataset.tripEs) : el.dataset.tripEs;
+        el.textContent = currentLang !== 'es' ? translateDestinationName(el.dataset.tripEs) : el.dataset.tripEs;
       });
     }
 
     // ===== Idioma =====
-    // 100% automático, sin botón para cambiarlo a mano: español si el
-    // navegador está en español, inglés para cualquier otro idioma —
-    // mismo criterio que usa la app con el idioma del teléfono.
+    // 100% automático, sin botón para cambiarlo a mano: español, italiano o
+    // portugués si el navegador está en alguno de esos, inglés para
+    // cualquier otro — mismo criterio que usa la app con el idioma del
+    // teléfono (ver detectLang más arriba).
+    const SUPPORTED_LANGS = ['es', 'en', 'it', 'pt'];
     function applyLanguage(lang) {
-      currentLang = lang === 'en' ? 'en' : 'es';
+      currentLang = SUPPORTED_LANGS.includes(lang) ? lang : 'es';
       document.documentElement.lang = currentLang;
 
       applyStaticI18n(currentLang);
@@ -4847,7 +4849,7 @@
       renderDestinosHeading();
 
       // El buscador del hero arma sus labels/placeholders/opciones desde
-      // SEARCH_FIELD_CONFIG_ES/EN — hay que re-renderizar la pestaña activa.
+      // SEARCH_FIELD_CONFIG_* — hay que re-renderizar la pestaña activa.
       const activeTabType = searchTabs.querySelector('.search-tab.active')?.dataset.type || 'vuelos';
       applyServiceType(activeTabType);
     }
