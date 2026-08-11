@@ -1470,6 +1470,51 @@
     margin-top: 8px;
   }
 
+  .quote-pax-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  /* Separador visual entre pasajeros — el primero no lo necesita porque no
+     tiene nada arriba dentro del form. */
+  .quote-pax-block + .quote-pax-block {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1.5px dashed rgba(0, 0, 0, 0.12);
+  }
+
+  .quote-pax-block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  .quote-pax-remove {
+    background: none;
+    border: none;
+    color: var(--coral-dark);
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 2px 4px;
+  }
+
+  .quote-pax-add {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 6px 0;
+    margin-top: 4px;
+  }
+
   .quote-pax-actions {
     display: flex;
     gap: 8px;
@@ -2269,10 +2314,19 @@
       quotePaxDob: 'Fecha de nacimiento',
       quotePaxExpiry: 'Vencimiento del pasaporte',
       quotePaxNationality: 'Nacionalidad',
+      quotePaxGender: 'Género',
+      quotePaxGenderPlaceholder: 'Seleccioná...',
+      quotePaxGenderMale: 'Masculino',
+      quotePaxGenderFemale: 'Femenino',
+      quotePaxGenderOther: 'Otro / prefiero no decir',
+      quotePaxIssuingCountry: 'País emisor del pasaporte',
+      quotePaxPassengerLabel: 'Pasajero',
+      quotePaxAddAnother: '+ Agregar otro pasajero',
+      quotePaxRemove: 'Quitar',
       quotePaxSubmitAccept: 'Aceptar y enviar mis datos',
       quotePaxSubmitOnly: 'Enviar mis datos',
       quotePaxCancel: 'Cancelar',
-      quotePaxMissing: 'Completá todos los campos para continuar.',
+      quotePaxMissing: 'Completá todos los campos de cada pasajero para continuar.',
       quotePaxError: 'No pudimos guardar tus datos — intentá de nuevo.',
       quotePaxPendingTitle: 'Faltan tus datos para emitir el pasaje.',
     };
@@ -2408,10 +2462,19 @@
       quotePaxDob: 'Date of birth',
       quotePaxExpiry: 'Passport expiry',
       quotePaxNationality: 'Nationality',
+      quotePaxGender: 'Gender',
+      quotePaxGenderPlaceholder: 'Select...',
+      quotePaxGenderMale: 'Male',
+      quotePaxGenderFemale: 'Female',
+      quotePaxGenderOther: 'Other / prefer not to say',
+      quotePaxIssuingCountry: 'Passport issuing country',
+      quotePaxPassengerLabel: 'Passenger',
+      quotePaxAddAnother: '+ Add another passenger',
+      quotePaxRemove: 'Remove',
       quotePaxSubmitAccept: 'Accept and submit my info',
       quotePaxSubmitOnly: 'Submit my info',
       quotePaxCancel: 'Cancel',
-      quotePaxMissing: 'Fill in every field to continue.',
+      quotePaxMissing: 'Fill in every field for each passenger to continue.',
       quotePaxError: 'We couldn’t save your info — please try again.',
       quotePaxPendingTitle: 'We still need your info to issue the ticket.',
     };
@@ -3610,11 +3673,61 @@
       }).catch(() => {});
     }
 
-    // Card con los 5 campos que la app pide para emitir el pasaje (mismos
-    // que ClientPassengerInfoScreen.tsx / submit_quote_passenger_info) — acá
-    // se muestran ANTES de mandar la aceptación, y se envían los dos juntos
-    // en el mismo paso. `mode` es 'accept' (todavía no decidió) o 'complete'
-    // (ya había aceptado antes, pero le faltaban los datos).
+    // Un bloque de campos por pasajero — arma el pasaporte completo de UNA
+    // persona. `index` es solo para que los `name` de cada input no choquen
+    // entre bloques (ej. "fullName-0", "fullName-1").
+    function buildPassengerBlockHTML(index) {
+      return (
+        '<div class="quote-pax-block" data-pax-block>' +
+        (index > 0
+          ? '<div class="quote-pax-block-header"><span>' + t('quotePaxPassengerLabel') + ' ' + (index + 1) + '</span>' +
+            '<button type="button" class="quote-pax-remove" data-pax-remove>' + t('quotePaxRemove') + '</button></div>'
+          : '') +
+        '<label class="quote-pax-label">' + t('quotePaxFullName') + '</label>' +
+        '<input type="text" class="quote-pax-input" name="fullName-' + index + '" required>' +
+        '<label class="quote-pax-label">' + t('quotePaxDocument') + '</label>' +
+        '<input type="text" class="quote-pax-input" name="document-' + index + '" required>' +
+        '<label class="quote-pax-label">' + t('quotePaxDob') + '</label>' +
+        '<input type="date" class="quote-pax-input" name="dob-' + index + '" required>' +
+        '<label class="quote-pax-label">' + t('quotePaxExpiry') + '</label>' +
+        '<input type="date" class="quote-pax-input" name="expiry-' + index + '" required>' +
+        '<label class="quote-pax-label">' + t('quotePaxNationality') + '</label>' +
+        '<input type="text" class="quote-pax-input" name="nationality-' + index + '" required>' +
+        '<label class="quote-pax-label">' + t('quotePaxGender') + '</label>' +
+        '<select class="quote-pax-input" name="gender-' + index + '" required>' +
+        '<option value="">' + t('quotePaxGenderPlaceholder') + '</option>' +
+        '<option value="M">' + t('quotePaxGenderMale') + '</option>' +
+        '<option value="F">' + t('quotePaxGenderFemale') + '</option>' +
+        '<option value="X">' + t('quotePaxGenderOther') + '</option>' +
+        '</select>' +
+        '<label class="quote-pax-label">' + t('quotePaxIssuingCountry') + '</label>' +
+        '<input type="text" class="quote-pax-input" name="passportIssuingCountry-' + index + '" required>' +
+        '</div>'
+      );
+    }
+
+    // Lee un bloque del DOM y arma el objeto pasajero que se guarda en la
+    // base (mismas claves que espera submit_quote_passengers).
+    function readPassengerBlock(block, index) {
+      const val = (name) => block.querySelector('[name="' + name + '-' + index + '"]')?.value?.trim() || '';
+      return {
+        fullName: val('fullName'),
+        document: val('document'),
+        dateOfBirth: val('dob'),
+        passportExpiry: val('expiry'),
+        nationality: val('nationality'),
+        gender: val('gender'),
+        passportIssuingCountry: val('passportIssuingCountry'),
+      };
+    }
+
+    // Card con los datos que hacen falta para emitir el pasaje de CADA
+    // pasajero del pedido (no solo de quien pidió la cotización) — se
+    // muestran ANTES de mandar la aceptación, y se envían los dos juntos en
+    // el mismo paso. `mode` es 'accept' (todavía no decidió) o 'complete'
+    // (ya había aceptado antes, pero le faltaban los datos). Empieza con un
+    // solo pasajero y deja agregar más con "+ Agregar otro pasajero" — no
+    // hace falta saber de antemano cuántos son.
     function renderPassengerForm(mode) {
       showingPassengerForm = true;
       quoteStatusBar.innerHTML = '';
@@ -3626,21 +3739,37 @@
 
       const form = document.createElement('form');
       form.className = 'quote-pax-form';
-      form.innerHTML =
-        '<label class="quote-pax-label">' + t('quotePaxFullName') + '</label>' +
-        '<input type="text" class="quote-pax-input" name="fullName" required>' +
-        '<label class="quote-pax-label">' + t('quotePaxDocument') + '</label>' +
-        '<input type="text" class="quote-pax-input" name="document" required>' +
-        '<label class="quote-pax-label">' + t('quotePaxDob') + '</label>' +
-        '<input type="date" class="quote-pax-input" name="dob" required>' +
-        '<label class="quote-pax-label">' + t('quotePaxExpiry') + '</label>' +
-        '<input type="date" class="quote-pax-input" name="expiry" required>' +
-        '<label class="quote-pax-label">' + t('quotePaxNationality') + '</label>' +
-        '<input type="text" class="quote-pax-input" name="nationality" required>' +
-        '<div class="quote-pax-actions">' +
+
+      const blocksWrap = document.createElement('div');
+      blocksWrap.className = 'quote-pax-blocks';
+      blocksWrap.innerHTML = buildPassengerBlockHTML(0);
+      form.appendChild(blocksWrap);
+
+      const addBtn = document.createElement('button');
+      addBtn.type = 'button';
+      addBtn.className = 'quote-pax-add';
+      addBtn.textContent = t('quotePaxAddAnother');
+      addBtn.addEventListener('click', function () {
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = buildPassengerBlockHTML(blocksWrap.children.length);
+        blocksWrap.appendChild(wrapper.firstElementChild);
+      });
+      form.appendChild(addBtn);
+
+      // Delegado en blocksWrap (no por bloque) porque los bloques se agregan
+      // dinámicamente después de que esto se engancha una sola vez.
+      blocksWrap.addEventListener('click', function (e) {
+        const removeBtn = e.target.closest('[data-pax-remove]');
+        if (removeBtn) removeBtn.closest('[data-pax-block]').remove();
+      });
+
+      const actions = document.createElement('div');
+      actions.className = 'quote-pax-actions';
+      actions.innerHTML =
         '<button type="submit" class="quote-decision-btn quote-decision-accept">' + (mode === 'accept' ? t('quotePaxSubmitAccept') : t('quotePaxSubmitOnly')) + '</button>' +
-        '<button type="button" class="quote-decision-btn quote-decision-decline" data-pax-cancel="true">' + t('quotePaxCancel') + '</button>' +
-        '</div>';
+        '<button type="button" class="quote-decision-btn quote-decision-decline" data-pax-cancel="true">' + t('quotePaxCancel') + '</button>';
+      form.appendChild(actions);
+
       quoteStatusBar.appendChild(form);
 
       form.querySelector('[data-pax-cancel]').addEventListener('click', function () {
@@ -3651,22 +3780,19 @@
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         if (quoteDecisionInFlight) return;
-        const data = Object.fromEntries(new FormData(form).entries());
-        if (!data.fullName?.trim() || !data.document?.trim() || !data.dob || !data.expiry || !data.nationality?.trim()) {
+
+        const blocks = Array.from(blocksWrap.querySelectorAll('[data-pax-block]'));
+        const passengers = blocks.map((block, i) => readPassengerBlock(block, i));
+        const allComplete = passengers.every((p) =>
+          p.fullName && p.document && p.dateOfBirth && p.passportExpiry && p.nationality && p.gender && p.passportIssuingCountry
+        );
+        if (!allComplete) {
           window.alert(t('quotePaxMissing'));
           return;
         }
+
         quoteDecisionInFlight = true;
         const clientToken = getOrCreateWebClientToken();
-        const passengerParams = {
-          p_token: clientToken,
-          p_id: activeQuoteId,
-          p_full_name: data.fullName.trim(),
-          p_document: data.document.trim(),
-          p_date_of_birth: data.dob,
-          p_passport_expiry: data.expiry,
-          p_nationality: data.nationality.trim(),
-        };
         const decideStep = mode === 'accept'
           ? laExpancion.rpc('decide_quote_request', { p_token: clientToken, p_id: activeQuoteId, p_accept: true }).then(({ error }) => {
               if (error) throw error;
@@ -3674,7 +3800,7 @@
             })
           : Promise.resolve();
         decideStep
-          .then(() => laExpancion.rpc('submit_quote_passenger_info', passengerParams))
+          .then(() => laExpancion.rpc('submit_quote_passengers', { p_token: clientToken, p_id: activeQuoteId, p_passengers: passengers }))
           .then(({ error }) => {
             if (error) throw error;
             showingPassengerForm = false;
