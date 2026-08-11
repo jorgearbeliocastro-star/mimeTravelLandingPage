@@ -3909,42 +3909,55 @@
         return;
       }
       if (quote.status === 'quoted' && !quote.client_decision) {
-        // Si el agente cargó precio completo (con maleta+asiento), se
-        // muestran los dos y el cliente elige cuál acepta — si no, es el
-        // mismo comportamiento de siempre (un solo precio, un botón).
+        // Si el agente cargó precio completo (con maleta+asiento), cada
+        // precio va en su propia tarjeta con SU botón de aceptar debajo —
+        // así no queda ambiguo qué botón corresponde a qué precio. Si no
+        // cargó precio completo, es el mismo comportamiento de siempre (un
+        // solo precio, un botón).
         const hasTwoTiers = quote.quoted_price_full_usd != null;
-        const price = document.createElement('div');
-        price.className = 'quote-status-price';
         if (hasTwoTiers) {
-          let fullLine = t('quoteStatusPriceFullPrefix') + 'USD ' + quote.quoted_price_full_usd;
+          let fullDetail = '';
           // El agente carga estos códigos fijos desde la app (no texto
           // libre) — acá solo se traducen para mostrar, mismo vocabulario
           // que usa cualquier aerolínea (Incluida / Con costo adicional /
           // No disponible, y cantidad de maletas).
-          if (quote.quoted_seat) fullLine += ' · ' + t('seatOption_' + quote.quoted_seat);
-          if (quote.quoted_checked_bags) fullLine += ' · ' + t('bagsCount_' + quote.quoted_checked_bags.replace('+', 'plus'));
-          price.innerHTML =
-            '<div>' + t('quoteStatusPriceBasicPrefix') + 'USD ' + quote.quoted_price_basic_usd + '</div>' +
-            '<div>' + fullLine + '</div>';
+          if (quote.quoted_seat) fullDetail += t('seatOption_' + quote.quoted_seat);
+          if (quote.quoted_checked_bags) fullDetail += (fullDetail ? ' · ' : '') + t('bagsCount_' + quote.quoted_checked_bags.replace('+', 'plus'));
+          const options = document.createElement('div');
+          options.className = 'quote-price-options';
+          options.innerHTML =
+            '<div class="quote-price-option">' +
+              '<div class="quote-price-option-label">' + t('quoteStatusPriceBasicPrefix') + '</div>' +
+              '<div class="quote-price-option-value">USD ' + quote.quoted_price_basic_usd + '</div>' +
+              '<button type="button" class="quote-decision-btn quote-decision-accept" data-decision="accept" data-tier="basic">' + t('quoteDecisionAcceptBasic') + '</button>' +
+            '</div>' +
+            '<div class="quote-price-option">' +
+              '<div class="quote-price-option-label">' + t('quoteStatusPriceFullPrefix') + '</div>' +
+              '<div class="quote-price-option-value">USD ' + quote.quoted_price_full_usd + '</div>' +
+              (fullDetail ? '<div class="quote-price-option-detail">' + fullDetail + '</div>' : '') +
+              '<button type="button" class="quote-decision-btn quote-decision-accept" data-decision="accept" data-tier="full">' + t('quoteDecisionAcceptFull') + '</button>' +
+            '</div>';
+          quoteStatusBar.appendChild(options);
         } else {
+          const price = document.createElement('div');
+          price.className = 'quote-status-price';
           price.textContent = t('quoteStatusPricePrefix') + 'USD ' + quote.quoted_price_usd;
+          quoteStatusBar.appendChild(price);
         }
-        quoteStatusBar.appendChild(price);
-        // Notas del agente (ej. condiciones de la tarifa, si el equipaje
-        // está incluido o se paga aparte) — mismo campo `agent_notes` que
-        // ya llena el agente al cotizar, ahora visible acá también.
+        // Notas del agente (ej. condiciones de la tarifa) — con etiqueta y
+        // borde lateral a propósito, para que no se confunda con un campo
+        // de formulario (antes tenía el mismo estilo de caja que un input).
         if (quote.agent_notes) {
           const notes = document.createElement('div');
           notes.className = 'quote-status-notes';
-          notes.textContent = quote.agent_notes;
+          notes.innerHTML = '<span class="quote-status-notes-label">' + t('quoteAgentNoteLabel') + ':</span> ';
+          notes.appendChild(document.createTextNode(quote.agent_notes));
           quoteStatusBar.appendChild(notes);
         }
         const actions = document.createElement('div');
         actions.className = 'quote-status-decision';
         actions.innerHTML = hasTwoTiers
-          ? '<button type="button" class="quote-decision-btn quote-decision-accept" data-decision="accept" data-tier="basic">' + t('quoteDecisionAcceptBasic') + '</button>' +
-            '<button type="button" class="quote-decision-btn quote-decision-accept" data-decision="accept" data-tier="full">' + t('quoteDecisionAcceptFull') + '</button>' +
-            '<button type="button" class="quote-decision-btn quote-decision-decline" data-decision="decline">' + t('quoteDecisionDecline') + '</button>'
+          ? '<button type="button" class="quote-decision-btn quote-decision-decline" data-decision="decline">' + t('quoteDecisionDecline') + '</button>'
           : '<button type="button" class="quote-decision-btn quote-decision-accept" data-decision="accept" data-tier="basic">' + t('quoteDecisionAccept') + '</button>' +
             '<button type="button" class="quote-decision-btn quote-decision-decline" data-decision="decline">' + t('quoteDecisionDecline') + '</button>';
         quoteStatusBar.appendChild(actions);
