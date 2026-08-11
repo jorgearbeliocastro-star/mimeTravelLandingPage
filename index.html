@@ -3204,33 +3204,78 @@
       return str.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
     }
 
-    // Base pública y gratuita de aeropuertos del mundo (miles de entradas,
-    // sin necesitar API key) — se pide una sola vez y se cachea en memoria,
-    // para que el autocompletado de origen/destino cubra cualquier lugar
-    // real del mundo, no solo los ~190 destinos curados de DESTINATIONS.
-    // Se guarda ciudad y código IATA por separado (no ya combinados en un
+    // Parser mínimo de una línea CSV con comillas (soporta comas adentro de
+    // campos entre comillas, como "MFW, South Florida, Wilcox Field" en el
+    // dataset de OurAirports) — no hace falta una librería para esto.
+    function parseCsvLine(line) {
+      const fields = [];
+      let cur = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const c = line[i];
+        if (inQuotes) {
+          if (c === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+          else if (c === '"') { inQuotes = false; }
+          else { cur += c; }
+        } else if (c === '"') {
+          inQuotes = true;
+        } else if (c === ',') {
+          fields.push(cur);
+          cur = '';
+        } else {
+          cur += c;
+        }
+      }
+      fields.push(cur);
+      return fields;
+    }
+
+    // Base pública y gratuita de aeropuertos del mundo — se pide una sola
+    // vez y se cachea en memoria, para que el autocompletado de origen/
+    // destino cubra cualquier lugar real del mundo, no solo los ~190
+    // destinos curados de DESTINATIONS. Usa OurAirports (CSV) en vez de una
+    // lista de "todos los aeropuertos" porque esa incluye pistas privadas y
+    // aeródromos de entrenamiento — ej. Miami tenía 7 resultados (MIA, más
+    // 6 pistas chicas/privadas, una de ellas ¡en Oklahoma!) cuando en
+    // realidad solo interesa el aeropuerto comercial grande. Acá se filtra
+    // a "large_airport" (siempre) + "medium_airport" con vuelos programados
+    // (scheduled_service = yes) — cubre aeropuertos regionales reales sin
+    // el ruido de pistas privadas/heliportos/hidroaviones.
+    // Se guarda ciudad y código IATA por separado (no combinados en un
     // string) porque el formato de sugerencia depende del campo: vuelos y
-    // cruceros muestran "Ciudad (CÓDIGO)" (el código ayuda a distinguir
-    // ciudades repetidas), pero en Autos no tiene sentido — una ciudad
-    // como Miami tiene 5 aeropuertos chicos distintos y mostrarlos todos
-    // como opciones separadas es ruido, así que ahí se dedupe por ciudad.
+    // cruceros muestran "Ciudad (CÓDIGO)", pero en Autos no tiene sentido
+    // mostrar el código, así que ahí se dedupe por ciudad.
     let worldAirportsData = null;
     let worldAirportsPromise = null;
     function loadWorldAirports() {
       if (worldAirportsData) return Promise.resolve(worldAirportsData);
       if (worldAirportsPromise) return worldAirportsPromise;
-      worldAirportsPromise = fetch('https://raw.githubusercontent.com/mwgg/Airports/master/airports.json')
-        .then(r => r.json())
-        .then(json => {
+      worldAirportsPromise = fetch('https://raw.githubusercontent.com/davidmegginson/ourairports-data/main/airports.csv')
+        .then(r => r.text())
+        .then(csv => {
+          const lines = csv.split('\n');
+          const header = parseCsvLine(lines[0]);
+          const typeIdx = header.indexOf('type');
+          const municipalityIdx = header.indexOf('municipality');
+          const scheduledIdx = header.indexOf('scheduled_service');
+          const iataIdx = header.indexOf('iata_code');
           const seen = new Set();
           const list = [];
-          Object.values(json).forEach(a => {
-            if (!a || !a.iata || !a.city) return;
-            const key = a.city + '|' + a.iata;
-            if (seen.has(key)) return;
+          for (let i = 1; i < lines.length; i++) {
+            if (!lines[i].trim()) continue;
+            const f = parseCsvLine(lines[i]);
+            const type = f[typeIdx];
+            const iata = f[iataIdx];
+            const city = f[municipalityIdx];
+            if (!iata || !city) continue;
+            const isLarge = type === 'large_airport';
+            const isRegional = type === 'medium_airport' && f[scheduledIdx] === 'yes';
+            if (!isLarge && !isRegional) continue;
+            const key = city + '|' + iata;
+            if (seen.has(key)) continue;
             seen.add(key);
-            list.push({ city: a.city, iata: a.iata });
-          });
+            list.push({ city, iata });
+          }
           worldAirportsData = list;
           return list;
         })
