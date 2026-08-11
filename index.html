@@ -2898,22 +2898,31 @@
         render();
         open();
 
-        // La base mundial es pesada (miles de aeropuertos) — se pide una
-        // sola vez y se cachea. Si todavía no había terminado de cargar
-        // cuando se calcularon las coincidencias de arriba, se vuelve a
-        // renderizar apenas esté lista (solo si el usuario no borró/cambió
-        // lo que había escrito mientras tanto).
+        // Las bases mundiales son pesadas (miles/cientos de miles de
+        // entradas) — se piden una sola vez y se cachean. Si todavía no
+        // habían terminado de cargar cuando se calcularon las coincidencias
+        // de arriba, se vuelve a renderizar apenas estén listas (solo si el
+        // usuario no borró/cambió lo que había escrito mientras tanto).
         loadWorldAirports().then(() => {
           if (normalizeText(input.value) === q) {
             computeMatches(q);
             render();
           }
         });
+        if (input.dataset.airportCode === 'false') {
+          loadWorldCities().then(() => {
+            if (normalizeText(input.value) === q) {
+              computeMatches(q);
+              render();
+            }
+          });
+        }
       });
 
       input.addEventListener('focus', function () {
         if (input.dataset.autocomplete === 'true') {
           loadWorldAirports();
+          if (input.dataset.airportCode === 'false') loadWorldCities();
           if (input.value.trim()) input.dispatchEvent(new Event('input'));
         }
       });
