@@ -3212,28 +3212,12 @@
 
     const searchForm = document.getElementById('searchForm');
 
-    // Buscador en dos pasos: primero ruta/fechas (lo liviano), recién
-    // después asiento/equipaje/contacto — mismos campos de siempre, nada se
-    // pierde, solo se pide de a partes para que no se sienta como "llenar
-    // un formulario entero" antes de arrancar.
-    const searchStep1 = document.getElementById('searchStep1');
-    const searchStep2 = document.getElementById('searchStep2');
-
-    function showSearchStep(step) {
-      searchStep1.style.display = step === 1 ? 'contents' : 'none';
-      searchStep2.style.display = step === 2 ? 'contents' : 'none';
-    }
-
-    document.getElementById('searchStep1Continue').addEventListener('click', () => showSearchStep(2));
-    document.getElementById('searchStep2Back').addEventListener('click', () => showSearchStep(1));
-
     // form.reset() restaura el input oculto a su valor por defecto (roundtrip)
     // pero no toca las clases .active de los botones — hay que resincronizarlas.
     searchForm.addEventListener('reset', function () {
       setTimeout(() => {
         tripTypeToggle.querySelectorAll('.trip-type-btn').forEach(b => b.classList.remove('active'));
         applyReturnDateVisibility();
-        showSearchStep(1);
       }, 0);
     });
 
