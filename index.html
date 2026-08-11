@@ -3226,7 +3226,11 @@
             searchDate: data.fechas || null,
             returnDate: null,
             endDate: null,
-            notes: buildQuoteNotes([data.naviera ? 'Naviera preferida: ' + data.naviera : null]),
+            notes: buildQuoteNotes([
+              data.naviera ? 'Naviera preferida: ' + data.naviera : null,
+              data.ninos ? 'Niños: ' + data.ninos : null,
+              data.camarote ? 'Camarote: ' + data.camarote : null,
+            ]),
           };
         case 'hoteles':
           return {
