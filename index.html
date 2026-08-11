@@ -4071,8 +4071,23 @@
       'luna-de-miel': 'Honeymoon',
       naturaleza: 'Nature'
     };
+    const EXP_LABELS_IT = {
+      aventura: 'Avventura',
+      relax: 'Relax',
+      cultura: 'Cultura',
+      'luna-de-miel': 'Luna di miele',
+      naturaleza: 'Natura'
+    };
+    const EXP_LABELS_PT = {
+      aventura: 'Aventura',
+      relax: 'Relax',
+      cultura: 'Cultura',
+      'luna-de-miel': 'Lua de mel',
+      naturaleza: 'Natureza'
+    };
+    const EXP_LABELS = { es: EXP_LABELS_ES, en: EXP_LABELS_EN, it: EXP_LABELS_IT, pt: EXP_LABELS_PT };
     function expLabel(category) {
-      return (currentLang === 'en' ? EXP_LABELS_EN : EXP_LABELS_ES)[category];
+      return (EXP_LABELS[currentLang] || EXP_LABELS_ES)[category];
     }
     const destinosGrid = document.getElementById('destinosGrid');
     const destinosHeading = document.getElementById('destinosHeading');
