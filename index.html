@@ -4098,8 +4098,18 @@
     const expCards = document.querySelectorAll('.exp-card');
     const DESTINOS_DEFAULT_HEADING_ES = destinosHeading.textContent;
     const DESTINOS_DEFAULT_SUBTEXT_ES = destinosSubtext.textContent;
-    const DESTINOS_DEFAULT_HEADING_EN = 'Destinations written just for you';
-    const DESTINOS_DEFAULT_SUBTEXT_EN = 'We curate every route thinking about experiences, not generic itineraries. These are the places our travelers are falling in love with this month.';
+    const DESTINOS_DEFAULT_HEADINGS = {
+      es: DESTINOS_DEFAULT_HEADING_ES,
+      en: 'Destinations written just for you',
+      it: 'Destinazioni scritte apposta per te',
+      pt: 'Destinos escritos só para você',
+    };
+    const DESTINOS_DEFAULT_SUBTEXTS = {
+      es: DESTINOS_DEFAULT_SUBTEXT_ES,
+      en: 'We curate every route thinking about experiences, not generic itineraries. These are the places our travelers are falling in love with this month.',
+      it: 'Curiamo ogni rotta pensando alle esperienze, non a itinerari generici. Questi sono i posti di cui i nostri viaggiatori si stanno innamorando questo mese.',
+      pt: 'Selecionamos cada rota pensando em experiências, não em roteiros genéricos. Estes são os lugares pelos quais nossos viajantes estão se apaixonando este mês.',
+    };
 
     // Recuerda si hay un filtro de experiencia activo para poder re-renderizar
     // el encabezado correctamente si el idioma cambia mientras está filtrado.
@@ -4110,8 +4120,8 @@
         destinosHeading.textContent = t('destinosFilteredHeadingPrefix') + expLabel(activeFilterCategory);
         destinosSubtext.textContent = t('destinosFilteredSubtext');
       } else {
-        destinosHeading.textContent = currentLang === 'en' ? DESTINOS_DEFAULT_HEADING_EN : DESTINOS_DEFAULT_HEADING_ES;
-        destinosSubtext.textContent = currentLang === 'en' ? DESTINOS_DEFAULT_SUBTEXT_EN : DESTINOS_DEFAULT_SUBTEXT_ES;
+        destinosHeading.textContent = DESTINOS_DEFAULT_HEADINGS[currentLang] || DESTINOS_DEFAULT_HEADING_ES;
+        destinosSubtext.textContent = DESTINOS_DEFAULT_SUBTEXTS[currentLang] || DESTINOS_DEFAULT_SUBTEXT_ES;
       }
     }
 
