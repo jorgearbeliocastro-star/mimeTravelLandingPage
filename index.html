@@ -3115,6 +3115,15 @@
           checklist.style.display = '';
           group.classList.remove('search-field--compact');
         } else {
+          // Este mismo casillero (ej. field2) es "Destino" en Vuelos pero
+          // "Fecha de entrada" en Hoteles — sin este chequeo, cambiar de
+          // pestaña dejaba el valor viejo pegado (ej. una fecha apareciendo
+          // adentro de un campo que ahora es de texto). Se limpia el valor
+          // solo cuando el campo realmente cambió de identidad — al
+          // cambiar de idioma se vuelve a renderizar la MISMA pestaña con
+          // los mismos nombres de campo, y ahí no hay que borrar lo que el
+          // visitante ya escribió.
+          if (input.name !== field.name) input.value = '';
           input.name = field.name;
           input.placeholder = field.placeholder || '';
           input.type = field.type || 'text';
