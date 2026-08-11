@@ -2321,9 +2321,17 @@
     // lo pisamos con el diccionario en inglés cuando corresponde — así nunca
     // duplicamos el español en JS. `currentLang` se usa también para armar
     // mensajes dinámicos (formularios, buscador) que no viven en el DOM.
-    // Sin selector manual: español si el navegador está en español,
-    // inglés para cualquier otro idioma — nunca se le pregunta al visitante.
-    let currentLang = ((navigator.language || 'es').toLowerCase().startsWith('es')) ? 'es' : 'en';
+    // Sin selector manual: español, italiano o portugués si el navegador
+    // está en alguno de esos, inglés para cualquier otro — nunca se le
+    // pregunta al visitante.
+    function detectLang() {
+      const l = (navigator.language || 'es').toLowerCase();
+      if (l.startsWith('it')) return 'it';
+      if (l.startsWith('pt')) return 'pt';
+      if (l.startsWith('es')) return 'es';
+      return 'en';
+    }
+    let currentLang = detectLang();
 
     // Textos que solo existen en JS (mensajes de formularios, aria-labels
     // dinámicos, etc.) — necesitan versión en ambos idiomas porque no hay
