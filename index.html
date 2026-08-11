@@ -1294,6 +1294,30 @@
     }
   }
 
+  /* En mobile el formulario hace que el contenido del hero sea más alto
+     que la pantalla — con align-items:center (el default de .hero) eso
+     empuja el bloque de texto hacia ARRIBA para centrarlo, metiéndolo
+     debajo del logo agrandado del header. Acá lo anclamos arriba y
+     reseteamos el padding-top/margin-top de desktop (que suben el título
+     hasta la altura del nav) a valores propios para mobile, donde el
+     logo agrandado necesita más aire. Este bloque va DESPUÉS de las
+     reglas base de .hero-content/.hero-heading en el archivo a propósito
+     — con la misma especificidad, en CSS gana la que está más abajo. */
+  @media (max-width: 600px) {
+    .hero {
+      align-items: flex-start;
+    }
+
+    .hero-content {
+      padding-top: 130px;
+      margin-top: 0;
+    }
+
+    .hero-heading {
+      margin-bottom: 48px;
+    }
+  }
+
   @media (max-width: 760px) {
     .section {
       padding: 64px 0;
