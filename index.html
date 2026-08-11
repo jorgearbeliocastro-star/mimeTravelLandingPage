@@ -432,9 +432,13 @@
 
     /* El logo agrandado del header llega hasta ~114px desde arriba en
        mobile — acá se necesita más aire que en desktop para que el
-       título no se le meta debajo. */
+       título no se le meta debajo. El margin-top negativo de más abajo
+       es solo para desktop (ahí el título sube a propósito hasta la
+       altura del nav) — en mobile se resetea a 0, si no repite el mismo
+       problema de superposición que tuvo el logo antes. */
     .hero-content {
       padding-top: 130px;
+      margin-top: 0;
     }
 
     /* En desktop el título y el formulario se separan 150px para dejar
