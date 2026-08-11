@@ -3315,6 +3315,8 @@
       presaleDestinoLabel.textContent = destino;
       presaleDestinoInput.value = destino;
       presaleMsg.textContent = '';
+      const presaleDatesInput = document.getElementById('presaleDates');
+      if (presaleDatesInput && !presaleDatesInput.value) presaleDatesInput.value = todayISO();
       presaleOverlay.hidden = false;
       document.body.style.overflow = 'hidden';
       document.getElementById('presaleName').focus();
