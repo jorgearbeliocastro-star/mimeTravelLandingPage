@@ -420,37 +420,9 @@
     color: var(--light);
   }
 
-  /* En mobile el formulario hace que el contenido del hero sea más alto
-     que la pantalla — con align-items:center (el default de arriba) eso
-     empuja el bloque de texto hacia ARRIBA para centrarlo, metiéndolo
-     debajo del logo agrandado del header. Acá lo anclamos arriba y dejamos
-     que el padding-top de .hero-content sea el que de verdad manda. */
-  @media (max-width: 600px) {
-    .hero {
-      align-items: flex-start;
-    }
-
-    /* El logo agrandado del header llega hasta ~114px desde arriba en
-       mobile — acá se necesita más aire que en desktop para que el
-       título no se le meta debajo. El margin-top negativo de más abajo
-       es solo para desktop (ahí el título sube a propósito hasta la
-       altura del nav) — en mobile se resetea a 0, si no repite el mismo
-       problema de superposición que tuvo el logo antes. */
-    .hero-content {
-      padding-top: 130px;
-      margin-top: 0;
-    }
-
-    /* En desktop el título y el formulario se separan 150px para dejar
-       ver más foto — en una pantalla chica eso empujaría el formulario
-       fuera de la primera vista, así que acá el espacio es más chico. */
-    .hero-heading {
-      margin-bottom: 48px;
-    }
-  }
-
   /* padding-top ya estaba en 0 (el límite) — para seguir subiendo se usa
-     margin-top negativo, que sí permite superponerse hacia arriba. */
+     margin-top negativo, que sí permite superponerse hacia arriba. Esto es
+     el valor de DESKTOP; mobile lo resetea más abajo en el @media. */
   .hero-content {
     max-width: 700px;
     padding-top: 0px;
@@ -460,7 +432,9 @@
   /* Título + subtítulo fluyen como texto corrido (ambos display:inline):
      el subtítulo continúa en el mismo renglón donde termina la pregunta
      ("...precio? Comparalo...") como si fuera una sola oración, y solo
-     baja de línea por falta de espacio, como cualquier texto que wrapea. */
+     baja de línea por falta de espacio, como cualquier texto que wrapea.
+     El margin-bottom de acá es el valor de DESKTOP; mobile lo achica más
+     abajo en el @media. */
   .hero-heading {
     margin-bottom: 150px;
   }
