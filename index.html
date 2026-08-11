@@ -4780,7 +4780,8 @@
             sendToFormSubmit(form, 'Necesito ayuda — Mime Travel').catch(() => {});
             form.reset();
             setTimeout(closeHelpModal, 1200);
-            const routeLabel = agentName ? (currentLang === 'en' ? 'Chat with ' + agentName : 'Hablar con ' + agentName) : t('supportRouteLabel');
+            const CHAT_WITH_PREFIX = { es: 'Hablar con ', en: 'Chat with ', it: 'Chatta con ', pt: 'Conversar com ' };
+            const routeLabel = agentName ? (CHAT_WITH_PREFIX[currentLang] || CHAT_WITH_PREFIX.es) + agentName : t('supportRouteLabel');
             openQuotePanel(quoteId, routeLabel, 'support');
           });
         })
