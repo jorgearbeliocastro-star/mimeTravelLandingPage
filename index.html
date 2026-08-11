@@ -2764,10 +2764,17 @@
         const q = normalizeText(input.value);
         highlighted = -1;
         if (!q) { close(); return; }
-        matches = DESTINATIONS.filter(c => {
+        const cityMatches = DESTINATIONS.filter(c => {
           const nc = normalizeText(c);
           return nc.includes(q) || q.includes(nc);
-        }).slice(0, 8);
+        });
+        // Si lo escrito coincide con un país (ej. "ecuador"), suma también
+        // las ciudades de ese país aunque el nombre de la ciudad en sí no
+        // coincida con lo tipeado (ej. "Quito" no contiene "ecuador").
+        const countryCityMatches = Object.keys(COUNTRY_CITIES)
+          .filter(country => normalizeText(country).includes(q))
+          .flatMap(country => COUNTRY_CITIES[country]);
+        matches = [...new Set([...cityMatches, ...countryCityMatches])].slice(0, 8);
         render();
         open();
       });
