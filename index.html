@@ -420,13 +420,12 @@
     color: var(--light);
   }
 
-  /* padding-top ya estaba en 0 (el límite) — para seguir subiendo se usa
-     margin-top negativo, que sí permite superponerse hacia arriba. Esto es
-     el valor de DESKTOP; mobile lo resetea más abajo en el @media. */
+  /* Justo debajo de donde termina de "caer" el logo agrandado del header
+     (~250px) — más arriba que esto choca con el logo y corta el texto. */
   .hero-content {
     max-width: 700px;
-    padding-top: 0px;
-    margin-top: -150px;
+    padding-top: 250px;
+    margin-top: 0;
   }
 
   /* Título + subtítulo fluyen como texto corrido (ambos display:inline):
