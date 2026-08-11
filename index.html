@@ -2738,8 +2738,12 @@
     // sin necesitar API key) — se pide una sola vez y se cachea en memoria,
     // para que el autocompletado de origen/destino cubra cualquier lugar
     // real del mundo, no solo los ~190 destinos curados de DESTINATIONS.
-    // Formato de cada sugerencia: "Ciudad (CÓDIGO)" — el código IATA ayuda
-    // a distinguir ciudades con nombres repetidos entre países.
+    // Se guarda ciudad y código IATA por separado (no ya combinados en un
+    // string) porque el formato de sugerencia depende del campo: vuelos y
+    // cruceros muestran "Ciudad (CÓDIGO)" (el código ayuda a distinguir
+    // ciudades repetidas), pero en Autos no tiene sentido — una ciudad
+    // como Miami tiene 5 aeropuertos chicos distintos y mostrarlos todos
+    // como opciones separadas es ruido, así que ahí se dedupe por ciudad.
     let worldAirportsData = null;
     let worldAirportsPromise = null;
     function loadWorldAirports() {
@@ -2752,10 +2756,10 @@
           const list = [];
           Object.values(json).forEach(a => {
             if (!a || !a.iata || !a.city) return;
-            const label = a.city + ' (' + a.iata + ')';
-            if (seen.has(label)) return;
-            seen.add(label);
-            list.push(label);
+            const key = a.city + '|' + a.iata;
+            if (seen.has(key)) return;
+            seen.add(key);
+            list.push({ city: a.city, iata: a.iata });
           });
           worldAirportsData = list;
           return list;
@@ -2765,6 +2769,28 @@
           return worldAirportsData;
         });
       return worldAirportsPromise;
+    }
+
+    // "Ciudad (CÓDIGO)" para vuelos/cruceros/etc — cada aeropuerto es una
+    // sugerencia distinta.
+    function worldAirportLabels(q) {
+      return (worldAirportsData || [])
+        .filter(a => normalizeText(a.city + ' ' + a.iata).includes(q))
+        .map(a => a.city + ' (' + a.iata + ')');
+    }
+
+    // Solo ciudad, sin código, deduplicado — para Autos, donde el código de
+    // aeropuerto no aporta nada y solo repite la misma ciudad varias veces.
+    function worldCityLabels(q) {
+      const seen = new Set();
+      const list = [];
+      (worldAirportsData || []).forEach(a => {
+        if (!normalizeText(a.city).includes(q)) return;
+        if (seen.has(a.city)) return;
+        seen.add(a.city);
+        list.push(a.city);
+      });
+      return list;
     }
 
     function setupAutocomplete(fieldId) {
