@@ -2779,8 +2779,40 @@
         .map(a => a.city + ' (' + a.iata + ')');
     }
 
+    // Base pública de ciudades del mundo (170,000+, incluye pueblos y
+    // suburbios sin aeropuerto propio como Hialeah o Doral, no solo las
+    // ciudades con aeropuerto de worldAirportsData) — pesa más (~17MB) así
+    // que solo se pide para los campos que realmente la necesitan (Autos),
+    // no para todos los campos de autocompletado.
+    let worldCitiesData = null;
+    let worldCitiesPromise = null;
+    function loadWorldCities() {
+      if (worldCitiesData) return Promise.resolve(worldCitiesData);
+      if (worldCitiesPromise) return worldCitiesPromise;
+      worldCitiesPromise = fetch('https://raw.githubusercontent.com/lutangar/cities.json/master/cities.json')
+        .then(r => r.json())
+        .then(json => {
+          const seen = new Set();
+          const list = [];
+          json.forEach(c => {
+            if (!c || !c.name || seen.has(c.name)) return;
+            seen.add(c.name);
+            list.push(c.name);
+          });
+          worldCitiesData = list;
+          return list;
+        })
+        .catch(() => {
+          worldCitiesData = [];
+          return worldCitiesData;
+        });
+      return worldCitiesPromise;
+    }
+
     // Solo ciudad, sin código, deduplicado — para Autos, donde el código de
     // aeropuerto no aporta nada y solo repite la misma ciudad varias veces.
+    // Suma la base de aeropuertos (ciudades grandes) con la de ciudades del
+    // mundo (cubre también pueblos/suburbios sin aeropuerto).
     function worldCityLabels(q) {
       const seen = new Set();
       const list = [];
@@ -2789,6 +2821,12 @@
         if (seen.has(a.city)) return;
         seen.add(a.city);
         list.push(a.city);
+      });
+      (worldCitiesData || []).forEach(name => {
+        if (!normalizeText(name).includes(q)) return;
+        if (seen.has(name)) return;
+        seen.add(name);
+        list.push(name);
       });
       return list;
     }
