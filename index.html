@@ -2843,8 +2843,11 @@
         // Base de aeropuertos del mundo (miles), cargada aparte — cubre
         // cualquier ciudad/aeropuerto que no esté en la lista curada de
         // arriba. Mientras carga, se usan solo las coincidencias locales;
-        // apenas está lista, se vuelve a calcular (ver más abajo).
-        const worldMatches = (worldAirportsData || []).filter(label => normalizeText(label).includes(q));
+        // apenas está lista, se vuelve a calcular (ver más abajo). En Autos
+        // (dataset.airportCode = 'false') se usa la versión sin código,
+        // deduplicada por ciudad — el código de aeropuerto no aporta nada
+        // ahí y solo repetía la misma ciudad varias veces.
+        const worldMatches = input.dataset.airportCode === 'false' ? worldCityLabels(q) : worldAirportLabels(q);
         matches = [...new Set([...cityMatches, ...countryCityMatches, ...worldMatches])].slice(0, 8);
       }
 
