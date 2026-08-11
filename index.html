@@ -565,23 +565,19 @@
     flex: 0 1 auto;
   }
 
-  /* El panel es "vidrio esmerilado" claro (fondo blanco translúcido) sobre
-     zonas claras de la foto (cielo/arena) — texto blanco ahí se pierde por
-     falta de contraste. Etiquetas, valores y placeholders pasan a un tono
-     oscuro, que sí contrasta contra ese panel claro. */
   .search-field label {
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: rgba(26, 26, 26, 0.7);
+    color: rgba(255, 255, 255, 0.7);
     margin-bottom: 4px;
   }
 
   .search-field input {
     background: transparent;
     border: none;
-    color: var(--dark);
+    color: var(--light);
     font-family: var(--font-body);
     font-size: 14px;
     outline: none;
@@ -589,11 +585,11 @@
   }
 
   .search-field input::placeholder {
-    color: rgba(26, 26, 26, 0.5);
+    color: rgba(255, 255, 255, 0.55);
   }
 
   .search-field input[type="date"] {
-    color-scheme: light;
+    color-scheme: dark;
   }
 
   .search-field select {
@@ -601,12 +597,12 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     background: transparent;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%231A1A1A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23FEFCF9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right center;
     background-size: 11px;
     border: none;
-    color: var(--dark);
+    color: var(--light);
     font-family: var(--font-body);
     font-size: 14px;
     outline: none;
