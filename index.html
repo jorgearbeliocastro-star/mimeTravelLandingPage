@@ -2300,6 +2300,13 @@
       quoteStatusPricePrefix: 'Precio cotizado: ',
       quoteStatusPriceBasicPrefix: 'Precio básico (sin maleta): ',
       quoteStatusPriceFullPrefix: 'Precio completo: ',
+      seatOption_included: 'asiento incluido',
+      seatOption_fee: 'asiento con costo adicional',
+      seatOption_unavailable: 'asiento no disponible',
+      bagsCount_0: 'sin maleta facturada',
+      bagsCount_1: '1 maleta',
+      bagsCount_2: '2 maletas',
+      bagsCount_3plus: '3 o más maletas',
       quoteDecisionAccept: 'Aceptar',
       quoteDecisionAcceptBasic: 'Aceptar básico',
       quoteDecisionAcceptFull: 'Aceptar completo',
@@ -2452,6 +2459,13 @@
       quoteStatusPricePrefix: 'Quoted price: ',
       quoteStatusPriceBasicPrefix: 'Basic price (no bag): ',
       quoteStatusPriceFullPrefix: 'Full price: ',
+      seatOption_included: 'seat included',
+      seatOption_fee: 'seat fee applies',
+      seatOption_unavailable: 'seat not available',
+      bagsCount_0: 'no checked bag',
+      bagsCount_1: '1 bag',
+      bagsCount_2: '2 bags',
+      bagsCount_3plus: '3 or more bags',
       quoteDecisionAccept: 'Accept',
       quoteDecisionAcceptBasic: 'Accept basic',
       quoteDecisionAcceptFull: 'Accept full',
@@ -3853,8 +3867,12 @@
         price.className = 'quote-status-price';
         if (hasTwoTiers) {
           let fullLine = t('quoteStatusPriceFullPrefix') + 'USD ' + quote.quoted_price_full_usd;
-          if (quote.quoted_seat) fullLine += ' · ' + quote.quoted_seat;
-          if (quote.quoted_checked_bags) fullLine += ' · ' + quote.quoted_checked_bags;
+          // El agente carga estos códigos fijos desde la app (no texto
+          // libre) — acá solo se traducen para mostrar, mismo vocabulario
+          // que usa cualquier aerolínea (Incluida / Con costo adicional /
+          // No disponible, y cantidad de maletas).
+          if (quote.quoted_seat) fullLine += ' · ' + t('seatOption_' + quote.quoted_seat);
+          if (quote.quoted_checked_bags) fullLine += ' · ' + t('bagsCount_' + quote.quoted_checked_bags.replace('+', 'plus'));
           price.innerHTML =
             '<div>' + t('quoteStatusPriceBasicPrefix') + 'USD ' + quote.quoted_price_basic_usd + '</div>' +
             '<div>' + fullLine + '</div>';
