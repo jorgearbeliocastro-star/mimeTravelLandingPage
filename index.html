@@ -587,8 +587,13 @@
     color: rgba(255, 255, 255, 0.7);
   }
 
+  /* Sin esto, el input de fecha se estira al 100% del casillero (heredado
+     de .search-field input) y el ícono nativo del calendario queda pegado
+     al borde derecho, lejos del texto de la fecha. */
   .search-field input[type="date"] {
     color-scheme: dark;
+    width: auto;
+    max-width: 140px;
   }
 
   .search-field select {
