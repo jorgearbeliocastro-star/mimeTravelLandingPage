@@ -5241,6 +5241,16 @@
       quotePanelRoute.textContent = activeQuoteRouteLabel;
       renderQuoteStatus({ status: 'pending' });
       quoteChatMessages.innerHTML = '';
+      // El chat arranca cerrado (solo un botón) salvo en modo "consulta"
+      // ("Necesito ayuda"), donde ir directo al chat es el punto entero de
+      // haber abierto el panel — ahí no tiene sentido esconderlo.
+      if (activePanelMode === 'support') {
+        quoteChatSection.hidden = false;
+        quoteChatToggleBtn.hidden = true;
+      } else {
+        quoteChatSection.hidden = true;
+        quoteChatToggleBtn.hidden = false;
+      }
       quotePanel.hidden = false;
       quoteReopenBtn.hidden = true;
       startQuotePolling();
@@ -5253,6 +5263,12 @@
     }
 
     quotePanelClose.addEventListener('click', closeQuotePanel);
+
+    quoteChatToggleBtn.addEventListener('click', function () {
+      quoteChatSection.hidden = false;
+      quoteChatToggleBtn.hidden = true;
+      quoteChatInput.focus();
+    });
 
     quoteChatForm.addEventListener('submit', function (e) {
       e.preventDefault();
