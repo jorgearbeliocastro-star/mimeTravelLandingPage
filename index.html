@@ -3363,6 +3363,44 @@
         .map(a => a.city + ' (' + a.iata + ')');
     }
 
+    // Nombres de los ~195 países del mundo (código ISO 2 letras → nombre),
+    // uno por idioma — para que buscar por país en Vuelos cubra TODO el
+    // mundo, no solo los ~90 países curados de COUNTRY_CITIES (esos son un
+    // atajo para Hoteles/Autos/etc., pero un buscador de vuelos real tiene
+    // que cubrir cualquier país, como Google Flights). Se pide solo el
+    // idioma activo, no los 4 juntos.
+    let countryNamesData = {}; // { es: {AR:'Argentina',...}, en: {...}, ... }
+    let countryNamesPromises = {};
+    function loadCountryNames(lang) {
+      if (countryNamesData[lang]) return Promise.resolve(countryNamesData[lang]);
+      if (countryNamesPromises[lang]) return countryNamesPromises[lang];
+      countryNamesPromises[lang] = fetch('https://raw.githubusercontent.com/umpirsky/country-list/master/data/' + lang + '/country.json')
+        .then(r => r.json())
+        .then(json => {
+          countryNamesData[lang] = json;
+          return json;
+        })
+        .catch(() => {
+          countryNamesData[lang] = {};
+          return countryNamesData[lang];
+        });
+      return countryNamesPromises[lang];
+    }
+
+    // Si lo escrito coincide con el nombre de CUALQUIER país del mundo (no
+    // solo los curados), trae todos sus aeropuertos reales — "Ciudad
+    // (CÓDIGO)" igual que worldAirportLabels.
+    function countryAirportMatches(q) {
+      const names = countryNamesData[currentLang] || {};
+      const byCountry = worldAirportsByCountry || {};
+      const matches = [];
+      Object.keys(names).forEach(iso => {
+        if (!normalizeText(names[iso]).includes(q)) return;
+        (byCountry[iso] || []).forEach(a => matches.push(a.city + ' (' + a.iata + ')'));
+      });
+      return matches;
+    }
+
     // Set de ciudades con aeropuerto real — para filtrar la lista curada
     // DESTINATIONS/COUNTRY_CITIES en los campos de Vuelos: sin esto,
     // ciudades sin aeropuerto (ej. Sancti Spíritus) aparecían igual como
