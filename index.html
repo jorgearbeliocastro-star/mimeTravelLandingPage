@@ -4864,7 +4864,7 @@
             '<div class="quote-price-option">' +
               '<div class="quote-price-option-label">' + t('quoteStatusPriceFullPrefix') + '</div>' +
               '<div class="quote-price-option-value" id="quoteFullPriceValue">USD ' + quote.quoted_price_full_usd + '</div>' +
-              (fullSummary ? '<div class="quote-price-option-detail">' + fullSummary + '</div>' : '') +
+              fullSummary +
               '<button type="button" id="quoteFullAcceptBtn" class="quote-decision-btn quote-decision-accept" data-decision="accept" data-tier="full">' + t('quoteDecisionAcceptFull') + '</button>' +
             '</div>';
           quoteStatusBar.appendChild(options);
