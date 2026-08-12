@@ -3245,6 +3245,14 @@
     // string) porque el formato de sugerencia depende del campo: vuelos y
     // cruceros muestran "Ciudad (CÓDIGO)", pero en Autos no tiene sentido
     // mostrar el código, así que ahí se dedupe por ciudad.
+    // Aeropuertos que la base pública marca como activos/con vuelos
+    // programados pero que en la práctica no sirven para vender un vuelo
+    // (chicos, de temporada/charter) — confirmado por el dueño de la
+    // agencia. Por código IATA, no por ciudad, para sacarlos también de
+    // las sugerencias sueltas de worldAirportLabels (no solo de la lista
+    // curada, ver AIRPORT_MATCH_EXCLUDE más abajo).
+    const AIRPORT_IATA_EXCLUDE = new Set(['TND']);
+
     let worldAirportsData = null;
     // "Campos de búsqueda" aparte de {city, iata}: junta municipio + cada
     // palabra clave (ej. el aeropuerto de Varadero tiene municipio
