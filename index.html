@@ -3246,6 +3246,11 @@
     // cruceros muestran "Ciudad (CÓDIGO)", pero en Autos no tiene sentido
     // mostrar el código, así que ahí se dedupe por ciudad.
     let worldAirportsData = null;
+    // "Campos de búsqueda" aparte de {city, iata}: junta municipio + cada
+    // palabra clave (ej. el aeropuerto de Varadero tiene municipio
+    // "Matanzas" pero keyword "Varadero") — hace falta para reconocer bien
+    // si un destino curado tiene aeropuerto cerca, ver cityHasAirport.
+    let worldAirportSearchFields = null;
     let worldAirportsPromise = null;
     function loadWorldAirports() {
       if (worldAirportsData) return Promise.resolve(worldAirportsData);
@@ -3259,8 +3264,10 @@
           const municipalityIdx = header.indexOf('municipality');
           const scheduledIdx = header.indexOf('scheduled_service');
           const iataIdx = header.indexOf('iata_code');
+          const keywordsIdx = header.indexOf('keywords');
           const seen = new Set();
           const list = [];
+          const searchFields = [];
           for (let i = 1; i < lines.length; i++) {
             if (!lines[i].trim()) continue;
             const f = parseCsvLine(lines[i]);
@@ -3272,15 +3279,23 @@
             const isRegional = type === 'medium_airport' && f[scheduledIdx] === 'yes';
             if (!isLarge && !isRegional) continue;
             const key = city + '|' + iata;
-            if (seen.has(key)) continue;
-            seen.add(key);
-            list.push({ city, iata });
+            if (!seen.has(key)) {
+              seen.add(key);
+              list.push({ city, iata });
+            }
+            searchFields.push(normalizeText(city));
+            (f[keywordsIdx] || '').split(',').forEach(k => {
+              const nk = normalizeText(k.trim());
+              if (nk) searchFields.push(nk);
+            });
           }
           worldAirportsData = list;
+          worldAirportSearchFields = searchFields;
           return list;
         })
         .catch(() => {
           worldAirportsData = [];
+          worldAirportSearchFields = [];
           return worldAirportsData;
         });
       return worldAirportsPromise;
