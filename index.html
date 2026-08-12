@@ -4844,14 +4844,8 @@
           function buildIncludesList(items) {
             return '<ul class="quote-price-option-includes">' + items.map((i) => '<li>1 ' + i + '</li>').join('') + '</ul>';
           }
-          const basicSummary = buildIncludesList([t('quoteSeatName'), t('quoteHandBagName')]);
-          const fullSummary =
-            '<ul class="quote-price-option-includes">' +
-            '<li>1 ' + t('quoteSeatName') + '</li>' +
-            '<li>1 ' + t('quoteHandBagName') + '</li>' +
-            '<li>1 ' + t('quoteCarryOnName') + '</li>' +
-            '<li>' + bagText + '</li>' +
-            '</ul>';
+          const basicSummary = buildIncludesList(['1 ' + t('quoteSeatName'), '1 ' + t('quoteHandBagName')]);
+          const fullSummary = buildIncludesList(['1 ' + t('quoteSeatName'), '1 ' + t('quoteHandBagName'), '1 ' + t('quoteCarryOnName'), bagText]);
           const options = document.createElement('div');
           options.className = 'quote-price-options';
           options.innerHTML =
