@@ -2410,12 +2410,16 @@
 
     <div class="quote-status-bar" id="quoteStatusBar"></div>
 
-    <div class="quote-chat-messages" id="quoteChatMessages"></div>
+    <button type="button" class="quote-chat-toggle-btn" id="quoteChatToggleBtn" data-i18n="quoteChatButton">Escribirle al Agente</button>
 
-    <form class="quote-chat-form" id="quoteChatForm">
-      <input type="text" class="quote-chat-input" id="quoteChatInput" data-i18n-placeholder="quoteChatPlaceholder" placeholder="Escribí tu mensaje..." autocomplete="off">
-      <button type="submit" class="quote-chat-send" aria-label="Enviar" data-i18n-aria="quoteChatSendAria">➤</button>
-    </form>
+    <div class="quote-chat-section" id="quoteChatSection" hidden>
+      <div class="quote-chat-messages" id="quoteChatMessages"></div>
+
+      <form class="quote-chat-form" id="quoteChatForm">
+        <input type="text" class="quote-chat-input" id="quoteChatInput" data-i18n-placeholder="quoteChatPlaceholder" placeholder="Escribí tu mensaje..." autocomplete="off">
+        <button type="submit" class="quote-chat-send" aria-label="Enviar" data-i18n-aria="quoteChatSendAria">➤</button>
+      </form>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
