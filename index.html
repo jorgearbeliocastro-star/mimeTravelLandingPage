@@ -3331,6 +3331,12 @@
     // ciudad turística de la lista curada.
     let worldPortsData = null;
     let worldPortsPromise = null;
+    // Igual que worldAirportSearchFields: ciudad + cada alias (ej. un
+    // puerto puede figurar con el nombre de la ciudad vecina más grande,
+    // "Changshu" con alias "Suzhou") — para reconocer bien si un destino
+    // curado tiene puerto cerca, sin depender de en qué idioma/variante
+    // esté guardado el nombre en la base.
+    let worldPortSearchFields = null;
     function loadWorldPorts() {
       if (worldPortsData) return Promise.resolve(worldPortsData);
       if (worldPortsPromise) return worldPortsPromise;
@@ -3339,18 +3345,27 @@
         .then(json => {
           const seen = new Set();
           const list = [];
+          const searchFields = [];
           Object.values(json).forEach(p => {
             if (!p || !p.city || !p.code) return;
             const key = p.city + '|' + p.code;
-            if (seen.has(key)) return;
-            seen.add(key);
-            list.push({ city: p.city, code: p.code });
+            if (!seen.has(key)) {
+              seen.add(key);
+              list.push({ city: p.city, code: p.code });
+            }
+            searchFields.push(normalizeText(p.city));
+            (p.alias || []).forEach(a => {
+              const na = normalizeText(a);
+              if (na) searchFields.push(na);
+            });
           });
           worldPortsData = list;
+          worldPortSearchFields = searchFields;
           return list;
         })
         .catch(() => {
           worldPortsData = [];
+          worldPortSearchFields = [];
           return worldPortsData;
         });
       return worldPortsPromise;
@@ -3362,8 +3377,10 @@
         .map(p => p.city);
     }
 
-    function worldPortCitySet() {
-      return new Set((worldPortsData || []).map(p => p.city));
+    // Misma comparación bidireccional que cityHasAirport, ver ahí.
+    function cityHasPort(city) {
+      const nc = normalizeText(city);
+      return (worldPortSearchFields || []).some(f => f.includes(nc) || nc.includes(f));
     }
 
     // Base pública de ciudades del mundo (170,000+, incluye pueblos y
