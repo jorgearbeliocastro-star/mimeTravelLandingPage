@@ -1482,6 +1482,32 @@
     margin-bottom: 8px;
   }
 
+  /* Qué trae cada precio, uno debajo de otro con la cantidad — más fácil
+     de leer que una sola línea larga con "+". */
+  .quote-price-option-includes {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .quote-price-option-includes li {
+    font-size: 12.5px;
+    color: rgba(26, 26, 26, 0.7);
+    padding-left: 16px;
+    position: relative;
+  }
+
+  .quote-price-option-includes li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--turquesa);
+    font-weight: 700;
+  }
+
   .quote-price-option .quote-decision-btn {
     width: 100%;
   }
