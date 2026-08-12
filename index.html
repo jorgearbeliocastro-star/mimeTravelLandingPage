@@ -1710,6 +1710,39 @@
     color: var(--primary);
   }
 
+  /* El chat viene cerrado por defecto — antes quedaba siempre desplegado
+     abajo y le sacaba espacio a los precios/checkboxes de arriba, forzando
+     a scrollear para llegar al botón de decisión. Ahora es un botón y el
+     cliente lo abre solo si quiere escribir. */
+  .quote-chat-toggle-btn {
+    flex: none;
+    margin: 0 18px 14px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 1.5px solid var(--turquesa);
+    background: rgba(95, 191, 179, 0.12);
+    color: var(--primary);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 13.5px;
+    cursor: pointer;
+  }
+
+  .quote-chat-toggle-btn[hidden] {
+    display: none;
+  }
+
+  .quote-chat-section {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .quote-chat-section[hidden] {
+    display: none;
+  }
+
   .quote-chat-messages {
     flex: 1;
     min-height: 160px;
