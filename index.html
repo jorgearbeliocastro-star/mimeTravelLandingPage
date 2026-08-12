@@ -1405,6 +1405,11 @@
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     font-size: 13.5px;
     background: var(--arena);
+    /* Con seguro/equipaje/tipo de asiento, esto puede crecer más que el
+       panel entero (que tiene una altura máxima fija) — sin esto, el
+       botón "Rechazar" quedaba tapado/cortado abajo, fuera de vista. */
+    max-height: 320px;
+    overflow-y: auto;
   }
 
   .quote-status-searching {
