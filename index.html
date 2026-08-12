@@ -1405,10 +1405,12 @@
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     font-size: 13.5px;
     background: var(--arena);
-    /* Con seguro/equipaje/tipo de asiento, esto puede crecer más que el
-       panel entero (que tiene una altura máxima fija) — sin esto, el
-       botón "Rechazar" quedaba tapado/cortado abajo, fuera de vista. */
-    max-height: 320px;
+    /* Ocupa todo el espacio libre del panel (el chat ahora arranca
+       cerrado, ver .quote-chat-toggle-btn) — así se ve todo el precio y
+       las opciones sin scrollear. overflow-y sigue de respaldo por si en
+       una pantalla muy chica igual no entra todo. */
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
   }
 
