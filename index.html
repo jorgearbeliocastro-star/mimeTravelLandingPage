@@ -4846,55 +4846,35 @@
           }
         }
         if (hasTwoTiers) {
-          // Qué permite cada precio — lo marca el Agente: si le puso precio
-          // a algo (asiento/mano/carry-on, ver más abajo) es porque no va
-          // incluido gratis, así que se lista como "desde USD X"; lo que
-          // dejó sin precio va incluido. Es igual para básico y completo —
-          // lo único que cambia entre los dos es la maleta facturada.
+          // Qué va gratis en cada precio — una línea corta, solo lo
+          // incluido (ej. "Asiento + Equipaje de mano"). Lo que cuesta
+          // aparte NO se repite acá — ya tiene su propio checkbox con
+          // precio más abajo, listarlo dos veces confundía más de lo que
+          // aclaraba.
           const seatTypePricesForDetail = quote.quoted_seat_type_prices || {};
-          const seatPricesValues = Object.values(seatTypePricesForDetail).map(Number).filter((n) => !isNaN(n));
-          const includedItems = [];
-          includedItems.push(
-            seatPricesValues.length > 0
-              ? { included: false, text: t('quoteSeatFromPrice').replace('{amount}', Math.min.apply(null, seatPricesValues)) }
-              : { included: true, text: t('quoteSeatIncluded') }
-          );
-          includedItems.push(
-            quote.quoted_hand_bag_price_usd != null
-              ? { included: false, text: t('quoteHandBagFromPrice').replace('{amount}', quote.quoted_hand_bag_price_usd) }
-              : { included: true, text: t('quoteHandBagIncluded') }
-          );
-          includedItems.push(
-            quote.quoted_carry_on_price_usd != null
-              ? { included: false, text: t('quoteCarryOnFromPrice').replace('{amount}', quote.quoted_carry_on_price_usd) }
-              : { included: true, text: t('quoteCarryOnIncluded') }
-          );
-          // Checklist vertical (una línea por ítem) en vez de un solo texto
-          // corrido — más fácil de leer de un vistazo en una tarjeta chica.
-          function buildChecklist(bagText, items) {
-            const all = [{ included: false, text: bagText }].concat(items);
-            return (
-              '<ul class="quote-price-option-checklist">' +
-              all.map((i) => '<li class="' + (i.included ? 'included' : 'addon') + '">' + i.text + '</li>').join('') +
-              '</ul>'
-            );
-          }
-          const basicChecklist = buildChecklist(t('bagsCount_0'), includedItems);
-          const fullBagText = quote.quoted_checked_bags ? t('bagsCount_' + quote.quoted_checked_bags.replace('+', 'plus')) : t('bagsCount_0');
-          const fullChecklist = buildChecklist(fullBagText, includedItems);
+          const seatIncluded = Object.keys(seatTypePricesForDetail).length === 0;
+          const freeItems = [];
+          if (seatIncluded) freeItems.push(t('quoteSeatName'));
+          if (quote.quoted_hand_bag_price_usd == null) freeItems.push(t('quoteHandBagName'));
+          if (quote.quoted_carry_on_price_usd == null) freeItems.push(t('quoteCarryOnName'));
+          const basicSummary = freeItems.join(' + ');
+          const fullFreeItems = quote.quoted_checked_bags
+            ? [t('bagsCount_' + quote.quoted_checked_bags.replace('+', 'plus'))].concat(freeItems)
+            : freeItems;
+          const fullSummary = fullFreeItems.join(' + ');
           const options = document.createElement('div');
           options.className = 'quote-price-options';
           options.innerHTML =
             '<div class="quote-price-option">' +
               '<div class="quote-price-option-label">' + t('quoteStatusPriceBasicPrefix') + '</div>' +
               '<div class="quote-price-option-value" id="quoteBasicPriceValue">USD ' + quote.quoted_price_basic_usd + '</div>' +
-              basicChecklist +
+              (basicSummary ? '<div class="quote-price-option-detail">' + basicSummary + '</div>' : '') +
               '<button type="button" id="quoteBasicAcceptBtn" class="quote-decision-btn quote-decision-accept" data-decision="accept" data-tier="basic">' + t('quoteDecisionAcceptBasic') + '</button>' +
             '</div>' +
             '<div class="quote-price-option">' +
               '<div class="quote-price-option-label">' + t('quoteStatusPriceFullPrefix') + '</div>' +
               '<div class="quote-price-option-value" id="quoteFullPriceValue">USD ' + quote.quoted_price_full_usd + '</div>' +
-              fullChecklist +
+              (fullSummary ? '<div class="quote-price-option-detail">' + fullSummary + '</div>' : '') +
               '<button type="button" id="quoteFullAcceptBtn" class="quote-decision-btn quote-decision-accept" data-decision="accept" data-tier="full">' + t('quoteDecisionAcceptFull') + '</button>' +
             '</div>';
           quoteStatusBar.appendChild(options);
