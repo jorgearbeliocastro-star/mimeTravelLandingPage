@@ -3675,7 +3675,11 @@
     // pero en la práctica no sirve para vender un vuelo ahí (aeropuertos
     // chicos, de temporada/charter, sin venta comercial real) — confirmado
     // por el dueño de la agencia, no algo que el dato externo pueda saber.
-    const AIRPORT_MATCH_EXCLUDE = new Set(['Trinidad (Cuba)'].map(normalizeText));
+    // "Miami Beach" no tiene aeropuerto propio (usa el de Miami/MIA o Fort
+    // Lauderdale) — sin esto, la comparación por substring lo hacía
+    // coincidir con el aeropuerto de Miami solo porque "Miami Beach"
+    // contiene la palabra "Miami".
+    const AIRPORT_MATCH_EXCLUDE = new Set(['Trinidad (Cuba)', 'Miami Beach'].map(normalizeText));
 
     // Comparación en las dos direcciones (igual que el resto del buscador,
     // ver setupAutocomplete) — una comparación exacta perdía casos reales
