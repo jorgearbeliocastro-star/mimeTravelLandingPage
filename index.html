@@ -4858,7 +4858,7 @@
             '<div class="quote-price-option">' +
               '<div class="quote-price-option-label">' + t('quoteStatusPriceBasicPrefix') + '</div>' +
               '<div class="quote-price-option-value" id="quoteBasicPriceValue">USD ' + quote.quoted_price_basic_usd + '</div>' +
-              (basicSummary ? '<div class="quote-price-option-detail">' + basicSummary + '</div>' : '') +
+              basicSummary +
               '<button type="button" id="quoteBasicAcceptBtn" class="quote-decision-btn quote-decision-accept" data-decision="accept" data-tier="basic">' + t('quoteDecisionAcceptBasic') + '</button>' +
             '</div>' +
             '<div class="quote-price-option">' +
