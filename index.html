@@ -3434,24 +3434,43 @@
       }
 
       function computeMatches(q) {
-        const cityMatches = DESTINATIONS.filter(c => {
+        let cityMatches = DESTINATIONS.filter(c => {
           const nc = normalizeText(c);
           return nc.includes(q) || q.includes(nc);
         });
         // Si lo escrito coincide con un país (ej. "ecuador"), suma también
         // las ciudades de ese país aunque el nombre de la ciudad en sí no
         // coincida con lo tipeado (ej. "Quito" no contiene "ecuador").
-        const countryCityMatches = Object.keys(COUNTRY_CITIES)
+        let countryCityMatches = Object.keys(COUNTRY_CITIES)
           .filter(country => normalizeText(country).includes(q))
           .flatMap(country => COUNTRY_CITIES[country]);
-        // Base de aeropuertos del mundo (miles), cargada aparte — cubre
-        // cualquier ciudad/aeropuerto que no esté en la lista curada de
-        // arriba. Mientras carga, se usan solo las coincidencias locales;
-        // apenas está lista, se vuelve a calcular (ver más abajo). En Autos
-        // (dataset.airportCode = 'false') se usa la versión sin código,
-        // deduplicada por ciudad — el código de aeropuerto no aporta nada
-        // ahí y solo repetía la misma ciudad varias veces.
-        const worldMatches = input.dataset.airportCode === 'false' ? worldCityLabels(q) : worldAirportLabels(q);
+
+        // geoMode acota la lista curada de arriba a lugares que de verdad
+        // sirven para ese campo — sin esto, "Sancti Spíritus" (sin
+        // aeropuerto) aparecía como sugerencia de Destino en Vuelos solo
+        // por estar en la lista de destinos turísticos populares (que sí
+        // tiene sentido para Hoteles/Autos, pero no para volar).
+        const geoMode = input.dataset.geoMode || 'city';
+        let worldMatches;
+        if (geoMode === 'airport') {
+          const airportCities = worldAirportCitySet();
+          cityMatches = cityMatches.filter(c => airportCities.has(c));
+          countryCityMatches = countryCityMatches.filter(c => airportCities.has(c));
+          worldMatches = worldAirportLabels(q);
+        } else if (geoMode === 'port') {
+          const portCities = worldPortCitySet();
+          cityMatches = cityMatches.filter(c => portCities.has(c));
+          countryCityMatches = countryCityMatches.filter(c => portCities.has(c));
+          worldMatches = worldPortLabels(q);
+        } else {
+          // Base de aeropuertos del mundo (miles), cargada aparte — cubre
+          // cualquier ciudad/aeropuerto que no esté en la lista curada de
+          // arriba. En Autos (dataset.airportCode = 'false') se usa la
+          // versión sin código, deduplicada por ciudad — el código de
+          // aeropuerto no aporta nada ahí y solo repetía la misma ciudad
+          // varias veces.
+          worldMatches = input.dataset.airportCode === 'false' ? worldCityLabels(q) : worldAirportLabels(q);
+        }
         matches = [...new Set([...cityMatches, ...countryCityMatches, ...worldMatches])].slice(0, 8);
       }
 
