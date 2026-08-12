@@ -4838,9 +4838,20 @@
           // equipaje de mano; completo suma carry-on + maleta. Nada de
           // condicionales por precio acá (eso ya lo dicen los checkboxes
           // de abajo si algo cuesta aparte) — simple y directo.
-          const basicSummary = t('quoteSeatName') + ' + ' + t('quoteHandBagName');
           const bagText = quote.quoted_checked_bags ? t('bagsCount_' + quote.quoted_checked_bags.replace('+', 'plus')) : t('quoteBagName');
-          const fullSummary = [t('quoteSeatName'), t('quoteHandBagName'), t('quoteCarryOnName'), bagText].join(' + ');
+          // Uno debajo de otro con la cantidad permitida — más fácil de
+          // leer que una sola línea larga.
+          function buildIncludesList(items) {
+            return '<ul class="quote-price-option-includes">' + items.map((i) => '<li>1 ' + i + '</li>').join('') + '</ul>';
+          }
+          const basicSummary = buildIncludesList([t('quoteSeatName'), t('quoteHandBagName')]);
+          const fullSummary =
+            '<ul class="quote-price-option-includes">' +
+            '<li>1 ' + t('quoteSeatName') + '</li>' +
+            '<li>1 ' + t('quoteHandBagName') + '</li>' +
+            '<li>1 ' + t('quoteCarryOnName') + '</li>' +
+            '<li>' + bagText + '</li>' +
+            '</ul>';
           const options = document.createElement('div');
           options.className = 'quote-price-options';
           options.innerHTML =
