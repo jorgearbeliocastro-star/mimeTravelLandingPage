@@ -4954,18 +4954,29 @@
           }
         }
         if (hasTwoTiers) {
-          // Una línea corta y fija por precio — básico trae asiento +
-          // equipaje de mano; completo suma carry-on + maleta. Nada de
-          // condicionales por precio acá (eso ya lo dicen los checkboxes
-          // de abajo si algo cuesta aparte) — simple y directo.
+          // Solo se lista acá lo que va GRATIS — si el Agente le puso
+          // precio (asiento/equipaje de mano/carry-on, ver checkboxes más
+          // abajo), no es "incluido", así que no puede aparecer acá Y
+          // pedirse aparte con costo a la vez — sería contradictorio.
+          const seatFree = Object.keys(seatTypePrices).length === 0;
+          const handBagFree = quote.quoted_hand_bag_price_usd == null;
+          const carryOnFree = quote.quoted_carry_on_price_usd == null;
           const bagText = quote.quoted_checked_bags ? t('bagsCount_' + quote.quoted_checked_bags.replace('+', 'plus')) : t('quoteBagName');
           // Uno debajo de otro con la cantidad permitida — más fácil de
           // leer que una sola línea larga.
           function buildIncludesList(items) {
-            return '<ul class="quote-price-option-includes">' + items.map((i) => '<li>' + i + '</li>').join('') + '</ul>';
+            return items.length ? '<ul class="quote-price-option-includes">' + items.map((i) => '<li>' + i + '</li>').join('') + '</ul>' : '';
           }
-          const basicSummary = buildIncludesList(['1 ' + t('quoteSeatName'), '1 ' + t('quoteHandBagName')]);
-          const fullSummary = buildIncludesList(['1 ' + t('quoteSeatName'), '1 ' + t('quoteHandBagName'), '1 ' + t('quoteCarryOnName'), bagText]);
+          const basicItems = [];
+          if (seatFree) basicItems.push('1 ' + t('quoteSeatName'));
+          if (handBagFree) basicItems.push('1 ' + t('quoteHandBagName'));
+          const basicSummary = buildIncludesList(basicItems);
+          const fullItems = [];
+          if (seatFree) fullItems.push('1 ' + t('quoteSeatName'));
+          if (handBagFree) fullItems.push('1 ' + t('quoteHandBagName'));
+          if (carryOnFree) fullItems.push('1 ' + t('quoteCarryOnName'));
+          fullItems.push(bagText); // la maleta facturada no es un addon opcional, siempre se muestra
+          const fullSummary = buildIncludesList(fullItems);
           const options = document.createElement('div');
           options.className = 'quote-price-options';
           options.innerHTML =
