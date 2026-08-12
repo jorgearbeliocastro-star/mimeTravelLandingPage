@@ -5040,9 +5040,21 @@
           row.querySelector('#' + idPrefix + 'Minus').addEventListener('click', () => setQty(qty - 1));
           row.querySelector('#' + idPrefix + 'Plus').addEventListener('click', () => setQty(qty + 1));
         }
+        // Antes cada extra quedaba suelto, sin agrupar — "seguro" arriba,
+        // "reembolsable" varias secciones más abajo (después de tipo de
+        // asiento), como si fueran cosas distintas cuando en realidad son
+        // el mismo tipo de decisión ("¿querés esto de más?"). Ahora van
+        // todos juntos bajo un mismo título, como ya tenía Tipo de Asiento.
+        if (insuranceOffered || handBagOffered || carryOnOffered || refundableOffered) {
+          const extrasLabel = document.createElement('div');
+          extrasLabel.className = 'quote-status-seat-type-label';
+          extrasLabel.textContent = t('quoteExtrasLabel');
+          quoteStatusBar.appendChild(extrasLabel);
+        }
         renderAddonCheckbox(insuranceOffered, selectedWantsInsurance, quote.quoted_insurance_price_usd, 'quoteInsuranceCheckboxLabel', 'quoteInsuranceCheckbox', (v) => { selectedWantsInsurance = v; });
         renderAddonQty(handBagOffered, selectedHandBagQty, quote.quoted_hand_bag_price_usd, 'quoteHandBagQtyLabel', 'quoteHandBagQty', (v) => { selectedHandBagQty = v; });
         renderAddonQty(carryOnOffered, selectedCarryOnQty, quote.quoted_carry_on_price_usd, 'quoteCarryOnQtyLabel', 'quoteCarryOnQty', (v) => { selectedCarryOnQty = v; });
+        renderAddonCheckbox(refundableOffered, selectedWantsRefundable, quote.quoted_refundable_price_usd, 'quoteRefundableCheckboxLabel', 'quoteRefundableCheckbox', (v) => { selectedWantsRefundable = v; });
         // Tipo de asiento: a diferencia de arriba se elige uno solo (radio,
         // no checkbox) — se muestra si el agente restringió disponibilidad
         // o cargó algún precio; el que tenga precio lo muestra al lado.
