@@ -3487,27 +3487,42 @@
         // entradas) — se piden una sola vez y se cachean. Si todavía no
         // habían terminado de cargar cuando se calcularon las coincidencias
         // de arriba, se vuelve a renderizar apenas estén listas (solo si el
-        // usuario no borró/cambió lo que había escrito mientras tanto).
-        loadWorldAirports().then(() => {
-          if (normalizeText(input.value) === q) {
-            computeMatches(q);
-            render();
-          }
-        });
-        if (input.dataset.airportCode === 'false') {
-          loadWorldCities().then(() => {
+        // usuario no borró/cambió lo que había escrito mientras tanto). Los
+        // campos de Cruceros (geoMode='port') usan la base de puertos en
+        // vez de la de aeropuertos — no hace falta pedir las dos.
+        if (input.dataset.geoMode === 'port') {
+          loadWorldPorts().then(() => {
             if (normalizeText(input.value) === q) {
               computeMatches(q);
               render();
             }
           });
+        } else {
+          loadWorldAirports().then(() => {
+            if (normalizeText(input.value) === q) {
+              computeMatches(q);
+              render();
+            }
+          });
+          if (input.dataset.airportCode === 'false') {
+            loadWorldCities().then(() => {
+              if (normalizeText(input.value) === q) {
+                computeMatches(q);
+                render();
+              }
+            });
+          }
         }
       });
 
       input.addEventListener('focus', function () {
         if (input.dataset.autocomplete === 'true') {
-          loadWorldAirports();
-          if (input.dataset.airportCode === 'false') loadWorldCities();
+          if (input.dataset.geoMode === 'port') {
+            loadWorldPorts();
+          } else {
+            loadWorldAirports();
+            if (input.dataset.airportCode === 'false') loadWorldCities();
+          }
           if (input.value.trim()) input.dispatchEvent(new Event('input'));
         }
       });
