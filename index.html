@@ -1588,31 +1588,31 @@
     margin-bottom: 10px;
   }
 
-  .quote-status-qty-stepper {
+  /* Tira de números (0-4) para elegir cantidad de maletas extra — el
+     máximo es fijo y chico, así se ven de una las opciones. */
+  .quote-status-qty-chips {
     display: flex;
-    align-items: center;
-    gap: 8px;
+    gap: 6px;
     flex-shrink: 0;
   }
 
-  .quote-status-qty-stepper button {
+  .quote-status-qty-chip {
     width: 26px;
     height: 26px;
     border-radius: 8px;
     border: 1px solid rgba(27, 58, 92, 0.25);
     background: #fff;
     color: var(--primary);
-    font-size: 16px;
+    font-size: 13px;
     font-weight: 700;
     line-height: 1;
     cursor: pointer;
   }
 
-  .quote-status-qty-stepper span {
-    min-width: 16px;
-    text-align: center;
-    font-weight: 700;
-    color: var(--primary);
+  .quote-status-qty-chip.active {
+    background: var(--turquesa);
+    border-color: var(--turquesa);
+    color: #fff;
   }
 
   .quote-pax-form {
@@ -1852,17 +1852,37 @@
     right: 20px;
     bottom: 20px;
     z-index: 290;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
     background: rgba(95, 191, 179, 0.3);
     color: var(--light);
     border: 1.5px solid var(--turquesa);
-    border-radius: 999px;
-    padding: 12px 20px;
+    border-radius: 20px;
+    padding: 10px 20px;
     font-family: var(--font-body);
     font-weight: 700;
     font-size: 14px;
     box-shadow: 0 8px 24px rgba(95, 191, 179, 0.25);
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+
+  /* Reloj de "se vence en" junto al botón de reabrir — así se ve siempre,
+     no solo con el panel de la cotización abierto. */
+  .quote-reopen-countdown {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .quote-reopen-countdown.urgent {
+    color: #ffd6d2;
+  }
+
+  .quote-reopen-countdown:empty {
+    display: none;
   }
 
   .quote-reopen-btn:hover {
@@ -2452,7 +2472,10 @@
   </footer>
 
   <!-- ================= PANEL DE COTIZACIÓN / CHAT ================= -->
-  <button type="button" class="quote-reopen-btn" id="quoteReopenBtn" hidden data-i18n="quoteReopenBtn">Ver mi cotización</button>
+  <button type="button" class="quote-reopen-btn" id="quoteReopenBtn" hidden>
+    <span data-i18n="quoteReopenBtn">Ver mi cotización</span>
+    <span class="quote-reopen-countdown" id="quoteReopenCountdown"></span>
+  </button>
 
   <div class="quote-panel" id="quotePanel" hidden role="dialog" aria-labelledby="quotePanelTitle">
     <div class="quote-panel-header">
@@ -4726,6 +4749,7 @@
     const quoteChatForm = document.getElementById('quoteChatForm');
     const quoteChatInput = document.getElementById('quoteChatInput');
     const quoteReopenBtn = document.getElementById('quoteReopenBtn');
+    const quoteReopenCountdown = document.getElementById('quoteReopenCountdown');
 
     let activeQuoteId = null;
     let activeQuoteRouteLabel = '';
@@ -4739,6 +4763,11 @@
     // pinta el status (cada poll), así que hay que limpiar el anterior o
     // se acumulan intervals corriendo de fondo.
     let quoteCountdownInterval = null;
+    // Para que el reloj se vea SIEMPRE, no solo con el panel abierto — se
+    // guarda acá cada vez que se sabe (poll o al recargar la página) y un
+    // interval aparte (ver más abajo) lo sigue descontando aunque el
+    // cliente cierre el panel, mostrándolo junto al botón de reabrir.
+    let lastKnownPriceExpiresAt = null;
     // Qué precio (básico/completo) tocó el cliente antes de abrir el
     // formulario de pasajero — se usa recién al mandar la aceptación.
     let selectedQuoteTier = 'basic';
@@ -4930,6 +4959,7 @@
       if (showingPassengerForm) return;
       quoteStatusBar.innerHTML = '';
       clearInterval(quoteCountdownInterval);
+      lastKnownPriceExpiresAt = null;
       // Modo "consulta" (botón "Necesito ayuda"): nada de precio ni
       // aceptar/rechazar, es solo chat con el agente.
       if (activePanelMode === 'support') {
@@ -4950,6 +4980,7 @@
         // cliente — 1 hora desde que el agente lo envía. Se recalcula acá
         // (no una sola vez) porque este bloque se repinta en cada poll.
         clearInterval(quoteCountdownInterval);
+        lastKnownPriceExpiresAt = quote.price_expires_at || null;
         if (quote.price_expires_at) {
           const countdownEl = document.createElement('div');
           countdownEl.className = 'quote-status-countdown';
@@ -5085,30 +5116,30 @@
             updateQuotePriceDisplay();
           });
         }
-        function renderAddonQty(offered, qty, priceValue, labelKey, idPrefix, onChange) {
+        // Tira de números (0 a 4) en vez de +/- — el máximo de maletas
+        // extra es fijo y chico, así se ve de una las opciones en vez de
+        // ir tocando de a una.
+        function renderAddonQty(offered, qty, labelKey, idPrefix, onChange) {
           if (!offered) {
             onChange(0);
             return;
           }
           const row = document.createElement('div');
           row.className = 'quote-status-qty';
-          row.innerHTML =
-            '<span>' + t(labelKey).replace('{amount}', priceValue) + '</span>' +
-            '<div class="quote-status-qty-stepper">' +
-              '<button type="button" id="' + idPrefix + 'Minus" aria-label="-">−</button>' +
-              '<span id="' + idPrefix + 'Value">' + qty + '</span>' +
-              '<button type="button" id="' + idPrefix + 'Plus" aria-label="+">+</button>' +
-            '</div>';
+          const chips = [0, 1, 2, 3, 4]
+            .map((n) => '<button type="button" class="quote-status-qty-chip' + (n === qty ? ' active' : '') + '" data-value="' + n + '">' + n + '</button>')
+            .join('');
+          row.innerHTML = '<span>' + t(labelKey) + '</span><div class="quote-status-qty-chips" id="' + idPrefix + 'Chips">' + chips + '</div>';
           quoteStatusBar.appendChild(row);
-          const valueEl = row.querySelector('#' + idPrefix + 'Value');
-          function setQty(next) {
-            qty = Math.max(0, next);
-            valueEl.textContent = qty;
-            onChange(qty);
-            updateQuotePriceDisplay();
-          }
-          row.querySelector('#' + idPrefix + 'Minus').addEventListener('click', () => setQty(qty - 1));
-          row.querySelector('#' + idPrefix + 'Plus').addEventListener('click', () => setQty(qty + 1));
+          const chipsEl = row.querySelector('#' + idPrefix + 'Chips');
+          chipsEl.querySelectorAll('.quote-status-qty-chip').forEach((chip) => {
+            chip.addEventListener('click', () => {
+              chipsEl.querySelectorAll('.quote-status-qty-chip').forEach((c) => c.classList.remove('active'));
+              chip.classList.add('active');
+              onChange(Number(chip.dataset.value));
+              updateQuotePriceDisplay();
+            });
+          });
         }
         // Antes cada extra quedaba suelto, sin agrupar — "seguro" arriba,
         // "reembolsable" varias secciones más abajo (después de tipo de
@@ -5122,7 +5153,7 @@
           quoteStatusBar.appendChild(extrasLabel);
         }
         renderAddonCheckbox(insuranceOffered, selectedWantsInsurance, quote.quoted_insurance_price_usd, 'quoteInsuranceCheckboxLabel', 'quoteInsuranceCheckbox', (v) => { selectedWantsInsurance = v; });
-        renderAddonQty(extraBagOffered, selectedExtraBagQty, '', 'quoteExtraBagQtyLabel', 'quoteExtraBagQty', (v) => { selectedExtraBagQty = v; });
+        renderAddonQty(extraBagOffered, selectedExtraBagQty, 'quoteExtraBagQtyLabel', 'quoteExtraBagQty', (v) => { selectedExtraBagQty = v; });
         renderAddonCheckbox(refundableOffered, selectedWantsRefundable, quote.quoted_refundable_price_usd, 'quoteRefundableCheckboxLabel', 'quoteRefundableCheckbox', (v) => { selectedWantsRefundable = v; });
         // Tipo de asiento: a diferencia de arriba se elige uno solo (radio,
         // no checkbox) — se muestra si el agente restringió disponibilidad
@@ -5414,6 +5445,7 @@
             activeQuoteRouteLabel = storedMode === 'support'
               ? t('supportRouteLabel')
               : (found.origin ? found.origin + ' → ' + found.destination : found.destination);
+            if (found.status === 'quoted' && !found.client_decision) lastKnownPriceExpiresAt = found.price_expires_at || null;
             quoteReopenBtn.hidden = false;
           } else {
             localStorage.removeItem(QUOTE_ID_STORAGE_KEY);
@@ -5422,6 +5454,33 @@
         })
         .catch(() => {});
     })();
+
+    // El reloj de "se vence en" tiene que verse SIEMPRE, no solo con el
+    // panel abierto — corre aparte, todo el tiempo, y solo dibuja algo
+    // cuando el botón de reabrir está visible y hay una hora guardada.
+    setInterval(function () {
+      if (quoteReopenBtn.hidden || !lastKnownPriceExpiresAt) {
+        quoteReopenCountdown.textContent = '';
+        return;
+      }
+      const remainingMs = new Date(lastKnownPriceExpiresAt).getTime() - Date.now();
+      if (remainingMs <= 0) {
+        // Ya se venció — del lado del servidor la cotización se borra si
+        // el cliente no la aceptó a tiempo, así que acá se retira el
+        // botón entero en vez de dejarlo apuntando a algo que ya no existe.
+        quoteReopenBtn.hidden = true;
+        quoteReopenCountdown.textContent = '';
+        localStorage.removeItem(QUOTE_ID_STORAGE_KEY);
+        localStorage.removeItem(QUOTE_MODE_STORAGE_KEY);
+        lastKnownPriceExpiresAt = null;
+        return;
+      }
+      const totalSeconds = Math.floor(remainingMs / 1000);
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      quoteReopenCountdown.classList.toggle('urgent', remainingMs < 5 * 60 * 1000);
+      quoteReopenCountdown.textContent = minutes + ':' + String(seconds).padStart(2, '0');
+    }, 1000);
 
     // ===== "Necesito ayuda" (botón fijo, siempre visible) =====
     // La app solo existe para Android — para un cliente de iPhone, este
