@@ -4934,7 +4934,7 @@
         function updateQuotePriceDisplay() {
           const seatPrice = selectedChosenSeatType && seatTypePrices[selectedChosenSeatType] != null ? Number(seatTypePrices[selectedChosenSeatType]) : 0;
           const add =
-            (insuranceOffered ? selectedInsuranceQty * Number(quote.quoted_insurance_price_usd) : 0) +
+            (insuranceOffered && selectedWantsInsurance ? Number(quote.quoted_insurance_price_usd) : 0) +
             (handBagOffered ? selectedHandBagQty * Number(quote.quoted_hand_bag_price_usd) : 0) +
             (carryOnOffered ? selectedCarryOnQty * Number(quote.quoted_carry_on_price_usd) : 0) +
             (refundableOffered && selectedWantsRefundable ? Number(quote.quoted_refundable_price_usd) : 0) +
