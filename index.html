@@ -2888,6 +2888,36 @@
       return (dict && dict[key] !== undefined) ? dict[key] : (I18N_ES[key] || key);
     }
 
+    // Nombre real/local de ciudades cuyo nombre en español es una palabra
+    // distinta (no solo sin acento) del que usa la base de aeropuertos —
+    // sin esto, "Varsovia" nunca empataba con "Warsaw" aunque el aeropuerto
+    // exista (son palabras diferentes, no una simple falta de tilde como
+    // "Dubái"/"Dubai", que ya funciona solo). Se usa en cityHasAirport y
+    // cityHasPort como segundo intento, además del nombre en español.
+    const CITY_ALIASES = {
+      'Nueva York': 'New York',
+      'Nueva Delhi': 'New Delhi',
+      'Londres': 'London',
+      'Múnich': 'Munich',
+      'Fráncfort': 'Frankfurt',
+      'Viena': 'Vienna',
+      'Praga': 'Prague',
+      'Varsovia': 'Warsaw',
+      'Cracovia': 'Krakow',
+      'Copenhague': 'Copenhagen',
+      'Moscú': 'Moscow',
+      'San Petersburgo': 'Saint Petersburg',
+      'El Cairo': 'Cairo',
+      'Tokio': 'Tokyo',
+      'Kioto': 'Kyoto',
+      'Seúl': 'Seoul',
+      'Pekín': 'Beijing',
+      'Sídney': 'Sydney',
+      'Reikiavik': 'Reykjavik',
+      'Ciudad del Cabo': 'Cape Town',
+      'Ciudad de México': 'Mexico City',
+    };
+
     // Nombres de país que aparecen en "Ciudad, País" (tarjetas de destino y
     // testimonios) — la ciudad no se traduce, solo el país. Uno por idioma.
     const COUNTRY_TRANSLATIONS = {
