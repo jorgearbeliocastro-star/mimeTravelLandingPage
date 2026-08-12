@@ -4954,29 +4954,24 @@
           }
         }
         if (hasTwoTiers) {
-          // Solo se lista acá lo que va GRATIS — si el Agente le puso
-          // precio (asiento/equipaje de mano/carry-on, ver checkboxes más
-          // abajo), no es "incluido", así que no puede aparecer acá Y
-          // pedirse aparte con costo a la vez — sería contradictorio.
-          const seatFree = Object.keys(seatTypePrices).length === 0;
-          const handBagFree = quote.quoted_hand_bag_price_usd == null;
-          const carryOnFree = quote.quoted_carry_on_price_usd == null;
+          // Se sigue listando siempre lo mismo (básico: asiento + equipaje
+          // de mano; completo: suma carry-on + maleta) — nunca desaparece.
+          // Lo único que cambia es el texto de cada ítem: si el Agente le
+          // puso precio (ver checkboxes más abajo), en vez de sonar
+          // "incluido" gratis dice cuánto sale aparte — así no contradice
+          // al checkbox de pagar por eso mismo.
+          const seatMin = Object.values(seatTypePrices).map(Number).filter((n) => !isNaN(n));
+          const seatText = seatMin.length > 0 ? '1 ' + t('quoteSeatName') + ' (+USD ' + Math.min.apply(null, seatMin) + ')' : '1 ' + t('quoteSeatName');
+          const handBagText = quote.quoted_hand_bag_price_usd != null ? '1 ' + t('quoteHandBagName') + ' (+USD ' + quote.quoted_hand_bag_price_usd + ')' : '1 ' + t('quoteHandBagName');
+          const carryOnText = quote.quoted_carry_on_price_usd != null ? '1 ' + t('quoteCarryOnName') + ' (+USD ' + quote.quoted_carry_on_price_usd + ')' : '1 ' + t('quoteCarryOnName');
           const bagText = quote.quoted_checked_bags ? t('bagsCount_' + quote.quoted_checked_bags.replace('+', 'plus')) : t('quoteBagName');
           // Uno debajo de otro con la cantidad permitida — más fácil de
           // leer que una sola línea larga.
           function buildIncludesList(items) {
-            return items.length ? '<ul class="quote-price-option-includes">' + items.map((i) => '<li>' + i + '</li>').join('') + '</ul>' : '';
+            return '<ul class="quote-price-option-includes">' + items.map((i) => '<li>' + i + '</li>').join('') + '</ul>';
           }
-          const basicItems = [];
-          if (seatFree) basicItems.push('1 ' + t('quoteSeatName'));
-          if (handBagFree) basicItems.push('1 ' + t('quoteHandBagName'));
-          const basicSummary = buildIncludesList(basicItems);
-          const fullItems = [];
-          if (seatFree) fullItems.push('1 ' + t('quoteSeatName'));
-          if (handBagFree) fullItems.push('1 ' + t('quoteHandBagName'));
-          if (carryOnFree) fullItems.push('1 ' + t('quoteCarryOnName'));
-          fullItems.push(bagText); // la maleta facturada no es un addon opcional, siempre se muestra
-          const fullSummary = buildIncludesList(fullItems);
+          const basicSummary = buildIncludesList([seatText, handBagText]);
+          const fullSummary = buildIncludesList([seatText, handBagText, carryOnText, bagText]);
           const options = document.createElement('div');
           options.className = 'quote-price-options';
           options.innerHTML =
