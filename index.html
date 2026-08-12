@@ -3284,9 +3284,12 @@
               list.push({ city, iata });
             }
             searchFields.push(normalizeText(city));
+            // Keywords de menos de 4 letras (ej. "Rio", de un keyword de
+            // Río de Janeiro) generan falsos positivos por substring — ej.
+            // "Pinar del Río" empataba con eso sin tener nada que ver.
             (f[keywordsIdx] || '').split(',').forEach(k => {
               const nk = normalizeText(k.trim());
-              if (nk) searchFields.push(nk);
+              if (nk.length >= 4) searchFields.push(nk);
             });
           }
           worldAirportsData = list;
