@@ -4716,12 +4716,12 @@
     let selectedQuoteTier = 'basic';
     // Seguro de vuelo: el cliente lo marca (o no) en la card de precio antes
     // de aceptar — igual que selectedQuoteTier, se usa recién al mandar la
-    // aceptación real.
-    // Cuántos quiere, no solo sí/no — un pedido puede ser para varios
-    // pasajeros y cada uno puede necesitar el suyo.
-    let selectedInsuranceQty = 0;
-    // Mismo criterio para equipaje de mano/carry-on cuando la aerolínea los
-    // cobra aparte.
+    // aceptación real. El precio que carga el Agente ya es el total para
+    // todos los pasajeros del pedido (igual que quoted_price_basic_usd), no
+    // por persona — por eso es un simple sí/no, no una cantidad.
+    let selectedWantsInsurance = false;
+    // Equipaje de mano/carry-on sí varían por pasajero (cada uno puede
+    // llevar el suyo), por eso estos dos sí son cantidad.
     let selectedHandBagQty = 0;
     let selectedCarryOnQty = 0;
     // Tipo de asiento elegido (uno solo, como cualquier selección real de
