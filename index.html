@@ -2403,6 +2403,7 @@
       quoteInsuranceCheckboxLabel: 'Agregar seguro de viaje (+USD {amount})',
       quoteHandBagCheckboxLabel: 'Llevo equipaje de mano (+USD {amount})',
       quoteCarryOnCheckboxLabel: 'Llevo carry-on (+USD {amount})',
+      quoteRefundableCheckboxLabel: 'Quiero tarifa reembolsable (+USD {amount})',
       seatOption_included: 'asiento incluido',
       seatOption_fee: 'asiento con costo adicional',
       seatOption_unavailable: 'asiento no disponible',
@@ -2575,6 +2576,7 @@
       quoteInsuranceCheckboxLabel: 'Add travel insurance (+USD {amount})',
       quoteHandBagCheckboxLabel: "I'm bringing a personal item (+USD {amount})",
       quoteCarryOnCheckboxLabel: "I'm bringing a carry-on (+USD {amount})",
+      quoteRefundableCheckboxLabel: 'I want a refundable fare (+USD {amount})',
       seatOption_included: 'seat included',
       seatOption_fee: 'seat fee applies',
       seatOption_unavailable: 'seat not available',
@@ -2745,6 +2747,7 @@
       quoteInsuranceCheckboxLabel: 'Aggiungi assicurazione di viaggio (+USD {amount})',
       quoteHandBagCheckboxLabel: 'Porto un bagaglio a mano (+USD {amount})',
       quoteCarryOnCheckboxLabel: 'Porto un bagaglio da cabina (+USD {amount})',
+      quoteRefundableCheckboxLabel: 'Voglio una tariffa rimborsabile (+USD {amount})',
       seatOption_included: 'posto incluso',
       seatOption_fee: 'posto a pagamento',
       seatOption_unavailable: 'posto non disponibile',
@@ -2915,6 +2918,7 @@
       quoteInsuranceCheckboxLabel: 'Adicionar seguro de viagem (+USD {amount})',
       quoteHandBagCheckboxLabel: 'Estou levando bagagem de mão (+USD {amount})',
       quoteCarryOnCheckboxLabel: 'Estou levando carry-on (+USD {amount})',
+      quoteRefundableCheckboxLabel: 'Quero tarifa reembolsável (+USD {amount})',
       seatOption_included: 'assento incluído',
       seatOption_fee: 'assento com taxa adicional',
       seatOption_unavailable: 'assento não disponível',
@@ -4591,6 +4595,7 @@
     // Tipo de asiento elegido (uno solo, como cualquier selección real de
     // asiento) — '' = todavía no eligió.
     let selectedChosenSeatType = '';
+    let selectedWantsRefundable = false;
     // Mientras la card de datos del pasajero está abierta, el polling no
     // debe pisarla (perdería lo que el cliente ya tipeó) — se congela el
     // status bar hasta que se cancela o se manda el formulario.
@@ -4739,7 +4744,7 @@
         quoteDecisionInFlight = true;
         const clientToken = getOrCreateWebClientToken();
         const decideStep = mode === 'accept'
-          ? laExpancion.rpc('decide_quote_request_with_tier', { p_token: clientToken, p_id: activeQuoteId, p_accept: true, p_tier: selectedQuoteTier, p_wants_insurance: selectedWantsInsurance, p_wants_hand_bag: selectedWantsHandBag, p_wants_carry_on: selectedWantsCarryOn, p_chosen_seat_type: selectedChosenSeatType || null }).then(({ error }) => {
+          ? laExpancion.rpc('decide_quote_request_with_tier', { p_token: clientToken, p_id: activeQuoteId, p_accept: true, p_tier: selectedQuoteTier, p_wants_insurance: selectedWantsInsurance, p_wants_hand_bag: selectedWantsHandBag, p_wants_carry_on: selectedWantsCarryOn, p_chosen_seat_type: selectedChosenSeatType || null, p_wants_refundable: selectedWantsRefundable }).then(({ error }) => {
               if (error) throw error;
               notifyQuoteDecisionWeb(activeQuoteId);
             })
@@ -4788,6 +4793,7 @@
         const insuranceOffered = quote.quoted_insurance_price_usd != null;
         const handBagOffered = quote.quoted_hand_bag_price_usd != null;
         const carryOnOffered = quote.quoted_carry_on_price_usd != null;
+        const refundableOffered = quote.quoted_refundable_price_usd != null;
         // Recalcula los textos de precio mostrados según qué esté marcado
         // (seguro/equipaje) — se llama tanto al pintar como al tocar
         // cualquier checkbox, así el cliente ve el total real subir/bajar
@@ -4799,6 +4805,7 @@
             (insuranceOffered && selectedWantsInsurance ? Number(quote.quoted_insurance_price_usd) : 0) +
             (handBagOffered && selectedWantsHandBag ? Number(quote.quoted_hand_bag_price_usd) : 0) +
             (carryOnOffered && selectedWantsCarryOn ? Number(quote.quoted_carry_on_price_usd) : 0) +
+            (refundableOffered && selectedWantsRefundable ? Number(quote.quoted_refundable_price_usd) : 0) +
             seatPrice;
           if (hasTwoTiers) {
             const basicEl = document.getElementById('quoteBasicPriceValue');
@@ -4895,6 +4902,7 @@
         } else {
           selectedChosenSeatType = '';
         }
+        renderAddonCheckbox(refundableOffered, selectedWantsRefundable, quote.quoted_refundable_price_usd, 'quoteRefundableCheckboxLabel', 'quoteRefundableCheckbox', (v) => { selectedWantsRefundable = v; });
         // Info de vuelo (aerolínea/horarios/escalas/condiciones) — la misma
         // que da cualquier aerolínea al cotizar, no solo el precio.
         if (quote.category === 'flight' && (quote.quoted_airline || quote.quoted_schedule || quote.quoted_stops || quote.quoted_fare_conditions)) {
