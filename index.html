@@ -5084,7 +5084,6 @@
         } else {
           selectedChosenSeatType = '';
         }
-        renderAddonCheckbox(refundableOffered, selectedWantsRefundable, quote.quoted_refundable_price_usd, 'quoteRefundableCheckboxLabel', 'quoteRefundableCheckbox', (v) => { selectedWantsRefundable = v; });
         // Info de vuelo (aerolínea/horarios/escalas/condiciones) — la misma
         // que da cualquier aerolínea al cotizar, no solo el precio.
         if (quote.category === 'flight' && (quote.quoted_airline || quote.quoted_schedule || quote.quoted_stops || quote.quoted_fare_conditions)) {
