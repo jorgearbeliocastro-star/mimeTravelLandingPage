@@ -3541,8 +3541,8 @@
       vuelos: {
         label: 'Vuelos',
         fields: [
-          { label: 'Origen', name: 'origen', placeholder: '¿Desde dónde?', type: 'text', country: true },
-          { label: 'Destino', name: 'destino', placeholder: '¿Hacia dónde?', type: 'text', country: true },
+          { label: 'Origen', name: 'origen', placeholder: '¿Desde dónde?', type: 'text', country: true, geoMode: 'airport' },
+          { label: 'Destino', name: 'destino', placeholder: '¿Hacia dónde?', type: 'text', country: true, geoMode: 'airport' },
           { label: 'Fecha de ida', name: 'fecha_ida', placeholder: '¿Cuándo te vas?', type: 'date' },
           { label: 'Fecha de vuelta', name: 'fecha_vuelta', placeholder: '¿Cuándo regresas?', type: 'date' },
           { label: 'Clase', name: 'clase', type: 'select', options: ['Económica', 'Premium Economy', 'Business', 'Primera Clase'] }
@@ -3551,8 +3551,8 @@
       cruceros: {
         label: 'Cruceros',
         fields: [
-          { label: 'Puerto de salida', name: 'puerto_salida', placeholder: '¿Desde qué puerto?', type: 'text', country: true },
-          { label: 'Destino', name: 'destino', placeholder: '¿Hacia dónde?', type: 'text', country: true },
+          { label: 'Puerto de salida', name: 'puerto_salida', placeholder: '¿Desde qué puerto?', type: 'text', country: true, geoMode: 'port' },
+          { label: 'Destino', name: 'destino', placeholder: '¿Hacia dónde?', type: 'text', country: true, geoMode: 'port' },
           { label: 'Naviera', name: 'naviera', type: 'select', options: ['Cualquier naviera', 'Carnival', 'Royal Caribbean', 'MSC Cruceros', 'Norwegian (NCL)', 'Disney Cruise Line', 'Princess Cruises', 'Celebrity Cruises', 'Costa Cruceros', 'Holland America Line', 'Cunard', 'P&O Cruises', 'Oceania Cruises', 'Regent Seven Seas', 'Silversea', 'Seabourn', 'Viking Ocean Cruises', 'Windstar Cruises', 'Azamara', 'Virgin Voyages', 'Explora Journeys', 'Crystal Cruises', 'AIDA Cruises', 'TUI Cruises', 'Marella Cruises', 'Saga Cruises', 'Ponant', 'Hurtigruten', 'Star Clippers', 'Fred. Olsen Cruise Lines', 'Dream Cruises', 'Resorts World Cruises', 'Star Cruises', 'Lindblad Expeditions', 'Atlas Ocean Voyages'] },
           { label: 'Fecha de salida', name: 'fechas', placeholder: 'Elige tus fechas', type: 'date' },
           { label: 'Niños', name: 'ninos', placeholder: 'N.º', type: 'text' },
