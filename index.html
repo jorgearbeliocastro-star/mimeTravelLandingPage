@@ -3368,10 +3368,18 @@
     // como "La Habana" (el aeropuerto figura como "Havana", sin "La") o
     // "Varadero" (el municipio es "Matanzas", "Varadero" solo aparece como
     // palabra clave).
+    function matchesSearchFields(city, fields) {
+      const nc = normalizeText(city);
+      if ((fields || []).some(f => f.includes(nc) || nc.includes(f))) return true;
+      const alias = CITY_ALIASES[city];
+      if (!alias) return false;
+      const na = normalizeText(alias);
+      return (fields || []).some(f => f.includes(na) || na.includes(f));
+    }
+
     function cityHasAirport(city) {
       if (AIRPORT_MATCH_EXCLUDE.has(normalizeText(city))) return false;
-      const nc = normalizeText(city);
-      return (worldAirportSearchFields || []).some(f => f.includes(nc) || nc.includes(f));
+      return matchesSearchFields(city, worldAirportSearchFields);
     }
 
     // Base pública de puertos marítimos del mundo (~1.600, liviana) — mismo
