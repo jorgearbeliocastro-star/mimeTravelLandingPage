@@ -3359,7 +3359,7 @@
             searchFields.push(normalizeText(p.city));
             (p.alias || []).forEach(a => {
               const na = normalizeText(a);
-              if (na) searchFields.push(na);
+              if (na.length >= 4) searchFields.push(na);
             });
           });
           worldPortsData = list;
