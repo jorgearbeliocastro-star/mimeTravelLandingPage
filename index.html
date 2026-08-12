@@ -3318,12 +3318,19 @@
     // sugerencia de "Destino" solo porque estaban en la lista de destinos
     // turísticos populares (que sí tiene sentido para Hoteles/Autos, pero
     // no para un vuelo).
+    // Excepciones a mano: la base pública dice que sí tienen aeropuerto,
+    // pero en la práctica no sirve para vender un vuelo ahí (aeropuertos
+    // chicos, de temporada/charter, sin venta comercial real) — confirmado
+    // por el dueño de la agencia, no algo que el dato externo pueda saber.
+    const AIRPORT_MATCH_EXCLUDE = new Set(['Trinidad (Cuba)'].map(normalizeText));
+
     // Comparación en las dos direcciones (igual que el resto del buscador,
     // ver setupAutocomplete) — una comparación exacta perdía casos reales
     // como "La Habana" (el aeropuerto figura como "Havana", sin "La") o
     // "Varadero" (el municipio es "Matanzas", "Varadero" solo aparece como
     // palabra clave).
     function cityHasAirport(city) {
+      if (AIRPORT_MATCH_EXCLUDE.has(normalizeText(city))) return false;
       const nc = normalizeText(city);
       return (worldAirportSearchFields || []).some(f => f.includes(nc) || nc.includes(f));
     }
