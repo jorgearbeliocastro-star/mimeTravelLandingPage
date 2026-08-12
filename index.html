@@ -3491,14 +3491,12 @@
         const geoMode = input.dataset.geoMode || 'city';
         let worldMatches;
         if (geoMode === 'airport') {
-          const airportCities = worldAirportCitySet();
-          cityMatches = cityMatches.filter(c => airportCities.has(c));
-          countryCityMatches = countryCityMatches.filter(c => airportCities.has(c));
+          cityMatches = cityMatches.filter(cityHasAirport);
+          countryCityMatches = countryCityMatches.filter(cityHasAirport);
           worldMatches = worldAirportLabels(q);
         } else if (geoMode === 'port') {
-          const portCities = worldPortCitySet();
-          cityMatches = cityMatches.filter(c => portCities.has(c));
-          countryCityMatches = countryCityMatches.filter(c => portCities.has(c));
+          cityMatches = cityMatches.filter(cityHasPort);
+          countryCityMatches = countryCityMatches.filter(cityHasPort);
           worldMatches = worldPortLabels(q);
         } else {
           // Base de aeropuertos del mundo (miles), cargada aparte — cubre
