@@ -1425,6 +1425,26 @@
     50% { opacity: 0.35; }
   }
 
+  /* No podemos garantizar el precio indefinidamente esperando al cliente
+     — este reloj se lo deja claro (1 hora desde que el agente lo manda). */
+  .quote-status-countdown {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: rgba(26, 26, 26, 0.55);
+    margin-bottom: 10px;
+  }
+
+  .quote-status-countdown::before {
+    content: '⏱';
+  }
+
+  .quote-status-countdown.urgent {
+    color: var(--danger, #E4483F);
+  }
+
   .quote-status-price {
     font-family: var(--font-display);
     font-size: 20px;
@@ -2501,6 +2521,7 @@
       destinoPricePrefix: 'Desde',
       destinoCta: 'Quiero ir aquí →',
       quoteStatusSearching: 'Tu agente está buscando tu vuelo…',
+      quoteCountdownPrefix: 'Este precio se vence en',
       quoteStatusPricePrefix: 'Precio cotizado: ',
       quoteStatusPriceBasicPrefix: 'Precio básico (sin maleta): ',
       quoteStatusPriceFullPrefix: 'Precio completo: ',
@@ -2679,6 +2700,7 @@
       quoteChatPlaceholder: 'Write your message...',
       quoteChatSendAria: 'Send',
       quoteStatusSearching: 'Your agent is looking for your flight…',
+      quoteCountdownPrefix: 'This price expires in',
       quoteStatusPricePrefix: 'Quoted price: ',
       quoteStatusPriceBasicPrefix: 'Basic price (no bag): ',
       quoteStatusPriceFullPrefix: 'Full price: ',
@@ -2855,6 +2877,7 @@
       quoteChatPlaceholder: 'Scrivi il tuo messaggio...',
       quoteChatSendAria: 'Invia',
       quoteStatusSearching: 'Il tuo consulente sta cercando il tuo volo…',
+      quoteCountdownPrefix: 'Questo prezzo scade tra',
       quoteStatusPricePrefix: 'Prezzo preventivato: ',
       quoteStatusPriceBasicPrefix: 'Prezzo base (senza bagaglio): ',
       quoteStatusPriceFullPrefix: 'Prezzo completo: ',
@@ -3031,6 +3054,7 @@
       quoteChatPlaceholder: 'Escreva sua mensagem...',
       quoteChatSendAria: 'Enviar',
       quoteStatusSearching: 'Seu agente está buscando seu voo…',
+      quoteCountdownPrefix: 'Este preço vence em',
       quoteStatusPricePrefix: 'Preço cotado: ',
       quoteStatusPriceBasicPrefix: 'Preço básico (sem bagagem): ',
       quoteStatusPriceFullPrefix: 'Preço completo: ',
@@ -4711,6 +4735,10 @@
     let activePanelMode = 'quote';
     let quotePollInterval = null;
     let quoteDecisionInFlight = false;
+    // Reloj de "este precio se vence en" — se recrea cada vez que se
+    // pinta el status (cada poll), así que hay que limpiar el anterior o
+    // se acumulan intervals corriendo de fondo.
+    let quoteCountdownInterval = null;
     // Qué precio (básico/completo) tocó el cliente antes de abrir el
     // formulario de pasajero — se usa recién al mandar la aceptación.
     let selectedQuoteTier = 'basic';
@@ -4901,6 +4929,7 @@
     function renderQuoteStatus(quote) {
       if (showingPassengerForm) return;
       quoteStatusBar.innerHTML = '';
+      clearInterval(quoteCountdownInterval);
       // Modo "consulta" (botón "Necesito ayuda"): nada de precio ni
       // aceptar/rechazar, es solo chat con el agente.
       if (activePanelMode === 'support') {
@@ -4917,6 +4946,30 @@
         return;
       }
       if (quote.status === 'quoted' && !quote.client_decision) {
+        // No podemos garantizar el precio indefinidamente esperando al
+        // cliente — 1 hora desde que el agente lo envía. Se recalcula acá
+        // (no una sola vez) porque este bloque se repinta en cada poll.
+        clearInterval(quoteCountdownInterval);
+        if (quote.price_expires_at) {
+          const countdownEl = document.createElement('div');
+          countdownEl.className = 'quote-status-countdown';
+          quoteStatusBar.appendChild(countdownEl);
+          function renderCountdown() {
+            const remainingMs = new Date(quote.price_expires_at).getTime() - Date.now();
+            if (remainingMs <= 0) {
+              countdownEl.remove();
+              clearInterval(quoteCountdownInterval);
+              return;
+            }
+            const totalSeconds = Math.floor(remainingMs / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            countdownEl.classList.toggle('urgent', remainingMs < 5 * 60 * 1000);
+            countdownEl.textContent = t('quoteCountdownPrefix') + ' ' + minutes + ':' + String(seconds).padStart(2, '0');
+          }
+          renderCountdown();
+          quoteCountdownInterval = setInterval(renderCountdown, 1000);
+        }
         // Si el agente cargó precio completo (con maleta+asiento), cada
         // precio va en su propia tarjeta con SU botón de aceptar debajo —
         // así no queda ambiguo qué botón corresponde a qué precio. Si no
@@ -5297,6 +5350,7 @@
     function closeQuotePanel() {
       quotePanel.hidden = true;
       stopQuotePolling();
+      clearInterval(quoteCountdownInterval);
       if (activeQuoteId) quoteReopenBtn.hidden = false;
     }
 
