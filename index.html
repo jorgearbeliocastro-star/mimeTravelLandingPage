@@ -3315,8 +3315,14 @@
     // sugerencia de "Destino" solo porque estaban en la lista de destinos
     // turísticos populares (que sí tiene sentido para Hoteles/Autos, pero
     // no para un vuelo).
-    function worldAirportCitySet() {
-      return new Set((worldAirportsData || []).map(a => a.city));
+    // Comparación en las dos direcciones (igual que el resto del buscador,
+    // ver setupAutocomplete) — una comparación exacta perdía casos reales
+    // como "La Habana" (el aeropuerto figura como "Havana", sin "La") o
+    // "Varadero" (el municipio es "Matanzas", "Varadero" solo aparece como
+    // palabra clave).
+    function cityHasAirport(city) {
+      const nc = normalizeText(city);
+      return (worldAirportSearchFields || []).some(f => f.includes(nc) || nc.includes(f));
     }
 
     // Base pública de puertos marítimos del mundo (~1.600, liviana) — mismo
