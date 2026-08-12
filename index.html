@@ -1655,6 +1655,19 @@
     gap: 4px;
   }
 
+  /* Sin esto, cada <label>/<input> del bloque (elementos "en línea" por
+     default) se acomodaban como texto corrido en vez de uno debajo del
+     otro — la etiqueta de un campo terminaba pegada al lado del input de
+     OTRO campo. */
+  .quote-pax-block {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .quote-pax-block .quote-pax-input {
+    width: 100%;
+  }
+
   /* Separador visual entre pasajeros — el primero no lo necesita porque no
      tiene nada arriba dentro del form. */
   .quote-pax-block + .quote-pax-block {
