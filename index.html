@@ -3601,7 +3601,10 @@
         if (geoMode === 'airport') {
           cityMatches = cityMatches.filter(cityHasAirport);
           countryCityMatches = countryCityMatches.filter(cityHasAirport);
-          worldMatches = worldAirportLabels(q);
+          // Busca por CUALQUIER país del mundo, no solo los ~90 curados —
+          // ej. "papua" trae los aeropuertos reales de Papúa Nueva Guinea
+          // aunque ese país no esté en COUNTRY_CITIES.
+          worldMatches = [...worldAirportLabels(q), ...countryAirportMatches(q)];
         } else if (geoMode === 'port') {
           cityMatches = cityMatches.filter(cityHasPort);
           countryCityMatches = countryCityMatches.filter(cityHasPort);
