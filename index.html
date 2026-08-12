@@ -2359,6 +2359,10 @@
       quoteStatusPriceBasicPrefix: 'Precio básico (sin maleta): ',
       quoteStatusPriceFullPrefix: 'Precio completo: ',
       quoteAgentNoteLabel: 'Nota del agente',
+      quoteFlightAirlineLabel: 'Aerolínea',
+      quoteFlightScheduleLabel: 'Horarios',
+      quoteFlightStopsLabel: 'Escalas',
+      quoteFlightFareLabel: 'Condiciones de la tarifa',
       seatOption_included: 'asiento incluido',
       seatOption_fee: 'asiento con costo adicional',
       seatOption_unavailable: 'asiento no disponible',
@@ -2519,6 +2523,10 @@
       quoteStatusPriceBasicPrefix: 'Basic price (no bag): ',
       quoteStatusPriceFullPrefix: 'Full price: ',
       quoteAgentNoteLabel: 'Agent note',
+      quoteFlightAirlineLabel: 'Airline',
+      quoteFlightScheduleLabel: 'Schedule',
+      quoteFlightStopsLabel: 'Stops',
+      quoteFlightFareLabel: 'Fare conditions',
       seatOption_included: 'seat included',
       seatOption_fee: 'seat fee applies',
       seatOption_unavailable: 'seat not available',
@@ -2677,6 +2685,10 @@
       quoteStatusPriceBasicPrefix: 'Prezzo base (senza bagaglio): ',
       quoteStatusPriceFullPrefix: 'Prezzo completo: ',
       quoteAgentNoteLabel: 'Nota del consulente',
+      quoteFlightAirlineLabel: 'Compagnia aerea',
+      quoteFlightScheduleLabel: 'Orari',
+      quoteFlightStopsLabel: 'Scali',
+      quoteFlightFareLabel: 'Condizioni della tariffa',
       seatOption_included: 'posto incluso',
       seatOption_fee: 'posto a pagamento',
       seatOption_unavailable: 'posto non disponibile',
@@ -2835,6 +2847,10 @@
       quoteStatusPriceBasicPrefix: 'Preço básico (sem bagagem): ',
       quoteStatusPriceFullPrefix: 'Preço completo: ',
       quoteAgentNoteLabel: 'Nota do agente',
+      quoteFlightAirlineLabel: 'Companhia aérea',
+      quoteFlightScheduleLabel: 'Horários',
+      quoteFlightStopsLabel: 'Escalas',
+      quoteFlightFareLabel: 'Condições da tarifa',
       seatOption_included: 'assento incluído',
       seatOption_fee: 'assento com taxa adicional',
       seatOption_unavailable: 'assento não disponível',
@@ -4718,6 +4734,19 @@
           price.textContent = t('quoteStatusPricePrefix') + 'USD ' + quote.quoted_price_usd;
           quoteStatusBar.appendChild(price);
         }
+        // Info de vuelo (aerolínea/horarios/escalas/condiciones) — la misma
+        // que da cualquier aerolínea al cotizar, no solo el precio.
+        if (quote.category === 'flight' && (quote.quoted_airline || quote.quoted_schedule || quote.quoted_stops || quote.quoted_fare_conditions)) {
+          const flightInfo = document.createElement('div');
+          flightInfo.className = 'quote-status-notes';
+          const lines = [];
+          if (quote.quoted_airline) lines.push(t('quoteFlightAirlineLabel') + ': ' + quote.quoted_airline);
+          if (quote.quoted_schedule) lines.push(t('quoteFlightScheduleLabel') + ': ' + quote.quoted_schedule);
+          if (quote.quoted_stops) lines.push(t('quoteFlightStopsLabel') + ': ' + quote.quoted_stops);
+          if (quote.quoted_fare_conditions) lines.push(t('quoteFlightFareLabel') + ': ' + quote.quoted_fare_conditions);
+          flightInfo.textContent = lines.join(' · ');
+          quoteStatusBar.appendChild(flightInfo);
+        }
         // Notas del agente (ej. condiciones de la tarifa) — con etiqueta y
         // borde lateral a propósito, para que no se confunda con un campo
         // de formulario (antes tenía el mismo estilo de caja que un input).
@@ -4742,6 +4771,20 @@
         p.className = 'quote-status-resolved';
         p.textContent = quote.client_decision === 'accepted' ? t('quoteDecisionAccepted') : t('quoteDecisionDeclined');
         quoteStatusBar.appendChild(p);
+        // La info de vuelo se sigue viendo después de decidir, no solo
+        // mientras está "quoted" — el cliente puede querer volver a
+        // revisarla (aerolínea, horarios, condiciones de la tarifa).
+        if (quote.client_decision === 'accepted' && quote.category === 'flight' && (quote.quoted_airline || quote.quoted_schedule || quote.quoted_stops || quote.quoted_fare_conditions)) {
+          const flightInfo = document.createElement('div');
+          flightInfo.className = 'quote-status-notes';
+          const lines = [];
+          if (quote.quoted_airline) lines.push(t('quoteFlightAirlineLabel') + ': ' + quote.quoted_airline);
+          if (quote.quoted_schedule) lines.push(t('quoteFlightScheduleLabel') + ': ' + quote.quoted_schedule);
+          if (quote.quoted_stops) lines.push(t('quoteFlightStopsLabel') + ': ' + quote.quoted_stops);
+          if (quote.quoted_fare_conditions) lines.push(t('quoteFlightFareLabel') + ': ' + quote.quoted_fare_conditions);
+          flightInfo.textContent = lines.join(' · ');
+          quoteStatusBar.appendChild(flightInfo);
+        }
         // Si aceptó pero por lo que sea todavía no mandó los datos del
         // pasajero (cerró el panel a mitad de camino, etc.), se le vuelve a
         // ofrecer completar acá mismo.
