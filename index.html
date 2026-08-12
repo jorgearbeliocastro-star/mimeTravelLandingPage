@@ -3676,6 +3676,7 @@
             loadWorldPorts();
           } else {
             loadWorldAirports();
+            if (input.dataset.geoMode === 'airport') loadCountryNames(currentLang);
             if (input.dataset.airportCode === 'false') loadWorldCities();
           }
           if (input.value.trim()) input.dispatchEvent(new Event('input'));
