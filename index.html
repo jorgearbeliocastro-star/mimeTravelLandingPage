@@ -3283,6 +3283,7 @@
             const iata = f[iataIdx];
             const city = f[municipalityIdx];
             if (!iata || !city) continue;
+            if (AIRPORT_IATA_EXCLUDE.has(iata)) continue;
             const isLarge = type === 'large_airport';
             const isRegional = type === 'medium_airport' && f[scheduledIdx] === 'yes';
             if (!isLarge && !isRegional) continue;
