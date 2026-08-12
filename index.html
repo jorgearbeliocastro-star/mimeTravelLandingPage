@@ -5045,7 +5045,7 @@
           row.querySelector('#' + idPrefix + 'Minus').addEventListener('click', () => setQty(qty - 1));
           row.querySelector('#' + idPrefix + 'Plus').addEventListener('click', () => setQty(qty + 1));
         }
-        renderAddonQty(insuranceOffered, selectedInsuranceQty, quote.quoted_insurance_price_usd, 'quoteInsuranceQtyLabel', 'quoteInsuranceQty', (v) => { selectedInsuranceQty = v; });
+        renderAddonCheckbox(insuranceOffered, selectedWantsInsurance, quote.quoted_insurance_price_usd, 'quoteInsuranceCheckboxLabel', 'quoteInsuranceCheckbox', (v) => { selectedWantsInsurance = v; });
         renderAddonQty(handBagOffered, selectedHandBagQty, quote.quoted_hand_bag_price_usd, 'quoteHandBagQtyLabel', 'quoteHandBagQty', (v) => { selectedHandBagQty = v; });
         renderAddonQty(carryOnOffered, selectedCarryOnQty, quote.quoted_carry_on_price_usd, 'quoteCarryOnQtyLabel', 'quoteCarryOnQty', (v) => { selectedCarryOnQty = v; });
         // Tipo de asiento: a diferencia de arriba se elige uno solo (radio,
