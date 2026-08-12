@@ -2383,6 +2383,8 @@
       quoteFlightStopsLabel: 'Escalas',
       quoteFlightFareLabel: 'Condiciones de la tarifa',
       quoteInsuranceCheckboxLabel: 'Agregar seguro de viaje (+USD {amount})',
+      quoteHandBagCheckboxLabel: 'Llevo equipaje de mano (+USD {amount})',
+      quoteCarryOnCheckboxLabel: 'Llevo carry-on (+USD {amount})',
       seatOption_included: 'asiento incluido',
       seatOption_fee: 'asiento con costo adicional',
       seatOption_unavailable: 'asiento no disponible',
@@ -2548,6 +2550,8 @@
       quoteFlightStopsLabel: 'Stops',
       quoteFlightFareLabel: 'Fare conditions',
       quoteInsuranceCheckboxLabel: 'Add travel insurance (+USD {amount})',
+      quoteHandBagCheckboxLabel: "I'm bringing a personal item (+USD {amount})",
+      quoteCarryOnCheckboxLabel: "I'm bringing a carry-on (+USD {amount})",
       seatOption_included: 'seat included',
       seatOption_fee: 'seat fee applies',
       seatOption_unavailable: 'seat not available',
@@ -2711,6 +2715,8 @@
       quoteFlightStopsLabel: 'Scali',
       quoteFlightFareLabel: 'Condizioni della tariffa',
       quoteInsuranceCheckboxLabel: 'Aggiungi assicurazione di viaggio (+USD {amount})',
+      quoteHandBagCheckboxLabel: 'Porto un bagaglio a mano (+USD {amount})',
+      quoteCarryOnCheckboxLabel: 'Porto un bagaglio da cabina (+USD {amount})',
       seatOption_included: 'posto incluso',
       seatOption_fee: 'posto a pagamento',
       seatOption_unavailable: 'posto non disponibile',
@@ -2874,6 +2880,8 @@
       quoteFlightStopsLabel: 'Escalas',
       quoteFlightFareLabel: 'Condições da tarifa',
       quoteInsuranceCheckboxLabel: 'Adicionar seguro de viagem (+USD {amount})',
+      quoteHandBagCheckboxLabel: 'Estou levando bagagem de mão (+USD {amount})',
+      quoteCarryOnCheckboxLabel: 'Estou levando carry-on (+USD {amount})',
       seatOption_included: 'assento incluído',
       seatOption_fee: 'assento com taxa adicional',
       seatOption_unavailable: 'assento não disponível',
@@ -4538,6 +4546,10 @@
     // de aceptar — igual que selectedQuoteTier, se usa recién al mandar la
     // aceptación real.
     let selectedWantsInsurance = false;
+    // Mismo criterio para equipaje de mano/carry-on cuando la aerolínea los
+    // cobra aparte.
+    let selectedWantsHandBag = false;
+    let selectedWantsCarryOn = false;
     // Mientras la card de datos del pasajero está abierta, el polling no
     // debe pisarla (perdería lo que el cliente ya tipeó) — se congela el
     // status bar hasta que se cancela o se manda el formulario.
@@ -4686,7 +4698,7 @@
         quoteDecisionInFlight = true;
         const clientToken = getOrCreateWebClientToken();
         const decideStep = mode === 'accept'
-          ? laExpancion.rpc('decide_quote_request_with_tier', { p_token: clientToken, p_id: activeQuoteId, p_accept: true, p_tier: selectedQuoteTier, p_wants_insurance: selectedWantsInsurance }).then(({ error }) => {
+          ? laExpancion.rpc('decide_quote_request_with_tier', { p_token: clientToken, p_id: activeQuoteId, p_accept: true, p_tier: selectedQuoteTier, p_wants_insurance: selectedWantsInsurance, p_wants_hand_bag: selectedWantsHandBag, p_wants_carry_on: selectedWantsCarryOn }).then(({ error }) => {
               if (error) throw error;
               notifyQuoteDecisionWeb(activeQuoteId);
             })
@@ -4733,11 +4745,17 @@
         // solo precio, un botón).
         const hasTwoTiers = quote.quoted_price_full_usd != null;
         const insuranceOffered = quote.quoted_insurance_price_usd != null;
-        // Recalcula los textos de precio mostrados según si el seguro está
-        // marcado — se llama tanto al pintar como al tocar el checkbox, así
-        // el cliente ve el total real subir/bajar sin esperar otro poll.
+        const handBagOffered = quote.quoted_hand_bag_price_usd != null;
+        const carryOnOffered = quote.quoted_carry_on_price_usd != null;
+        // Recalcula los textos de precio mostrados según qué esté marcado
+        // (seguro/equipaje) — se llama tanto al pintar como al tocar
+        // cualquier checkbox, así el cliente ve el total real subir/bajar
+        // sin esperar otro poll.
         function updateQuotePriceDisplay() {
-          const add = insuranceOffered && selectedWantsInsurance ? Number(quote.quoted_insurance_price_usd) : 0;
+          const add =
+            (insuranceOffered && selectedWantsInsurance ? Number(quote.quoted_insurance_price_usd) : 0) +
+            (handBagOffered && selectedWantsHandBag ? Number(quote.quoted_hand_bag_price_usd) : 0) +
+            (carryOnOffered && selectedWantsCarryOn ? Number(quote.quoted_carry_on_price_usd) : 0);
           if (hasTwoTiers) {
             const basicEl = document.getElementById('quoteBasicPriceValue');
             const fullEl = document.getElementById('quoteFullPriceValue');
@@ -4782,22 +4800,29 @@
           price.textContent = t('quoteStatusPricePrefix') + 'USD ' + quote.quoted_price_usd;
           quoteStatusBar.appendChild(price);
         }
-        // Seguro de vuelo: opcional, el cliente lo marca o no y ve el total
-        // (arriba) ajustarse al toque — recién queda fijo al aceptar.
-        if (insuranceOffered) {
-          const insuranceRow = document.createElement('label');
-          insuranceRow.className = 'quote-status-insurance';
-          insuranceRow.innerHTML =
-            '<input type="checkbox" id="quoteInsuranceCheckbox"' + (selectedWantsInsurance ? ' checked' : '') + '> ' +
-            '<span>' + t('quoteInsuranceCheckboxLabel').replace('{amount}', quote.quoted_insurance_price_usd) + '</span>';
-          quoteStatusBar.appendChild(insuranceRow);
-          insuranceRow.querySelector('#quoteInsuranceCheckbox').addEventListener('change', function (e) {
-            selectedWantsInsurance = e.target.checked;
+        // Seguro/equipaje: opcionales, el cliente marca lo que quiere/lleva
+        // y ve el total (arriba) ajustarse al toque — recién queda fijo al
+        // aceptar. Misma estructura para los tres, solo cambia qué variable
+        // module-level actualizan.
+        function renderAddonCheckbox(offered, checked, priceValue, labelKey, checkboxId, onToggle) {
+          if (!offered) {
+            onToggle(false);
+            return;
+          }
+          const row = document.createElement('label');
+          row.className = 'quote-status-insurance';
+          row.innerHTML =
+            '<input type="checkbox" id="' + checkboxId + '"' + (checked ? ' checked' : '') + '> ' +
+            '<span>' + t(labelKey).replace('{amount}', priceValue) + '</span>';
+          quoteStatusBar.appendChild(row);
+          row.querySelector('#' + checkboxId).addEventListener('change', function (e) {
+            onToggle(e.target.checked);
             updateQuotePriceDisplay();
           });
-        } else {
-          selectedWantsInsurance = false;
         }
+        renderAddonCheckbox(insuranceOffered, selectedWantsInsurance, quote.quoted_insurance_price_usd, 'quoteInsuranceCheckboxLabel', 'quoteInsuranceCheckbox', (v) => { selectedWantsInsurance = v; });
+        renderAddonCheckbox(handBagOffered, selectedWantsHandBag, quote.quoted_hand_bag_price_usd, 'quoteHandBagCheckboxLabel', 'quoteHandBagCheckbox', (v) => { selectedWantsHandBag = v; });
+        renderAddonCheckbox(carryOnOffered, selectedWantsCarryOn, quote.quoted_carry_on_price_usd, 'quoteCarryOnCheckboxLabel', 'quoteCarryOnCheckbox', (v) => { selectedWantsCarryOn = v; });
         // Info de vuelo (aerolínea/horarios/escalas/condiciones) — la misma
         // que da cualquier aerolínea al cotizar, no solo el precio.
         if (quote.category === 'flight' && (quote.quoted_airline || quote.quoted_schedule || quote.quoted_stops || quote.quoted_fare_conditions)) {
