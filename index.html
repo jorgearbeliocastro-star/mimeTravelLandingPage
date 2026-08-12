@@ -4842,7 +4842,7 @@
           // Uno debajo de otro con la cantidad permitida — más fácil de
           // leer que una sola línea larga.
           function buildIncludesList(items) {
-            return '<ul class="quote-price-option-includes">' + items.map((i) => '<li>1 ' + i + '</li>').join('') + '</ul>';
+            return '<ul class="quote-price-option-includes">' + items.map((i) => '<li>' + i + '</li>').join('') + '</ul>';
           }
           const basicSummary = buildIncludesList(['1 ' + t('quoteSeatName'), '1 ' + t('quoteHandBagName')]);
           const fullSummary = buildIncludesList(['1 ' + t('quoteSeatName'), '1 ' + t('quoteHandBagName'), '1 ' + t('quoteCarryOnName'), bagText]);
