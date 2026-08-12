@@ -2510,8 +2510,7 @@
       quoteFlightStopsLabel: 'Escalas',
       quoteFlightFareLabel: 'Condiciones de la tarifa',
       quoteInsuranceCheckboxLabel: 'Agregar seguro de viaje (+USD {amount})',
-      quoteHandBagQtyLabel: 'Equipaje de mano (USD {amount} c/u)',
-      quoteCarryOnQtyLabel: 'Carry-on (USD {amount} c/u)',
+      quoteExtraBagQtyLabel: 'Maleta extra',
       quoteExtrasLabel: 'Extras',
       quoteRefundableCheckboxLabel: 'Quiero tarifa reembolsable (+USD {amount})',
       quoteSeatName: 'Asiento',
@@ -2689,8 +2688,7 @@
       quoteFlightStopsLabel: 'Stops',
       quoteFlightFareLabel: 'Fare conditions',
       quoteInsuranceCheckboxLabel: 'Add travel insurance (+USD {amount})',
-      quoteHandBagQtyLabel: 'Personal item (USD {amount} each)',
-      quoteCarryOnQtyLabel: 'Carry-on (USD {amount} each)',
+      quoteExtraBagQtyLabel: 'Extra bag',
       quoteExtrasLabel: 'Extras',
       quoteRefundableCheckboxLabel: 'I want a refundable fare (+USD {amount})',
       quoteSeatName: 'Seat',
@@ -2866,8 +2864,7 @@
       quoteFlightStopsLabel: 'Scali',
       quoteFlightFareLabel: 'Condizioni della tariffa',
       quoteInsuranceCheckboxLabel: 'Aggiungi assicurazione di viaggio (+USD {amount})',
-      quoteHandBagQtyLabel: 'Bagaglio a mano (USD {amount} cad.)',
-      quoteCarryOnQtyLabel: 'Bagaglio da cabina (USD {amount} cad.)',
+      quoteExtraBagQtyLabel: 'Bagaglio extra',
       quoteExtrasLabel: 'Extra',
       quoteRefundableCheckboxLabel: 'Voglio una tariffa rimborsabile (+USD {amount})',
       quoteSeatName: 'Posto',
@@ -3043,8 +3040,7 @@
       quoteFlightStopsLabel: 'Escalas',
       quoteFlightFareLabel: 'Condições da tarifa',
       quoteInsuranceCheckboxLabel: 'Adicionar seguro de viagem (+USD {amount})',
-      quoteHandBagQtyLabel: 'Bagagem de mão (USD {amount} cada)',
-      quoteCarryOnQtyLabel: 'Carry-on (USD {amount} cada)',
+      quoteExtraBagQtyLabel: 'Mala extra',
       quoteExtrasLabel: 'Extras',
       quoteRefundableCheckboxLabel: 'Quero tarifa reembolsável (+USD {amount})',
       quoteSeatName: 'Assento',
@@ -4724,10 +4720,11 @@
     // todos los pasajeros del pedido (igual que quoted_price_basic_usd), no
     // por persona — por eso es un simple sí/no, no una cantidad.
     let selectedWantsInsurance = false;
-    // Equipaje de mano/carry-on sí varían por pasajero (cada uno puede
-    // llevar el suyo), por eso estos dos sí son cantidad.
-    let selectedHandBagQty = 0;
-    let selectedCarryOnQty = 0;
+    // Equipaje de mano/carry-on ya no se cobran aparte — si se pasan del
+    // límite de la aerolínea se pasan a maleta facturada igual. Lo único
+    // agregable es una maleta extra, y cada una cuesta distinto según su
+    // posición (1ra, 2da...).
+    let selectedExtraBagQty = 0;
     // Tipo de asiento elegido (uno solo, como cualquier selección real de
     // asiento) — '' = todavía no eligió.
     let selectedChosenSeatType = '';
@@ -4880,7 +4877,7 @@
         quoteDecisionInFlight = true;
         const clientToken = getOrCreateWebClientToken();
         const decideStep = mode === 'accept'
-          ? laExpancion.rpc('decide_quote_request_with_tier', { p_token: clientToken, p_id: activeQuoteId, p_accept: true, p_tier: selectedQuoteTier, p_insurance_qty: selectedWantsInsurance ? 1 : 0, p_hand_bag_qty: selectedHandBagQty, p_carry_on_qty: selectedCarryOnQty, p_chosen_seat_type: selectedChosenSeatType || null, p_wants_refundable: selectedWantsRefundable }).then(({ error }) => {
+          ? laExpancion.rpc('decide_quote_request_with_tier', { p_token: clientToken, p_id: activeQuoteId, p_accept: true, p_tier: selectedQuoteTier, p_insurance_qty: selectedWantsInsurance ? 1 : 0, p_extra_bag_qty: selectedExtraBagQty, p_carry_on_qty: 0, p_chosen_seat_type: selectedChosenSeatType || null, p_wants_refundable: selectedWantsRefundable }).then(({ error }) => {
               if (error) throw error;
               notifyQuoteDecisionWeb(activeQuoteId);
             })
@@ -4927,9 +4924,20 @@
         // solo precio, un botón).
         const hasTwoTiers = quote.quoted_price_full_usd != null;
         const insuranceOffered = quote.quoted_insurance_price_usd != null;
-        const handBagOffered = quote.quoted_hand_bag_price_usd != null;
-        const carryOnOffered = quote.quoted_carry_on_price_usd != null;
+        const extraBagOffered = !!(quote.quoted_extra_bag_prices && quote.quoted_extra_bag_prices.length);
         const refundableOffered = quote.quoted_refundable_price_usd != null;
+        // Cada maleta extra cuesta lo que le toque según su posición (1ra,
+        // 2da...) — igual que decide_quote_request_with_tier del lado del
+        // servidor. Si pide más de las que tienen precio definido, las de
+        // más se cobran al precio de la última definida.
+        function sumExtraBagPrice(prices, qty) {
+          if (!prices || !prices.length || qty <= 0) return 0;
+          let total = 0;
+          for (let i = 1; i <= qty; i++) {
+            total += i <= prices.length ? Number(prices[i - 1]) : Number(prices[prices.length - 1]);
+          }
+          return total;
+        }
         // Recalcula los textos de precio mostrados según qué esté marcado
         // (seguro/equipaje) — se llama tanto al pintar como al tocar
         // cualquier checkbox, así el cliente ve el total real subir/bajar
@@ -4939,8 +4947,7 @@
           const seatPrice = selectedChosenSeatType && seatTypePrices[selectedChosenSeatType] != null ? Number(seatTypePrices[selectedChosenSeatType]) : 0;
           const add =
             (insuranceOffered && selectedWantsInsurance ? Number(quote.quoted_insurance_price_usd) : 0) +
-            (handBagOffered ? selectedHandBagQty * Number(quote.quoted_hand_bag_price_usd) : 0) +
-            (carryOnOffered ? selectedCarryOnQty * Number(quote.quoted_carry_on_price_usd) : 0) +
+            sumExtraBagPrice(quote.quoted_extra_bag_prices, selectedExtraBagQty) +
             (refundableOffered && selectedWantsRefundable ? Number(quote.quoted_refundable_price_usd) : 0) +
             seatPrice;
           if (hasTwoTiers) {
@@ -4958,24 +4965,30 @@
           }
         }
         if (hasTwoTiers) {
-          // Se sigue listando siempre lo mismo (básico: asiento + equipaje
-          // de mano; completo: suma carry-on + maleta) — nunca desaparece.
-          // Lo único que cambia es el texto de cada ítem: si el Agente le
-          // puso precio (ver checkboxes más abajo), en vez de sonar
-          // "incluido" gratis dice cuánto sale aparte — así no contradice
-          // al checkbox de pagar por eso mismo.
-          const seatMin = Object.values(seatTypePrices).map(Number).filter((n) => !isNaN(n));
-          const seatText = seatMin.length > 0 ? '1 ' + t('quoteSeatName') + ' (+USD ' + Math.min.apply(null, seatMin) + ')' : '1 ' + t('quoteSeatName');
-          const handBagText = quote.quoted_hand_bag_price_usd != null ? '1 ' + t('quoteHandBagName') + ' (+USD ' + quote.quoted_hand_bag_price_usd + ')' : '1 ' + t('quoteHandBagName');
-          const carryOnText = quote.quoted_carry_on_price_usd != null ? '1 ' + t('quoteCarryOnName') + ' (+USD ' + quote.quoted_carry_on_price_usd + ')' : '1 ' + t('quoteCarryOnName');
+          // Si algo va con ✓ (incluido), no puede tener precio al lado —
+          // es contradictorio ("incluido" + "cuesta aparte" a la vez
+          // confunde). Por eso: si NINGÚN tipo de asiento queda gratis, el
+          // asiento directamente no aparece acá (no está "incluido", está
+          // en el selector de abajo con su precio). Equipaje de
+          // mano/carry-on ya no se cobran aparte (ver Extras), así que
+          // siempre van sin precio.
+          const availableSeatTypesForSummary = quote.quoted_seat_type ? quote.quoted_seat_type.split(',').filter(Boolean) : ['aisle', 'middle', 'window'];
+          const seatHasFreeOption = availableSeatTypesForSummary.some((opt) => seatTypePrices[opt] == null);
+          const seatText = '1 ' + t('quoteSeatName');
+          const handBagText = '1 ' + t('quoteHandBagName');
+          const carryOnText = '1 ' + t('quoteCarryOnName');
           const bagText = quote.quoted_checked_bags ? t('bagsCount_' + quote.quoted_checked_bags.replace('+', 'plus')) : t('quoteBagName');
           // Uno debajo de otro con la cantidad permitida — más fácil de
           // leer que una sola línea larga.
           function buildIncludesList(items) {
             return '<ul class="quote-price-option-includes">' + items.map((i) => '<li>' + i + '</li>').join('') + '</ul>';
           }
-          const basicSummary = buildIncludesList([seatText, handBagText]);
-          const fullSummary = buildIncludesList([seatText, handBagText, carryOnText, bagText]);
+          const basicItems = [handBagText];
+          if (seatHasFreeOption) basicItems.unshift(seatText);
+          const fullItems = [handBagText, carryOnText, bagText];
+          if (seatHasFreeOption) fullItems.unshift(seatText);
+          const basicSummary = buildIncludesList(basicItems);
+          const fullSummary = buildIncludesList(fullItems);
           const options = document.createElement('div');
           options.className = 'quote-price-options';
           options.innerHTML =
@@ -5049,15 +5062,14 @@
         // asiento), como si fueran cosas distintas cuando en realidad son
         // el mismo tipo de decisión ("¿querés esto de más?"). Ahora van
         // todos juntos bajo un mismo título, como ya tenía Tipo de Asiento.
-        if (insuranceOffered || handBagOffered || carryOnOffered || refundableOffered) {
+        if (insuranceOffered || extraBagOffered || refundableOffered) {
           const extrasLabel = document.createElement('div');
           extrasLabel.className = 'quote-status-seat-type-label';
           extrasLabel.textContent = t('quoteExtrasLabel');
           quoteStatusBar.appendChild(extrasLabel);
         }
         renderAddonCheckbox(insuranceOffered, selectedWantsInsurance, quote.quoted_insurance_price_usd, 'quoteInsuranceCheckboxLabel', 'quoteInsuranceCheckbox', (v) => { selectedWantsInsurance = v; });
-        renderAddonQty(handBagOffered, selectedHandBagQty, quote.quoted_hand_bag_price_usd, 'quoteHandBagQtyLabel', 'quoteHandBagQty', (v) => { selectedHandBagQty = v; });
-        renderAddonQty(carryOnOffered, selectedCarryOnQty, quote.quoted_carry_on_price_usd, 'quoteCarryOnQtyLabel', 'quoteCarryOnQty', (v) => { selectedCarryOnQty = v; });
+        renderAddonQty(extraBagOffered, selectedExtraBagQty, '', 'quoteExtraBagQtyLabel', 'quoteExtraBagQty', (v) => { selectedExtraBagQty = v; });
         renderAddonCheckbox(refundableOffered, selectedWantsRefundable, quote.quoted_refundable_price_usd, 'quoteRefundableCheckboxLabel', 'quoteRefundableCheckbox', (v) => { selectedWantsRefundable = v; });
         // Tipo de asiento: a diferencia de arriba se elige uno solo (radio,
         // no checkbox) — se muestra si el agente restringió disponibilidad
@@ -5294,6 +5306,18 @@
       quoteChatSection.hidden = false;
       quoteChatToggleBtn.hidden = true;
       quoteChatInput.focus();
+    });
+
+    // Tocar afuera del chat (en modo "quote", no en "consulta" — ahí el
+    // chat es el punto central del panel y no debería minimizarse solo) lo
+    // vuelve a cerrar y deja el botón como estaba.
+    document.addEventListener('click', function (e) {
+      if (quoteChatSection.hidden) return;
+      if (activePanelMode === 'support') return;
+      if (quoteChatSection.contains(e.target) || quoteChatToggleBtn.contains(e.target)) return;
+      if (!quotePanel.contains(e.target)) return; // clics fuera del panel ya lo cierran entero
+      quoteChatSection.hidden = true;
+      quoteChatToggleBtn.hidden = false;
     });
 
     quoteChatForm.addEventListener('submit', function (e) {
