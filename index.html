@@ -3651,6 +3651,14 @@
               render();
             }
           });
+          if (input.dataset.geoMode === 'airport') {
+            loadCountryNames(currentLang).then(() => {
+              if (normalizeText(input.value) === q) {
+                computeMatches(q);
+                render();
+              }
+            });
+          }
           if (input.dataset.airportCode === 'false') {
             loadWorldCities().then(() => {
               if (normalizeText(input.value) === q) {
