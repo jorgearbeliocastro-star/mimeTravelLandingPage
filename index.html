@@ -4834,22 +4834,13 @@
           }
         }
         if (hasTwoTiers) {
-          // Qué va gratis en cada precio — una línea corta, solo lo
-          // incluido (ej. "Asiento + Equipaje de mano"). Lo que cuesta
-          // aparte NO se repite acá — ya tiene su propio checkbox con
-          // precio más abajo, listarlo dos veces confundía más de lo que
-          // aclaraba.
-          const seatTypePricesForDetail = quote.quoted_seat_type_prices || {};
-          const seatIncluded = Object.keys(seatTypePricesForDetail).length === 0;
-          const freeItems = [];
-          if (seatIncluded) freeItems.push(t('quoteSeatName'));
-          if (quote.quoted_hand_bag_price_usd == null) freeItems.push(t('quoteHandBagName'));
-          if (quote.quoted_carry_on_price_usd == null) freeItems.push(t('quoteCarryOnName'));
-          const basicSummary = freeItems.join(' + ');
-          const fullFreeItems = quote.quoted_checked_bags
-            ? [t('bagsCount_' + quote.quoted_checked_bags.replace('+', 'plus'))].concat(freeItems)
-            : freeItems;
-          const fullSummary = fullFreeItems.join(' + ');
+          // Una línea corta y fija por precio — básico trae asiento +
+          // equipaje de mano; completo suma carry-on + maleta. Nada de
+          // condicionales por precio acá (eso ya lo dicen los checkboxes
+          // de abajo si algo cuesta aparte) — simple y directo.
+          const basicSummary = t('quoteSeatName') + ' + ' + t('quoteHandBagName');
+          const bagText = quote.quoted_checked_bags ? t('bagsCount_' + quote.quoted_checked_bags.replace('+', 'plus')) : t('quoteBagName');
+          const fullSummary = [t('quoteSeatName'), t('quoteHandBagName'), t('quoteCarryOnName'), bagText].join(' + ');
           const options = document.createElement('div');
           options.className = 'quote-price-options';
           options.innerHTML =
