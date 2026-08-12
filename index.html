@@ -3436,8 +3436,7 @@
 
     // Misma comparación bidireccional que cityHasAirport, ver ahí.
     function cityHasPort(city) {
-      const nc = normalizeText(city);
-      return (worldPortSearchFields || []).some(f => f.includes(nc) || nc.includes(f));
+      return matchesSearchFields(city, worldPortSearchFields);
     }
 
     // Base pública de ciudades del mundo (170,000+, incluye pueblos y
