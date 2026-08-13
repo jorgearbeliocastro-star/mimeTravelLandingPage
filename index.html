@@ -5279,12 +5279,12 @@
         function buildBagPriceBreakdown(prices) {
           if (!prices || !prices.length) return '';
           const labels = [t('quoteBagOrdinal1'), t('quoteBagOrdinal2'), t('quoteBagOrdinal3'), t('quoteBagOrdinal4')];
-          const parts = [];
+          let rows = '';
           for (let i = 0; i < 4; i++) {
             const price = i < prices.length ? prices[i] : prices[prices.length - 1];
-            parts.push(labels[i] + ': USD ' + price);
+            rows += '<div>' + labels[i] + ': USD ' + price + '</div>';
           }
-          return parts.join(' · ');
+          return rows;
         }
         function renderAddonQty(offered, qty, labelKey, idPrefix, onChange, detailHtml) {
           if (!offered) {
