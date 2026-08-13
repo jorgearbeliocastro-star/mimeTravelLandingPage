@@ -1590,24 +1590,29 @@
     margin-bottom: 10px;
   }
 
-  /* Cuánto cuesta cada maleta según su posición (la 1ra no es lo mismo
-     que la 2da) — antes solo se veía el total cambiar, sin decir por qué. */
-  .quote-status-qty-detail {
-    font-size: 11.5px;
-    color: rgba(26, 26, 26, 0.55);
-    margin-top: 2px;
-  }
-
-  .quote-status-qty-detail div {
-    margin-top: 1px;
-  }
-
   /* Tira de números (0-4) para elegir cantidad de maletas extra — el
      máximo es fijo y chico, así se ven de una las opciones. */
   .quote-status-qty-chips {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     flex-shrink: 0;
+  }
+
+  /* Cada número con su precio arriba — la 1ra maleta no cuesta lo mismo
+     que la 2da, así queda claro de un vistazo qué toca pagar por elegir
+     cada una, sin una lista aparte para leer. */
+  .quote-status-qty-chip-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .quote-status-qty-chip-price {
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(26, 26, 26, 0.5);
+    height: 12px;
   }
 
   .quote-status-qty-chip {
