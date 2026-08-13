@@ -1577,15 +1577,25 @@
   }
 
   /* Seguro/equipaje con cantidad — un pedido puede ser para varios
-     pasajeros, así que en vez de sí/no el cliente pone cuántos quiere. */
+     pasajeros, así que en vez de sí/no el cliente pone cuántos quiere.
+     En columna (no en fila) porque el detalle de precio por maleta puede
+     ser una línea larga — al lado de los números quedaba muy apretado. */
   .quote-status-qty {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
     font-size: 13px;
     color: rgba(26, 26, 26, 0.8);
     margin-bottom: 10px;
+  }
+
+  /* Cuánto cuesta cada maleta según su posición (la 1ra no es lo mismo
+     que la 2da) — antes solo se veía el total cambiar, sin decir por qué. */
+  .quote-status-qty-detail {
+    font-size: 11.5px;
+    color: rgba(26, 26, 26, 0.55);
+    margin-top: 2px;
   }
 
   /* Tira de números (0-4) para elegir cantidad de maletas extra — el
