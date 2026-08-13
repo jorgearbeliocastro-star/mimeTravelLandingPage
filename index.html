@@ -5415,6 +5415,15 @@
     function openQuotePanel(quoteId, routeLabel, mode) {
       if (!quoteId) return; // el pedido ya quedó guardado igual, solo no hay chat para abrir
       activeQuoteId = quoteId;
+      notifiedQuoteUpdatedAt = null;
+      // Se pide acá (dentro de un clic real del cliente, nunca solo) para
+      // que el navegador no lo bloquee — si ya contestó antes (sí o no),
+      // esto no hace nada, no vuelve a preguntar.
+      try {
+        if (typeof Notification !== 'undefined' && Notification.permission === 'default') Notification.requestPermission();
+      } catch {
+        // no bloqueante — algún navegador viejo sin soporte
+      }
       activeQuoteRouteLabel = routeLabel || '';
       activePanelMode = mode === 'support' ? 'support' : 'quote';
       localStorage.setItem(QUOTE_ID_STORAGE_KEY, quoteId);
