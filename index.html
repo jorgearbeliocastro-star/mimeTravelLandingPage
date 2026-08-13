@@ -1678,6 +1678,20 @@
     width: 100%;
   }
 
+  /* Día/mes/año lado a lado — va DESPUÉS de la regla de arriba (misma
+     especificidad, gana la que aparece más tarde) para no heredar el
+     100% de ancho y quedar los tres apilados en vez de en fila. */
+  .quote-pax-date-row {
+    display: flex;
+    gap: 6px;
+  }
+
+  .quote-pax-date-row .quote-pax-input {
+    width: auto;
+    flex: 1;
+    min-width: 0;
+  }
+
   /* Separador visual entre pasajeros — el primero no lo necesita porque no
      tiene nada arriba dentro del form. */
   .quote-pax-block + .quote-pax-block {
