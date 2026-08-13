@@ -5151,6 +5151,13 @@
           price.textContent = t('quoteStatusPricePrefix') + 'USD ' + quote.quoted_price_usd;
           quoteStatusBar.appendChild(price);
         }
+        // El precio recién puesto arriba es el "base", sin nada marcado —
+        // si el cliente ya había elegido seguro/maletas/asiento antes de
+        // este repintado (cada poll de 5s reconstruye todo desde cero), acá
+        // se vuelve a sumar enseguida, para que no se vea el precio sin
+        // eso un instante y después "salte" — sin esto, se quedaba
+        // directamente en el precio sin extras hasta el próximo clic.
+        updateQuotePriceDisplay();
         // Seguro/equipaje: opcionales, el cliente pone CUÁNTOS quiere (no
         // solo sí/no) — un pedido puede ser para varios pasajeros y cada
         // uno puede necesitar el suyo. El total (arriba) se ajusta al
