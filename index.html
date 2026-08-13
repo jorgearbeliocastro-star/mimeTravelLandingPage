@@ -5181,7 +5181,21 @@
         // Tira de números (0 a 4) en vez de +/- — el máximo de maletas
         // extra es fijo y chico, así se ve de una las opciones en vez de
         // ir tocando de a una.
-        function renderAddonQty(offered, qty, labelKey, idPrefix, onChange) {
+        // La 1ra maleta no cuesta lo mismo que la 2da (así cobran de
+        // verdad en el aeropuerto) — sin esto, el cliente solo veía el
+        // total cambiar al tocar un número, sin saber a qué precio estaba
+        // accediendo cada maleta de más.
+        function buildBagPriceBreakdown(prices) {
+          if (!prices || !prices.length) return '';
+          const labels = [t('quoteBagOrdinal1'), t('quoteBagOrdinal2'), t('quoteBagOrdinal3'), t('quoteBagOrdinal4')];
+          const parts = [];
+          for (let i = 0; i < 4; i++) {
+            const price = i < prices.length ? prices[i] : prices[prices.length - 1];
+            parts.push(labels[i] + ': USD ' + price);
+          }
+          return parts.join(' · ');
+        }
+        function renderAddonQty(offered, qty, labelKey, idPrefix, onChange, detailHtml) {
           if (!offered) {
             onChange(0);
             return;
@@ -5191,7 +5205,12 @@
           const chips = [0, 1, 2, 3, 4]
             .map((n) => '<button type="button" class="quote-status-qty-chip' + (n === qty ? ' active' : '') + '" data-value="' + n + '">' + n + '</button>')
             .join('');
-          row.innerHTML = '<span>' + t(labelKey) + '</span><div class="quote-status-qty-chips" id="' + idPrefix + 'Chips">' + chips + '</div>';
+          row.innerHTML =
+            '<div>' +
+              '<span>' + t(labelKey) + '</span>' +
+              (detailHtml ? '<div class="quote-status-qty-detail">' + detailHtml + '</div>' : '') +
+            '</div>' +
+            '<div class="quote-status-qty-chips" id="' + idPrefix + 'Chips">' + chips + '</div>';
           quoteStatusBar.appendChild(row);
           const chipsEl = row.querySelector('#' + idPrefix + 'Chips');
           chipsEl.querySelectorAll('.quote-status-qty-chip').forEach((chip) => {
