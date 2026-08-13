@@ -5405,22 +5405,12 @@
         quoteStatusBar.appendChild(p);
         // Ya decidido no hace falta repetir la info de vuelo (aerolínea,
         // horarios, condiciones) — eso era para ayudar a decidir; una vez
-        // aceptada, lo único que importa acá es el estado del pago/datos.
-        // Si aceptó pero por lo que sea todavía no mandó los datos del
-        // pasajero (cerró el panel a mitad de camino, etc.), se le vuelve a
-        // ofrecer completar acá mismo.
-        if (quote.client_decision === 'accepted' && !quote.passenger_full_name) {
-          const pending = document.createElement('p');
-          pending.className = 'quote-status-notes';
-          pending.textContent = t('quotePaxPendingTitle');
-          quoteStatusBar.appendChild(pending);
-          const completeBtn = document.createElement('button');
-          completeBtn.type = 'button';
-          completeBtn.className = 'quote-decision-btn quote-decision-accept';
-          completeBtn.textContent = t('quotePaxSubmitOnly');
-          completeBtn.addEventListener('click', () => renderPassengerForm('complete'));
-          quoteStatusBar.appendChild(completeBtn);
-        }
+        // aceptada, lo único que importa acá es el estado del pago. El
+        // aviso de "faltan tus datos" se quitó: además de que el chequeo
+        // miraba el campo viejo de un solo pasajero (quedaba desactualizado
+        // en cuanto se usaba el formulario nuevo de varios pasajeros),
+        // confundía al cliente repitiendo un paso que ya hizo justo debajo
+        // del mensaje de "ya aceptaste, te llega un link de pago".
         return;
       }
       if (quote.status === 'expired') {
