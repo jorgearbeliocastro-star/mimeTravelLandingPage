@@ -4897,7 +4897,30 @@
     // Un bloque de campos por pasajero — arma el pasaporte completo de UNA
     // persona. `index` es solo para que los `name` de cada input no choquen
     // entre bloques (ej. "fullName-0", "fullName-1").
+    // El <input type="date"> nativo es incómodo para la fecha de
+    // nacimiento — hay que ir tocando "mes anterior" uno por uno para
+    // llegar a un año de hace décadas. Tres selects (día/mes/año) dejan
+    // saltar directo con el teclado (escribir "1985" en el de año lo
+    // encuentra solo) y funcionan igual en cualquier navegador.
+    function buildDateSelectsHTML(field, index, yearFrom, yearTo) {
+      let dayOptions = '<option value="">' + t('quotePaxDay') + '</option>';
+      for (let d = 1; d <= 31; d++) dayOptions += '<option value="' + d + '">' + d + '</option>';
+      let monthOptions = '<option value="">' + t('quotePaxMonth') + '</option>';
+      for (let m = 1; m <= 12; m++) monthOptions += '<option value="' + m + '">' + m + '</option>';
+      let yearOptions = '<option value="">' + t('quotePaxYear') + '</option>';
+      const step = yearFrom <= yearTo ? 1 : -1;
+      for (let y = yearFrom; step > 0 ? y <= yearTo : y >= yearTo; y += step) yearOptions += '<option value="' + y + '">' + y + '</option>';
+      return (
+        '<div class="quote-pax-date-row">' +
+        '<select class="quote-pax-input" name="' + field + 'Day-' + index + '" required>' + dayOptions + '</select>' +
+        '<select class="quote-pax-input" name="' + field + 'Month-' + index + '" required>' + monthOptions + '</select>' +
+        '<select class="quote-pax-input" name="' + field + 'Year-' + index + '" required>' + yearOptions + '</select>' +
+        '</div>'
+      );
+    }
+
     function buildPassengerBlockHTML(index) {
+      const nowYear = new Date().getFullYear();
       return (
         '<div class="quote-pax-block" data-pax-block>' +
         (index > 0
@@ -4909,9 +4932,14 @@
         '<label class="quote-pax-label">' + t('quotePaxDocument') + '</label>' +
         '<input type="text" class="quote-pax-input" name="document-' + index + '" required>' +
         '<label class="quote-pax-label">' + t('quotePaxDob') + '</label>' +
-        '<input type="date" class="quote-pax-input" name="dob-' + index + '" required>' +
+        // Empieza en el año más reciente e igual va bajando — la mayoría de
+        // los pasajeros están en un rango de edad razonable, no en los
+        // extremos, así que arrancar cerca de "hoy" y bajar es más directo
+        // que arrancar hace 100 años.
+        buildDateSelectsHTML('dob', index, nowYear, nowYear - 100) +
         '<label class="quote-pax-label">' + t('quotePaxExpiry') + '</label>' +
-        '<input type="date" class="quote-pax-input" name="expiry-' + index + '" required>' +
+        // El vencimiento del pasaporte siempre es a futuro.
+        buildDateSelectsHTML('expiry', index, nowYear, nowYear + 15) +
         '<label class="quote-pax-label">' + t('quotePaxNationality') + '</label>' +
         '<input type="text" class="quote-pax-input" name="nationality-' + index + '" required>' +
         '<label class="quote-pax-label">' + t('quotePaxGender') + '</label>' +
@@ -4927,6 +4955,17 @@
       );
     }
 
+    // Arma "YYYY-MM-DD" a partir de los 3 selects — mismo formato que ya
+    // esperaba el <input type="date"> viejo, no cambia nada del lado del
+    // servidor.
+    function readDateSelects(block, field, index) {
+      const day = block.querySelector('[name="' + field + 'Day-' + index + '"]')?.value;
+      const month = block.querySelector('[name="' + field + 'Month-' + index + '"]')?.value;
+      const year = block.querySelector('[name="' + field + 'Year-' + index + '"]')?.value;
+      if (!day || !month || !year) return '';
+      return year + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+    }
+
     // Lee un bloque del DOM y arma el objeto pasajero que se guarda en la
     // base (mismas claves que espera submit_quote_passengers).
     function readPassengerBlock(block, index) {
@@ -4934,8 +4973,8 @@
       return {
         fullName: val('fullName'),
         document: val('document'),
-        dateOfBirth: val('dob'),
-        passportExpiry: val('expiry'),
+        dateOfBirth: readDateSelects(block, 'dob', index),
+        passportExpiry: readDateSelects(block, 'expiry', index),
         nationality: val('nationality'),
         gender: val('gender'),
         passportIssuingCountry: val('passportIssuingCountry'),
