@@ -5403,20 +5403,9 @@
         p.className = 'quote-status-resolved';
         p.textContent = quote.client_decision === 'accepted' ? t('quoteDecisionAccepted') : t('quoteDecisionDeclined');
         quoteStatusBar.appendChild(p);
-        // La info de vuelo se sigue viendo después de decidir, no solo
-        // mientras está "quoted" — el cliente puede querer volver a
-        // revisarla (aerolínea, horarios, condiciones de la tarifa).
-        if (quote.client_decision === 'accepted' && quote.category === 'flight' && (quote.quoted_airline || quote.quoted_schedule || quote.quoted_stops || quote.quoted_fare_conditions)) {
-          const flightInfo = document.createElement('div');
-          flightInfo.className = 'quote-status-notes';
-          const lines = [];
-          if (quote.quoted_airline) lines.push(t('quoteFlightAirlineLabel') + ': ' + quote.quoted_airline);
-          if (quote.quoted_schedule) lines.push(t('quoteFlightScheduleLabel') + ': ' + quote.quoted_schedule);
-          if (quote.quoted_stops) lines.push(t('quoteFlightStopsLabel') + ': ' + quote.quoted_stops);
-          if (quote.quoted_fare_conditions) lines.push(t('quoteFlightFareLabel') + ': ' + quote.quoted_fare_conditions);
-          flightInfo.textContent = lines.join(' · ');
-          quoteStatusBar.appendChild(flightInfo);
-        }
+        // Ya decidido no hace falta repetir la info de vuelo (aerolínea,
+        // horarios, condiciones) — eso era para ayudar a decidir; una vez
+        // aceptada, lo único que importa acá es el estado del pago/datos.
         // Si aceptó pero por lo que sea todavía no mandó los datos del
         // pasajero (cerró el panel a mitad de camino, etc.), se le vuelve a
         // ofrecer completar acá mismo.
