@@ -5280,31 +5280,32 @@
         // verdad en el aeropuerto) — sin esto, el cliente solo veía el
         // total cambiar al tocar un número, sin saber a qué precio estaba
         // accediendo cada maleta de más.
-        function buildBagPriceBreakdown(prices) {
-          if (!prices || !prices.length) return '';
-          const labels = [t('quoteBagOrdinal1'), t('quoteBagOrdinal2'), t('quoteBagOrdinal3'), t('quoteBagOrdinal4')];
-          let rows = '';
-          for (let i = 0; i < 4; i++) {
-            const price = i < prices.length ? prices[i] : prices[prices.length - 1];
-            rows += '<div>' + labels[i] + ': USD ' + price + '</div>';
-          }
-          return rows;
-        }
-        function renderAddonQty(offered, qty, labelKey, idPrefix, onChange, detailHtml) {
+        function renderAddonQty(offered, qty, labelKey, idPrefix, onChange, bagPrices) {
           if (!offered) {
             onChange(0);
             return;
           }
           const row = document.createElement('div');
           row.className = 'quote-status-qty';
+          // El precio de cada maleta va arriba de SU número — la 1ra no
+          // cuesta lo mismo que la 2da, así queda claro de un vistazo qué
+          // toca pagar por elegir cada una, sin una lista aparte para leer.
           const chips = [0, 1, 2, 3, 4]
-            .map((n) => '<button type="button" class="quote-status-qty-chip' + (n === qty ? ' active' : '') + '" data-value="' + n + '">' + n + '</button>')
+            .map((n) => {
+              let priceLabel = '&nbsp;';
+              if (n > 0 && bagPrices && bagPrices.length) {
+                priceLabel = '+' + (n <= bagPrices.length ? bagPrices[n - 1] : bagPrices[bagPrices.length - 1]);
+              }
+              return (
+                '<div class="quote-status-qty-chip-wrap">' +
+                  '<div class="quote-status-qty-chip-price">' + priceLabel + '</div>' +
+                  '<button type="button" class="quote-status-qty-chip' + (n === qty ? ' active' : '') + '" data-value="' + n + '">' + n + '</button>' +
+                '</div>'
+              );
+            })
             .join('');
           row.innerHTML =
-            '<div>' +
-              '<span>' + t(labelKey) + '</span>' +
-              (detailHtml ? '<div class="quote-status-qty-detail">' + detailHtml + '</div>' : '') +
-            '</div>' +
+            '<span>' + t(labelKey) + '</span>' +
             '<div class="quote-status-qty-chips" id="' + idPrefix + 'Chips">' + chips + '</div>';
           quoteStatusBar.appendChild(row);
           const chipsEl = row.querySelector('#' + idPrefix + 'Chips');
