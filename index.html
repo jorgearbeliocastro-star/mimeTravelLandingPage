@@ -4785,6 +4785,40 @@
     // interval aparte (ver más abajo) lo sigue descontando aunque el
     // cliente cierre el panel, mostrándolo junto al botón de reabrir.
     let lastKnownPriceExpiresAt = null;
+    // Aviso de "ya tenés precio" para el cliente que se queda con la
+    // pestaña abierta esperando — sin esto, no había sonido ni nada, solo
+    // el texto cambiaba en silencio (el correo real es el respaldo si no
+    // se queda mirando, ver sendQuoteReadyEmail del lado del servidor).
+    // Se guarda el updated_at ya avisado para no repetir el sonido en cada
+    // poll mientras sigue con el mismo precio.
+    let notifiedQuoteUpdatedAt = null;
+    let quoteReadyAudio = null;
+    function playQuoteReadySound() {
+      try {
+        if (!quoteReadyAudio) {
+          // Dos tonos cortos (data URI, nada que descargar) — no un archivo
+          // aparte que además tendría que autorizar el navegador a bajar.
+          quoteReadyAudio = new Audio(
+            'data:audio/wav;base64,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'
+          );
+          quoteReadyAudio.volume = 0.5;
+        }
+        quoteReadyAudio.currentTime = 0;
+        quoteReadyAudio.play().catch(() => {}); // el navegador puede bloquearlo si nunca hubo un clic antes — no es grave
+      } catch {
+        // no bloqueante
+      }
+      // Notificación del sistema operativo si en algún momento dio permiso
+      // (nunca se lo pedimos de prepo — solo se usa si ya estaba concedido
+      // de antes, para no interrumpir a nadie con un permiso sin pedir).
+      try {
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+          new Notification(t('quoteReadyNotificationTitle'), { body: activeQuoteRouteLabel || '' });
+        }
+      } catch {
+        // no bloqueante
+      }
+    }
     // Qué precio (básico/completo) tocó el cliente antes de abrir el
     // formulario de pasajero — se usa recién al mandar la aceptación.
     let selectedQuoteTier = 'basic';
@@ -5343,6 +5377,14 @@
         if (error) throw error;
         const quote = (quotes || []).find((q) => q.id === activeQuoteId);
         if (quote) {
+          // Sonido + notificación del sistema (si dio permiso) apenas hay
+          // precio nuevo — updated_at cambia tanto la primera vez que el
+          // agente cotiza como si vuelve a cotizar más caro/barato,
+          // así que un reenvío también avisa, no solo el primero.
+          if (quote.status === 'quoted' && !quote.client_decision && quote.updated_at !== notifiedQuoteUpdatedAt) {
+            if (notifiedQuoteUpdatedAt !== null) playQuoteReadySound();
+            notifiedQuoteUpdatedAt = quote.updated_at;
+          }
           renderQuoteStatus(quote);
           activeQuoteRouteLabel = quote.origin ? quote.origin + ' → ' + quote.destination : quote.destination;
           quotePanelRoute.textContent = activeQuoteRouteLabel;
