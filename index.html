@@ -5743,15 +5743,17 @@
         '<option value="F">' + t('quotePaxGenderFemale') + '</option>' +
         '<option value="X">' + t('quotePaxGenderOther') + '</option>' +
         '</select>';
-      // Cruceros no piden pasaporte por defecto (MSC solo lo pide como
-      // alternativa opcional para emitir el eTicket) — en cambio sí piden
-      // país de residencia y contacto, que un vuelo no pide. Ver
-      // "Guest Information" de MSC (las capturas que fuimos revisando).
+      // Formulario completo de MSC ("Guest Information") — datos
+      // obligatorios (nombre/apellido, género, nacimiento, residencia,
+      // contacto) más los dos bloques que MSC deja opcionales/alternativos:
+      // los datos extra para emitir el eTicket (pasaporte, dirección,
+      // contacto de emergencia) y el seguro de viaje propio del pasajero.
       if (activeQuoteCategory === 'cruise') {
-        return (
-          '<div class="quote-pax-block" data-pax-block>' +
-          header +
-          nameField +
+        const mandatory =
+          '<label class="quote-pax-label">' + t('quotePaxFirstName') + '</label>' +
+          '<input type="text" class="quote-pax-input" name="firstName-' + index + '" required>' +
+          '<label class="quote-pax-label">' + t('quotePaxLastName') + '</label>' +
+          '<input type="text" class="quote-pax-input" name="lastName-' + index + '" required>' +
           genderField +
           dobField +
           '<label class="quote-pax-label">' + t('quotePaxCountryOfResidence') + '</label>' +
@@ -5760,6 +5762,61 @@
           '<input type="email" class="quote-pax-input" name="email-' + index + '" required>' +
           '<label class="quote-pax-label">' + t('quotePaxMobilePhone') + '</label>' +
           '<input type="tel" class="quote-pax-input" name="mobilePhone-' + index + '" required>' +
+          '<label class="quote-pax-label">' + t('quotePaxVoyagersClub') + '</label>' +
+          '<input type="text" class="quote-pax-input" name="voyagersClubNumber-' + index + '">' +
+          '<label class="quote-pax-label">' + t('quotePaxDiningPreference') + '</label>' +
+          '<select class="quote-pax-input" name="diningPreference-' + index + '">' +
+          '<option value="">' + t('quotePaxDiningPlaceholder') + '</option>' +
+          '<option value="shared">' + t('quotePaxDiningShared') + '</option>' +
+          '<option value="private">' + t('quotePaxDiningPrivate') + '</option>' +
+          '<option value="none">' + t('quotePaxDiningNone') + '</option>' +
+          '</select>';
+        const extendedTicketData =
+          '<label class="quote-pax-label">' + t('quotePaxCountryOfBirth') + '</label>' +
+          '<input type="text" class="quote-pax-input" name="countryOfBirth-' + index + '">' +
+          '<label class="quote-pax-label">' + t('quotePaxNationality') + '</label>' +
+          '<input type="text" class="quote-pax-input" name="nationality-' + index + '">' +
+          '<label class="quote-pax-label">' + t('quotePaxPlaceOfBirth') + '</label>' +
+          '<input type="text" class="quote-pax-input" name="placeOfBirth-' + index + '">' +
+          '<label class="quote-pax-label">' + t('quotePaxLanguage') + '</label>' +
+          '<input type="text" class="quote-pax-input" name="language-' + index + '">' +
+          '<label class="quote-pax-label">' + t('quotePaxDocumentType') + '</label>' +
+          '<select class="quote-pax-input" name="documentType-' + index + '">' +
+          '<option value="">' + t('quotePaxDocumentTypePlaceholder') + '</option>' +
+          '<option value="passport">' + t('quotePaxDocumentTypePassport') + '</option>' +
+          '<option value="id">' + t('quotePaxDocumentTypeId') + '</option>' +
+          '</select>' +
+          '<label class="quote-pax-label">' + t('quotePaxDocumentNumber') + '</label>' +
+          '<input type="text" class="quote-pax-input" name="documentNumber-' + index + '">' +
+          '<label class="quote-pax-label">' + t('quotePaxIssueDate') + '</label>' +
+          buildDateSelectsHTML('issueDate', index, nowYear, nowYear - 15) +
+          '<label class="quote-pax-label">' + t('quotePaxExpiry') + '</label>' +
+          buildDateSelectsHTML('docExpiry', index, nowYear, nowYear + 15) +
+          '<label class="quote-pax-label">' + t('quotePaxIssuingCountry') + '</label>' +
+          '<input type="text" class="quote-pax-input" name="passportIssuingCountry-' + index + '">' +
+          '<label class="quote-pax-label">' + t('quotePaxCity') + '</label>' +
+          '<input type="text" class="quote-pax-input" name="city-' + index + '">' +
+          '<label class="quote-pax-label">' + t('quotePaxZipCode') + '</label>' +
+          '<input type="text" class="quote-pax-input" name="zipCode-' + index + '">' +
+          '<label class="quote-pax-label">' + t('quotePaxAddress') + '</label>' +
+          '<input type="text" class="quote-pax-input" name="address-' + index + '">' +
+          '<label class="quote-pax-label">' + t('quotePaxEmergencyContactName') + '</label>' +
+          '<input type="text" class="quote-pax-input" name="emergencyContactName-' + index + '">' +
+          '<label class="quote-pax-label">' + t('quotePaxEmergencyContactPhone') + '</label>' +
+          '<input type="tel" class="quote-pax-input" name="emergencyContactPhone-' + index + '">';
+        const insuranceData =
+          '<label class="quote-pax-label">' + t('quotePaxInsuranceCompanyName') + '</label>' +
+          '<input type="text" class="quote-pax-input" name="insuranceCompanyName-' + index + '">' +
+          '<label class="quote-pax-label">' + t('quotePaxInsurancePolicyNumber') + '</label>' +
+          '<input type="text" class="quote-pax-input" name="insurancePolicyNumber-' + index + '">' +
+          '<label class="quote-pax-label">' + t('quotePaxInsuranceCompanyPhone') + '</label>' +
+          '<input type="tel" class="quote-pax-input" name="insuranceCompanyPhone-' + index + '">';
+        return (
+          '<div class="quote-pax-block" data-pax-block>' +
+          header +
+          mandatory +
+          '<details class="quote-pax-extended"><summary>' + t('quotePaxExtendedToggle') + '</summary>' + extendedTicketData + '</details>' +
+          '<details class="quote-pax-extended"><summary>' + t('quotePaxInsuranceToggle') + '</summary>' + insuranceData + '</details>' +
           '</div>'
         );
       }
