@@ -5373,15 +5373,16 @@
           seatTypeWrap.className = 'quote-status-seat-type';
           const label = document.createElement('span');
           label.className = 'quote-status-seat-type-label';
-          label.textContent = t('quoteSeatTypeLabel');
+          label.textContent = t(quote.category === 'cruise' ? 'quoteCabinTypeLabel' : 'quoteSeatTypeLabel');
           seatTypeWrap.appendChild(label);
           availableSeatTypes.forEach(function (seatType) {
             const price = seatTypePrices[seatType];
+            const optionKey = (quote.category === 'cruise' ? 'cabinTypeOption_' : 'seatTypeOption_') + seatType;
             const row = document.createElement('label');
             row.className = 'quote-status-insurance';
             row.innerHTML =
               '<input type="radio" name="quoteSeatType" value="' + seatType + '"' + (selectedChosenSeatType === seatType ? ' checked' : '') + '> ' +
-              '<span>' + t('seatTypeOption_' + seatType) + (price != null ? ' (+USD ' + price + ')' : ' (' + t('quoteSeatTypeIncluded') + ')') + '</span>';
+              '<span>' + t(optionKey) + (price != null ? ' (+USD ' + price + ')' : ' (' + t('quoteSeatTypeIncluded') + ')') + '</span>';
             seatTypeWrap.appendChild(row);
             row.querySelector('input').addEventListener('change', function (e) {
               selectedChosenSeatType = e.target.checked ? seatType : selectedChosenSeatType;
@@ -5391,6 +5392,32 @@
           quoteStatusBar.appendChild(seatTypeWrap);
         } else {
           selectedChosenSeatType = '';
+        }
+        // Extras personalizados (excursiones, paquetes, etc.) — el Agente
+        // los cargó a mano para esta cotización puntual, el cliente los
+        // marca como casillas igual que el seguro.
+        if (customAddonsOffered) {
+          const addonsWrap = document.createElement('div');
+          addonsWrap.className = 'quote-status-seat-type';
+          const addonsLabel = document.createElement('span');
+          addonsLabel.className = 'quote-status-seat-type-label';
+          addonsLabel.textContent = t('quoteCustomAddonsLabel');
+          addonsWrap.appendChild(addonsLabel);
+          quote.quoted_custom_addons.forEach(function (addon) {
+            const row = document.createElement('label');
+            row.className = 'quote-status-insurance';
+            row.innerHTML =
+              '<input type="checkbox" ' + (selectedCustomAddons[addon.label] ? 'checked' : '') + '> ' +
+              '<span>' + addon.label + ' (+USD ' + addon.priceUSD + ')</span>';
+            addonsWrap.appendChild(row);
+            row.querySelector('input').addEventListener('change', function (e) {
+              selectedCustomAddons = { ...selectedCustomAddons, [addon.label]: e.target.checked };
+              updateQuotePriceDisplay();
+            });
+          });
+          quoteStatusBar.appendChild(addonsWrap);
+        } else {
+          selectedCustomAddons = {};
         }
         // Info de vuelo (aerolínea/horarios/escalas/condiciones) — la misma
         // que da cualquier aerolínea al cotizar, no solo el precio.
