@@ -5503,28 +5503,38 @@
           label.textContent = t(quote.category === 'cruise' ? 'quoteCabinTypeLabel' : 'quoteSeatTypeLabel');
           seatTypeWrap.appendChild(label);
           if (quote.category === 'cruise') {
-            // Tarjetas por tipo de camarote (como se ve en la web real de
-            // las navieras) en vez de radio-botones en lista.
-            const grid = document.createElement('div');
-            grid.className = 'quote-status-cabin-grid';
-            availableSeatTypes.forEach(function (seatType) {
-              const price = seatTypePrices[seatType];
-              const selected = selectedChosenSeatType === seatType;
-              const card = document.createElement('button');
-              card.type = 'button';
-              card.className = 'quote-status-cabin-card' + (selected ? ' active' : '');
-              card.innerHTML =
-                '<span class="quote-status-cabin-card-label">' + t('cabinTypeOption_' + seatType) + '</span>' +
-                '<span class="quote-status-cabin-card-price">' + (price != null ? '+USD ' + price : t('quoteSeatTypeIncluded')) + '</span>';
-              card.addEventListener('click', function () {
-                selectedChosenSeatType = selectedChosenSeatType === seatType ? '' : seatType;
-                grid.querySelectorAll('.quote-status-cabin-card').forEach((c) => c.classList.remove('active'));
-                if (selectedChosenSeatType === seatType) card.classList.add('active');
-                updateQuotePriceDisplay();
+            // Agrupado por camarote, con sus niveles Bella/Fantastica/Aurea
+            // adentro (color por nivel) — como se ve en la web real de una
+            // naviera, en vez de radio-botones en lista.
+            groupCabinKeys(availableSeatTypes).forEach(function (group) {
+              const cabinGroup = document.createElement('div');
+              cabinGroup.className = 'quote-status-cabin-group';
+              const cabinTitle = document.createElement('div');
+              cabinTitle.className = 'quote-status-cabin-group-title';
+              cabinTitle.textContent = t('cabinTypeOption_' + group.cabin);
+              cabinGroup.appendChild(cabinTitle);
+              const grid = document.createElement('div');
+              grid.className = 'quote-status-cabin-grid';
+              group.tiers.forEach(function (entry) {
+                const price = seatTypePrices[entry.key];
+                const selected = selectedChosenSeatType === entry.key;
+                const card = document.createElement('button');
+                card.type = 'button';
+                card.className = 'quote-status-cabin-card quote-status-cabin-card--' + entry.tier + (selected ? ' active' : '');
+                card.innerHTML =
+                  '<span class="quote-status-cabin-card-label">' + t('fareTierOption_' + entry.tier) + '</span>' +
+                  '<span class="quote-status-cabin-card-price">USD ' + price + '</span>';
+                card.addEventListener('click', function () {
+                  selectedChosenSeatType = selectedChosenSeatType === entry.key ? '' : entry.key;
+                  seatTypeWrap.querySelectorAll('.quote-status-cabin-card').forEach((c) => c.classList.remove('active'));
+                  if (selectedChosenSeatType === entry.key) card.classList.add('active');
+                  updateQuotePriceDisplay();
+                });
+                grid.appendChild(card);
               });
-              grid.appendChild(card);
+              cabinGroup.appendChild(grid);
+              seatTypeWrap.appendChild(cabinGroup);
             });
-            seatTypeWrap.appendChild(grid);
           } else {
             availableSeatTypes.forEach(function (seatType) {
               const price = seatTypePrices[seatType];
