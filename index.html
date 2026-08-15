@@ -3607,7 +3607,7 @@
         search_mode: payload.searchMode,
         search_date: payload.searchDate,
         search_week_start: null,
-        search_month: null,
+        search_month: payload.searchMonth || null,
         return_date: payload.returnDate,
         return_week_start: null,
         return_month: null,
