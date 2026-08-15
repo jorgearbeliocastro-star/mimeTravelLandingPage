@@ -5185,6 +5185,11 @@
         const insuranceOffered = quote.quoted_insurance_price_usd != null;
         const extraBagOffered = !!(quote.quoted_extra_bag_prices && quote.quoted_extra_bag_prices.length);
         const refundableOffered = quote.quoted_refundable_price_usd != null;
+        const customAddonsOffered = !!(quote.quoted_custom_addons && quote.quoted_custom_addons.length);
+        function sumCustomAddons(offered, selections) {
+          if (!offered) return 0;
+          return (quote.quoted_custom_addons || []).reduce((sum, a) => sum + (selections[a.label] ? Number(a.priceUSD) : 0), 0);
+        }
         // Cada maleta extra cuesta lo que le toque según su posición (1ra,
         // 2da...) — igual que decide_quote_request_with_tier del lado del
         // servidor. Si pide más de las que tienen precio definido, las de
