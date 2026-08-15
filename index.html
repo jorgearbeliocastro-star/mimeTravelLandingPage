@@ -4774,15 +4774,21 @@
             endDate: null,
             notes: buildQuoteNotes([data.clase ? 'Clase: ' + data.clase : null]),
           };
-        case 'cruceros':
+        case 'cruceros': {
+          // El campo de fecha ahora es un selector de mes completo (ver
+          // setupMonthPicker) — el valor queda como "8/1/2026 - 8/31/2026",
+          // se convierte al mes real (search_month) en vez de guardarlo
+          // como si fuera una fecha exacta puntual.
+          const cruiseMonth = parseMonthRangeToISO(data.fechas);
           return {
             ...base,
             category: 'cruise',
             origin: data.puerto_salida || null,
             destination: data.destino || '',
             tripType: 'oneway',
-            searchMode: 'exact_date',
-            searchDate: data.fechas || null,
+            searchMode: cruiseMonth ? 'month' : 'exact_date',
+            searchDate: cruiseMonth ? null : data.fechas || null,
+            searchMonth: cruiseMonth,
             returnDate: null,
             endDate: null,
             notes: buildQuoteNotes([
