@@ -5475,7 +5475,8 @@
         // (ver cabinTierKey en la app) — se separa para agrupar por
         // camarote con sus niveles Bella/Fantastica/Aurea adentro, igual
         // que se ve en la web real de una naviera.
-        const CABIN_TYPE_ORDER = ['interior', 'oceanview', 'balcony', 'suite', 'yacht_club'];
+        // Orden de más caro a más barato — mismo orden que usa MSC.
+        const CABIN_TYPE_ORDER = ['yacht_club', 'suite', 'balcony', 'oceanview', 'interior'];
         const FARE_TIER_ORDER = ['bella', 'fantastica', 'aurea'];
         function groupCabinKeys(keys) {
           const byCabin = {};
