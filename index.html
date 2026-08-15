@@ -4746,6 +4746,32 @@
 
     const searchForm = document.getElementById('searchForm');
 
+    // Un crucero no sale de cualquier puerto hacia cualquier destino — MSC
+    // filtra el destino según el puerto de salida elegido (ej. Miami solo
+    // ofrece Caribe y Bahamas, MSC Grand Voyages y Canal de Panamá). Se va
+    // completando puerto por puerto a medida que se confirma la info real;
+    // el puerto que no está acá todavía deja los destinos sin filtrar (no
+    // inventamos qué destinos tiene un puerto que no chequeamos).
+    // Índices sobre la lista de opciones de "Destino": 0=Cualquier,
+    // 1=Alaska, 2=Asia, 3=Caribe y Bahamas, 4=Mediterráneo,
+    // 5=MSC Grand Voyages, 6=Norte de Europa, 7=Canal de Panamá.
+    const PORT_DESTINATION_INDEXES = {
+      'Miami': [3, 5, 7],
+    };
+    searchForm.addEventListener('change', function (e) {
+      if (e.target.name !== 'puerto_salida') return;
+      const destinoSelect = searchForm.querySelector('select[name="destino"]');
+      if (!destinoSelect) return;
+      const allOptions = Array.from(destinoSelect.options);
+      const allowedIndexes = PORT_DESTINATION_INDEXES[e.target.value];
+      allOptions.forEach((opt, idx) => {
+        opt.hidden = !!allowedIndexes && idx !== 0 && !allowedIndexes.includes(idx);
+      });
+      // Si el destino que tenía elegido ya no aplica a este puerto, vuelve
+      // a "Cualquier destino" en vez de dejar uno oculto seleccionado.
+      if (destinoSelect.selectedOptions[0]?.hidden) destinoSelect.value = allOptions[0].value;
+    });
+
     // form.reset() restaura el input oculto a su valor por defecto (roundtrip)
     // pero no toca las clases .active de los botones — hay que resincronizarlas.
     searchForm.addEventListener('reset', function () {
