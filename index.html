@@ -4754,9 +4754,11 @@
     // inventamos qué destinos tiene un puerto que no chequeamos).
     // Índices sobre la lista de opciones de "Destino": 0=Cualquier,
     // 1=Alaska, 2=Asia, 3=Caribe y Bahamas, 4=Mediterráneo,
-    // 5=MSC Grand Voyages, 6=Norte de Europa, 7=Canal de Panamá.
+    // 5=MSC Grand Voyages, 6=Norte de Europa, 7=Canal de Panamá,
+    // 8=Sudamérica, 9=MSC World Cruise.
     const PORT_DESTINATION_INDEXES = {
       'Miami': [3, 5, 7],
+      'Buenos Aires': [5, 8, 9],
     };
     searchForm.addEventListener('change', function (e) {
       if (e.target.name !== 'puerto_salida') return;
