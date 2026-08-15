@@ -4536,7 +4536,7 @@
             const disabled = yOffset === 0 && m < startMonth;
             html +=
               '<button type="button" class="month-picker-month' + (disabled ? ' disabled' : '') + '" data-year="' + year + '" data-month="' + m + '"' + (disabled ? ' disabled' : '') + '>' +
-              MONTH_NAMES_ES[m] +
+              MONTH_NAMES_ES[m].slice(0, 3) +
               '</button>';
           }
           html += '</div></div>';
