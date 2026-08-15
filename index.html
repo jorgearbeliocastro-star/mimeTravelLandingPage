@@ -5109,7 +5109,7 @@
         quoteDecisionInFlight = true;
         const clientToken = getOrCreateWebClientToken();
         const decideStep = mode === 'accept'
-          ? laExpancion.rpc('decide_quote_request_with_tier', { p_token: clientToken, p_id: activeQuoteId, p_accept: true, p_tier: selectedQuoteTier, p_insurance_qty: selectedWantsInsurance ? 1 : 0, p_extra_bag_qty: selectedExtraBagQty, p_carry_on_qty: 0, p_chosen_seat_type: selectedChosenSeatType || null, p_wants_refundable: selectedWantsRefundable }).then(({ error }) => {
+          ? laExpancion.rpc('decide_quote_request_with_tier', { p_token: clientToken, p_id: activeQuoteId, p_accept: true, p_tier: selectedQuoteTier, p_insurance_qty: selectedWantsInsurance ? 1 : 0, p_extra_bag_qty: selectedExtraBagQty, p_carry_on_qty: 0, p_chosen_seat_type: selectedChosenSeatType || null, p_wants_refundable: selectedWantsRefundable, p_chosen_custom_addon_labels: Object.keys(selectedCustomAddons).filter((label) => selectedCustomAddons[label]) }).then(({ error }) => {
               if (error) throw error;
               notifyQuoteDecisionWeb(activeQuoteId);
             })
