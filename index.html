@@ -5469,6 +5469,9 @@
 
     let activeQuoteId = null;
     let activeQuoteRouteLabel = '';
+    // Categoría del pedido activo (flight/cruise/...) — la necesita
+    // renderPassengerForm para saber qué formulario de datos mostrar.
+    let activeQuoteCategory = null;
     // 'quote' = pedido de viaje normal (precio, aceptar/rechazar, etc.);
     // 'support' = consulta general ("Necesito ayuda") — mismo panel y
     // mismo chat, pero sin nada de precio/decisión, porque no aplica.
@@ -6259,6 +6262,7 @@
           }
           renderQuoteStatus(quote);
           activeQuoteRouteLabel = quote.origin ? quote.origin + ' → ' + quote.destination : quote.destination;
+          activeQuoteCategory = quote.category || null;
           quotePanelRoute.textContent = activeQuoteRouteLabel;
         }
         const { data: messages, error: msgError } = await laExpancion.rpc('get_quote_request_messages', {
