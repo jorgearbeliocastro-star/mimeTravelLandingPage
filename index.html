@@ -4108,14 +4108,14 @@
           { label: 'Naviera', name: 'naviera', type: 'select', options: ['Cualquier naviera', 'Carnival', 'Royal Caribbean', 'MSC Cruceros', 'Norwegian (NCL)', 'Disney Cruise Line', 'Princess Cruises', 'Celebrity Cruises', 'Costa Cruceros', 'Holland America Line', 'Cunard', 'P&O Cruises', 'Oceania Cruises', 'Regent Seven Seas', 'Silversea', 'Seabourn', 'Viking Ocean Cruises', 'Windstar Cruises', 'Azamara', 'Virgin Voyages', 'Explora Journeys', 'Crystal Cruises', 'AIDA Cruises', 'TUI Cruises', 'Marella Cruises', 'Saga Cruises', 'Ponant', 'Hurtigruten', 'Star Clippers', 'Fred. Olsen Cruise Lines', 'Dream Cruises', 'Resorts World Cruises', 'Star Cruises', 'Lindblad Expeditions', 'Atlas Ocean Voyages'] },
           { label: 'Fecha de salida', name: 'fechas', placeholder: 'Elige tus fechas', type: 'date' },
           { label: 'Noches', name: 'noches', type: 'select', options: ['3 noches', '4 noches', '5 noches', '7 noches', '10 noches', '14 noches', '21 noches o más'] },
-          { label: 'Adultos (18+)', name: 'adultos', placeholder: 'Cantidad', type: 'number' },
+          { label: 'Adultos (18+)', name: 'adultos', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
           // Separado por franja de edad (igual que el buscador real de MSC)
           // en vez de un solo "Niños" — la edad exacta importa: hay
           // políticas distintas para bebés, niños chicos y adolescentes
           // (ver política de menores de MSC).
-          { label: 'Niños (12-17)', name: 'ninos_12_17', placeholder: 'Cantidad', type: 'number' },
-          { label: 'Niños (2-11)', name: 'ninos_2_11', placeholder: 'Cantidad', type: 'number' },
-          { label: 'Bebés (menos de 2)', name: 'bebes', placeholder: 'Cantidad', type: 'number' },
+          { label: 'Niños (12-17)', name: 'ninos_12_17', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
+          { label: 'Niños (2-11)', name: 'ninos_2_11', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
+          { label: 'Bebés (menos de 2)', name: 'bebes', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
           { label: 'Tipo de camarote', name: 'camarote', type: 'select', options: ['Interior', 'Vista al mar', 'Balcón', 'Suite', 'MSC Yacht Club'] }
         ]
       },
@@ -4125,8 +4125,8 @@
           { label: 'Destino', name: 'destino', placeholder: '¿Dónde te hospedas?', type: 'text', country: true },
           { label: 'Fecha de entrada', name: 'fecha_entrada', placeholder: 'Entrada', type: 'date' },
           { label: 'Fecha de salida', name: 'fecha_salida', placeholder: 'Salida', type: 'date' },
-          { label: 'Adultos', name: 'huespedes', placeholder: 'Cantidad', type: 'number' },
-          { label: 'Niños', name: 'ninos', placeholder: 'Cantidad', type: 'number' },
+          { label: 'Adultos', name: 'huespedes', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
+          { label: 'Niños', name: 'ninos', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
           { label: 'Habitaciones', name: 'habitaciones', type: 'select', options: ['1 habitación', '2 habitaciones', '3 habitaciones', '4+ habitaciones'] },
           { label: 'Categoría', name: 'estrellas', type: 'select', options: ['Cualquier categoría', '3 estrellas', '4 estrellas', '5 estrellas', '5 estrellas Lujo'] }
         ]
@@ -4173,10 +4173,10 @@
           { label: 'Cruise line', name: 'naviera', type: 'select', options: ['Any cruise line', 'Carnival', 'Royal Caribbean', 'MSC Cruises', 'Norwegian (NCL)', 'Disney Cruise Line', 'Princess Cruises', 'Celebrity Cruises', 'Costa Cruises', 'Holland America Line', 'Cunard', 'P&O Cruises', 'Oceania Cruises', 'Regent Seven Seas', 'Silversea', 'Seabourn', 'Viking Ocean Cruises', 'Windstar Cruises', 'Azamara', 'Virgin Voyages', 'Explora Journeys', 'Crystal Cruises', 'AIDA Cruises', 'TUI Cruises', 'Marella Cruises', 'Saga Cruises', 'Ponant', 'Hurtigruten', 'Star Clippers', 'Fred. Olsen Cruise Lines', 'Dream Cruises', 'Resorts World Cruises', 'Star Cruises', 'Lindblad Expeditions', 'Atlas Ocean Voyages'] },
           { label: 'Departure date', name: 'fechas', placeholder: 'Pick your dates', type: 'date' },
           { label: 'Nights', name: 'noches', type: 'select', options: ['3 nights', '4 nights', '5 nights', '7 nights', '10 nights', '14 nights', '21+ nights'] },
-          { label: 'Adults (18+)', name: 'adultos', placeholder: 'Qty', type: 'number' },
-          { label: 'Children (12-17)', name: 'ninos_12_17', placeholder: 'Qty', type: 'number' },
-          { label: 'Children (2-11)', name: 'ninos_2_11', placeholder: 'Qty', type: 'number' },
-          { label: 'Infants (under 2)', name: 'bebes', placeholder: 'Qty', type: 'number' },
+          { label: 'Adults (18+)', name: 'adultos', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
+          { label: 'Children (12-17)', name: 'ninos_12_17', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
+          { label: 'Children (2-11)', name: 'ninos_2_11', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
+          { label: 'Infants (under 2)', name: 'bebes', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
           { label: 'Cabin type', name: 'camarote', type: 'select', options: ['Interior', 'Oceanview', 'Balcony', 'Suite', 'MSC Yacht Club'] }
         ]
       },
@@ -4186,8 +4186,8 @@
           { label: 'Destination', name: 'destino', placeholder: 'Where are you staying?', type: 'text', country: true },
           { label: 'Check-in', name: 'fecha_entrada', placeholder: 'Check-in', type: 'date' },
           { label: 'Check-out', name: 'fecha_salida', placeholder: 'Check-out', type: 'date' },
-          { label: 'Adults', name: 'huespedes', placeholder: 'Qty', type: 'number' },
-          { label: 'Children', name: 'ninos', placeholder: 'Qty', type: 'number' },
+          { label: 'Adults', name: 'huespedes', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
+          { label: 'Children', name: 'ninos', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
           { label: 'Rooms', name: 'habitaciones', type: 'select', options: ['1 room', '2 rooms', '3 rooms', '4+ rooms'] },
           { label: 'Category', name: 'estrellas', type: 'select', options: ['Any category', '3 stars', '4 stars', '5 stars', '5 stars Luxury'] }
         ]
@@ -4230,10 +4230,10 @@
           { label: 'Compagnia', name: 'naviera', type: 'select', options: ['Qualsiasi compagnia', 'Carnival', 'Royal Caribbean', 'MSC Crociere', 'Norwegian (NCL)', 'Disney Cruise Line', 'Princess Cruises', 'Celebrity Cruises', 'Costa Crociere', 'Holland America Line', 'Cunard', 'P&O Cruises', 'Oceania Cruises', 'Regent Seven Seas', 'Silversea', 'Seabourn', 'Viking Ocean Cruises', 'Windstar Cruises', 'Azamara', 'Virgin Voyages', 'Explora Journeys', 'Crystal Cruises', 'AIDA Cruises', 'TUI Cruises', 'Marella Cruises', 'Saga Cruises', 'Ponant', 'Hurtigruten', 'Star Clippers', 'Fred. Olsen Cruise Lines', 'Dream Cruises', 'Resorts World Cruises', 'Star Cruises', 'Lindblad Expeditions', 'Atlas Ocean Voyages'] },
           { label: 'Data di partenza', name: 'fechas', placeholder: 'Scegli le date', type: 'date' },
           { label: 'Notti', name: 'noches', type: 'select', options: ['3 notti', '4 notti', '5 notti', '7 notti', '10 notti', '14 notti', '21+ notti'] },
-          { label: 'Adulti (18+)', name: 'adultos', placeholder: 'Quantità', type: 'number' },
-          { label: 'Bambini (12-17)', name: 'ninos_12_17', placeholder: 'Quantità', type: 'number' },
-          { label: 'Bambini (2-11)', name: 'ninos_2_11', placeholder: 'Quantità', type: 'number' },
-          { label: 'Neonati (meno di 2)', name: 'bebes', placeholder: 'Quantità', type: 'number' },
+          { label: 'Adulti (18+)', name: 'adultos', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
+          { label: 'Bambini (12-17)', name: 'ninos_12_17', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
+          { label: 'Bambini (2-11)', name: 'ninos_2_11', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
+          { label: 'Neonati (meno di 2)', name: 'bebes', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
           { label: 'Tipo di cabina', name: 'camarote', type: 'select', options: ['Interna', 'Vista mare', 'Balcone', 'Suite', 'MSC Yacht Club'] }
         ]
       },
@@ -4243,8 +4243,8 @@
           { label: 'Destinazione', name: 'destino', placeholder: 'Dove soggiorni?', type: 'text', country: true },
           { label: 'Check-in', name: 'fecha_entrada', placeholder: 'Check-in', type: 'date' },
           { label: 'Check-out', name: 'fecha_salida', placeholder: 'Check-out', type: 'date' },
-          { label: 'Adulti', name: 'huespedes', placeholder: 'Quantità', type: 'number' },
-          { label: 'Bambini', name: 'ninos', placeholder: 'Quantità', type: 'number' },
+          { label: 'Adulti', name: 'huespedes', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
+          { label: 'Bambini', name: 'ninos', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
           { label: 'Camere', name: 'habitaciones', type: 'select', options: ['1 camera', '2 camere', '3 camere', '4+ camere'] },
           { label: 'Categoria', name: 'estrellas', type: 'select', options: ['Qualsiasi categoria', '3 stelle', '4 stelle', '5 stelle', '5 stelle Lusso'] }
         ]
@@ -4287,10 +4287,10 @@
           { label: 'Companhia', name: 'naviera', type: 'select', options: ['Qualquer companhia', 'Carnival', 'Royal Caribbean', 'MSC Cruzeiros', 'Norwegian (NCL)', 'Disney Cruise Line', 'Princess Cruises', 'Celebrity Cruises', 'Costa Cruzeiros', 'Holland America Line', 'Cunard', 'P&O Cruises', 'Oceania Cruises', 'Regent Seven Seas', 'Silversea', 'Seabourn', 'Viking Ocean Cruises', 'Windstar Cruises', 'Azamara', 'Virgin Voyages', 'Explora Journeys', 'Crystal Cruises', 'AIDA Cruises', 'TUI Cruises', 'Marella Cruises', 'Saga Cruises', 'Ponant', 'Hurtigruten', 'Star Clippers', 'Fred. Olsen Cruise Lines', 'Dream Cruises', 'Resorts World Cruises', 'Star Cruises', 'Lindblad Expeditions', 'Atlas Ocean Voyages'] },
           { label: 'Data de saída', name: 'fechas', placeholder: 'Escolha as datas', type: 'date' },
           { label: 'Noites', name: 'noches', type: 'select', options: ['3 noites', '4 noites', '5 noites', '7 noites', '10 noites', '14 noites', '21+ noites'] },
-          { label: 'Adultos (18+)', name: 'adultos', placeholder: 'Qtd.', type: 'number' },
-          { label: 'Crianças (12-17)', name: 'ninos_12_17', placeholder: 'Qtd.', type: 'number' },
-          { label: 'Crianças (2-11)', name: 'ninos_2_11', placeholder: 'Qtd.', type: 'number' },
-          { label: 'Bebês (menos de 2)', name: 'bebes', placeholder: 'Qtd.', type: 'number' },
+          { label: 'Adultos (18+)', name: 'adultos', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
+          { label: 'Crianças (12-17)', name: 'ninos_12_17', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
+          { label: 'Crianças (2-11)', name: 'ninos_2_11', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
+          { label: 'Bebês (menos de 2)', name: 'bebes', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
           { label: 'Tipo de cabine', name: 'camarote', type: 'select', options: ['Interna', 'Vista para o mar', 'Varanda', 'Suíte', 'MSC Yacht Club'] }
         ]
       },
@@ -4300,8 +4300,8 @@
           { label: 'Destino', name: 'destino', placeholder: 'Onde você vai ficar?', type: 'text', country: true },
           { label: 'Check-in', name: 'fecha_entrada', placeholder: 'Check-in', type: 'date' },
           { label: 'Check-out', name: 'fecha_salida', placeholder: 'Check-out', type: 'date' },
-          { label: 'Adultos', name: 'huespedes', placeholder: 'Qtd.', type: 'number' },
-          { label: 'Crianças', name: 'ninos', placeholder: 'Qtd.', type: 'number' },
+          { label: 'Adultos', name: 'huespedes', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
+          { label: 'Crianças', name: 'ninos', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
           { label: 'Quartos', name: 'habitaciones', type: 'select', options: ['1 quarto', '2 quartos', '3 quartos', '4+ quartos'] },
           { label: 'Categoria', name: 'estrellas', type: 'select', options: ['Qualquer categoria', '3 estrelas', '4 estrelas', '5 estrelas', '5 estrelas Luxo'] }
         ]
@@ -5419,20 +5419,44 @@
           label.className = 'quote-status-seat-type-label';
           label.textContent = t(quote.category === 'cruise' ? 'quoteCabinTypeLabel' : 'quoteSeatTypeLabel');
           seatTypeWrap.appendChild(label);
-          availableSeatTypes.forEach(function (seatType) {
-            const price = seatTypePrices[seatType];
-            const optionKey = (quote.category === 'cruise' ? 'cabinTypeOption_' : 'seatTypeOption_') + seatType;
-            const row = document.createElement('label');
-            row.className = 'quote-status-insurance';
-            row.innerHTML =
-              '<input type="radio" name="quoteSeatType" value="' + seatType + '"' + (selectedChosenSeatType === seatType ? ' checked' : '') + '> ' +
-              '<span>' + t(optionKey) + (price != null ? ' (+USD ' + price + ')' : ' (' + t('quoteSeatTypeIncluded') + ')') + '</span>';
-            seatTypeWrap.appendChild(row);
-            row.querySelector('input').addEventListener('change', function (e) {
-              selectedChosenSeatType = e.target.checked ? seatType : selectedChosenSeatType;
-              updateQuotePriceDisplay();
+          if (quote.category === 'cruise') {
+            // Tarjetas por tipo de camarote (como se ve en la web real de
+            // las navieras) en vez de radio-botones en lista.
+            const grid = document.createElement('div');
+            grid.className = 'quote-status-cabin-grid';
+            availableSeatTypes.forEach(function (seatType) {
+              const price = seatTypePrices[seatType];
+              const selected = selectedChosenSeatType === seatType;
+              const card = document.createElement('button');
+              card.type = 'button';
+              card.className = 'quote-status-cabin-card' + (selected ? ' active' : '');
+              card.innerHTML =
+                '<span class="quote-status-cabin-card-label">' + t('cabinTypeOption_' + seatType) + '</span>' +
+                '<span class="quote-status-cabin-card-price">' + (price != null ? '+USD ' + price : t('quoteSeatTypeIncluded')) + '</span>';
+              card.addEventListener('click', function () {
+                selectedChosenSeatType = selectedChosenSeatType === seatType ? '' : seatType;
+                grid.querySelectorAll('.quote-status-cabin-card').forEach((c) => c.classList.remove('active'));
+                if (selectedChosenSeatType === seatType) card.classList.add('active');
+                updateQuotePriceDisplay();
+              });
+              grid.appendChild(card);
             });
-          });
+            seatTypeWrap.appendChild(grid);
+          } else {
+            availableSeatTypes.forEach(function (seatType) {
+              const price = seatTypePrices[seatType];
+              const row = document.createElement('label');
+              row.className = 'quote-status-insurance';
+              row.innerHTML =
+                '<input type="radio" name="quoteSeatType" value="' + seatType + '"' + (selectedChosenSeatType === seatType ? ' checked' : '') + '> ' +
+                '<span>' + t('seatTypeOption_' + seatType) + (price != null ? ' (+USD ' + price + ')' : ' (' + t('quoteSeatTypeIncluded') + ')') + '</span>';
+              seatTypeWrap.appendChild(row);
+              row.querySelector('input').addEventListener('change', function (e) {
+                selectedChosenSeatType = e.target.checked ? seatType : selectedChosenSeatType;
+                updateQuotePriceDisplay();
+              });
+            });
+          }
           quoteStatusBar.appendChild(seatTypeWrap);
         } else {
           selectedChosenSeatType = '';
