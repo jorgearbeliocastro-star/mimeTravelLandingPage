@@ -5300,6 +5300,21 @@
         // cualquier checkbox, así el cliente ve el total real subir/bajar
         // sin esperar otro poll.
         const seatTypePrices = quote.quoted_seat_type_prices || {};
+        // Cruceros: el precio del camarote ES el precio completo (no un
+        // extra sobre una base) — sin elegir ninguno el total mostrado
+        // sería USD 0, algo raro. Mientras el cliente no haya tocado nada
+        // todavía, se preselecciona el más barato disponible, ANTES del
+        // primer pintado del precio.
+        if (quote.category === 'cruise' && !selectedChosenSeatType) {
+          const availableForDefault = quote.quoted_seat_type ? quote.quoted_seat_type.split(',').filter(Boolean) : Object.keys(seatTypePrices);
+          let cheapest = null;
+          availableForDefault.forEach(function (seatType) {
+            const p = seatTypePrices[seatType];
+            if (p == null) return;
+            if (cheapest === null || Number(p) < Number(seatTypePrices[cheapest])) cheapest = seatType;
+          });
+          if (cheapest) selectedChosenSeatType = cheapest;
+        }
         function updateQuotePriceDisplay() {
           const seatPrice = selectedChosenSeatType && seatTypePrices[selectedChosenSeatType] != null ? Number(seatTypePrices[selectedChosenSeatType]) : 0;
           const add =
