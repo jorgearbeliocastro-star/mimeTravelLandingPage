@@ -4682,6 +4682,88 @@
       });
     }
 
+    // Selector de pasajeros combinado (como MSC): un solo campo de resumen
+    // ("2 pasajeros, 1 camarote") que al tocarlo abre un panel con
+    // contadores +/- por franja de edad — reemplaza los selects sueltos de
+    // Adultos/Niños/Niños/Bebés. Cada contador escribe en un input oculto
+    // con el nombre real de esa franja, así el resto del código (payload,
+    // notas) sigue leyendo data.adultos / data.ninos_12_17 / etc. sin cambios.
+    function setupPassengerPicker(input, group, field) {
+      let hiddenInputs = group.querySelector('.passenger-picker-hidden-inputs');
+      if (!hiddenInputs) {
+        hiddenInputs = document.createElement('div');
+        hiddenInputs.className = 'passenger-picker-hidden-inputs';
+        hiddenInputs.style.display = 'none';
+        group.appendChild(hiddenInputs);
+      }
+      // Conserva los valores ya elegidos si es el mismo campo lógico
+      // (ej. al cambiar de idioma no debe resetear los contadores).
+      const sameField = input.dataset.passengerPickerName === field.name;
+      hiddenInputs.innerHTML = field.stepperFields.map((sf) => {
+        const existing = sameField ? hiddenInputs.querySelector('input[name="' + sf.name + '"]') : null;
+        const value = existing ? existing.value : String(sf.default != null ? sf.default : sf.min);
+        return '<input type="hidden" name="' + sf.name + '" value="' + value + '">';
+      }).join('');
+      input.dataset.passengerPickerName = field.name;
+
+      function updateSummary() {
+        const total = field.stepperFields.reduce((sum, sf) => sum + (Number(hiddenInputs.querySelector('input[name="' + sf.name + '"]').value) || 0), 0);
+        const word = total === 1 ? field.passengerSingular : field.passengerPlural;
+        input.value = total + ' ' + word + ', ' + field.staterroomLabel;
+      }
+      updateSummary();
+
+      let panel = group.querySelector('.passenger-picker-panel');
+      if (!panel) {
+        panel = document.createElement('div');
+        panel.className = 'passenger-picker-panel';
+        input.insertAdjacentElement('afterend', panel);
+      }
+
+      function renderPanel() {
+        panel.innerHTML = field.stepperFields.map((sf) => {
+          const value = Number(hiddenInputs.querySelector('input[name="' + sf.name + '"]').value) || 0;
+          return (
+            '<div class="passenger-stepper-row" data-name="' + sf.name + '">' +
+              '<span class="passenger-stepper-label">' + sf.label + '</span>' +
+              '<div class="passenger-stepper-controls">' +
+                '<button type="button" class="passenger-stepper-btn" data-action="minus"' + (value <= sf.min ? ' disabled' : '') + '>−</button>' +
+                '<span class="passenger-stepper-value">' + value + '</span>' +
+                '<button type="button" class="passenger-stepper-btn" data-action="plus">+</button>' +
+              '</div>' +
+            '</div>'
+          );
+        }).join('');
+        panel.querySelectorAll('.passenger-stepper-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const row = btn.closest('.passenger-stepper-row');
+            const sf = field.stepperFields.find((f) => f.name === row.dataset.name);
+            const hidden = hiddenInputs.querySelector('input[name="' + sf.name + '"]');
+            let value = Number(hidden.value) || 0;
+            value = btn.dataset.action === 'plus' ? value + 1 : Math.max(sf.min, value - 1);
+            hidden.value = String(value);
+            updateSummary();
+            renderPanel();
+          });
+        });
+      }
+
+      function closePanel() {
+        panel.classList.remove('open');
+      }
+
+      if (input.dataset.passengerPickerReady !== 'true') {
+        input.dataset.passengerPickerReady = 'true';
+        input.addEventListener('click', () => {
+          if (!panel.classList.contains('open')) renderPanel();
+          panel.classList.toggle('open');
+        });
+        document.addEventListener('click', (e) => {
+          if (!panel.contains(e.target) && e.target !== input) closePanel();
+        });
+      }
+    }
+
     const searchTabs = document.getElementById('searchTabs');
     const tipoServicioInput = document.getElementById('tipoServicio');
     const FIELD_SLOT_COUNT = 11;
