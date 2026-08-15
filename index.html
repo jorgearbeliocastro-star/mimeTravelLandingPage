@@ -4526,8 +4526,10 @@
             notes: buildQuoteNotes([
               data.naviera ? 'Naviera preferida: ' + data.naviera : null,
               data.noches ? 'Duración: ' + data.noches : null,
-              data.adultos ? 'Adultos: ' + data.adultos : null,
-              data.ninos ? 'Niños: ' + data.ninos : null,
+              data.adultos ? 'Adultos (18+): ' + data.adultos : null,
+              data.ninos_12_17 ? 'Niños (12-17): ' + data.ninos_12_17 : null,
+              data.ninos_2_11 ? 'Niños (2-11): ' + data.ninos_2_11 : null,
+              data.bebes ? 'Bebés (menos de 2): ' + data.bebes : null,
               data.camarote ? 'Camarote: ' + data.camarote : null,
             ]),
           };
