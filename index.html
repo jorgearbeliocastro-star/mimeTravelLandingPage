@@ -4431,6 +4431,65 @@
       return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     }
 
+    const MONTH_NAMES_ES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    // "8/1/2026 - 8/31/2026" -> primer día del mes en ISO ("2026-08-01"), o
+    // null si el texto no tiene ese formato (ej. todavía no se eligió nada).
+    function parseMonthRangeToISO(value) {
+      const m = /^(\d{1,2})\/\d{1,2}\/(\d{4}) - \d{1,2}\/\d{1,2}\/\d{4}$/.exec((value || '').trim());
+      if (!m) return null;
+      return m[2] + '-' + m[1].padStart(2, '0') + '-01';
+    }
+    // Selector de mes completo (como MSC): al elegir un mes se llena el
+    // campo con el rango completo (1 al último día de ese mes) en vez de
+    // pedir tipear una fecha exacta. Solo una vez por input (evita
+    // duplicar el listener cada vez que se repinta el formulario).
+    function setupMonthPicker(input) {
+      if (input.dataset.monthPickerReady === 'true') return;
+      input.dataset.monthPickerReady = 'true';
+      const panel = document.createElement('div');
+      panel.className = 'month-picker-panel';
+      input.insertAdjacentElement('afterend', panel);
+
+      function closePanel() {
+        panel.classList.remove('open');
+      }
+      function renderPanel() {
+        const now = new Date();
+        const startMonth = now.getMonth();
+        const startYear = now.getFullYear();
+        let html = '';
+        for (let yOffset = 0; yOffset < 3; yOffset++) {
+          const year = startYear + yOffset;
+          html += '<div class="month-picker-year"><div class="month-picker-year-label">' + year + '</div><div class="month-picker-year-grid">';
+          for (let m = 0; m < 12; m++) {
+            const disabled = yOffset === 0 && m < startMonth;
+            html +=
+              '<button type="button" class="month-picker-month' + (disabled ? ' disabled' : '') + '" data-year="' + year + '" data-month="' + m + '"' + (disabled ? ' disabled' : '') + '>' +
+              MONTH_NAMES_ES[m].slice(0, 3) +
+              '</button>';
+          }
+          html += '</div></div>';
+        }
+        panel.innerHTML = html;
+        panel.querySelectorAll('.month-picker-month:not(.disabled)').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const year = Number(btn.dataset.year);
+            const month = Number(btn.dataset.month);
+            const lastDay = new Date(year, month + 1, 0).getDate();
+            input.value = (month + 1) + '/1/' + year + ' - ' + (month + 1) + '/' + lastDay + '/' + year;
+            closePanel();
+          });
+        });
+      }
+      input.addEventListener('click', () => {
+        if (!panel.classList.contains('open')) renderPanel();
+        panel.classList.toggle('open');
+      });
+      document.addEventListener('click', (e) => {
+        if (!panel.contains(e.target) && e.target !== input) closePanel();
+      });
+    }
+
     const searchTabs = document.getElementById('searchTabs');
     const tipoServicioInput = document.getElementById('tipoServicio');
     const FIELD_SLOT_COUNT = 7;
