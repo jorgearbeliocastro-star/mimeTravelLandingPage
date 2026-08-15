@@ -4774,22 +4774,41 @@
       if (destinoSelect.selectedOptions[0]?.hidden) destinoSelect.value = allOptions[0].value;
     });
 
-    // Mismo criterio que el destino: no todos los barcos salen de todos los
-    // puertos. Nombres de barco son iguales en los 4 idiomas, así que acá
-    // se filtra por texto directo, sin necesitar índices.
+    // El barco depende de puerto Y destino juntos (ej. Buenos Aires +
+    // "MSC World Cruise" solo tiene el Magnifica, pero Buenos Aires +
+    // "Sudamérica" tiene otros dos) — por eso va anidado por puerto y
+    // después por el ÍNDICE de destino (mismos índices de arriba), no por
+    // el texto (cambia de idioma). Nombres de barco sí son iguales en los
+    // 4 idiomas. null = "cualquier destino" para ese puerto (sin elegir
+    // destino todavía) — junta todos los barcos de todos sus destinos.
     const PORT_SHIP_NAMES = {
-      'Buenos Aires': ['MSC Magnifica', 'MSC Seaview', 'MSC Splendida'],
+      'Buenos Aires': {
+        5: ['MSC Seaview', 'MSC Splendida'], // MSC Grand Voyages
+        8: ['MSC Seaview', 'MSC Splendida'], // Sudamérica
+        9: ['MSC Magnifica'], // MSC World Cruise
+      },
     };
-    searchForm.addEventListener('change', function (e) {
-      if (e.target.name !== 'puerto_salida') return;
+    function updateShipOptionsForPort(portValue, destinoIndex) {
       const barcoSelect = searchForm.querySelector('select[name="barco"]');
       if (!barcoSelect) return;
       const allOptions = Array.from(barcoSelect.options);
-      const allowedShips = PORT_SHIP_NAMES[e.target.value];
+      const byDestino = PORT_SHIP_NAMES[portValue];
+      let allowedShips = null;
+      if (byDestino) {
+        allowedShips = destinoIndex != null && byDestino[destinoIndex] ? byDestino[destinoIndex] : Array.from(new Set(Object.values(byDestino).flat()));
+      }
       allOptions.forEach((opt, idx) => {
         opt.hidden = !!allowedShips && idx !== 0 && !allowedShips.includes(opt.value);
       });
       if (barcoSelect.selectedOptions[0]?.hidden) barcoSelect.value = allOptions[0].value;
+    }
+    searchForm.addEventListener('change', function (e) {
+      const puertoSelect = searchForm.querySelector('select[name="puerto_salida"]');
+      const destinoSelect = searchForm.querySelector('select[name="destino"]');
+      if (!puertoSelect || !destinoSelect) return;
+      if (e.target.name !== 'puerto_salida' && e.target.name !== 'destino') return;
+      const destinoIndex = Array.from(destinoSelect.options).findIndex((o) => o.value === destinoSelect.value);
+      updateShipOptionsForPort(puertoSelect.value, destinoIndex > 0 ? destinoIndex : null);
     });
 
     // form.reset() restaura el input oculto a su valor por defecto (roundtrip)
