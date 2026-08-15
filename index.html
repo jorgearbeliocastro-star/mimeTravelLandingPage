@@ -5612,34 +5612,61 @@
 
     function buildPassengerBlockHTML(index) {
       const nowYear = new Date().getFullYear();
-      return (
-        '<div class="quote-pax-block" data-pax-block>' +
-        (index > 0
-          ? '<div class="quote-pax-block-header"><span>' + t('quotePaxPassengerLabel') + ' ' + (index + 1) + '</span>' +
-            '<button type="button" class="quote-pax-remove" data-pax-remove>' + t('quotePaxRemove') + '</button></div>'
-          : '') +
+      const header = index > 0
+        ? '<div class="quote-pax-block-header"><span>' + t('quotePaxPassengerLabel') + ' ' + (index + 1) + '</span>' +
+          '<button type="button" class="quote-pax-remove" data-pax-remove>' + t('quotePaxRemove') + '</button></div>'
+        : '';
+      const nameField =
         '<label class="quote-pax-label">' + t('quotePaxFullName') + '</label>' +
-        '<input type="text" class="quote-pax-input" name="fullName-' + index + '" required>' +
-        '<label class="quote-pax-label">' + t('quotePaxDocument') + '</label>' +
-        '<input type="text" class="quote-pax-input" name="document-' + index + '" required>' +
+        '<input type="text" class="quote-pax-input" name="fullName-' + index + '" required>';
+      const dobField =
         '<label class="quote-pax-label">' + t('quotePaxDob') + '</label>' +
         // Empieza en el año más reciente e igual va bajando — la mayoría de
         // los pasajeros están en un rango de edad razonable, no en los
         // extremos, así que arrancar cerca de "hoy" y bajar es más directo
         // que arrancar hace 100 años.
-        buildDateSelectsHTML('dob', index, nowYear, nowYear - 100) +
-        '<label class="quote-pax-label">' + t('quotePaxExpiry') + '</label>' +
-        // El vencimiento del pasaporte siempre es a futuro.
-        buildDateSelectsHTML('expiry', index, nowYear, nowYear + 15) +
-        '<label class="quote-pax-label">' + t('quotePaxNationality') + '</label>' +
-        '<input type="text" class="quote-pax-input" name="nationality-' + index + '" required>' +
+        buildDateSelectsHTML('dob', index, nowYear, nowYear - 100);
+      const genderField =
         '<label class="quote-pax-label">' + t('quotePaxGender') + '</label>' +
         '<select class="quote-pax-input" name="gender-' + index + '" required>' +
         '<option value="">' + t('quotePaxGenderPlaceholder') + '</option>' +
         '<option value="M">' + t('quotePaxGenderMale') + '</option>' +
         '<option value="F">' + t('quotePaxGenderFemale') + '</option>' +
         '<option value="X">' + t('quotePaxGenderOther') + '</option>' +
-        '</select>' +
+        '</select>';
+      // Cruceros no piden pasaporte por defecto (MSC solo lo pide como
+      // alternativa opcional para emitir el eTicket) — en cambio sí piden
+      // país de residencia y contacto, que un vuelo no pide. Ver
+      // "Guest Information" de MSC (las capturas que fuimos revisando).
+      if (activeQuoteCategory === 'cruise') {
+        return (
+          '<div class="quote-pax-block" data-pax-block>' +
+          header +
+          nameField +
+          genderField +
+          dobField +
+          '<label class="quote-pax-label">' + t('quotePaxCountryOfResidence') + '</label>' +
+          '<input type="text" class="quote-pax-input" name="countryOfResidence-' + index + '" required>' +
+          '<label class="quote-pax-label">' + t('quotePaxEmail') + '</label>' +
+          '<input type="email" class="quote-pax-input" name="email-' + index + '" required>' +
+          '<label class="quote-pax-label">' + t('quotePaxMobilePhone') + '</label>' +
+          '<input type="tel" class="quote-pax-input" name="mobilePhone-' + index + '" required>' +
+          '</div>'
+        );
+      }
+      return (
+        '<div class="quote-pax-block" data-pax-block>' +
+        header +
+        nameField +
+        '<label class="quote-pax-label">' + t('quotePaxDocument') + '</label>' +
+        '<input type="text" class="quote-pax-input" name="document-' + index + '" required>' +
+        dobField +
+        '<label class="quote-pax-label">' + t('quotePaxExpiry') + '</label>' +
+        // El vencimiento del pasaporte siempre es a futuro.
+        buildDateSelectsHTML('expiry', index, nowYear, nowYear + 15) +
+        '<label class="quote-pax-label">' + t('quotePaxNationality') + '</label>' +
+        '<input type="text" class="quote-pax-input" name="nationality-' + index + '" required>' +
+        genderField +
         '<label class="quote-pax-label">' + t('quotePaxIssuingCountry') + '</label>' +
         '<input type="text" class="quote-pax-input" name="passportIssuingCountry-' + index + '" required>' +
         '</div>'
