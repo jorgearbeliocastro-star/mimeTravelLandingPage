@@ -4917,6 +4917,11 @@
     // asiento) — '' = todavía no eligió.
     let selectedChosenSeatType = '';
     let selectedWantsRefundable = false;
+    // Extras personalizados (excursiones, paquetes, etc. de un crucero) —
+    // el Agente los carga a mano para esta cotización puntual (no hay
+    // catálogo fijo por naviera), el cliente los marca como casillas.
+    // Objeto { nombre: true/false }, igual criterio que el resto.
+    let selectedCustomAddons = {};
     // Mientras la card de datos del pasajero está abierta, el polling no
     // debe pisarla (perdería lo que el cliente ya tipeó) — se congela el
     // status bar hasta que se cancela o se manda el formulario.
