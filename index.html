@@ -5855,13 +5855,40 @@
     function readPassengerBlock(block, index) {
       const val = (name) => block.querySelector('[name="' + name + '-' + index + '"]')?.value?.trim() || '';
       if (activeQuoteCategory === 'cruise') {
+        const firstName = val('firstName');
+        const lastName = val('lastName');
         return {
-          fullName: val('fullName'),
+          firstName,
+          lastName,
+          fullName: (firstName + ' ' + lastName).trim(),
           dateOfBirth: readDateSelects(block, 'dob', index),
           gender: val('gender'),
           countryOfResidence: val('countryOfResidence'),
           email: val('email'),
           mobilePhone: val('mobilePhone'),
+          voyagersClubNumber: val('voyagersClubNumber') || null,
+          diningPreference: val('diningPreference') || null,
+          // Datos alternativos para emitir el eTicket — MSC los deja como
+          // opcionales, así que van null si el cliente no los completó.
+          countryOfBirth: val('countryOfBirth') || null,
+          nationality: val('nationality') || null,
+          placeOfBirth: val('placeOfBirth') || null,
+          language: val('language') || null,
+          documentType: val('documentType') || null,
+          documentNumber: val('documentNumber') || null,
+          issueDate: readDateSelects(block, 'issueDate', index) || null,
+          passportExpiry: readDateSelects(block, 'docExpiry', index) || null,
+          passportIssuingCountry: val('passportIssuingCountry') || null,
+          city: val('city') || null,
+          zipCode: val('zipCode') || null,
+          address: val('address') || null,
+          emergencyContactName: val('emergencyContactName') || null,
+          emergencyContactPhone: val('emergencyContactPhone') || null,
+          // Seguro de viaje propio del pasajero (si ya tiene uno) — no
+          // confundir con el seguro que ofrece el Agente en la cotización.
+          insuranceCompanyName: val('insuranceCompanyName') || null,
+          insurancePolicyNumber: val('insurancePolicyNumber') || null,
+          insuranceCompanyPhone: val('insuranceCompanyPhone') || null,
         };
       }
       return {
