@@ -4283,11 +4283,15 @@
         label: 'Cruzeiros',
         fields: [
           { label: 'Porto de saída', name: 'puerto_salida', placeholder: 'De qual porto?', type: 'text', country: true, geoMode: 'port' },
-          { label: 'Destino', name: 'destino', placeholder: 'Para onde?', type: 'text', country: true, geoMode: 'port' },
+          { label: 'Destino', name: 'destino', type: 'select', options: ['Qualquer destino', 'Caribe e Bahamas', 'Mediterrâneo', 'Norte da Europa e Bálticos', 'Ilhas Gregas', 'Alasca', 'Emirados Árabes e Dubai', 'América do Sul', 'Ásia', 'Austrália e Pacífico Sul', 'Transatlântico', 'Canal do Panamá'] },
           { label: 'Companhia', name: 'naviera', type: 'select', options: ['Qualquer companhia', 'Carnival', 'Royal Caribbean', 'MSC Cruzeiros', 'Norwegian (NCL)', 'Disney Cruise Line', 'Princess Cruises', 'Celebrity Cruises', 'Costa Cruzeiros', 'Holland America Line', 'Cunard', 'P&O Cruises', 'Oceania Cruises', 'Regent Seven Seas', 'Silversea', 'Seabourn', 'Viking Ocean Cruises', 'Windstar Cruises', 'Azamara', 'Virgin Voyages', 'Explora Journeys', 'Crystal Cruises', 'AIDA Cruises', 'TUI Cruises', 'Marella Cruises', 'Saga Cruises', 'Ponant', 'Hurtigruten', 'Star Clippers', 'Fred. Olsen Cruise Lines', 'Dream Cruises', 'Resorts World Cruises', 'Star Cruises', 'Lindblad Expeditions', 'Atlas Ocean Voyages'] },
           { label: 'Data de saída', name: 'fechas', placeholder: 'Escolha as datas', type: 'date' },
-          { label: 'Crianças', name: 'ninos', placeholder: 'N.º', type: 'text' },
-          { label: 'Tipo de cabine', name: 'camarote', type: 'select', options: ['Interna', 'Vista para o mar', 'Varanda', 'Suíte'] }
+          { label: 'Noites', name: 'noches', type: 'select', options: ['3 noites', '4 noites', '5 noites', '7 noites', '10 noites', '14 noites', '21+ noites'] },
+          { label: 'Adultos (18+)', name: 'adultos', placeholder: 'Qtd.', type: 'number' },
+          { label: 'Crianças (12-17)', name: 'ninos_12_17', placeholder: 'Qtd.', type: 'number' },
+          { label: 'Crianças (2-11)', name: 'ninos_2_11', placeholder: 'Qtd.', type: 'number' },
+          { label: 'Bebês (menos de 2)', name: 'bebes', placeholder: 'Qtd.', type: 'number' },
+          { label: 'Tipo de cabine', name: 'camarote', type: 'select', options: ['Interna', 'Vista para o mar', 'Varanda', 'Suíte', 'MSC Yacht Club'] }
         ]
       },
       hoteles: {
