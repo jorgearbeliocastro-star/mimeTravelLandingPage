@@ -4793,27 +4793,35 @@
         7: ['MSC Poesia'], // Canal de Panamá
       },
     };
-    function updateShipOptionsForPort(portValue, destinoIndex) {
+    // La lista de barcos que tenemos es solo la flota de MSC. Si el
+    // cliente elige otra naviera, no mostramos barcos de MSC como si
+    // fueran de esa naviera — igual que en la web real de MSC, donde
+    // el selector de barco solo existe/aplica a su propia flota.
+    const MSC_NAVIERA_VALUES = ['Cualquier naviera', 'MSC Cruceros', 'Any cruise line', 'Qualsiasi naviera', 'Qualquer naviera'];
+    function updateShipOptionsForPort(portValue, destinoIndex, navieraValue) {
       const barcoSelect = searchForm.querySelector('select[name="barco"]');
       if (!barcoSelect) return;
       const allOptions = Array.from(barcoSelect.options);
+      const isOtherNaviera = navieraValue && !MSC_NAVIERA_VALUES.includes(navieraValue);
       const byDestino = PORT_SHIP_NAMES[portValue];
-      let allowedShips = null;
-      if (byDestino) {
+      let allowedShips = isOtherNaviera ? [] : null;
+      if (!isOtherNaviera && byDestino) {
         allowedShips = destinoIndex != null && byDestino[destinoIndex] ? byDestino[destinoIndex] : Array.from(new Set(Object.values(byDestino).flat()));
       }
       allOptions.forEach((opt, idx) => {
         opt.hidden = !!allowedShips && idx !== 0 && !allowedShips.includes(opt.value);
       });
       if (barcoSelect.selectedOptions[0]?.hidden) barcoSelect.value = allOptions[0].value;
+      barcoSelect.disabled = isOtherNaviera;
     }
     searchForm.addEventListener('change', function (e) {
       const puertoSelect = searchForm.querySelector('select[name="puerto_salida"]');
       const destinoSelect = searchForm.querySelector('select[name="destino"]');
+      const navieraSelect = searchForm.querySelector('select[name="naviera"]');
       if (!puertoSelect || !destinoSelect) return;
-      if (e.target.name !== 'puerto_salida' && e.target.name !== 'destino') return;
+      if (e.target.name !== 'puerto_salida' && e.target.name !== 'destino' && e.target.name !== 'naviera') return;
       const destinoIndex = Array.from(destinoSelect.options).findIndex((o) => o.value === destinoSelect.value);
-      updateShipOptionsForPort(puertoSelect.value, destinoIndex > 0 ? destinoIndex : null);
+      updateShipOptionsForPort(puertoSelect.value, destinoIndex > 0 ? destinoIndex : null, navieraSelect ? navieraSelect.value : null);
     });
 
     // form.reset() restaura el input oculto a su valor por defecto (roundtrip)
