@@ -5985,9 +5985,14 @@
 
         const blocks = Array.from(blocksWrap.querySelectorAll('[data-pax-block]'));
         const passengers = blocks.map((block, i) => readPassengerBlock(block, i));
-        const allComplete = passengers.every((p) =>
-          p.fullName && p.document && p.dateOfBirth && p.passportExpiry && p.nationality && p.gender && p.passportIssuingCountry
-        );
+        // Los campos obligatorios son distintos por categoría — cruceros no
+        // exige pasaporte (queda en el bloque opcional "para el eTicket"),
+        // vuelos sí. Ver buildPassengerBlockHTML.
+        const allComplete = activeQuoteCategory === 'cruise'
+          ? passengers.every((p) => p.fullName && p.dateOfBirth && p.gender && p.countryOfResidence && p.email && p.mobilePhone)
+          : passengers.every((p) =>
+              p.fullName && p.document && p.dateOfBirth && p.passportExpiry && p.nationality && p.gender && p.passportIssuingCountry
+            );
         if (!allComplete) {
           window.alert(t('quotePaxMissing'));
           return;
