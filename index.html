@@ -5728,6 +5728,7 @@
       const nameField =
         '<label class="quote-pax-label">' + t('quotePaxFullName') + '</label>' +
         '<input type="text" class="quote-pax-input" name="fullName-' + index + '" required>';
+      const dateSelectsRange = (field, from, to) => buildDateSelectsHTML(field, index, from, to);
       const dobField =
         '<label class="quote-pax-label">' + t('quotePaxDob') + '</label>' +
         // Empieza en el año más reciente e igual va bajando — la mayoría de
