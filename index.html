@@ -5825,19 +5825,14 @@
           '<input type="text" class="quote-pax-input" name="emergencyContactName-' + index + '">' +
           '<label class="quote-pax-label">' + t('quotePaxEmergencyContactPhone') + '</label>' +
           '<input type="tel" class="quote-pax-input" name="emergencyContactPhone-' + index + '">';
-        const insuranceData =
-          '<label class="quote-pax-label">' + t('quotePaxInsuranceCompanyName') + '</label>' +
-          '<input type="text" class="quote-pax-input" name="insuranceCompanyName-' + index + '">' +
-          '<label class="quote-pax-label">' + t('quotePaxInsurancePolicyNumber') + '</label>' +
-          '<input type="text" class="quote-pax-input" name="insurancePolicyNumber-' + index + '">' +
-          '<label class="quote-pax-label">' + t('quotePaxInsuranceCompanyPhone') + '</label>' +
-          '<input type="tel" class="quote-pax-input" name="insuranceCompanyPhone-' + index + '">';
+        // El único seguro en el sistema es el que ofrece el Agente en la
+        // cotización (con precio, checkbox al aceptar) — no hay un
+        // "seguro externo" aparte que el cliente cargue acá.
         return (
           '<div class="quote-pax-block" data-pax-block>' +
           header +
           mandatory +
           '<details class="quote-pax-extended"><summary>' + t('quotePaxExtendedToggle') + '</summary>' + extendedTicketData + '</details>' +
-          '<details class="quote-pax-extended"><summary>' + t('quotePaxInsuranceToggle') + '</summary>' + insuranceData + '</details>' +
           '</div>'
         );
       }
