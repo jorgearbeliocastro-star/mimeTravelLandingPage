@@ -5213,7 +5213,8 @@
             (insuranceOffered && selectedWantsInsurance ? Number(quote.quoted_insurance_price_usd) : 0) +
             sumExtraBagPrice(quote.quoted_extra_bag_prices, selectedExtraBagQty) +
             (refundableOffered && selectedWantsRefundable ? Number(quote.quoted_refundable_price_usd) : 0) +
-            seatPrice;
+            seatPrice +
+            sumCustomAddons(customAddonsOffered, selectedCustomAddons);
           if (hasTwoTiers) {
             const basicEl = document.getElementById('quoteBasicPriceValue');
             const fullEl = document.getElementById('quoteFullPriceValue');
