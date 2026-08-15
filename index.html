@@ -5469,6 +5469,19 @@
           label.textContent = t(quote.category === 'cruise' ? 'quoteCabinTypeLabel' : 'quoteSeatTypeLabel');
           seatTypeWrap.appendChild(label);
           if (quote.category === 'cruise') {
+            // El precio del camarote ES el precio completo (no un extra
+            // sobre una base) — sin elegir ninguno el total mostraría
+            // USD 0. Mientras el cliente no haya tocado nada todavía, se
+            // preselecciona el más barato disponible.
+            if (!selectedChosenSeatType) {
+              let cheapest = null;
+              availableSeatTypes.forEach(function (seatType) {
+                const p = seatTypePrices[seatType];
+                if (p == null) return;
+                if (cheapest === null || Number(p) < Number(seatTypePrices[cheapest])) cheapest = seatType;
+              });
+              if (cheapest) selectedChosenSeatType = cheapest;
+            }
             // Tarjetas por tipo de camarote (como se ve en la web real de
             // las navieras) en vez de radio-botones en lista.
             const grid = document.createElement('div');
