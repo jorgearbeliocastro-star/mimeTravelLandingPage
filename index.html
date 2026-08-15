@@ -4794,8 +4794,14 @@
         label.textContent = field.label;
 
         if (field.type === 'select') {
+          // Solo aplica el valor por defecto (ej. "Miami" en Puerto de
+          // salida) la primera vez que este casillero se convierte en este
+          // campo — si el visitante ya lo tenía elegido (ej. al cambiar de
+          // idioma, se vuelve a pintar la misma pestaña) no se lo pisa.
+          const isNewFieldIdentity = select.name !== field.name;
           select.name = field.name;
           select.innerHTML = field.options.map(o => '<option value="' + o + '">' + o + '</option>').join('');
+          if (isNewFieldIdentity && field.default) select.value = field.default;
           select.disabled = false;
           select.style.display = '';
           input.disabled = true;
