@@ -1966,6 +1966,27 @@
     color: var(--primary);
   }
 
+  /* Bloques opcionales de crucero (datos extra para el eTicket, seguro
+     propio) — colapsados por default, igual que las secciones expandibles
+     de MSC ("Or fill in the requested mandatory data..."). */
+  .quote-pax-extended {
+    margin-top: 10px;
+    border: 1.5px solid rgba(27, 58, 92, 0.15);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+
+  .quote-pax-extended summary {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--primary);
+    cursor: pointer;
+  }
+
+  .quote-pax-extended[open] summary {
+    margin-bottom: 8px;
+  }
+
   .quote-pax-remove {
     background: none;
     border: none;
