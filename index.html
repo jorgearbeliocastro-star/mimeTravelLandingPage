@@ -5361,7 +5361,7 @@
           quoteStatusBar.appendChild(extrasLabel);
         }
         renderAddonCheckbox(insuranceOffered, selectedWantsInsurance, quote.quoted_insurance_price_usd, 'quoteInsuranceCheckboxLabel', 'quoteInsuranceCheckbox', (v) => { selectedWantsInsurance = v; });
-        renderAddonQty(extraBagOffered, selectedExtraBagQty, 'quoteExtraBagQtyLabel', 'quoteExtraBagQty', (v) => { selectedExtraBagQty = v; }, quote.quoted_extra_bag_prices);
+        renderAddonQty(extraBagOffered, selectedExtraBagQty, quote.category === 'cruise' ? 'quoteExtraGuestQtyLabel' : 'quoteExtraBagQtyLabel', 'quoteExtraBagQty', (v) => { selectedExtraBagQty = v; }, quote.quoted_extra_bag_prices);
         renderAddonCheckbox(refundableOffered, selectedWantsRefundable, quote.quoted_refundable_price_usd, 'quoteRefundableCheckboxLabel', 'quoteRefundableCheckbox', (v) => { selectedWantsRefundable = v; });
         // Tipo de asiento: a diferencia de arriba se elige uno solo (radio,
         // no checkbox) — se muestra si el agente restringió disponibilidad
