@@ -5688,6 +5688,16 @@
     // base (mismas claves que espera submit_quote_passengers).
     function readPassengerBlock(block, index) {
       const val = (name) => block.querySelector('[name="' + name + '-' + index + '"]')?.value?.trim() || '';
+      if (activeQuoteCategory === 'cruise') {
+        return {
+          fullName: val('fullName'),
+          dateOfBirth: readDateSelects(block, 'dob', index),
+          gender: val('gender'),
+          countryOfResidence: val('countryOfResidence'),
+          email: val('email'),
+          mobilePhone: val('mobilePhone'),
+        };
+      }
       return {
         fullName: val('fullName'),
         document: val('document'),
