@@ -4273,27 +4273,25 @@
       cruceros: {
         label: 'Cruceros',
         fields: [
-          { label: 'Puerto de salida', name: 'puerto_salida', type: 'select', options: ['Cualquier puerto', 'Buenos Aires', 'Shanghái', 'Split', 'Copenhague', 'Miami', 'Port Canaveral (Orlando)', 'Cannes', 'Marsella', 'Hamburgo', 'Kiel', 'Warnemünde (Berlín)', 'El Pireo (Atenas)', 'Ancona', 'Bari', 'Bríndisi', 'Cagliari', 'Civitavecchia (Roma)', 'Génova', 'Livorno (Florencia)', 'Messina', 'Nápoles', 'Olbia', 'Palermo', 'Trieste', 'Venecia', 'La Valeta', 'Oslo', 'Lisboa', 'Alicante', 'Barcelona', 'Málaga', 'Palma de Mallorca', 'Tarragona', 'Valencia', 'Estocolmo', 'Galveston (Texas)', 'La Goulette (Túnez)', 'Estambul', 'Kuşadası', 'Southampton (Londres)', 'Seattle'] },
+          // Estructura calcada de la portada real de MSC: arriba solo
+          // fechas + pasajeros (lo mínimo para buscar), abajo los filtros
+          // opcionales como chips ("+") — puerto, destino, barco, camarote.
+          // No hay "Naviera" ni "Noches" porque ese buscador tampoco los pide.
+          { label: 'Fecha de salida', name: 'fechas', placeholder: 'Elige tus fechas', type: 'text', monthPicker: true },
+          { label: 'Pasajeros', name: 'pasajeros_resumen', type: 'passengerPicker', passengerSingular: 'pasajero', passengerPlural: 'pasajeros', staterroomLabel: '1 camarote',
+            stepperFields: [
+              { name: 'adultos', label: 'Adultos (18+)', min: 1, default: 2 },
+              { name: 'ninos_12_17', label: 'Niños (12-17)', min: 0, default: 0 },
+              { name: 'ninos_2_11', label: 'Niños (2-11)', min: 0, default: 0 },
+              { name: 'bebes', label: 'Bebés (menos de 2)', min: 0, default: 0 }
+            ] },
+          { label: 'Puerto de salida', name: 'puerto_salida', type: 'select', chip: true, options: ['Cualquier puerto', 'Buenos Aires', 'Shanghái', 'Split', 'Copenhague', 'Miami', 'Port Canaveral (Orlando)', 'Cannes', 'Marsella', 'Hamburgo', 'Kiel', 'Warnemünde (Berlín)', 'El Pireo (Atenas)', 'Ancona', 'Bari', 'Bríndisi', 'Cagliari', 'Civitavecchia (Roma)', 'Génova', 'Livorno (Florencia)', 'Messina', 'Nápoles', 'Olbia', 'Palermo', 'Trieste', 'Venecia', 'La Valeta', 'Oslo', 'Lisboa', 'Alicante', 'Barcelona', 'Málaga', 'Palma de Mallorca', 'Tarragona', 'Valencia', 'Estocolmo', 'Galveston (Texas)', 'La Goulette (Túnez)', 'Estambul', 'Kuşadası', 'Southampton (Londres)', 'Seattle'] },
           // Un crucero recorre varios puertos, no tiene un solo destino —
           // por eso es región (como en el buscador real de MSC), no un
           // puerto puntual como en "Puerto de salida".
-          { label: 'Destino', name: 'destino', type: 'select', options: ['Cualquier destino', 'Alaska', 'Asia', 'Caribe y Bahamas', 'Mediterráneo', 'MSC Grand Voyages', 'Norte de Europa', 'Canal de Panamá', 'Sudamérica', 'MSC World Cruise'] },
-          { label: 'Naviera', name: 'naviera', type: 'select', options: ['Cualquier naviera', 'Carnival', 'Royal Caribbean', 'MSC Cruceros', 'Norwegian (NCL)', 'Disney Cruise Line', 'Princess Cruises', 'Celebrity Cruises', 'Costa Cruceros', 'Holland America Line', 'Cunard', 'P&O Cruises', 'Oceania Cruises', 'Regent Seven Seas', 'Silversea', 'Seabourn', 'Viking Ocean Cruises', 'Windstar Cruises', 'Azamara', 'Virgin Voyages', 'Explora Journeys', 'Crystal Cruises', 'AIDA Cruises', 'TUI Cruises', 'Marella Cruises', 'Saga Cruises', 'Ponant', 'Hurtigruten', 'Star Clippers', 'Fred. Olsen Cruise Lines', 'Dream Cruises', 'Resorts World Cruises', 'Star Cruises', 'Lindblad Expeditions', 'Atlas Ocean Voyages'] },
-          // Solo tiene sentido para MSC (es su flota puntual) — para otra
-          // naviera el cliente no va a encontrar su barco acá, por eso
-          // arranca en "Cualquier barco" y no es obligatorio.
-          { label: 'Barco', name: 'barco', type: 'select', options: ['Cualquier barco', 'MSC Armonia', 'MSC Bellissima', 'MSC Divina', 'MSC Euribia', 'MSC Fantasia', 'MSC Grandiosa', 'MSC Lirica', 'MSC Magnifica', 'MSC Meraviglia', 'MSC Musica', 'MSC Opera', 'MSC Orchestra', 'MSC Poesia', 'MSC Preziosa', 'MSC Seascape', 'MSC Seashore', 'MSC Seaside', 'MSC Seaview', 'MSC Sinfonia', 'MSC Splendida', 'MSC Virtuosa', 'MSC World America', 'MSC World Europa'] },
-          { label: 'Fecha de salida', name: 'fechas', placeholder: 'Elige tus fechas', type: 'text', monthPicker: true },
-          { label: 'Noches', name: 'noches', type: 'select', options: ['3 noches', '4 noches', '5 noches', '7 noches', '10 noches', '14 noches', '21 noches o más'] },
-          { label: 'Adultos (18+)', name: 'adultos', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
-          // Separado por franja de edad (igual que el buscador real de MSC)
-          // en vez de un solo "Niños" — la edad exacta importa: hay
-          // políticas distintas para bebés, niños chicos y adolescentes
-          // (ver política de menores de MSC).
-          { label: 'Niños (12-17)', name: 'ninos_12_17', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
-          { label: 'Niños (2-11)', name: 'ninos_2_11', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
-          { label: 'Bebés (menos de 2)', name: 'bebes', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
-          { label: 'Tipo de camarote', name: 'camarote', type: 'select', options: ['MSC Yacht Club', 'Suite', 'Balcón', 'Vista al mar', 'Interior'] }
+          { label: 'Destino', name: 'destino', type: 'select', chip: true, options: ['Cualquier destino', 'Alaska', 'Asia', 'Caribe y Bahamas', 'Mediterráneo', 'MSC Grand Voyages', 'Norte de Europa', 'Canal de Panamá', 'Sudamérica', 'MSC World Cruise'] },
+          { label: 'Barco', name: 'barco', type: 'select', chip: true, options: ['Cualquier barco', 'MSC Armonia', 'MSC Bellissima', 'MSC Divina', 'MSC Euribia', 'MSC Fantasia', 'MSC Grandiosa', 'MSC Lirica', 'MSC Magnifica', 'MSC Meraviglia', 'MSC Musica', 'MSC Opera', 'MSC Orchestra', 'MSC Poesia', 'MSC Preziosa', 'MSC Seascape', 'MSC Seashore', 'MSC Seaside', 'MSC Seaview', 'MSC Sinfonia', 'MSC Splendida', 'MSC Virtuosa', 'MSC World America', 'MSC World Europa'] },
+          { label: 'Tipo de camarote', name: 'camarote', type: 'select', chip: true, options: ['MSC Yacht Club', 'Suite', 'Balcón', 'Vista al mar', 'Interior'] }
         ]
       },
       hoteles: {
