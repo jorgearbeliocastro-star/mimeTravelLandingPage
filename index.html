@@ -5295,6 +5295,25 @@
           }
           return total;
         }
+        // Cruceros: cada clave disponible es compuesta "camarote_nivel"
+        // (ver cabinTierKey en la app) — se separa para agrupar por
+        // camarote con sus niveles Bella/Fantastica/Aurea adentro, igual
+        // que se ve en la web real de una naviera.
+        const CABIN_TYPE_ORDER = ['interior', 'oceanview', 'balcony', 'suite', 'yacht_club'];
+        const FARE_TIER_ORDER = ['bella', 'fantastica', 'aurea'];
+        function groupCabinKeys(keys) {
+          const byCabin = {};
+          keys.forEach(function (key) {
+            const tier = FARE_TIER_ORDER.find((t) => key.endsWith('_' + t));
+            if (!tier) return;
+            const cabin = key.slice(0, key.length - tier.length - 1);
+            (byCabin[cabin] = byCabin[cabin] || []).push({ key, tier });
+          });
+          return CABIN_TYPE_ORDER.filter((c) => byCabin[c]).map((cabin) => ({
+            cabin,
+            tiers: byCabin[cabin].sort((a, b) => FARE_TIER_ORDER.indexOf(a.tier) - FARE_TIER_ORDER.indexOf(b.tier)),
+          }));
+        }
         // Recalcula los textos de precio mostrados según qué esté marcado
         // (seguro/equipaje) — se llama tanto al pintar como al tocar
         // cualquier checkbox, así el cliente ve el total real subir/bajar
