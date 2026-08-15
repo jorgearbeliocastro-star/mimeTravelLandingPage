@@ -550,6 +550,69 @@
     flex-direction: column;
     padding: 8px 16px;
     min-width: 0;
+    position: relative;
+  }
+
+  /* Selector de mes completo (cruceros) — panel que se abre debajo del
+     campo con una grilla de meses por año, como en la web real de una
+     naviera: se elige un mes y se llena el rango completo solo. */
+  .month-picker-panel {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 16px;
+    right: 16px;
+    z-index: 40;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+    padding: 14px;
+    margin-top: 4px;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  .month-picker-panel.open {
+    display: block;
+  }
+
+  .month-picker-year + .month-picker-year {
+    margin-top: 10px;
+  }
+
+  .month-picker-year-label {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--primary);
+    margin-bottom: 6px;
+  }
+
+  .month-picker-year-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+
+  .month-picker-month {
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    padding: 7px 4px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    background: #fff;
+    color: var(--dark);
+    cursor: pointer;
+  }
+
+  .month-picker-month:hover {
+    border-color: var(--turquesa);
+  }
+
+  .month-picker-month.disabled {
+    color: rgba(26, 26, 26, 0.3);
+    border-color: rgba(0, 0, 0, 0.06);
+    cursor: not-allowed;
   }
 
   .search-field--compact {
