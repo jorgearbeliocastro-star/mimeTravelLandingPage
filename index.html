@@ -4069,13 +4069,22 @@
         label: 'Cruceros',
         fields: [
           { label: 'Puerto de salida', name: 'puerto_salida', placeholder: '¿Desde qué puerto?', type: 'text', country: true, geoMode: 'port' },
-          { label: 'Destino', name: 'destino', placeholder: '¿Hacia dónde?', type: 'text', country: true, geoMode: 'port' },
+          // Un crucero recorre varios puertos, no tiene un solo destino —
+          // por eso es región (como en el buscador real de MSC), no un
+          // puerto puntual como en "Puerto de salida".
+          { label: 'Destino', name: 'destino', type: 'select', options: ['Cualquier destino', 'Caribe y Bahamas', 'Mediterráneo', 'Europa del Norte y Bálticos', 'Islas Griegas', 'Alaska', 'Emiratos Árabes y Dubái', 'Sudamérica', 'Asia', 'Australia y Pacífico Sur', 'Trasatlántico', 'Canal de Panamá'] },
           { label: 'Naviera', name: 'naviera', type: 'select', options: ['Cualquier naviera', 'Carnival', 'Royal Caribbean', 'MSC Cruceros', 'Norwegian (NCL)', 'Disney Cruise Line', 'Princess Cruises', 'Celebrity Cruises', 'Costa Cruceros', 'Holland America Line', 'Cunard', 'P&O Cruises', 'Oceania Cruises', 'Regent Seven Seas', 'Silversea', 'Seabourn', 'Viking Ocean Cruises', 'Windstar Cruises', 'Azamara', 'Virgin Voyages', 'Explora Journeys', 'Crystal Cruises', 'AIDA Cruises', 'TUI Cruises', 'Marella Cruises', 'Saga Cruises', 'Ponant', 'Hurtigruten', 'Star Clippers', 'Fred. Olsen Cruise Lines', 'Dream Cruises', 'Resorts World Cruises', 'Star Cruises', 'Lindblad Expeditions', 'Atlas Ocean Voyages'] },
           { label: 'Fecha de salida', name: 'fechas', placeholder: 'Elige tus fechas', type: 'date' },
           { label: 'Noches', name: 'noches', type: 'select', options: ['3 noches', '4 noches', '5 noches', '7 noches', '10 noches', '14 noches', '21 noches o más'] },
-          { label: 'Adultos', name: 'adultos', placeholder: 'N.º', type: 'text' },
-          { label: 'Niños', name: 'ninos', placeholder: 'N.º', type: 'text' },
-          { label: 'Tipo de camarote', name: 'camarote', type: 'select', options: ['Interior', 'Vista al mar', 'Balcón', 'Suite'] }
+          { label: 'Adultos (18+)', name: 'adultos', placeholder: 'N.º', type: 'text' },
+          // Separado por franja de edad (igual que el buscador real de MSC)
+          // en vez de un solo "Niños" — la edad exacta importa: hay
+          // políticas distintas para bebés, niños chicos y adolescentes
+          // (ver política de menores de MSC).
+          { label: 'Niños (12-17)', name: 'ninos_12_17', placeholder: 'N.º', type: 'text' },
+          { label: 'Niños (2-11)', name: 'ninos_2_11', placeholder: 'N.º', type: 'text' },
+          { label: 'Bebés (menos de 2)', name: 'bebes', placeholder: 'N.º', type: 'text' },
+          { label: 'Tipo de camarote', name: 'camarote', type: 'select', options: ['Interior', 'Vista al mar', 'Balcón', 'Suite', 'MSC Yacht Club'] }
         ]
       },
       hoteles: {
