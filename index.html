@@ -6212,7 +6212,7 @@
         // verdad en el aeropuerto) — sin esto, el cliente solo veía el
         // total cambiar al tocar un número, sin saber a qué precio estaba
         // accediendo cada maleta de más.
-        function renderAddonQty(offered, qty, labelKey, idPrefix, onChange, bagPrices) {
+        function renderAddonQty(offered, qty, labelKey, idPrefix, onChange, bagPrices, maxQty) {
           if (!offered) {
             onChange(0);
             return;
@@ -6222,7 +6222,9 @@
           // El precio de cada maleta va arriba de SU número — la 1ra no
           // cuesta lo mismo que la 2da, así queda claro de un vistazo qué
           // toca pagar por elegir cada una, sin una lista aparte para leer.
-          const chips = [0, 1, 2, 3, 4]
+          const options = [];
+          for (let n = 0; n <= (maxQty || 4); n++) options.push(n);
+          const chips = options
             .map((n) => {
               let priceLabel = '&nbsp;';
               if (n > 0 && bagPrices && bagPrices.length) {
