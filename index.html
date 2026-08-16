@@ -6382,6 +6382,14 @@
                 '<input type="checkbox" ' + (selectedCustomAddons[addon.label] ? 'checked' : '') + '> ' +
                 '<span>' + addon.label + ' (+USD ' + addon.priceUSD + ')</span>';
               addonsWrap.appendChild(row);
+              // Descripción opcional (viene del catálogo del Dueño) — línea
+              // aparte debajo del checkbox, no adentro del <label>.
+              if (addon.description) {
+                const descEl = document.createElement('div');
+                descEl.className = 'quote-status-addon-description';
+                descEl.textContent = addon.description;
+                addonsWrap.appendChild(descEl);
+              }
               row.querySelector('input').addEventListener('change', function (e) {
                 selectedCustomAddons = { ...selectedCustomAddons, [addon.label]: e.target.checked };
                 updateQuotePriceDisplay();
