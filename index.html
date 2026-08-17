@@ -1840,6 +1840,13 @@
     padding: 24px;
   }
 
+  /* El atributo hidden tiene la misma especificidad que la clase de
+     arriba: sin este override explícito, display:flex gana y el overlay
+     se ve siempre (pantalla negra), aunque hidden esté puesto. */
+  .photo-lightbox-overlay[hidden] {
+    display: none;
+  }
+
   .photo-lightbox-img {
     max-width: min(90vw, 640px);
     max-height: 85vh;
