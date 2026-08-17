@@ -1986,6 +1986,72 @@
     margin-top: 8px;
   }
 
+  /* Preferencias de ubicación del camarote — pedido del cliente, no
+     reserva confirmada (ver comentario en el JS). */
+  .quote-status-cabin-prefs {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .quote-status-cabin-prefs-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--dark);
+  }
+
+  .quote-status-cabin-prefs-hint {
+    font-size: 11px;
+    color: rgba(26, 26, 26, 0.55);
+    margin-bottom: 6px;
+  }
+
+  .quote-status-cabin-prefs-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: rgba(26, 26, 26, 0.5);
+    margin-top: 8px;
+  }
+
+  .quote-status-cabin-prefs-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  .quote-status-cabin-pref-chip {
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 999px;
+    padding: 5px 12px;
+    background: #fff;
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--dark);
+    cursor: pointer;
+  }
+
+  .quote-status-cabin-pref-chip.active {
+    background: var(--turquesa);
+    border-color: var(--turquesa);
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .quote-status-cabin-prefs-input {
+    display: block;
+    width: 100%;
+    margin-top: 4px;
+    padding: 8px 10px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    box-sizing: border-box;
+  }
+
   .quote-status-cabin-group-title {
     font-size: 12px;
     font-weight: 700;
@@ -3130,6 +3196,18 @@
       fareTierOption_bella: 'Bella',
       fareTierOption_fantastica: 'Fantastica',
       fareTierOption_aurea: 'Aurea',
+      cabinPreferencesTitle: 'Preferencias de ubicación (opcional)',
+      cabinPreferencesHint: 'Es un pedido, no una reserva confirmada — lo verificamos antes de cerrar tu compra.',
+      cabinDeckLabel: 'Piso',
+      cabinDeckOption_low: 'Bajo',
+      cabinDeckOption_mid: 'Medio',
+      cabinDeckOption_high: 'Alto',
+      cabinPositionLabel: 'Posición en el barco',
+      cabinPositionOption_forward: 'Adelante (proa)',
+      cabinPositionOption_mid: 'Medio',
+      cabinPositionOption_aft: 'Atrás (popa)',
+      cabinConnectingLabel: '¿Necesitás que se comunique con otro camarote?',
+      cabinConnectingPlaceholder: 'Nombre o referencia de la otra reserva',
       bagsCount_0: 'sin maleta facturada',
       bagsCount_1: '1 maleta',
       bagsCount_2: '2 maletas',
@@ -3371,6 +3449,18 @@
       fareTierOption_bella: 'Bella',
       fareTierOption_fantastica: 'Fantastica',
       fareTierOption_aurea: 'Aurea',
+      cabinPreferencesTitle: 'Location preferences (optional)',
+      cabinPreferencesHint: "It's a request, not a confirmed booking — we'll check it before finalizing your purchase.",
+      cabinDeckLabel: 'Deck',
+      cabinDeckOption_low: 'Low',
+      cabinDeckOption_mid: 'Mid',
+      cabinDeckOption_high: 'High',
+      cabinPositionLabel: 'Position on the ship',
+      cabinPositionOption_forward: 'Forward',
+      cabinPositionOption_mid: 'Midship',
+      cabinPositionOption_aft: 'Aft',
+      cabinConnectingLabel: 'Need it connected to another cabin?',
+      cabinConnectingPlaceholder: 'Name or reference of the other booking',
       bagsCount_0: 'no checked bag',
       bagsCount_1: '1 bag',
       bagsCount_2: '2 bags',
@@ -3607,6 +3697,18 @@
       fareTierOption_bella: 'Bella',
       fareTierOption_fantastica: 'Fantastica',
       fareTierOption_aurea: 'Aurea',
+      cabinPreferencesTitle: 'Preferenze di posizione (opzionale)',
+      cabinPreferencesHint: 'È una richiesta, non una prenotazione confermata — la verifichiamo prima di chiudere il tuo acquisto.',
+      cabinDeckLabel: 'Ponte',
+      cabinDeckOption_low: 'Basso',
+      cabinDeckOption_mid: 'Medio',
+      cabinDeckOption_high: 'Alto',
+      cabinPositionLabel: 'Posizione sulla nave',
+      cabinPositionOption_forward: 'Avanti (prua)',
+      cabinPositionOption_mid: 'Centrale',
+      cabinPositionOption_aft: 'Poppa',
+      cabinConnectingLabel: 'Hai bisogno che sia comunicante con un\'altra cabina?',
+      cabinConnectingPlaceholder: 'Nome o riferimento dell\'altra prenotazione',
       bagsCount_0: 'nessun bagaglio in stiva',
       bagsCount_1: '1 bagaglio',
       bagsCount_2: '2 bagagli',
@@ -3843,6 +3945,18 @@
       fareTierOption_bella: 'Bella',
       fareTierOption_fantastica: 'Fantastica',
       fareTierOption_aurea: 'Aurea',
+      cabinPreferencesTitle: 'Preferências de localização (opcional)',
+      cabinPreferencesHint: 'É um pedido, não uma reserva confirmada — vamos verificar antes de fechar sua compra.',
+      cabinDeckLabel: 'Deck',
+      cabinDeckOption_low: 'Baixo',
+      cabinDeckOption_mid: 'Médio',
+      cabinDeckOption_high: 'Alto',
+      cabinPositionLabel: 'Posição no navio',
+      cabinPositionOption_forward: 'Proa',
+      cabinPositionOption_mid: 'Meio',
+      cabinPositionOption_aft: 'Popa',
+      cabinConnectingLabel: 'Precisa que se comunique com outra cabine?',
+      cabinConnectingPlaceholder: 'Nome ou referência da outra reserva',
       bagsCount_0: 'sem bagagem despachada',
       bagsCount_1: '1 mala',
       bagsCount_2: '2 malas',
@@ -5849,6 +5963,13 @@
     // asiento) — '' = todavía no eligió.
     let selectedChosenSeatType = '';
     let selectedWantsRefundable = false;
+    // Preferencias de ubicación de camarote (solo cruceros) — un PEDIDO del
+    // cliente, no una reserva confirmada: no tenemos el plano de
+    // disponibilidad real de MSC, el Agente lo verifica a mano antes de
+    // cerrar la venta.
+    let selectedCabinDeckPreference = '';
+    let selectedCabinPositionPreference = '';
+    let selectedCabinConnectingWith = '';
     // Extras personalizados (excursiones, paquetes, etc. de un crucero) —
     // el Agente los carga a mano para esta cotización puntual (no hay
     // catálogo fijo por naviera), el cliente los marca como casillas.
@@ -6157,7 +6278,7 @@
         quoteDecisionInFlight = true;
         const clientToken = getOrCreateWebClientToken();
         const decideStep = mode === 'accept'
-          ? laExpancion.rpc('decide_quote_request_with_tier', { p_token: clientToken, p_id: activeQuoteId, p_accept: true, p_tier: selectedQuoteTier, p_insurance_qty: selectedWantsInsurance ? 1 : 0, p_extra_bag_qty: selectedExtraBagQty, p_carry_on_qty: 0, p_chosen_seat_type: selectedChosenSeatType || null, p_wants_refundable: selectedWantsRefundable, p_chosen_custom_addon_labels: Object.keys(selectedCustomAddons).filter((label) => selectedCustomAddons[label]) }).then(({ error }) => {
+          ? laExpancion.rpc('decide_quote_request_with_tier', { p_token: clientToken, p_id: activeQuoteId, p_accept: true, p_tier: selectedQuoteTier, p_insurance_qty: selectedWantsInsurance ? 1 : 0, p_extra_bag_qty: selectedExtraBagQty, p_carry_on_qty: 0, p_chosen_seat_type: selectedChosenSeatType || null, p_wants_refundable: selectedWantsRefundable, p_chosen_custom_addon_labels: Object.keys(selectedCustomAddons).filter((label) => selectedCustomAddons[label]), p_cabin_deck_preference: selectedCabinDeckPreference || null, p_cabin_position_preference: selectedCabinPositionPreference || null, p_cabin_connecting_with: selectedCabinConnectingWith || null }).then(({ error }) => {
               if (error) throw error;
               notifyQuoteDecisionWeb(activeQuoteId);
             })
@@ -6510,6 +6631,44 @@
               cabinGroup.appendChild(grid);
               seatTypeWrap.appendChild(cabinGroup);
             });
+            // Preferencias de ubicación — un PEDIDO, no una reserva
+            // confirmada: no tenemos el plano de disponibilidad real de
+            // MSC, el Agente lo verifica a mano antes de cerrar la venta.
+            const cabinPrefsWrap = document.createElement('div');
+            cabinPrefsWrap.className = 'quote-status-cabin-prefs';
+            cabinPrefsWrap.innerHTML =
+              '<div class="quote-status-cabin-prefs-title">' + t('cabinPreferencesTitle') + '</div>' +
+              '<div class="quote-status-cabin-prefs-hint">' + t('cabinPreferencesHint') + '</div>' +
+              '<div class="quote-status-cabin-prefs-label">' + t('cabinDeckLabel') + '</div>' +
+              '<div class="quote-status-cabin-prefs-chips" data-cabin-pref="deck">' +
+                ['low', 'mid', 'high'].map((opt) =>
+                  '<button type="button" class="quote-status-cabin-pref-chip" data-value="' + opt + '">' + t('cabinDeckOption_' + opt) + '</button>'
+                ).join('') +
+              '</div>' +
+              '<div class="quote-status-cabin-prefs-label">' + t('cabinPositionLabel') + '</div>' +
+              '<div class="quote-status-cabin-prefs-chips" data-cabin-pref="position">' +
+                ['forward', 'mid', 'aft'].map((opt) =>
+                  '<button type="button" class="quote-status-cabin-pref-chip" data-value="' + opt + '">' + t('cabinPositionOption_' + opt) + '</button>'
+                ).join('') +
+              '</div>' +
+              '<div class="quote-status-cabin-prefs-label">' + t('cabinConnectingLabel') + '</div>' +
+              '<input type="text" class="quote-status-cabin-prefs-input" id="cabinConnectingInput" placeholder="' + t('cabinConnectingPlaceholder') + '">';
+            seatTypeWrap.appendChild(cabinPrefsWrap);
+            cabinPrefsWrap.querySelectorAll('[data-cabin-pref="deck"] .quote-status-cabin-pref-chip').forEach((btn) => {
+              btn.addEventListener('click', function () {
+                selectedCabinDeckPreference = selectedCabinDeckPreference === btn.dataset.value ? '' : btn.dataset.value;
+                cabinPrefsWrap.querySelectorAll('[data-cabin-pref="deck"] .quote-status-cabin-pref-chip').forEach((b) => b.classList.toggle('active', b.dataset.value === selectedCabinDeckPreference));
+              });
+            });
+            cabinPrefsWrap.querySelectorAll('[data-cabin-pref="position"] .quote-status-cabin-pref-chip').forEach((btn) => {
+              btn.addEventListener('click', function () {
+                selectedCabinPositionPreference = selectedCabinPositionPreference === btn.dataset.value ? '' : btn.dataset.value;
+                cabinPrefsWrap.querySelectorAll('[data-cabin-pref="position"] .quote-status-cabin-pref-chip').forEach((b) => b.classList.toggle('active', b.dataset.value === selectedCabinPositionPreference));
+              });
+            });
+            cabinPrefsWrap.querySelector('#cabinConnectingInput').addEventListener('input', function (e) {
+              selectedCabinConnectingWith = e.target.value;
+            });
           } else {
             availableSeatTypes.forEach(function (seatType) {
               const price = seatTypePrices[seatType];
@@ -6528,6 +6687,9 @@
           quoteStatusBar.appendChild(seatTypeWrap);
         } else {
           selectedChosenSeatType = '';
+          selectedCabinDeckPreference = '';
+          selectedCabinPositionPreference = '';
+          selectedCabinConnectingWith = '';
         }
         // Extras personalizados (excursiones, paquetes, etc.) — el Agente
         // los cargó a mano para esta cotización puntual, el cliente los
