@@ -1916,6 +1916,7 @@
   }
 
   .quote-status-cabin-card {
+    position: relative;
     flex: 1 1 84px;
     min-width: 84px;
     border: 1.5px solid rgba(0, 0, 0, 0.12);
@@ -1928,6 +1929,30 @@
     gap: 2px;
     cursor: pointer;
     font-family: var(--font-body);
+  }
+
+  /* Foto del camarote — flota arriba del botón solo mientras el cursor
+     está encima; tocar/clickear el botón sigue siendo lo que lo elige. */
+  .quote-status-cabin-card-preview {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    transform: translateX(-50%) scale(0.96);
+    width: 160px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    z-index: 20;
+  }
+
+  .quote-status-cabin-card:hover .quote-status-cabin-card-preview,
+  .quote-status-cabin-card:focus-visible .quote-status-cabin-card-preview {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
   }
 
   .quote-status-cabin-card.active {
