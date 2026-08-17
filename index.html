@@ -5024,6 +5024,31 @@
       triggerLabel.classList.toggle('placeholder', selected.length === 0);
     });
 
+    // El destino se guarda en el idioma con el que el visitante completó el
+    // formulario, pero los itinerarios los carga el Dueño siempre en
+    // español — sin esto, un visitante usando la web en inglés nunca vería
+    // los itinerarios de "Caribe y Bahamas" (le aparecería "Caribbean &
+    // Bahamas", que no matchea como texto exacto). Mismo criterio que
+    // canonicalDestination en la app (cruiseRouteAliases.ts).
+    const DESTINATION_ALIAS_ROWS = [
+      ['Alaska', 'Alaska', 'Alaska', 'Alasca'],
+      ['Asia', 'Asia', 'Asia', 'Ásia'],
+      ['Caribe y Bahamas', 'Caribbean & Bahamas', 'Caraibi e Bahamas', 'Caribe e Bahamas'],
+      ['Mediterráneo', 'Mediterranean', 'Mediterraneo', 'Mediterrâneo'],
+      ['MSC Grand Voyages', 'MSC Grand Voyages', 'MSC Grand Voyages', 'MSC Grand Voyages'],
+      ['Norte de Europa', 'Northern Europe', 'Nord Europa', 'Norte da Europa'],
+      ['Canal de Panamá', 'Panama Canal', 'Canale di Panama', 'Canal do Panamá'],
+      ['Sudamérica', 'South America', 'Sud America', 'América do Sul'],
+      ['MSC World Cruise', 'MSC World Cruise', 'MSC World Cruise', 'MSC World Cruise'],
+    ];
+    function canonicalDestination(value) {
+      const trimmed = (value || '').trim().toLowerCase();
+      for (const row of DESTINATION_ALIAS_ROWS) {
+        if (row.some((v) => v.toLowerCase() === trimmed)) return row[0];
+      }
+      return (value || '').trim();
+    }
+
     // Arma el pedido de cotización para "la expansión" según la pestaña
     // activa (Vuelos/Cruceros/Hoteles/Autos/Todo en uno) — cada una guarda
     // sus campos en quote_requests de forma distinta.
