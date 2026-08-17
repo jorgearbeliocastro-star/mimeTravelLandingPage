@@ -2371,6 +2371,12 @@
         <button type="submit" class="btn btn-coral" data-i18n="searchSubmit">Buscar</button>
       </form>
       <p class="newsletter-msg" id="searchMsg" style="color: rgba(255,255,255,0.85);"></p>
+      <!-- Resultados de itinerarios reales de crucero (barco, noches,
+           puertos, fechas, foto, precio propio) — igual formato que la
+           página de resultados de MSC. Solo aparece si hay itinerarios
+           cargados para el puerto+destino elegidos; si no hay ninguno,
+           el buscador sigue funcionando como antes (manda directo al agente). -->
+      <div id="cruiseResultsContainer" class="cruise-results" hidden></div>
     </div>
   </section>
 
