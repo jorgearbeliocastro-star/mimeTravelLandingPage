@@ -5329,7 +5329,7 @@
             searchMonth: cruiseMonth,
             returnDate: null,
             endDate: null,
-            notes: null,
+            notes: buildQuoteNotes([data.pasajeros ? 'Pasajeros: ' + data.pasajeros : null]),
           };
         }
         case 'hoteles':
