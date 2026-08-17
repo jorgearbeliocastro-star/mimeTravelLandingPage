@@ -6232,6 +6232,16 @@
         // Orden de más caro a más barato — mismo orden que usa MSC.
         const CABIN_TYPE_ORDER = ['yacht_club', 'suite', 'balcony', 'oceanview', 'interior'];
         const FARE_TIER_ORDER = ['bella', 'fantastica', 'aurea'];
+        // Foto real de cada tipo de camarote (capturas de MSC) — se llenan
+        // a medida que las suben a Supabase Storage. Sin foto todavía, la
+        // tarjeta simplemente no muestra imagen (no se inventa ninguna).
+        const CABIN_TYPE_PHOTOS = {
+          interior: '',
+          oceanview: '',
+          balcony: '',
+          suite: '',
+          yacht_club: '',
+        };
         function groupCabinKeys(keys) {
           const byCabin = {};
           keys.forEach(function (key) {
