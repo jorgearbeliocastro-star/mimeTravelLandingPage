@@ -5458,6 +5458,7 @@
             'Barco preferido: ' + it.ship,
             it.ports_visited ? 'Puertos: ' + it.ports_visited : null,
             'Precio de referencia: USD ' + it.price_usd + ' por persona',
+            data.pasajeros ? 'Pasajeros: ' + data.pasajeros : null,
           ]);
           submitQuoteRequest(form, payload);
         });
