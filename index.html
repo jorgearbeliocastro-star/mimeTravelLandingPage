@@ -6454,6 +6454,15 @@
             groupCabinKeys(availableSeatTypes).forEach(function (group) {
               const cabinGroup = document.createElement('div');
               cabinGroup.className = 'quote-status-cabin-group';
+              const cabinPhotoUrl = CABIN_TYPE_PHOTOS[group.cabin];
+              if (cabinPhotoUrl) {
+                const cabinPhoto = document.createElement('img');
+                cabinPhoto.className = 'quote-status-cabin-photo';
+                cabinPhoto.src = cabinPhotoUrl;
+                cabinPhoto.alt = t('cabinTypeOption_' + group.cabin);
+                cabinPhoto.addEventListener('click', function () { openPhotoLightbox(cabinPhotoUrl); });
+                cabinGroup.appendChild(cabinPhoto);
+              }
               const cabinTitle = document.createElement('div');
               cabinTitle.className = 'quote-status-cabin-group-title';
               cabinTitle.textContent = t('cabinTypeOption_' + group.cabin);
