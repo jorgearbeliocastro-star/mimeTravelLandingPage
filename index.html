@@ -4721,18 +4721,9 @@
       cruceros: {
         label: 'Cruzeiros',
         fields: [
-          { label: 'Porto de saída', name: 'puerto_salida', type: 'select', chip: true, default: 'Miami', options: ['Qualquer porto', 'Buenos Aires', 'Xangai', 'Split', 'Copenhague', 'Miami', 'Port Canaveral (Orlando)', 'Cannes', 'Marselha', 'Hamburgo', 'Kiel', 'Warnemünde (Berlim)', 'Pireu (Atenas)', 'Ancona', 'Bari', 'Bríndisi', 'Cagliari', 'Civitavecchia (Roma)', 'Gênova', 'Livorno (Florença)', 'Messina', 'Nápoles', 'Olbia', 'Palermo', 'Trieste', 'Veneza', 'Valeta', 'Oslo', 'Lisboa', 'Alicante', 'Barcelona', 'Málaga', 'Palma de Maiorca', 'Tarragona', 'Valência', 'Estocolmo', 'Galveston (Texas)', 'La Goulette (Tunísia)', 'Istambul', 'Kuşadası', 'Southampton (Londres)', 'Seattle'] },
-          { label: 'Destino', name: 'destino', type: 'select', chip: true, default: 'Caribe e Bahamas', options: ['Qualquer destino', 'Alasca', 'Ásia', 'Caribe e Bahamas', 'Mediterrâneo', 'MSC Grand Voyages', 'Norte da Europa', 'Canal do Panamá', 'América do Sul', 'MSC World Cruise'] },
-          { label: 'Data de saída', name: 'fechas', placeholder: 'Escolha as datas', type: 'text', monthPicker: true },
-          { label: 'Passageiros', name: 'pasajeros_resumen', type: 'passengerPicker', passengerSingular: 'passageiro', passengerPlural: 'passageiros', staterroomLabel: '1 cabine',
-            stepperFields: [
-              { name: 'adultos', label: 'Adultos (18+)', min: 1, default: 2 },
-              { name: 'ninos_12_17', label: 'Crianças (12-17)', min: 0, default: 0 },
-              { name: 'ninos_2_11', label: 'Crianças (2-11)', min: 0, default: 0 },
-              { name: 'bebes', label: 'Bebês (menos de 2)', min: 0, default: 0 }
-            ] },
-          { label: 'Navio', name: 'barco', type: 'select', chip: true, options: ['Qualquer navio', 'MSC Armonia', 'MSC Bellissima', 'MSC Divina', 'MSC Euribia', 'MSC Fantasia', 'MSC Grandiosa', 'MSC Lirica', 'MSC Magnifica', 'MSC Meraviglia', 'MSC Musica', 'MSC Opera', 'MSC Orchestra', 'MSC Poesia', 'MSC Preziosa', 'MSC Seascape', 'MSC Seashore', 'MSC Seaside', 'MSC Seaview', 'MSC Sinfonia', 'MSC Splendida', 'MSC Virtuosa', 'MSC World America', 'MSC World Europa'] },
-          { label: 'Tipo de cabine', name: 'camarote', type: 'select', chip: true, options: ['MSC Yacht Club', 'Suíte', 'Varanda', 'Vista para o mar', 'Interna'] }
+          { label: 'Destino', name: 'destino', type: 'select', default: 'Caribe e Bahamas', options: ['Qualquer destino', 'Alasca', 'Ásia', 'Caribe e Bahamas', 'Mediterrâneo', 'MSC Grand Voyages', 'Norte da Europa', 'Canal do Panamá', 'América do Sul', 'MSC World Cruise'] },
+          { label: 'Porto de saída', name: 'puerto_salida', type: 'select', default: 'Miami', options: ['Qualquer porto', 'Buenos Aires', 'Xangai', 'Split', 'Copenhague', 'Miami', 'Port Canaveral (Orlando)', 'Cannes', 'Marselha', 'Hamburgo', 'Kiel', 'Warnemünde (Berlim)', 'Pireu (Atenas)', 'Ancona', 'Bari', 'Bríndisi', 'Cagliari', 'Civitavecchia (Roma)', 'Gênova', 'Livorno (Florença)', 'Messina', 'Nápoles', 'Olbia', 'Palermo', 'Trieste', 'Veneza', 'Valeta', 'Oslo', 'Lisboa', 'Alicante', 'Barcelona', 'Málaga', 'Palma de Maiorca', 'Tarragona', 'Valência', 'Estocolmo', 'Galveston (Texas)', 'La Goulette (Tunísia)', 'Istambul', 'Kuşadası', 'Southampton (Londres)', 'Seattle'] },
+          { label: 'Data de saída', name: 'fechas', placeholder: 'Escolha as datas', type: 'text', monthPicker: true }
         ]
       },
       hoteles: {
