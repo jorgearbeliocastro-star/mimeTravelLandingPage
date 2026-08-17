@@ -4884,19 +4884,6 @@
           // de Cruceros) — igual que en la portada real de MSC, van aparte
           // de la fila principal de fecha + pasajeros, no como campos iguales.
           group.classList.toggle('search-field--chip', !!field.chip);
-        } else if (field.type === 'passengerPicker') {
-          group.classList.remove('search-field--compact');
-          group.classList.remove('search-field--chip');
-          input.name = field.name;
-          input.type = 'text';
-          input.readOnly = true;
-          input.disabled = false;
-          input.style.display = '';
-          input.placeholder = '';
-          select.disabled = true;
-          select.style.display = 'none';
-          if (checklist) checklist.style.display = 'none';
-          setupPassengerPicker(input, group, field);
         } else if (field.type === 'checklist' && checklist) {
           input.name = field.name;
           input.type = 'text';
