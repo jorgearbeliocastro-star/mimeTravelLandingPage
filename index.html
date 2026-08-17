@@ -4563,24 +4563,13 @@
         label: 'Cruceros',
         fields: [
           // Estructura calcada de la portada real de MSC: arriba solo
-          // fechas + pasajeros (lo mínimo para buscar), abajo los filtros
-          // opcionales como chips ("+") — puerto, destino, barco, camarote.
-          // No hay "Naviera" ni "Noches" porque ese buscador tampoco los pide.
-          { label: 'Puerto de salida', name: 'puerto_salida', type: 'select', chip: true, default: 'Miami', options: ['Cualquier puerto', 'Buenos Aires', 'Shanghái', 'Split', 'Copenhague', 'Miami', 'Port Canaveral (Orlando)', 'Cannes', 'Marsella', 'Hamburgo', 'Kiel', 'Warnemünde (Berlín)', 'El Pireo (Atenas)', 'Ancona', 'Bari', 'Bríndisi', 'Cagliari', 'Civitavecchia (Roma)', 'Génova', 'Livorno (Florencia)', 'Messina', 'Nápoles', 'Olbia', 'Palermo', 'Trieste', 'Venecia', 'La Valeta', 'Oslo', 'Lisboa', 'Alicante', 'Barcelona', 'Málaga', 'Palma de Mallorca', 'Tarragona', 'Valencia', 'Estocolmo', 'Galveston (Texas)', 'La Goulette (Túnez)', 'Estambul', 'Kuşadası', 'Southampton (Londres)', 'Seattle'] },
-          // Un crucero recorre varios puertos, no tiene un solo destino —
-          // por eso es región (como en el buscador real de MSC), no un
-          // puerto puntual como en "Puerto de salida".
-          { label: 'Destino', name: 'destino', type: 'select', chip: true, default: 'Caribe y Bahamas', options: ['Cualquier destino', 'Alaska', 'Asia', 'Caribe y Bahamas', 'Mediterráneo', 'MSC Grand Voyages', 'Norte de Europa', 'Canal de Panamá', 'Sudamérica', 'MSC World Cruise'] },
-          { label: 'Fecha de salida', name: 'fechas', placeholder: 'Elige tus fechas', type: 'text', monthPicker: true },
-          { label: 'Pasajeros', name: 'pasajeros_resumen', type: 'passengerPicker', passengerSingular: 'pasajero', passengerPlural: 'pasajeros', staterroomLabel: '1 camarote',
-            stepperFields: [
-              { name: 'adultos', label: 'Adultos (18+)', min: 1, default: 2 },
-              { name: 'ninos_12_17', label: 'Niños (12-17)', min: 0, default: 0 },
-              { name: 'ninos_2_11', label: 'Niños (2-11)', min: 0, default: 0 },
-              { name: 'bebes', label: 'Bebés (menos de 2)', min: 0, default: 0 }
-            ] },
-          { label: 'Barco', name: 'barco', type: 'select', chip: true, options: ['Cualquier barco', 'MSC Armonia', 'MSC Bellissima', 'MSC Divina', 'MSC Euribia', 'MSC Fantasia', 'MSC Grandiosa', 'MSC Lirica', 'MSC Magnifica', 'MSC Meraviglia', 'MSC Musica', 'MSC Opera', 'MSC Orchestra', 'MSC Poesia', 'MSC Preziosa', 'MSC Seascape', 'MSC Seashore', 'MSC Seaside', 'MSC Seaview', 'MSC Sinfonia', 'MSC Splendida', 'MSC Virtuosa', 'MSC World America', 'MSC World Europa'] },
-          { label: 'Tipo de camarote', name: 'camarote', type: 'select', chip: true, options: ['MSC Yacht Club', 'Suite', 'Balcón', 'Vista al mar', 'Interior'] }
+          // Igual que la portada real de MSC: solo 3 campos + Buscar.
+          // Pasajeros, barco y tipo de camarote NO están en su buscador
+          // inicial — eso se define después, en otro paso del proceso
+          // (por chat/teléfono con el agente, en nuestro caso).
+          { label: 'Destino', name: 'destino', type: 'select', default: 'Caribe y Bahamas', options: ['Cualquier destino', 'Alaska', 'Asia', 'Caribe y Bahamas', 'Mediterráneo', 'MSC Grand Voyages', 'Norte de Europa', 'Canal de Panamá', 'Sudamérica', 'MSC World Cruise'] },
+          { label: 'Puerto de salida', name: 'puerto_salida', type: 'select', default: 'Miami', options: ['Cualquier puerto', 'Buenos Aires', 'Shanghái', 'Split', 'Copenhague', 'Miami', 'Port Canaveral (Orlando)', 'Cannes', 'Marsella', 'Hamburgo', 'Kiel', 'Warnemünde (Berlín)', 'El Pireo (Atenas)', 'Ancona', 'Bari', 'Bríndisi', 'Cagliari', 'Civitavecchia (Roma)', 'Génova', 'Livorno (Florencia)', 'Messina', 'Nápoles', 'Olbia', 'Palermo', 'Trieste', 'Venecia', 'La Valeta', 'Oslo', 'Lisboa', 'Alicante', 'Barcelona', 'Málaga', 'Palma de Mallorca', 'Tarragona', 'Valencia', 'Estocolmo', 'Galveston (Texas)', 'La Goulette (Túnez)', 'Estambul', 'Kuşadası', 'Southampton (Londres)', 'Seattle'] },
+          { label: 'Fecha de salida', name: 'fechas', placeholder: 'Elige tus fechas', type: 'text', monthPicker: true }
         ]
       },
       hoteles: {
