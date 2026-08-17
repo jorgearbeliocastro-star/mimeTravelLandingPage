@@ -4974,6 +4974,11 @@
 
     const searchForm = document.getElementById('searchForm');
 
+    searchForm.addEventListener('change', function (e) {
+      if (e.target.name !== 'puerto_salida') return;
+      applyDestinoFilterForPort(e.target.value);
+    });
+
     // form.reset() restaura el input oculto a su valor por defecto (roundtrip)
     // pero no toca las clases .active de los botones — hay que resincronizarlas.
     searchForm.addEventListener('reset', function () {
