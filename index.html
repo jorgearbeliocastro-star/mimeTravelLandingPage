@@ -4944,6 +4944,10 @@
       tab.classList.add('active');
       tab.setAttribute('aria-selected', 'true');
       applyServiceType(tab.dataset.type);
+      if (tab.dataset.type === 'cruceros') {
+        const puertoSelect = searchForm.querySelector('select[name="puerto_salida"]');
+        if (puertoSelect) applyDestinoFilterForPort(puertoSelect.value);
+      }
     });
     applyServiceType('vuelos');
 
