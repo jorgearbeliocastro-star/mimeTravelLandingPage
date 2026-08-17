@@ -5426,6 +5426,31 @@
     const presaleDestinoLabel = document.getElementById('presaleDestinoLabel');
     const presaleDestinoInput = document.getElementById('presaleDestinoInput');
 
+    // Lightbox de foto — se usa para agrandar la foto de un extra opcional
+    // cuando el cliente la toca, así ve bien qué se le está ofreciendo sin
+    // marcar el checkbox sin querer.
+    const photoLightboxOverlay = document.getElementById('photoLightboxOverlay');
+    const photoLightboxImg = document.getElementById('photoLightboxImg');
+    const photoLightboxClose = document.getElementById('photoLightboxClose');
+    function openPhotoLightbox(url) {
+      if (!url) return;
+      photoLightboxImg.src = url;
+      photoLightboxOverlay.hidden = false;
+      document.body.style.overflow = 'hidden';
+    }
+    function closePhotoLightbox() {
+      photoLightboxOverlay.hidden = true;
+      photoLightboxImg.src = '';
+      document.body.style.overflow = '';
+    }
+    photoLightboxClose.addEventListener('click', closePhotoLightbox);
+    photoLightboxOverlay.addEventListener('click', function (e) {
+      if (e.target === photoLightboxOverlay) closePhotoLightbox();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !photoLightboxOverlay.hidden) closePhotoLightbox();
+    });
+
     function openPresaleModal(destino) {
       presaleDestinoLabel.textContent = destino;
       presaleDestinoInput.value = destino;
