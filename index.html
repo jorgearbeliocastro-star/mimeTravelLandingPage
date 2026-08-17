@@ -2892,6 +2892,13 @@
     </div>
   </footer>
 
+  <!-- Lightbox para agrandar la foto de un extra opcional al tocarla —
+       para que el cliente vea bien qué se le está ofreciendo. -->
+  <div class="photo-lightbox-overlay" id="photoLightboxOverlay" hidden>
+    <button type="button" class="photo-lightbox-close" id="photoLightboxClose" aria-label="Cerrar" data-i18n-aria="modalCloseAria">✕</button>
+    <img class="photo-lightbox-img" id="photoLightboxImg" src="" alt="">
+  </div>
+
   <!-- ================= PANEL DE COTIZACIÓN / CHAT ================= -->
   <button type="button" class="quote-reopen-btn" id="quoteReopenBtn" hidden>
     <span data-i18n="quoteReopenBtn">Ver mi cotización</span>
