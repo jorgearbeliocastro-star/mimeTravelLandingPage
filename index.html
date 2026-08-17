@@ -5137,22 +5137,20 @@
     }
 
     const searchMsg = document.getElementById('searchMsg');
-    searchForm.addEventListener('submit', function (e) {
-      e.preventDefault();
-      searchMsg.textContent = t('msgSearchSending');
-      const form = this;
-      const activeType = searchTabs.querySelector('.search-tab.active')?.dataset.type || 'vuelos';
-      const data = Object.fromEntries(new FormData(form).entries());
-      const payload = buildSearchQuotePayload(activeType, data);
+    const cruiseResultsContainer = document.getElementById('cruiseResultsContainer');
 
+    // Manda el pedido de verdad a "la expansión" — se separó del listener de
+    // submit porque para cruceros ahora hay un paso intermedio (elegir una
+    // tarjeta de itinerario) antes de llegar acá.
+    function submitQuoteRequest(form, payload) {
+      searchMsg.textContent = t('msgSearchSending');
       createLaExpancionQuoteRequest(payload)
         .then((quoteId) => {
           searchMsg.textContent = t('msgSearchSuccess');
-          // Aviso por correo además de la notificación push de la app —
-          // así llega la alerta aunque el agente tenga la app cerrada.
-          // No bloqueante: si falla, el pedido ya quedó guardado igual.
           sendToFormSubmit(form, 'Nueva búsqueda de viaje — Mime Travel').catch(() => {});
           form.reset();
+          cruiseResultsContainer.hidden = true;
+          cruiseResultsContainer.innerHTML = '';
           openQuotePanel(quoteId, payload.origin ? payload.origin + ' → ' + payload.destination : payload.destination);
         })
         .catch(() => {
@@ -5168,6 +5166,92 @@
               searchMsg.textContent = t('msgSearchError');
             });
         });
+    }
+
+    // Tarjetas de itinerarios reales (barco, noches, puertos, fechas, foto,
+    // precio propio) — igual formato que la página de resultados de MSC.
+    // Elegir una fecha puntual arma y manda la cotización con esos datos
+    // precargados, en vez de un pedido en blanco.
+    function renderCruiseResults(form, data, itineraries) {
+      cruiseResultsContainer.innerHTML = itineraries
+        .map((it, idx) => {
+          const dateChips = (it.available_dates || [])
+            .map((d) => '<button type="button" class="cruise-result-date" data-itinerary="' + idx + '" data-date="' + d + '">' + d + '</button>')
+            .join('');
+          return (
+            '<div class="cruise-result-card">' +
+              (it.photo_url ? '<img class="cruise-result-photo" src="' + it.photo_url + '" alt="">' : '<div class="cruise-result-photo"></div>') +
+              '<div class="cruise-result-info">' +
+                '<div class="cruise-result-nights">' + it.nights + ' ' + t('cruiseResultNights') + '</div>' +
+                '<div class="cruise-result-title">' + it.title + '</div>' +
+                '<div class="cruise-result-ship">' + it.ship + '</div>' +
+                (it.ports_visited ? '<div class="cruise-result-ports">' + t('cruiseResultVisiting') + ' ' + it.ports_visited + '</div>' : '') +
+                '<div class="cruise-result-dates-label">' + t('cruiseResultDatesLabel') + '</div>' +
+                '<div class="cruise-result-dates">' + dateChips + '</div>' +
+              '</div>' +
+              '<div class="cruise-result-price">' +
+                '<span class="cruise-result-price-label">' + t('cruiseResultFrom') + '</span>' +
+                '<span class="cruise-result-price-value">USD ' + it.price_usd + '</span>' +
+                '<span class="cruise-result-price-pp">' + t('cruiseResultPP') + '</span>' +
+              '</div>' +
+            '</div>'
+          );
+        })
+        .join('');
+      cruiseResultsContainer.hidden = false;
+      cruiseResultsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      cruiseResultsContainer.querySelectorAll('.cruise-result-date').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const it = itineraries[Number(btn.dataset.itinerary)];
+          const chosenDate = btn.dataset.date;
+          const payload = buildSearchQuotePayload('cruceros', data);
+          payload.searchMode = 'exact_date';
+          payload.searchDate = chosenDate;
+          payload.searchMonth = null;
+          payload.notes = buildQuoteNotes([
+            'Itinerario: ' + it.title,
+            'Barco preferido: ' + it.ship,
+            it.ports_visited ? 'Puertos: ' + it.ports_visited : null,
+            'Precio de referencia: USD ' + it.price_usd + ' por persona',
+          ]);
+          submitQuoteRequest(form, payload);
+        });
+      });
+    }
+
+    searchForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const form = this;
+      const activeType = searchTabs.querySelector('.search-tab.active')?.dataset.type || 'vuelos';
+      const data = Object.fromEntries(new FormData(form).entries());
+
+      if (activeType === 'cruceros') {
+        searchMsg.textContent = t('msgSearchSending');
+        const destinationCanonical = canonicalDestination(data.destino);
+        laExpancion
+          .from('cruise_itineraries')
+          .select('*')
+          .eq('active', true)
+          .eq('embarkation_port', (data.puerto_salida || '').trim())
+          .eq('destination', destinationCanonical)
+          .then(({ data: itineraries, error }) => {
+            searchMsg.textContent = '';
+            if (!error && itineraries && itineraries.length > 0) {
+              renderCruiseResults(form, data, itineraries);
+              return;
+            }
+            // Sin itinerarios cargados para esta ruta todavía — sigue
+            // funcionando como antes (manda el pedido directo al agente).
+            submitQuoteRequest(form, buildSearchQuotePayload(activeType, data));
+          })
+          .catch(() => {
+            submitQuoteRequest(form, buildSearchQuotePayload(activeType, data));
+          });
+        return;
+      }
+
+      submitQuoteRequest(form, buildSearchQuotePayload(activeType, data));
     });
 
     // Formulario inteligente de preventa: los CTA "Quiero ir aquí" de cada
