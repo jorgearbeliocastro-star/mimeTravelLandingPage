@@ -1940,28 +1940,33 @@
     font-family: var(--font-body);
   }
 
-  /* Foto del camarote — flota arriba del botón solo mientras el cursor
-     está encima; tocar/clickear el botón sigue siendo lo que lo elige. */
-  .quote-status-cabin-card-preview {
-    position: absolute;
-    left: 50%;
-    bottom: calc(100% + 8px);
-    transform: translateX(-50%) scale(0.96);
-    width: 160px;
-    height: 110px;
+  /* Foto del camarote — una sola vez debajo de la grilla de tarifas de
+     cada grupo (no flotando sobre un botón de tarifa puntual): es la
+     misma foto para Bella/Fantastica/Aurea, no algo que distinga a una
+     tarifa de otra, así que mostrarla como preview de un botón daba a
+     entender que esa tarifa en particular se veía distinto. */
+  .quote-status-cabin-group-photo {
+    display: block;
+    width: 100%;
+    max-width: 320px;
+    height: 160px;
     object-fit: cover;
     border-radius: 10px;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.15s ease, transform 0.15s ease;
-    z-index: 20;
+    margin-top: 8px;
   }
 
-  .quote-status-cabin-card:hover .quote-status-cabin-card-preview,
-  .quote-status-cabin-card:focus-visible .quote-status-cabin-card-preview {
-    opacity: 1;
-    transform: translateX(-50%) scale(1);
+  /* Qué incluye cada tarifa — lo que sí distingue a Bella de Fantastica
+     de Aurea es esto, no la foto del camarote (que es igual para las
+     tres). Texto chico dentro del propio botón. */
+  .quote-status-cabin-card-desc {
+    font-size: 10px;
+    line-height: 1.3;
+    color: rgba(26, 26, 26, 0.6);
+    text-align: center;
+  }
+
+  .quote-status-cabin-card.active .quote-status-cabin-card-desc {
+    color: var(--primary);
   }
 
   .quote-status-cabin-card.active {
