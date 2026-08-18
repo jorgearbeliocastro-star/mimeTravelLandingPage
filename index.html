@@ -6871,6 +6871,9 @@
               }
               const photoEl = row.querySelector('.quote-status-addon-photo');
               if (photoEl) {
+                cropWhiteBorder(addon.photoUrl).then(function (croppedUrl) {
+                  photoEl.src = croppedUrl;
+                });
                 photoEl.addEventListener('click', function (e) {
                   e.preventDefault();
                   e.stopPropagation();
