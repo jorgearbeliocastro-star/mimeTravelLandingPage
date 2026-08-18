@@ -5669,11 +5669,83 @@
     const photoLightboxOverlay = document.getElementById('photoLightboxOverlay');
     const photoLightboxImg = document.getElementById('photoLightboxImg');
     const photoLightboxClose = document.getElementById('photoLightboxClose');
+    // Las fotos del catálogo de extras (subidas desde "la expancion") a
+    // veces vienen con un margen blanco horneado en el propio archivo
+    // (confirmado probando dos formas distintas de mostrarlas — el margen
+    // no cambió, así que está en los píxeles, no en cómo se dibuja). En vez
+    // de esperar a que se resuban, se recorta automáticamente ese borde
+    // blanco con canvas la primera vez que se usa cada URL, y se cachea el
+    // resultado (data URL) para no repetir el trabajo. El bucket público de
+    // Supabase permite CORS abierto, así que leer los píxeles no falla por
+    // "canvas tainted".
+    const whiteBorderCropCache = {};
+    function cropWhiteBorder(url) {
+      if (whiteBorderCropCache[url]) return whiteBorderCropCache[url];
+      const promise = new Promise(function (resolve) {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function () {
+          try {
+            const w = img.naturalWidth, h = img.naturalHeight;
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            const data = ctx.getImageData(0, 0, w, h).data;
+            const WHITE_THRESHOLD = 245;
+            const step = Math.max(1, Math.floor(Math.max(w, h) / 200));
+            function rowIsWhite(y) {
+              for (let x = 0; x < w; x += step) {
+                const i = (y * w + x) * 4;
+                if (data[i] < WHITE_THRESHOLD || data[i + 1] < WHITE_THRESHOLD || data[i + 2] < WHITE_THRESHOLD) return false;
+              }
+              return true;
+            }
+            function colIsWhite(x) {
+              for (let y = 0; y < h; y += step) {
+                const i = (y * w + x) * 4;
+                if (data[i] < WHITE_THRESHOLD || data[i + 1] < WHITE_THRESHOLD || data[i + 2] < WHITE_THRESHOLD) return false;
+              }
+              return true;
+            }
+            let top = 0, bottom = h - 1, left = 0, right = w - 1;
+            while (top < h - 1 && rowIsWhite(top)) top++;
+            while (bottom > top && rowIsWhite(bottom)) bottom--;
+            while (left < w - 1 && colIsWhite(left)) left++;
+            while (right > left && colIsWhite(right)) right--;
+            const cropW = right - left + 1;
+            const cropH = bottom - top + 1;
+            // Si el recorte dejaría menos de la mitad de la foto (o no hay
+            // nada que recortar), no arriesgar — mejor una foto con margen
+            // que destrozar una foto legítimamente clara (nieve, cielo).
+            if (cropW < w * 0.5 || cropH < h * 0.5 || (cropW === w && cropH === h)) {
+              resolve(url);
+              return;
+            }
+            const outCanvas = document.createElement('canvas');
+            outCanvas.width = cropW;
+            outCanvas.height = cropH;
+            outCanvas.getContext('2d').drawImage(img, left, top, cropW, cropH, 0, 0, cropW, cropH);
+            resolve(outCanvas.toDataURL('image/jpeg', 0.92));
+          } catch (e) {
+            resolve(url);
+          }
+        };
+        img.onerror = function () { resolve(url); };
+        img.src = url;
+      });
+      whiteBorderCropCache[url] = promise;
+      return promise;
+    }
     function openPhotoLightbox(url) {
       if (!url) return;
       photoLightboxImg.src = url;
       photoLightboxOverlay.hidden = false;
       document.body.style.overflow = 'hidden';
+      cropWhiteBorder(url).then(function (croppedUrl) {
+        if (!photoLightboxOverlay.hidden) photoLightboxImg.src = croppedUrl;
+      });
     }
     function closePhotoLightbox() {
       photoLightboxOverlay.hidden = true;
