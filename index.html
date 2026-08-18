@@ -1853,11 +1853,13 @@
   }
 
   .photo-lightbox-img {
-    /* Casi todo el viewport (99vw/99vh) — el máximo real posible sin
-       desbordar la pantalla. Tope en px triplicado (1920→5760) para que
-       también crezca en monitores 4K+ donde el vw ya no es el límite. */
-    width: min(99vw, 5760px);
-    height: 99vh;
+    /* El tamaño final lo calcula openPhotoLightbox() en JS a partir de la
+       resolución real del recorte sin margen blanco (ver cropWhiteBorder
+       más abajo), topado a PHOTO_LIGHTBOX_MAX_UPSCALE para no verse
+       borrosa. max-width/max-height acá son solo el respaldo mientras la
+       foto todavía no terminó de procesarse. */
+    max-width: 99vw;
+    max-height: 99vh;
     border-radius: 12px;
     object-fit: contain;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
