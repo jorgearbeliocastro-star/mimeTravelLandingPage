@@ -5669,27 +5669,8 @@
     const photoLightboxOverlay = document.getElementById('photoLightboxOverlay');
     const photoLightboxImg = document.getElementById('photoLightboxImg');
     const photoLightboxClose = document.getElementById('photoLightboxClose');
-    // Tope de cuánto se le permite crecer a la foto por encima de su
-    // resolución real — forzar la caja a 99vw/99vh sin este límite hacía
-    // que fotos de baja resolución (capturas del catálogo, etc.) se vieran
-    // muy borrosas al estirarse mucho más allá de su tamaño natural.
-    const PHOTO_LIGHTBOX_MAX_UPSCALE = 1.2;
-    function sizePhotoLightboxImg() {
-      const naturalW = photoLightboxImg.naturalWidth;
-      const naturalH = photoLightboxImg.naturalHeight;
-      if (!naturalW || !naturalH) return;
-      const viewportW = window.innerWidth * 0.99;
-      const viewportH = window.innerHeight * 0.99;
-      const scale = Math.min(viewportW / naturalW, viewportH / naturalH, PHOTO_LIGHTBOX_MAX_UPSCALE);
-      photoLightboxImg.style.width = Math.round(naturalW * scale) + 'px';
-      photoLightboxImg.style.height = Math.round(naturalH * scale) + 'px';
-    }
-    photoLightboxImg.addEventListener('load', sizePhotoLightboxImg);
-    window.addEventListener('resize', sizePhotoLightboxImg);
     function openPhotoLightbox(url) {
       if (!url) return;
-      photoLightboxImg.style.width = '';
-      photoLightboxImg.style.height = '';
       photoLightboxImg.src = url;
       photoLightboxOverlay.hidden = false;
       document.body.style.overflow = 'hidden';
