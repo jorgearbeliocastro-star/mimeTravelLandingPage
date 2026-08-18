@@ -1853,13 +1853,13 @@
   }
 
   .photo-lightbox-img {
-    /* width/height (no max-width/max-height): con solo un tope máximo,
-       una foto cuyo tamaño natural es menor que el viewport se quedaba
-       chica y todo lo que crecía era el negro alrededor. Fijando el
-       tamaño de la caja y dejando que object-fit la escale, la foto
-       ahora sí llena casi toda la pantalla (99vw/99vh). */
-    width: min(99vw, 5760px);
-    height: 99vh;
+    /* El tamaño real lo calcula openPhotoLightbox() en JS a partir de la
+       resolución natural de la foto (ver más abajo) — así crece hasta
+       casi llenar la pantalla sin agrandarse tanto que se vea borrosa.
+       max-width/max-height acá son solo el tope de seguridad mientras
+       la foto todavía no cargó (naturalWidth/Height en 0). */
+    max-width: 99vw;
+    max-height: 99vh;
     border-radius: 12px;
     object-fit: contain;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
