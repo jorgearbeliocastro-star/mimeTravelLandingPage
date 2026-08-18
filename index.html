@@ -7073,7 +7073,11 @@
             if (notifiedQuoteUpdatedAt !== null) playQuoteReadySound();
             notifiedQuoteUpdatedAt = quote.updated_at;
           }
-          renderQuoteStatus(quote);
+          const quoteJSON = JSON.stringify(quote);
+          if (quoteJSON !== lastRenderedQuoteJSON) {
+            lastRenderedQuoteJSON = quoteJSON;
+            renderQuoteStatus(quote);
+          }
           activeQuoteRouteLabel = quote.origin ? quote.origin + ' → ' + quote.destination : quote.destination;
           activeQuoteCategory = quote.category || null;
           quotePanelRoute.textContent = activeQuoteRouteLabel;
