@@ -5998,10 +5998,12 @@
     // catálogo fijo por naviera), el cliente los marca como casillas.
     // Objeto { nombre: true/false }, igual criterio que el resto.
     let selectedCustomAddons = {};
-    // Si el acordeón de extras está desplegado — sin esto, el poll cada
-    // QUOTE_POLL_MS reconstruye el HTML desde cero y lo vuelve a colapsar
-    // (se veía como que "se abre un segundo y se cierra solo").
-    let customAddonsExpanded = false;
+    // Qué categorías del acordeón de extras están desplegadas — una por
+    // categoría (no un solo interruptor para todas), llave = nombre de
+    // categoría o 'other' para las sin categoría. Sin esto, el poll cada
+    // QUOTE_POLL_MS reconstruye el HTML desde cero y las vuelve a colapsar
+    // (se veía como que "se abre un segundo y se cierra sola").
+    let customAddonsExpandedCategories = {};
     // Mientras la card de datos del pasajero está abierta, el polling no
     // debe pisarla (perdería lo que el cliente ya tipeó) — se congela el
     // status bar hasta que se cancela o se manda el formulario.
