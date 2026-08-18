@@ -6754,11 +6754,14 @@
                 card.type = 'button';
                 card.className = 'quote-status-cabin-card quote-status-cabin-card--' + entry.tier + (selected ? ' active' : '');
                 card.innerHTML =
+                  // Foto (arriba) y descripción (abajo) solo aparecen con
+                  // el cursor encima o foco/tap — el botón en sí queda
+                  // limpio (nombre + precio), sin apretar nada. La foto es
+                  // la misma para las tres tarifas de este camarote (muestra
+                  // la habitación); la descripción sí cambia por tarifa.
+                  (cabinPhotoUrl ? '<img class="quote-status-cabin-card-preview" src="' + cabinPhotoUrl + '" alt="">' : '') +
                   '<span class="quote-status-cabin-card-label">' + t('fareTierOption_' + entry.tier) + '</span>' +
                   '<span class="quote-status-cabin-card-price">USD ' + price + '</span>' +
-                  // Qué incluye cada tarifa — antes no se mostraba, así que
-                  // el cliente no tenía forma de saber en qué se diferencian
-                  // Bella/Fantastica/Aurea más allá del precio.
                   '<span class="quote-status-cabin-card-desc">' + t('fareTierDesc_' + entry.tier) + '</span>';
                 card.addEventListener('click', function () {
                   selectedChosenSeatType = selectedChosenSeatType === entry.key ? '' : entry.key;
@@ -6769,17 +6772,6 @@
                 grid.appendChild(card);
               });
               cabinGroup.appendChild(grid);
-              // La foto del camarote va una sola vez acá, debajo de la
-              // grilla — es la misma foto para las tres tarifas de este
-              // camarote, lo que cambia entre ellas es la descripción de
-              // arriba, no la foto.
-              if (cabinPhotoUrl) {
-                const cabinPhotoEl = document.createElement('img');
-                cabinPhotoEl.className = 'quote-status-cabin-group-photo';
-                cabinPhotoEl.src = cabinPhotoUrl;
-                cabinPhotoEl.alt = '';
-                cabinGroup.appendChild(cabinPhotoEl);
-              }
               seatTypeWrap.appendChild(cabinGroup);
             });
             // Preferencias de ubicación — un PEDIDO, no una reserva
