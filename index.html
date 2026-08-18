@@ -1828,13 +1828,12 @@
     display: block;
   }
 
-  /* Lightbox de foto — pantalla completa oscura con la foto agrandada. */
+  /* Lightbox de foto — sin fondo oscuro: solo la foto flotando encima,
+     dejando ver la página (y el panel de cotización) detrás. */
   .photo-lightbox-overlay {
     position: fixed;
     inset: 0;
-    /* Prácticamente opaco — no solo oscurecido: tiene que tapar del todo
-       el panel de cotización que queda detrás, no dejarlo entrever. */
-    background: rgba(10, 10, 10, 0.97);
+    background: transparent;
     /* Por encima de .quote-panel (z-index 300) — mismo valor hacía que
        el panel de cotización (más abajo en el HTML) le ganara el stacking
        y la foto agrandada quedara tapada detrás. */
