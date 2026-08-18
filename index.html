@@ -6779,13 +6779,12 @@
             group.items.forEach(function (addon) {
               const row = document.createElement('label');
               row.className = 'quote-status-insurance';
-              // Fotos del catálogo de extras desactivadas a propósito: las
-              // que hay hoy vienen de baja calidad (borrosas al ampliar y/o
-              // con margen blanco horneado en el archivo) — se reactivan
-              // (agregar de vuelta el <img> acá y el listener de abajo)
-              // cuando se resuban versiones de buena calidad desde "la
-              // expancion". Ver quoteCustomAddonsLabel / addon.photoUrl.
+              // La foto es opcional (viene del catálogo del Dueño) — si el
+              // Agente lo escribió a mano no hay foto, se muestra sin ella.
+              // Tocar la foto la agranda (lightbox) en vez de tildar el
+              // checkbox — por eso lleva su propio listener con stopPropagation.
               row.innerHTML =
+                (addon.photoUrl ? '<img src="' + addon.photoUrl + '" class="quote-status-addon-photo" alt="">' : '') +
                 '<input type="checkbox" ' + (selectedCustomAddons[addon.label] ? 'checked' : '') + '> ' +
                 '<span>' + addon.label + ' (+USD ' + addon.priceUSD + ')</span>';
               catBody.appendChild(row);
@@ -6796,6 +6795,14 @@
                 descEl.className = 'quote-status-addon-description';
                 descEl.textContent = addon.description;
                 catBody.appendChild(descEl);
+              }
+              const photoEl = row.querySelector('.quote-status-addon-photo');
+              if (photoEl) {
+                photoEl.addEventListener('click', function (e) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  openPhotoLightbox(addon.photoUrl);
+                });
               }
               row.querySelector('input').addEventListener('change', function (e) {
                 selectedCustomAddons = { ...selectedCustomAddons, [addon.label]: e.target.checked };
