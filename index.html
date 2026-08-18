@@ -6685,6 +6685,12 @@
                 cabinPrefsWrap.querySelectorAll('[data-cabin-pref="position"] .quote-status-cabin-pref-chip').forEach((b) => b.classList.toggle('active', b.dataset.value === selectedCabinPositionPreference));
               });
             });
+            cabinPrefsWrap.querySelectorAll('[data-cabin-pref="bedConfig"] .quote-status-cabin-pref-chip').forEach((btn) => {
+              btn.addEventListener('click', function () {
+                selectedCabinBedConfig = selectedCabinBedConfig === btn.dataset.value ? '' : btn.dataset.value;
+                cabinPrefsWrap.querySelectorAll('[data-cabin-pref="bedConfig"] .quote-status-cabin-pref-chip').forEach((b) => b.classList.toggle('active', b.dataset.value === selectedCabinBedConfig));
+              });
+            });
             cabinPrefsWrap.querySelector('#cabinConnectingInput').addEventListener('input', function (e) {
               selectedCabinConnectingWith = e.target.value;
             });
