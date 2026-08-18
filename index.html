@@ -1853,10 +1853,11 @@
   }
 
   .photo-lightbox-img {
-    /* El triple del tope anterior (640px) — sigue limitado por el viewport
-       (95vw/94vh) para no desbordar en pantallas chicas. */
-    max-width: min(95vw, 1920px);
-    max-height: 94vh;
+    /* Casi todo el viewport (99vw/99vh) — el máximo real posible sin
+       desbordar la pantalla. Tope en px triplicado (1920→5760) para que
+       también crezca en monitores 4K+ donde el vw ya no es el límite. */
+    max-width: min(99vw, 5760px);
+    max-height: 99vh;
     border-radius: 12px;
     object-fit: contain;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
