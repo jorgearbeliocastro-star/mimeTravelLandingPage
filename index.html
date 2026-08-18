@@ -1940,33 +1940,58 @@
     font-family: var(--font-body);
   }
 
-  /* Foto del camarote — una sola vez debajo de la grilla de tarifas de
-     cada grupo (no flotando sobre un botón de tarifa puntual): es la
-     misma foto para Bella/Fantastica/Aurea, no algo que distinga a una
-     tarifa de otra, así que mostrarla como preview de un botón daba a
-     entender que esa tarifa en particular se veía distinto. */
-  .quote-status-cabin-group-photo {
-    display: block;
-    width: 100%;
-    max-width: 320px;
-    height: 160px;
+  /* Foto del camarote — flota arriba del botón solo mientras el cursor
+     está encima (o con foco/tap); es la misma foto para las tres tarifas
+     de este camarote (muestra la habitación, no diferencia tarifas). */
+  .quote-status-cabin-card-preview {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    transform: translateX(-50%) scale(0.96);
+    width: 160px;
+    height: 110px;
     object-fit: cover;
     border-radius: 10px;
-    margin-top: 8px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    z-index: 20;
   }
 
-  /* Qué incluye cada tarifa — lo que sí distingue a Bella de Fantastica
-     de Aurea es esto, no la foto del camarote (que es igual para las
-     tres). Texto chico dentro del propio botón. */
+  /* Qué incluye esa tarifa en particular — mismo criterio que la foto de
+     arriba (aparece solo con el cursor encima/foco), pero abajo del botón
+     y del mismo porte, para no apretar el texto dentro de la tarjeta. */
   .quote-status-cabin-card-desc {
-    font-size: 10px;
-    line-height: 1.3;
-    color: rgba(26, 26, 26, 0.6);
+    position: absolute;
+    left: 50%;
+    top: calc(100% + 8px);
+    transform: translateX(-50%) translateY(-4px);
+    width: 160px;
+    padding: 10px 12px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+    font-size: 11.5px;
+    line-height: 1.4;
+    color: var(--dark);
     text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    z-index: 20;
   }
 
-  .quote-status-cabin-card.active .quote-status-cabin-card-desc {
-    color: var(--primary);
+  .quote-status-cabin-card:hover .quote-status-cabin-card-preview,
+  .quote-status-cabin-card:focus-visible .quote-status-cabin-card-preview {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+
+  .quote-status-cabin-card:hover .quote-status-cabin-card-desc,
+  .quote-status-cabin-card:focus-visible .quote-status-cabin-card-desc {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
   }
 
   .quote-status-cabin-card.active {
