@@ -1853,11 +1853,13 @@
   }
 
   .photo-lightbox-img {
-    /* Casi todo el viewport (99vw/99vh) — el máximo real posible sin
-       desbordar la pantalla. Tope en px triplicado (1920→5760) para que
-       también crezca en monitores 4K+ donde el vw ya no es el límite. */
-    width: min(99vw, 5760px);
-    height: 99vh;
+    /* Tamaño original de la foto, sin estirarla — max-width/max-height
+       (no width/height fijo) solo la topan para que no se salga de la
+       pantalla en fotos grandes, pero una foto más chica que eso se
+       queda en su tamaño real: nítida, y sin agrandar de paso cualquier
+       margen que traiga el archivo. */
+    max-width: 99vw;
+    max-height: 99vh;
     border-radius: 12px;
     object-fit: contain;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
