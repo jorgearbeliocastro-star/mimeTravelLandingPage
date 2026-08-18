@@ -1832,7 +1832,9 @@
   .photo-lightbox-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.85);
+    /* Prácticamente opaco — no solo oscurecido: tiene que tapar del todo
+       el panel de cotización que queda detrás, no dejarlo entrever. */
+    background: rgba(10, 10, 10, 0.97);
     /* Por encima de .quote-panel (z-index 300) — mismo valor hacía que
        el panel de cotización (más abajo en el HTML) le ganara el stacking
        y la foto agrandada quedara tapada detrás. */
@@ -1851,8 +1853,10 @@
   }
 
   .photo-lightbox-img {
-    max-width: min(90vw, 640px);
-    max-height: 85vh;
+    /* El triple del tope anterior (640px) — sigue limitado por el viewport
+       (95vw/94vh) para no desbordar en pantallas chicas. */
+    max-width: min(95vw, 1920px);
+    max-height: 94vh;
     border-radius: 12px;
     object-fit: contain;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
