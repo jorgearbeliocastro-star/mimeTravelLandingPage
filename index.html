@@ -1853,13 +1853,11 @@
   }
 
   .photo-lightbox-img {
-    /* El tamaño real lo calcula openPhotoLightbox() en JS a partir de la
-       resolución natural de la foto (ver más abajo) — así crece hasta
-       casi llenar la pantalla sin agrandarse tanto que se vea borrosa.
-       max-width/max-height acá son solo el tope de seguridad mientras
-       la foto todavía no cargó (naturalWidth/Height en 0). */
-    max-width: 99vw;
-    max-height: 99vh;
+    /* Casi todo el viewport (99vw/99vh) — el máximo real posible sin
+       desbordar la pantalla. Tope en px triplicado (1920→5760) para que
+       también crezca en monitores 4K+ donde el vw ya no es el límite. */
+    width: min(99vw, 5760px);
+    height: 99vh;
     border-radius: 12px;
     object-fit: contain;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
