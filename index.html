@@ -6664,6 +6664,12 @@
                   '<button type="button" class="quote-status-cabin-pref-chip" data-value="' + opt + '">' + t('cabinPositionOption_' + opt) + '</button>'
                 ).join('') +
               '</div>' +
+              '<div class="quote-status-cabin-prefs-label">' + t('cabinBedConfigLabel') + '</div>' +
+              '<div class="quote-status-cabin-prefs-chips" data-cabin-pref="bedConfig">' +
+                ['together', 'separate'].map((opt) =>
+                  '<button type="button" class="quote-status-cabin-pref-chip" data-value="' + opt + '">' + t('cabinBedConfigOption_' + opt) + '</button>'
+                ).join('') +
+              '</div>' +
               '<div class="quote-status-cabin-prefs-label">' + t('cabinConnectingLabel') + '</div>' +
               '<input type="text" class="quote-status-cabin-prefs-input" id="cabinConnectingInput" placeholder="' + t('cabinConnectingPlaceholder') + '">';
             seatTypeWrap.appendChild(cabinPrefsWrap);
