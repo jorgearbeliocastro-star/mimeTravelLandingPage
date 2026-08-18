@@ -7122,6 +7122,10 @@
       localStorage.setItem(QUOTE_ID_STORAGE_KEY, quoteId);
       localStorage.setItem(QUOTE_MODE_STORAGE_KEY, activePanelMode);
       quotePanelRoute.textContent = activeQuoteRouteLabel;
+      // Se resetea el caché de "última cotización pintada" (ver arriba en
+      // pollQuote) — si no, abrir un panel nuevo justo con el mismo estado
+      // que se cacheó la última vez se saltearía el render de verdad.
+      lastRenderedQuoteJSON = null;
       renderQuoteStatus({ status: 'pending' });
       quoteChatMessages.innerHTML = '';
       // El chat arranca cerrado (solo un botón) salvo en modo "consulta"
