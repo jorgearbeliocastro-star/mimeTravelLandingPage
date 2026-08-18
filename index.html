@@ -6655,19 +6655,19 @@
               '<div class="quote-status-cabin-prefs-label">' + t('cabinDeckLabel') + '</div>' +
               '<div class="quote-status-cabin-prefs-chips" data-cabin-pref="deck">' +
                 ['low', 'mid', 'high'].map((opt) =>
-                  '<button type="button" class="quote-status-cabin-pref-chip" data-value="' + opt + '">' + t('cabinDeckOption_' + opt) + '</button>'
+                  '<button type="button" class="quote-status-cabin-pref-chip' + (selectedCabinDeckPreference === opt ? ' active' : '') + '" data-value="' + opt + '">' + t('cabinDeckOption_' + opt) + '</button>'
                 ).join('') +
               '</div>' +
               '<div class="quote-status-cabin-prefs-label">' + t('cabinPositionLabel') + '</div>' +
               '<div class="quote-status-cabin-prefs-chips" data-cabin-pref="position">' +
                 ['forward', 'mid', 'aft'].map((opt) =>
-                  '<button type="button" class="quote-status-cabin-pref-chip" data-value="' + opt + '">' + t('cabinPositionOption_' + opt) + '</button>'
+                  '<button type="button" class="quote-status-cabin-pref-chip' + (selectedCabinPositionPreference === opt ? ' active' : '') + '" data-value="' + opt + '">' + t('cabinPositionOption_' + opt) + '</button>'
                 ).join('') +
               '</div>' +
               '<div class="quote-status-cabin-prefs-label">' + t('cabinBedConfigLabel') + '</div>' +
               '<div class="quote-status-cabin-prefs-chips" data-cabin-pref="bedConfig">' +
                 ['together', 'separate'].map((opt) =>
-                  '<button type="button" class="quote-status-cabin-pref-chip" data-value="' + opt + '">' + t('cabinBedConfigOption_' + opt) + '</button>'
+                  '<button type="button" class="quote-status-cabin-pref-chip' + (selectedCabinBedConfig === opt ? ' active' : '') + '" data-value="' + opt + '">' + t('cabinBedConfigOption_' + opt) + '</button>'
                 ).join('') +
               '</div>' +
               '<div class="quote-status-cabin-prefs-label">' + t('cabinConnectingLabel') + '</div>' +
