@@ -6671,7 +6671,7 @@
                 ).join('') +
               '</div>' +
               '<div class="quote-status-cabin-prefs-label">' + t('cabinConnectingLabel') + '</div>' +
-              '<input type="text" class="quote-status-cabin-prefs-input" id="cabinConnectingInput" placeholder="' + t('cabinConnectingPlaceholder') + '">';
+              '<input type="text" class="quote-status-cabin-prefs-input" id="cabinConnectingInput" placeholder="' + t('cabinConnectingPlaceholder') + '" value="' + selectedCabinConnectingWith.replace(/"/g, '&quot;') + '">';
             seatTypeWrap.appendChild(cabinPrefsWrap);
             cabinPrefsWrap.querySelectorAll('[data-cabin-pref="deck"] .quote-status-cabin-pref-chip').forEach((btn) => {
               btn.addEventListener('click', function () {
