@@ -6732,16 +6732,17 @@
           // hacía muy larga. El botón muestra cuántos hay.
           const addonsToggle = document.createElement('button');
           addonsToggle.type = 'button';
-          addonsToggle.className = 'quote-status-addons-toggle';
+          addonsToggle.className = 'quote-status-addons-toggle' + (customAddonsExpanded ? ' open' : '');
           addonsToggle.innerHTML =
             '<span>' + t('quoteCustomAddonsLabel') + ' (' + quote.quoted_custom_addons.length + ')</span>' +
             '<span class="quote-status-addons-toggle-arrow">▾</span>';
           addonsWrap.appendChild(addonsToggle);
           const addonsBody = document.createElement('div');
-          addonsBody.className = 'quote-status-addons-body';
+          addonsBody.className = 'quote-status-addons-body' + (customAddonsExpanded ? ' open' : '');
           addonsToggle.addEventListener('click', function () {
-            const isOpen = addonsBody.classList.toggle('open');
-            addonsToggle.classList.toggle('open', isOpen);
+            customAddonsExpanded = !customAddonsExpanded;
+            addonsBody.classList.toggle('open', customAddonsExpanded);
+            addonsToggle.classList.toggle('open', customAddonsExpanded);
           });
           // Agrupados por categoría (excursiones, bebidas, etc.), igual que
           // en la web de MSC — conserva el orden en que el Agente los cargó.
