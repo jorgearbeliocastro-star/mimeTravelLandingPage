@@ -1833,7 +1833,10 @@
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.85);
-    z-index: 300;
+    /* Por encima de .quote-panel (z-index 300) — mismo valor hacía que
+       el panel de cotización (más abajo en el HTML) le ganara el stacking
+       y la foto agrandada quedara tapada detrás. */
+    z-index: 310;
     display: flex;
     align-items: center;
     justify-content: center;
