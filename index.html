@@ -6010,6 +6010,15 @@
     // criterio que la app: ver POLL_MS en ClientQuoteChatScreen.tsx), no
     // por Realtime.
     const QUOTE_POLL_MS = 5000;
+    // renderQuoteStatus() reconstruye todo el HTML del panel desde cero —
+    // si se llama en cada poll aunque nada haya cambiado, el navegador
+    // pierde estados como :hover a mitad de la interacción (ej. el preview
+    // de foto+descripción de las tarjetas de camarote parpadeaba porque el
+    // botón bajo el cursor se recreaba cada 5s). Se cachea qué se pintó la
+    // última vez y solo se vuelve a renderizar si la cotización realmente
+    // cambió (no depende de las selecciones del cliente — esas se aplican
+    // directo sobre el DOM existente, ver los click handlers más abajo).
+    let lastRenderedQuoteJSON = null;
     const QUOTE_ID_STORAGE_KEY = 'la-expancion.active-quote-id';
     const QUOTE_MODE_STORAGE_KEY = 'la-expancion.active-quote-mode';
 
