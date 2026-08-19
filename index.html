@@ -5662,19 +5662,21 @@
     // datos completos de cada pasajero recién al aceptar, ver
     // buildPassengerBlockHTML — eso sigue igual y es ahí donde se termina
     // de saber la edad exacta de cada uno; esto es solo la cantidad, para
-    // cotizar bien desde el principio). Niños e infantes van separados
-    // (igual criterio que "Children"/"Lap Infants" en las aerolíneas) pero
-    // se guardan en la misma columna: para el Agente alcanza con la
-    // cantidad total de menores, no hace falta distinguir cuántos de cada
-    // grupo en la base de datos. Ver 0084_quote_requested_party.sql.
+    // cotizar bien desde el principio). Niños (12-17), niños chicos (2-11)
+    // e infantes van separados — son las categorías reales de MSC (Child/
+    // Junior Child/Infant, confirmado contra su propio buscador, cada una
+    // con tarifa distinta) — pero se guardan sumadas en la misma columna:
+    // para el Agente alcanza con la cantidad total de menores, no hace
+    // falta distinguir cuántos de cada grupo en la base de datos. Ver
+    // 0084_quote_requested_party.sql.
     function parseCountField(raw, cap) {
       const clean = (raw || '').replace('+', '').trim();
       return clean ? Math.min(parseInt(clean, 10) || 0, cap) : 0;
     }
     function parseRequestedParty(data) {
       const requestedAdults = data.adultos != null ? parseCountField(data.adultos, 99) : null;
-      const requestedChildren = (data.ninos != null || data.infantes != null)
-        ? parseCountField(data.ninos, 99) + parseCountField(data.infantes, 99)
+      const requestedChildren = (data.ninos_12_17 != null || data.ninos_2_11 != null || data.infantes != null)
+        ? parseCountField(data.ninos_12_17, 2) + parseCountField(data.ninos_2_11, 2) + parseCountField(data.infantes, 1)
         : null;
       return { requestedAdults, requestedChildren };
     }
