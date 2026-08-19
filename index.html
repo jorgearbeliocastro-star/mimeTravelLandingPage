@@ -6991,9 +6991,10 @@
           quoteStatusBar.appendChild(extrasLabel);
         }
         renderAddonCheckbox(insuranceOffered, selectedWantsInsurance, quote.quoted_insurance_price_usd, 'quoteInsuranceCheckboxLabel', 'quoteInsuranceCheckbox', (v) => { selectedWantsInsurance = v; });
-        // Un camarote de crucero permite como máximo 2 pasajeros extra
-        // (2 base + 2 extra = 4 en total) — vuelos no tienen ese límite acá.
-        renderAddonQty(extraBagOffered, selectedExtraBagQty, quote.category === 'cruise' ? 'quoteExtraGuestQtyLabel' : 'quoteExtraBagQtyLabel', 'quoteExtraBagQty', (v) => { selectedExtraBagQty = v; }, quote.quoted_extra_bag_prices, quote.category === 'cruise' ? 2 : 4);
+        // Un camarote de crucero permite como máximo 3 pasajeros extra
+        // (2 base + 3 extra = 5 en total — tope real de MSC, confirmado
+        // contra su propio buscador) — vuelos no tienen ese límite acá.
+        renderAddonQty(extraBagOffered, selectedExtraBagQty, quote.category === 'cruise' ? 'quoteExtraGuestQtyLabel' : 'quoteExtraBagQtyLabel', 'quoteExtraBagQty', (v) => { selectedExtraBagQty = v; }, quote.quoted_extra_bag_prices, quote.category === 'cruise' ? 3 : 4);
         renderAddonCheckbox(refundableOffered, selectedWantsRefundable, quote.quoted_refundable_price_usd, 'quoteRefundableCheckboxLabel', 'quoteRefundableCheckbox', (v) => { selectedWantsRefundable = v; });
         // Tipo de asiento: a diferencia de arriba se elige uno solo (radio,
         // no checkbox) — se muestra si el agente restringió disponibilidad
