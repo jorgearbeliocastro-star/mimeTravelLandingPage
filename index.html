@@ -2023,12 +2023,31 @@
     font-family: var(--font-body);
   }
 
+  /* Foto grande de la habitación — mismo criterio que
+     .quote-status-cabin-card-preview: flota arriba de la tarjeta solo con
+     el cursor encima o foco/tap, no ocupa espacio fijo adentro. La
+     tarjeta en sí queda limpia (solo nombre + precio), igual que las de
+     Bella/Fantastica/Aurea. */
   .quote-status-yacht-club-card-photo {
-    display: block;
-    width: 100%;
-    height: 90px;
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    transform: translateX(-50%) scale(0.96);
+    width: 220px;
+    height: 150px;
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: 10px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    z-index: 20;
+  }
+
+  .quote-status-yacht-club-card:hover .quote-status-yacht-club-card-photo,
+  .quote-status-yacht-club-card:focus-visible .quote-status-yacht-club-card-photo {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
   }
 
   /* Qué trae cada habitación de Yacht Club — mismo criterio que la
