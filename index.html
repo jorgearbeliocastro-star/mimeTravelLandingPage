@@ -6854,12 +6854,16 @@
               cabinTitle.textContent = t('cabinTypeOption_' + group.cabin);
               cabinGroup.appendChild(cabinTitle);
               const grid = document.createElement('div');
-              const isYachtClub = group.cabin === 'yacht_club';
-              // Yacht Club: 4 habitaciones con foto REAL y distinta cada
-              // una (no la misma foto para las 3 tarifas) — grid propio de
-              // 2x2 con la foto siempre visible en la tarjeta, en vez del
-              // grid de 3-en-fila con foto solo al pasar el cursor que usan
-              // los demás camarotes.
+              // group.isYachtClubSuites (no "group.cabin === 'yacht_club'"
+              // a secas): una cotización vieja de Yacht Club sigue usando
+              // Bella/Fantastica/Aurea (ver groupCabinKeys) y debe verse
+              // con el grid normal de 3-en-fila, no con el de 4 fotos.
+              const isYachtClub = group.isYachtClubSuites;
+              // Yacht Club (cotizaciones nuevas): 4 habitaciones con foto
+              // REAL y distinta cada una (no la misma foto para las 3
+              // tarifas) — grid propio de 2x2 con la foto siempre visible
+              // en la tarjeta, en vez del grid de 3-en-fila con foto solo
+              // al pasar el cursor que usan los demás camarotes.
               grid.className = isYachtClub ? 'quote-status-yacht-club-grid' : 'quote-status-cabin-grid';
               const cabinPhotoUrl = isYachtClub ? null : CABIN_TYPE_PHOTOS[group.cabin];
               group.tiers.forEach(function (entry) {
