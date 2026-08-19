@@ -5660,11 +5660,10 @@
     }
     function parseRequestedParty(data) {
       const requestedAdults = data.adultos != null ? parseCountField(data.adultos, 99) : null;
-      const childrenCount = parseCountField(data.ninos, 99) + parseCountField(data.infantes, 99);
-      return {
-        requestedAdults,
-        requestedChildAges: childrenCount > 0 ? new Array(childrenCount).fill(null) : null,
-      };
+      const requestedChildren = (data.ninos != null || data.infantes != null)
+        ? parseCountField(data.ninos, 99) + parseCountField(data.infantes, 99)
+        : null;
+      return { requestedAdults, requestedChildren };
     }
     // Arma el pedido de cotización para "la expansión" según la pestaña
     // activa (Vuelos/Cruceros/Hoteles/Autos/Todo en uno) — cada una guarda
