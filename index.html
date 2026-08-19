@@ -6397,10 +6397,14 @@
           dobField +
           '<label class="quote-pax-label">' + t('quotePaxCountryOfResidence') + '</label>' +
           '<input type="text" class="quote-pax-input" name="countryOfResidence-' + index + '" required>' +
+          // Precargados solo para el primer pasajero, con el contacto que
+          // ya dio al pedir la cotización — no tiene sentido pedirle de
+          // nuevo el mismo dato (el resto de los pasajeros sí arrancan
+          // vacíos, puede ser gente distinta con su propio contacto).
           '<label class="quote-pax-label">' + t('quotePaxEmail') + '</label>' +
-          '<input type="email" class="quote-pax-input" name="email-' + index + '" required>' +
+          '<input type="email" class="quote-pax-input" name="email-' + index + '" value="' + (index === 0 ? activeQuoteContactEmail.replace(/"/g, '&quot;') : '') + '" required>' +
           '<label class="quote-pax-label">' + t('quotePaxMobilePhone') + '</label>' +
-          '<input type="tel" class="quote-pax-input" name="mobilePhone-' + index + '" required>' +
+          '<input type="tel" class="quote-pax-input" name="mobilePhone-' + index + '" value="' + (index === 0 ? activeQuoteContactPhone.replace(/"/g, '&quot;') : '') + '" required>' +
           '<label class="quote-pax-label">' + t('quotePaxVoyagersClub') + '</label>' +
           '<input type="text" class="quote-pax-input" name="voyagersClubNumber-' + index + '">' +
           '<label class="quote-pax-label">' + t('quotePaxDiningPreference') + '</label>' +
