@@ -2030,6 +2030,21 @@
     border-radius: 8px;
   }
 
+  /* Qué trae cada habitación de Yacht Club — a diferencia de las
+     tarjetas de Bella/Fantastica/Aurea, acá se ve siempre (no solo al
+     pasar el cursor): la tarjeta ya es ancha y trae foto propia, hay
+     espacio de sobra para el texto sin apretarla. */
+  .quote-status-yacht-club-card-desc {
+    font-size: 10px;
+    line-height: 1.3;
+    color: rgba(26, 26, 26, 0.6);
+    text-align: center;
+  }
+
+  .quote-status-yacht-club-card.active .quote-status-yacht-club-card-desc {
+    color: var(--primary);
+  }
+
   .quote-status-yacht-club-card.active {
     border-color: var(--turquesa);
     background: rgba(95, 191, 179, 0.1);
