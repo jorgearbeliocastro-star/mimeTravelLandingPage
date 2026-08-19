@@ -5633,6 +5633,24 @@
       return (value || '').trim();
     }
 
+    // "Adultos" (select 1-10+) + "Niños (edades)" (texto libre, ej. "5, 8")
+    // — se agregaron a Vuelos/Cruceros para que el Agente sepa cuántos
+    // viajan ANTES de poner precio (antes solo se pedían los datos
+    // completos de cada pasajero recién al aceptar, ver
+    // buildPassengerBlockHTML — eso sigue igual, esto es solo lo mínimo
+    // para cotizar bien desde el principio). Ver 0084_quote_requested_party.sql.
+    function parseRequestedParty(data) {
+      const adultsRaw = (data.adultos || '').replace('+', '').trim();
+      const requestedAdults = adultsRaw ? Math.min(parseInt(adultsRaw, 10) || 0, 99) : null;
+      const requestedChildAges = (data.ninos_edades || '')
+        .split(',')
+        .map((s) => parseInt(s.trim(), 10))
+        .filter((n) => Number.isInteger(n) && n >= 0 && n <= 17);
+      return {
+        requestedAdults,
+        requestedChildAges: requestedChildAges.length ? requestedChildAges : null,
+      };
+    }
     // Arma el pedido de cotización para "la expansión" según la pestaña
     // activa (Vuelos/Cruceros/Hoteles/Autos/Todo en uno) — cada una guarda
     // sus campos en quote_requests de forma distinta.
@@ -5651,6 +5669,7 @@
             returnDate: data.fecha_vuelta || null,
             endDate: null,
             notes: buildQuoteNotes([data.clase ? 'Clase: ' + data.clase : null]),
+            ...parseRequestedParty(data),
           };
         case 'cruceros': {
           // El campo de fecha ahora es un selector de mes completo (ver
@@ -5670,6 +5689,7 @@
             returnDate: null,
             endDate: null,
             notes: null,
+            ...parseRequestedParty(data),
           };
         }
         case 'hoteles':
