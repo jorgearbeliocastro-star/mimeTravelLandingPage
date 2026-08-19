@@ -1570,7 +1570,12 @@
     bottom: 20px;
     z-index: 300;
     width: min(380px, calc(100vw - 40px));
-    max-height: min(680px, calc(100vh - 40px));
+    /* --visual-viewport-height (seteada por JS con window.visualViewport,
+       ver más abajo) ya descuenta el teclado en pantalla — con eso, el
+       panel se achica solo cuando el teclado abre en vez de quedar
+       tapado. Con el 100vh de siempre como respaldo, para navegadores sin
+       visualViewport. */
+    max-height: min(680px, calc(var(--visual-viewport-height, 100vh) - 40px));
     background: var(--light);
     border-radius: 20px;
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
