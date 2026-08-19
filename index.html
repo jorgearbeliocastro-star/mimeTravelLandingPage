@@ -6215,6 +6215,11 @@
     // Categoría del pedido activo (flight/cruise/...) — la necesita
     // renderPassengerForm para saber qué formulario de datos mostrar.
     let activeQuoteCategory = null;
+    // Contacto ya dado al pedir la cotización — se usa para precargar el
+    // email/teléfono del primer pasajero (ver buildPassengerBlockHTML): no
+    // tiene sentido volver a pedir el mismo dato que ya escribió.
+    let activeQuoteContactEmail = '';
+    let activeQuoteContactPhone = '';
     // 'quote' = pedido de viaje normal (precio, aceptar/rechazar, etc.);
     // 'support' = consulta general ("Necesito ayuda") — mismo panel y
     // mismo chat, pero sin nada de precio/decisión, porque no aplica.
