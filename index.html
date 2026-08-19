@@ -6618,11 +6618,19 @@
         function groupCabinKeys(keys) {
           const byCabin = {};
           keys.forEach(function (key) {
+            // Yacht Club: cotizaciones nuevas usan las 4 habitaciones
+            // propias ("yacht_club_general" etc. — ver YACHT_CLUB_SUITE_ORDER
+            // arriba), pero cotizaciones viejas (de antes de este cambio)
+            // todavía pueden tener "yacht_club_bella/fantastica/aurea" en la
+            // base de datos — si no cae en ninguna de las dos, ahí sí se
+            // descarta, pero antes hay que intentar las dos, si no
+            // desaparecía Yacht Club entero en cotizaciones ya cargadas.
             if (key.indexOf('yacht_club_') === 0) {
               const suite = key.slice('yacht_club_'.length);
-              if (YACHT_CLUB_SUITE_ORDER.indexOf(suite) === -1) return;
-              (byCabin.yacht_club = byCabin.yacht_club || []).push({ key, tier: suite });
-              return;
+              if (YACHT_CLUB_SUITE_ORDER.indexOf(suite) !== -1 || FARE_TIER_ORDER.indexOf(suite) !== -1) {
+                (byCabin.yacht_club = byCabin.yacht_club || []).push({ key, tier: suite });
+                return;
+              }
             }
             const tier = FARE_TIER_ORDER.find((t) => key.endsWith('_' + t));
             if (!tier) return;
@@ -6630,9 +6638,14 @@
             (byCabin[cabin] = byCabin[cabin] || []).push({ key, tier });
           });
           return CABIN_TYPE_ORDER.filter((c) => byCabin[c]).map((cabin) => {
-            const tierOrder = cabin === 'yacht_club' ? YACHT_CLUB_SUITE_ORDER : FARE_TIER_ORDER;
+            // El orden a usar depende de qué esquema tiene ESTA cotización
+            // puntual, no del nombre del camarote — una cotización vieja de
+            // Yacht Club sigue usando el orden de tarifas, no el de suites.
+            const usesNewYachtClubSuites = cabin === 'yacht_club' && byCabin[cabin].some((e) => YACHT_CLUB_SUITE_ORDER.indexOf(e.tier) !== -1);
+            const tierOrder = usesNewYachtClubSuites ? YACHT_CLUB_SUITE_ORDER : FARE_TIER_ORDER;
             return {
               cabin,
+              isYachtClubSuites: usesNewYachtClubSuites,
               tiers: byCabin[cabin].sort((a, b) => tierOrder.indexOf(a.tier) - tierOrder.indexOf(b.tier)),
             };
           });
