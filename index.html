@@ -5088,8 +5088,13 @@
           // Dos grupos, no uno solo — mismo criterio que usan las
           // aerolíneas/navieras (Children vs. Lap Infants): un bebé no se
           // carga en el mismo campo que un niño de 10 años.
-          { label: 'Niños (2-17)', name: 'ninos', type: 'select', default: '0', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10+'] },
-          { label: 'Infantes (0-2)', name: 'infantes', type: 'select', default: '0', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10+'] }
+          // Grupos reales de MSC (confirmado contra su propio buscador):
+          // Child 12-17 y Junior Child 2-11 son categorías con tarifa
+          // distinta, no una sola — y MSC topea cada una en 2 por
+          // camarote, e Infant en 1. No son números inventados.
+          { label: 'Niños (12-17)', name: 'ninos_12_17', type: 'select', default: '0', options: ['0', '1', '2'] },
+          { label: 'Niños chicos (2-11)', name: 'ninos_2_11', type: 'select', default: '0', options: ['0', '1', '2'] },
+          { label: 'Infantes (menores de 2)', name: 'infantes', type: 'select', default: '0', options: ['0', '1'] }
         ]
       },
       hoteles: {
