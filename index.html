@@ -5080,7 +5080,11 @@
           { label: 'Destino', name: 'destino', type: 'select', default: 'Caribe y Bahamas', options: ['Cualquier destino', 'Alaska', 'Asia', 'Caribe y Bahamas', 'Mediterráneo', 'MSC Grand Voyages', 'Norte de Europa', 'Canal de Panamá', 'Sudamérica', 'MSC World Cruise'] },
           { label: 'Fecha de salida', name: 'fechas', placeholder: 'Elige tus fechas', type: 'text', monthPicker: true },
           { label: 'Adultos', name: 'adultos', type: 'select', default: '2', options: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10+'] },
-          { label: 'Niños (edades)', name: 'ninos_edades', placeholder: 'Ej. 5, 8 (dejar vacío si no hay)', type: 'text' }
+          // Dos grupos, no uno solo — mismo criterio que usan las
+          // aerolíneas/navieras (Children vs. Lap Infants): un bebé no se
+          // carga en el mismo campo que un niño de 10 años.
+          { label: 'Niños (edades)', name: 'ninos_edades', placeholder: 'Ej. 5, 8 (2-17 años, dejar vacío si no hay)', type: 'text' },
+          { label: 'Infantes (edades)', name: 'infantes_edades', placeholder: 'Ej. 1 (menores de 2, dejar vacío si no hay)', type: 'text' }
         ]
       },
       hoteles: {
