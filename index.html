@@ -6865,7 +6865,16 @@
               // en la tarjeta, en vez del grid de 3-en-fila con foto solo
               // al pasar el cursor que usan los demás camarotes.
               grid.className = isYachtClub ? 'quote-status-yacht-club-grid' : 'quote-status-cabin-grid';
-              const cabinPhotoUrl = isYachtClub ? null : CABIN_TYPE_PHOTOS[group.cabin];
+              // Yacht Club viejo (Bella/Fantastica/Aurea): ya no tiene su
+              // propia entrada en CABIN_TYPE_PHOTOS (se reemplazó por las 4
+              // fotos de YACHT_CLUB_SUITE_PHOTOS) — se usa la foto
+              // "general" como respaldo para no perder la vista previa que
+              // ya tenía.
+              const cabinPhotoUrl = isYachtClub
+                ? null
+                : group.cabin === 'yacht_club'
+                ? YACHT_CLUB_SUITE_PHOTOS.general
+                : CABIN_TYPE_PHOTOS[group.cabin];
               group.tiers.forEach(function (entry) {
                 const price = seatTypePrices[entry.key];
                 const selected = selectedChosenSeatType === entry.key;
