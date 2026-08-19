@@ -1999,14 +1999,14 @@
     background: rgba(95, 191, 179, 0.1);
   }
 
-  /* Yacht Club: 2 tarjetas por fila (2 arriba, 2 abajo) en vez de 3 en una
-     sola fila — cada una es más ancha y trae su propia foto real (distinta
-     por habitación), así que necesita más espacio que las de los demás
-     camarotes. */
+  /* Yacht Club: 3 habitaciones reales (Royal/Deluxe/Interior Suite) — con
+     la tarjeta ya compacta (nombre + precio, foto y descripción solo al
+     pasar el cursor, igual que Bella/Fantastica/Aurea) entran en una sola
+     fila sin apretarse, mismo criterio que .quote-status-cabin-grid. */
   .quote-status-yacht-club-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
   }
 
   .quote-status-yacht-club-card {
