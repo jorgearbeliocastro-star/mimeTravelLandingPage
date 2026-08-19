@@ -6458,7 +6458,10 @@
           '<div class="quote-pax-block" data-pax-block>' +
           header +
           mandatory +
-          '<details class="quote-pax-extended"><summary>' + t('quotePaxExtendedToggle') + '</summary>' + extendedTicketData + '</details>' +
+          // "open" — antes quedaba colapsado y el cliente no veía estos
+          // campos si no tocaba la flechita, se le podían pasar por alto.
+          // Ahora aparecen ya desplegados de entrada, sin esconder nada.
+          '<details class="quote-pax-extended" open><summary>' + t('quotePaxExtendedToggle') + '</summary>' + extendedTicketData + '</details>' +
           '</div>'
         );
       }
