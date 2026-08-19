@@ -5052,7 +5052,13 @@
           { label: 'Destino', name: 'destino', placeholder: '¿Hacia dónde?', type: 'text', country: true, geoMode: 'airport' },
           { label: 'Fecha de ida', name: 'fecha_ida', placeholder: '¿Cuándo te vas?', type: 'date' },
           { label: 'Fecha de vuelta', name: 'fecha_vuelta', placeholder: '¿Cuándo regresas?', type: 'date' },
-          { label: 'Clase', name: 'clase', type: 'select', options: ['Económica', 'Premium Economy', 'Business', 'Primera Clase'] }
+          { label: 'Clase', name: 'clase', type: 'select', options: ['Económica', 'Premium Economy', 'Business', 'Primera Clase'] },
+          // El Agente cotizaba a ciegas sin saber cuántos viajan — se agrega
+          // acá (y en cruceros) para que lo sepa ANTES de poner precio, no
+          // recién cuando el cliente acepta (ahí ya se piden los datos
+          // completos de cada pasajero, ver buildPassengerBlockHTML).
+          { label: 'Adultos', name: 'adultos', type: 'select', default: '1', options: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10+'] },
+          { label: 'Niños (edades)', name: 'ninos_edades', placeholder: 'Ej. 5, 8 (dejar vacío si no hay)', type: 'text' }
         ]
       },
       cruceros: {
@@ -5060,12 +5066,15 @@
         fields: [
           // Estructura calcada de la portada real de MSC: arriba solo
           // Igual que la portada real de MSC: solo 3 campos + Buscar.
-          // Pasajeros, barco y tipo de camarote NO están en su buscador
-          // inicial — eso se define después, en otro paso del proceso
-          // (por chat/teléfono con el agente, en nuestro caso).
+          // El barco y tipo de camarote NO están en su buscador inicial —
+          // eso se define después, en otro paso del proceso (por chat con
+          // el agente). Adultos/Niños sí se agregan (a diferencia de MSC)
+          // porque el Agente los necesita para cotizar bien el camarote.
           { label: 'Puerto de salida', name: 'puerto_salida', type: 'select', default: 'Miami', options: ['Cualquier puerto', 'Buenos Aires', 'Shanghái', 'Split', 'Copenhague', 'Miami', 'Port Canaveral (Orlando)', 'Cannes', 'Marsella', 'Hamburgo', 'Kiel', 'Warnemünde (Berlín)', 'El Pireo (Atenas)', 'Ancona', 'Bari', 'Bríndisi', 'Cagliari', 'Civitavecchia (Roma)', 'Génova', 'Livorno (Florencia)', 'Messina', 'Nápoles', 'Olbia', 'Palermo', 'Trieste', 'Venecia', 'La Valeta', 'Oslo', 'Lisboa', 'Alicante', 'Barcelona', 'Málaga', 'Palma de Mallorca', 'Tarragona', 'Valencia', 'Estocolmo', 'Galveston (Texas)', 'La Goulette (Túnez)', 'Estambul', 'Kuşadası', 'Southampton (Londres)', 'Seattle'] },
           { label: 'Destino', name: 'destino', type: 'select', default: 'Caribe y Bahamas', options: ['Cualquier destino', 'Alaska', 'Asia', 'Caribe y Bahamas', 'Mediterráneo', 'MSC Grand Voyages', 'Norte de Europa', 'Canal de Panamá', 'Sudamérica', 'MSC World Cruise'] },
-          { label: 'Fecha de salida', name: 'fechas', placeholder: 'Elige tus fechas', type: 'text', monthPicker: true }
+          { label: 'Fecha de salida', name: 'fechas', placeholder: 'Elige tus fechas', type: 'text', monthPicker: true },
+          { label: 'Adultos', name: 'adultos', type: 'select', default: '2', options: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10+'] },
+          { label: 'Niños (edades)', name: 'ninos_edades', placeholder: 'Ej. 5, 8 (dejar vacío si no hay)', type: 'text' }
         ]
       },
       hoteles: {
