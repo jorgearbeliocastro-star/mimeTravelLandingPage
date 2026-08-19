@@ -4425,6 +4425,11 @@
         contact_phone: payload.contactPhone || null,
         notes: payload.notes,
         client_language: clientLanguage,
+        // Cuántos viajan, dicho por el cliente AL PEDIR la cotización (no
+        // confundir con "passengers", los datos completos de cada uno que
+        // se piden recién al aceptar) — ver 0084_quote_requested_party.sql.
+        requested_adults: payload.requestedAdults ?? null,
+        requested_child_ages: payload.requestedChildAges ?? null,
         passenger_full_name: null,
         passenger_document: null,
         passenger_date_of_birth: null,
