@@ -5643,30 +5643,27 @@
       return (value || '').trim();
     }
 
-    // "Adultos" (select 1-10+) + "Niños (edades)" + "Infantes (edades)"
-    // (texto libre cada uno, ej. "5, 8") — se agregaron a Vuelos/Cruceros
-    // para que el Agente sepa cuántos viajan ANTES de poner precio (antes
-    // solo se pedían los datos completos de cada pasajero recién al
-    // aceptar, ver buildPassengerBlockHTML — eso sigue igual, esto es solo
-    // lo mínimo para cotizar bien desde el principio). Niños e infantes
-    // son dos campos separados (igual criterio que "Children"/"Lap
-    // Infants" en las aerolíneas — un bebé no se carga en el mismo campo
-    // que un niño de 10 años), pero se guardan juntas en un solo array: lo
-    // que importa para el precio es la edad exacta de cada uno, no en cuál
-    // de los dos campos se escribió. Ver 0084_quote_requested_party.sql.
-    function parseAgesField(raw) {
-      return (raw || '')
-        .split(',')
-        .map((s) => parseInt(s.trim(), 10))
-        .filter((n) => Number.isInteger(n) && n >= 0 && n <= 17);
+    // "Adultos" + "Niños" + "Infantes" (los tres selects 0/1-10+, mismo
+    // estilo compacto) — se agregaron a Vuelos/Cruceros para que el Agente
+    // sepa cuántos viajan ANTES de poner precio (antes solo se pedían los
+    // datos completos de cada pasajero recién al aceptar, ver
+    // buildPassengerBlockHTML — eso sigue igual y es ahí donde se termina
+    // de saber la edad exacta de cada uno; esto es solo la cantidad, para
+    // cotizar bien desde el principio). Niños e infantes van separados
+    // (igual criterio que "Children"/"Lap Infants" en las aerolíneas) pero
+    // se guardan en la misma columna: para el Agente alcanza con la
+    // cantidad total de menores, no hace falta distinguir cuántos de cada
+    // grupo en la base de datos. Ver 0084_quote_requested_party.sql.
+    function parseCountField(raw, cap) {
+      const clean = (raw || '').replace('+', '').trim();
+      return clean ? Math.min(parseInt(clean, 10) || 0, cap) : 0;
     }
     function parseRequestedParty(data) {
-      const adultsRaw = (data.adultos || '').replace('+', '').trim();
-      const requestedAdults = adultsRaw ? Math.min(parseInt(adultsRaw, 10) || 0, 99) : null;
-      const requestedChildAges = [...parseAgesField(data.ninos_edades), ...parseAgesField(data.infantes_edades)];
+      const requestedAdults = data.adultos != null ? parseCountField(data.adultos, 99) : null;
+      const childrenCount = parseCountField(data.ninos, 99) + parseCountField(data.infantes, 99);
       return {
         requestedAdults,
-        requestedChildAges: requestedChildAges.length ? requestedChildAges : null,
+        requestedChildAges: childrenCount > 0 ? new Array(childrenCount).fill(null) : null,
       };
     }
     // Arma el pedido de cotización para "la expansión" según la pestaña
