@@ -1999,6 +1999,51 @@
     background: rgba(95, 191, 179, 0.1);
   }
 
+  /* Yacht Club: 2 tarjetas por fila (2 arriba, 2 abajo) en vez de 3 en una
+     sola fila — cada una es más ancha y trae su propia foto real (distinta
+     por habitación), así que necesita más espacio que las de los demás
+     camarotes. */
+  .quote-status-yacht-club-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .quote-status-yacht-club-card {
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
+    border-radius: 10px;
+    padding: 8px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    font-family: var(--font-body);
+  }
+
+  .quote-status-yacht-club-card-photo {
+    display: block;
+    width: 100%;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .quote-status-yacht-club-card.active {
+    border-color: var(--turquesa);
+    background: rgba(95, 191, 179, 0.1);
+  }
+
+  .quote-status-yacht-club-card.active .quote-status-cabin-card-label {
+    color: var(--primary);
+  }
+
+  .quote-status-yacht-club-card.active .quote-status-cabin-card-price {
+    color: var(--primary);
+    font-weight: 700;
+  }
+
   .quote-status-cabin-card-label {
     font-size: 12.5px;
     font-weight: 700;
