@@ -6528,6 +6528,14 @@
         // Orden de más caro a más barato — mismo orden que usa MSC.
         const CABIN_TYPE_ORDER = ['yacht_club', 'suite', 'balcony', 'oceanview', 'interior'];
         const FARE_TIER_ORDER = ['bella', 'fantastica', 'aurea'];
+        // Yacht Club no tiene Bella/Fantastica/Aurea como los demás
+        // camarotes — en la web real de MSC son 4 habitaciones propias
+        // (General, Royal Suite, Deluxe Suite, Interior Suite), cada una
+        // con un precio único, no niveles de tarifa. Mismo mecanismo de
+        // clave compuesta "yacht_club_<suite>" (ver cabinTierKey en la
+        // app de Agente). Orden = como se ve en la web de MSC (2x2: la
+        // general primero, después de más cara a más barata).
+        const YACHT_CLUB_SUITE_ORDER = ['general', 'royal_suite', 'deluxe_suite', 'interior_suite'];
         // Foto real de cada tipo de camarote (capturas reales de MSC,
         // recortadas y subidas al bucket público addon-photos).
         const CABIN_TYPE_PHOTOS = {
@@ -6535,20 +6543,38 @@
           oceanview: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/oceanview.png',
           balcony: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/balcony.png',
           suite: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/suite.png',
-          yacht_club: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/yacht_club.png',
+        };
+        // Yacht Club tiene una foto real DISTINTA por cada una de sus 4
+        // habitaciones (a diferencia de los demás camarotes, donde la
+        // misma foto vale para Bella/Fantastica/Aurea) — por eso va en un
+        // mapa aparte, con clave = suite en vez de tipo de camarote.
+        const YACHT_CLUB_SUITE_PHOTOS = {
+          general: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/yacht_club_general.png',
+          royal_suite: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/yacht_club_royal_suite.png',
+          deluxe_suite: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/yacht_club_deluxe_suite.png',
+          interior_suite: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/yacht_club_interior_suite.png',
         };
         function groupCabinKeys(keys) {
           const byCabin = {};
           keys.forEach(function (key) {
+            if (key.indexOf('yacht_club_') === 0) {
+              const suite = key.slice('yacht_club_'.length);
+              if (YACHT_CLUB_SUITE_ORDER.indexOf(suite) === -1) return;
+              (byCabin.yacht_club = byCabin.yacht_club || []).push({ key, tier: suite });
+              return;
+            }
             const tier = FARE_TIER_ORDER.find((t) => key.endsWith('_' + t));
             if (!tier) return;
             const cabin = key.slice(0, key.length - tier.length - 1);
             (byCabin[cabin] = byCabin[cabin] || []).push({ key, tier });
           });
-          return CABIN_TYPE_ORDER.filter((c) => byCabin[c]).map((cabin) => ({
-            cabin,
-            tiers: byCabin[cabin].sort((a, b) => FARE_TIER_ORDER.indexOf(a.tier) - FARE_TIER_ORDER.indexOf(b.tier)),
-          }));
+          return CABIN_TYPE_ORDER.filter((c) => byCabin[c]).map((cabin) => {
+            const tierOrder = cabin === 'yacht_club' ? YACHT_CLUB_SUITE_ORDER : FARE_TIER_ORDER;
+            return {
+              cabin,
+              tiers: byCabin[cabin].sort((a, b) => tierOrder.indexOf(a.tier) - tierOrder.indexOf(b.tier)),
+            };
+          });
         }
         // Recalcula los textos de precio mostrados según qué esté marcado
         // (seguro/equipaje) — se llama tanto al pintar como al tocar
@@ -6749,32 +6775,48 @@
             groupCabinKeys(availableSeatTypes).forEach(function (group) {
               const cabinGroup = document.createElement('div');
               cabinGroup.className = 'quote-status-cabin-group';
-              const cabinPhotoUrl = CABIN_TYPE_PHOTOS[group.cabin];
               const cabinTitle = document.createElement('div');
               cabinTitle.className = 'quote-status-cabin-group-title';
               cabinTitle.textContent = t('cabinTypeOption_' + group.cabin);
               cabinGroup.appendChild(cabinTitle);
               const grid = document.createElement('div');
-              grid.className = 'quote-status-cabin-grid';
+              const isYachtClub = group.cabin === 'yacht_club';
+              // Yacht Club: 4 habitaciones con foto REAL y distinta cada
+              // una (no la misma foto para las 3 tarifas) — grid propio de
+              // 2x2 con la foto siempre visible en la tarjeta, en vez del
+              // grid de 3-en-fila con foto solo al pasar el cursor que usan
+              // los demás camarotes.
+              grid.className = isYachtClub ? 'quote-status-yacht-club-grid' : 'quote-status-cabin-grid';
+              const cabinPhotoUrl = isYachtClub ? null : CABIN_TYPE_PHOTOS[group.cabin];
               group.tiers.forEach(function (entry) {
                 const price = seatTypePrices[entry.key];
                 const selected = selectedChosenSeatType === entry.key;
                 const card = document.createElement('button');
                 card.type = 'button';
-                card.className = 'quote-status-cabin-card quote-status-cabin-card--' + entry.tier + (selected ? ' active' : '');
-                card.innerHTML =
-                  // Foto (arriba) y descripción (abajo) solo aparecen con
-                  // el cursor encima o foco/tap — el botón en sí queda
-                  // limpio (nombre + precio), sin apretar nada. La foto es
-                  // la misma para las tres tarifas de este camarote (muestra
-                  // la habitación); la descripción sí cambia por tarifa.
-                  (cabinPhotoUrl ? '<img class="quote-status-cabin-card-preview" src="' + cabinPhotoUrl + '" alt="">' : '') +
-                  '<span class="quote-status-cabin-card-label">' + t('fareTierOption_' + entry.tier) + '</span>' +
-                  '<span class="quote-status-cabin-card-price">USD ' + price + '</span>' +
-                  '<span class="quote-status-cabin-card-desc">' + t('fareTierDesc_' + entry.tier) + '</span>';
+                if (isYachtClub) {
+                  card.className = 'quote-status-yacht-club-card' + (selected ? ' active' : '');
+                  const suitePhotoUrl = YACHT_CLUB_SUITE_PHOTOS[entry.tier];
+                  card.innerHTML =
+                    (suitePhotoUrl ? '<img class="quote-status-yacht-club-card-photo" src="' + suitePhotoUrl + '" alt="">' : '') +
+                    '<span class="quote-status-cabin-card-label">' + t('yachtClubSuiteOption_' + entry.tier) + '</span>' +
+                    '<span class="quote-status-cabin-card-price">USD ' + price + '</span>';
+                } else {
+                  card.className = 'quote-status-cabin-card quote-status-cabin-card--' + entry.tier + (selected ? ' active' : '');
+                  card.innerHTML =
+                    // Foto (arriba) y descripción (abajo) solo aparecen con
+                    // el cursor encima o foco/tap — el botón en sí queda
+                    // limpio (nombre + precio), sin apretar nada. La foto es
+                    // la misma para las tres tarifas de este camarote
+                    // (muestra la habitación); la descripción sí cambia por
+                    // tarifa.
+                    (cabinPhotoUrl ? '<img class="quote-status-cabin-card-preview" src="' + cabinPhotoUrl + '" alt="">' : '') +
+                    '<span class="quote-status-cabin-card-label">' + t('fareTierOption_' + entry.tier) + '</span>' +
+                    '<span class="quote-status-cabin-card-price">USD ' + price + '</span>' +
+                    '<span class="quote-status-cabin-card-desc">' + t('fareTierDesc_' + entry.tier) + '</span>';
+                }
                 card.addEventListener('click', function () {
                   selectedChosenSeatType = selectedChosenSeatType === entry.key ? '' : entry.key;
-                  seatTypeWrap.querySelectorAll('.quote-status-cabin-card').forEach((c) => c.classList.remove('active'));
+                  seatTypeWrap.querySelectorAll('.quote-status-cabin-card, .quote-status-yacht-club-card').forEach((c) => c.classList.remove('active'));
                   if (selectedChosenSeatType === entry.key) card.classList.add('active');
                   updateQuotePriceDisplay();
                 });
