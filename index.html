@@ -5174,7 +5174,9 @@
           { label: 'Destinazione', name: 'destino', placeholder: 'Verso dove?', type: 'text', country: true, geoMode: 'airport' },
           { label: 'Data di partenza', name: 'fecha_ida', placeholder: 'Quando parti?', type: 'date' },
           { label: 'Data di ritorno', name: 'fecha_vuelta', placeholder: 'Quando torni?', type: 'date' },
-          { label: 'Classe', name: 'clase', type: 'select', options: ['Economica', 'Premium Economy', 'Business', 'Prima Classe'] }
+          { label: 'Classe', name: 'clase', type: 'select', options: ['Economica', 'Premium Economy', 'Business', 'Prima Classe'] },
+          { label: 'Adulti', name: 'adultos', type: 'select', default: '1', options: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10+'] },
+          { label: 'Bambini (età)', name: 'ninos_edades', placeholder: 'Es. 5, 8 (lascia vuoto se nessuno)', type: 'text' }
         ]
       },
       cruceros: {
@@ -5182,7 +5184,9 @@
         fields: [
           { label: 'Porto di partenza', name: 'puerto_salida', type: 'select', default: 'Miami', options: ['Qualsiasi porto', 'Buenos Aires', 'Shanghai', 'Spalato', 'Copenaghen', 'Miami', 'Port Canaveral (Orlando)', 'Cannes', 'Marsiglia', 'Amburgo', 'Kiel', 'Warnemünde (Berlino)', 'Il Pireo (Atene)', 'Ancona', 'Bari', 'Brindisi', 'Cagliari', 'Civitavecchia (Roma)', 'Genova', 'Livorno (Firenze)', 'Messina', 'Napoli', 'Olbia', 'Palermo', 'Trieste', 'Venezia', 'La Valletta', 'Oslo', 'Lisbona', 'Alicante', 'Barcellona', 'Malaga', 'Palma di Maiorca', 'Tarragona', 'Valencia', 'Stoccolma', 'Galveston (Texas)', 'La Goulette (Tunisia)', 'Istanbul', 'Kuşadası', 'Southampton (Londra)', 'Seattle'] },
           { label: 'Destinazione', name: 'destino', type: 'select', default: 'Caraibi e Bahamas', options: ['Qualsiasi destinazione', 'Alaska', 'Asia', 'Caraibi e Bahamas', 'Mediterraneo', 'MSC Grand Voyages', 'Nord Europa', 'Canale di Panama', 'Sud America', 'MSC World Cruise'] },
-          { label: 'Data di partenza', name: 'fechas', placeholder: 'Scegli le date', type: 'text', monthPicker: true }
+          { label: 'Data di partenza', name: 'fechas', placeholder: 'Scegli le date', type: 'text', monthPicker: true },
+          { label: 'Adulti', name: 'adultos', type: 'select', default: '2', options: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10+'] },
+          { label: 'Bambini (età)', name: 'ninos_edades', placeholder: 'Es. 5, 8 (lascia vuoto se nessuno)', type: 'text' }
         ]
       },
       hoteles: {
