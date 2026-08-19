@@ -6902,7 +6902,8 @@
                   card.innerHTML =
                     (suitePhotoUrl ? '<img class="quote-status-yacht-club-card-photo" src="' + suitePhotoUrl + '" alt="">' : '') +
                     '<span class="quote-status-cabin-card-label">' + t('yachtClubSuiteOption_' + entry.tier) + '</span>' +
-                    '<span class="quote-status-cabin-card-price">USD ' + price + '</span>';
+                    '<span class="quote-status-cabin-card-price">USD ' + price + '</span>' +
+                    '<span class="quote-status-yacht-club-card-desc">' + t('yachtClubSuiteDesc_' + entry.tier) + '</span>';
                 } else {
                   card.className = 'quote-status-cabin-card quote-status-cabin-card--' + entry.tier + (selected ? ' active' : '');
                   card.innerHTML =
