@@ -6210,6 +6210,33 @@
     const quoteReopenBtn = document.getElementById('quoteReopenBtn');
     const quoteReopenCountdown = document.getElementById('quoteReopenCountdown');
 
+    // El panel es position:fixed con una altura basada en 100vh — en
+    // Safari de iOS el teclado NO empuja ni recalcula eso, se superpone
+    // arriba del panel y puede tapar el campo que se está escribiendo
+    // (ej. el formulario de pasajeros, que tiene muchos campos seguidos).
+    // Dos medidas juntas:
+    // 1) Si hay visualViewport (iOS 13+/la mayoría de navegadores
+    //    modernos), se re-calcula la altura real disponible (la que ya
+    //    descuenta el teclado) y se la pasamos al panel como variable CSS,
+    //    en vez de dejar que dependa de 100vh.
+    // 2) Al enfocar cualquier campo dentro del panel, scrollIntoView con
+    //    un pequeño delay (a que la animación del teclado ya haya abierto)
+    //    — así el campo puntual que se está por escribir queda visible sí
+    //    o sí, incluso si el cálculo de altura de arriba no alcanza.
+    if (window.visualViewport) {
+      const syncViewportHeight = function () {
+        document.documentElement.style.setProperty('--visual-viewport-height', window.visualViewport.height + 'px');
+      };
+      window.visualViewport.addEventListener('resize', syncViewportHeight);
+      syncViewportHeight();
+    }
+    quotePanel.addEventListener('focusin', function (e) {
+      if (!/^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;
+      setTimeout(function () {
+        e.target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      }, 300);
+    });
+
     let activeQuoteId = null;
     let activeQuoteRouteLabel = '';
     // Categoría del pedido activo (flight/cruise/...) — la necesita
