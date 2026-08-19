@@ -6433,12 +6433,16 @@
           buildDateSelectsHTML('docExpiry', index, nowYear, nowYear + 15) +
           '<label class="quote-pax-label">' + t('quotePaxIssuingCountry') + '</label>' +
           '<input type="text" class="quote-pax-input" name="passportIssuingCountry-' + index + '">' +
+          // Orden lógico: primero la calle, después en qué ciudad, después
+          // el código postal — como en cualquier formulario de dirección
+          // real (antes estaba Ciudad → Código postal → Dirección, al
+          // revés de como se piensa una dirección).
+          '<label class="quote-pax-label">' + t('quotePaxAddress') + '</label>' +
+          '<input type="text" class="quote-pax-input" name="address-' + index + '">' +
           '<label class="quote-pax-label">' + t('quotePaxCity') + '</label>' +
           '<input type="text" class="quote-pax-input" name="city-' + index + '">' +
           '<label class="quote-pax-label">' + t('quotePaxZipCode') + '</label>' +
           '<input type="text" class="quote-pax-input" name="zipCode-' + index + '">' +
-          '<label class="quote-pax-label">' + t('quotePaxAddress') + '</label>' +
-          '<input type="text" class="quote-pax-input" name="address-' + index + '">' +
           '<label class="quote-pax-label">' + t('quotePaxEmergencyContactName') + '</label>' +
           '<input type="text" class="quote-pax-input" name="emergencyContactName-' + index + '">' +
           '<label class="quote-pax-label">' + t('quotePaxEmergencyContactPhone') + '</label>' +
