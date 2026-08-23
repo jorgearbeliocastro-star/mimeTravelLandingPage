@@ -5870,12 +5870,32 @@
           .eq('destination', destinationCanonical)
           .then(({ data: itineraries, error }) => {
             searchMsg.textContent = '';
-            if (!error && itineraries && itineraries.length > 0) {
-              renderCruiseResults(form, data, itineraries);
+            // El mes que eligió en el calendario (ver setupMonthPicker)
+            // filtra cuáles fechas mostrar — antes se mostraban TODAS las
+            // fechas disponibles del itinerario sin importar qué mes había
+            // elegido, lo cual no tenía sentido (MSC muestra las salidas
+            // semanales del mes puntual que se está mirando, no todas las
+            // que existan). available_dates es "YYYY-MM-DD", alcanza con
+            // comparar el prefijo "YYYY-MM".
+            const monthISO = parseMonthRangeToISO(data.fechas);
+            const monthPrefix = monthISO ? monthISO.slice(0, 7) : null;
+            const filtered = !error && itineraries
+              ? itineraries
+                  .map((it) => ({
+                    ...it,
+                    available_dates: monthPrefix
+                      ? (it.available_dates || []).filter((d) => d.startsWith(monthPrefix))
+                      : it.available_dates,
+                  }))
+                  .filter((it) => (it.available_dates || []).length > 0)
+              : [];
+            if (filtered.length > 0) {
+              renderCruiseResults(form, data, filtered);
               return;
             }
-            // Sin itinerarios cargados para esta ruta todavía — sigue
-            // funcionando como antes (manda el pedido directo al agente).
+            // Sin itinerarios (o sin ninguna fecha en el mes elegido) para
+            // esta ruta todavía — sigue funcionando como antes (manda el
+            // pedido directo al agente).
             submitQuoteRequest(form, buildSearchQuotePayload(activeType, data));
           })
           .catch(() => {
