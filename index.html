@@ -730,11 +730,22 @@
     background: #fff;
     color: var(--primary);
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    line-height: 1.2;
   }
 
   .cruise-result-date:hover {
     background: var(--primary);
     color: #fff;
+  }
+
+  .cruise-result-date-price {
+    font-size: 10px;
+    font-weight: 600;
+    opacity: 0.8;
   }
 
   .cruise-result-price {
