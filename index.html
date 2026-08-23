@@ -5818,10 +5818,21 @@
           const dateChips = (it.available_dates || [])
             .map((d) => {
               const p = datePrices[d];
+              // Fechas sin precio cargado = esa semana no tiene salida real
+              // (igual que MSC las muestra en gris con "N/D") — se ven pero
+              // no se pueden elegir.
+              if (p == null) {
+                return (
+                  '<button type="button" class="cruise-result-date cruise-result-date-na" disabled>' +
+                    d +
+                    '<span class="cruise-result-date-price">' + t('cruiseResultNotAvailable') + '</span>' +
+                  '</button>'
+                );
+              }
               return (
                 '<button type="button" class="cruise-result-date" data-itinerary="' + idx + '" data-date="' + d + '">' +
                   d +
-                  (p != null ? '<span class="cruise-result-date-price">USD ' + p + '</span>' : '') +
+                  '<span class="cruise-result-date-price">USD ' + p + '</span>' +
                 '</button>'
               );
             })
