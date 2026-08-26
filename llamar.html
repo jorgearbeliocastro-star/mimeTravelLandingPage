@@ -160,6 +160,7 @@
     async function main() {
       const clientToken = getClientToken();
       const id = crypto.randomUUID();
+      window.__callId = id;
       const { error } = await supabaseClient.from('call_requests').insert({
         id,
         client_token: clientToken,
