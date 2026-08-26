@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Mime Travel — Llamadas</title>
+<style>
+  :root {
+    --primary: #1B3A5C;
+    --coral: #FF7A59;
+    --light: #FAFAFA;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: var(--font-body);
+    background: var(--light);
+    color: #1A1A1A;
+  }
+  header {
+    background: var(--primary);
+    color: #fff;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  header a { color: #fff; text-decoration: none; font-size: 13px; opacity: 0.85; }
+  main {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 24px 16px;
+  }
+  .empty {
+    text-align: center;
+    color: rgba(26,26,26,0.5);
+    font-size: 14px;
+    margin-top: 40px;
+  }
+  .call-card {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .call-card .info { font-size: 14px; font-weight: 700; }
+  .call-card .sub { font-size: 12px; color: rgba(26,26,26,0.5); }
+  .call-actions { display: flex; gap: 8px; }
+  .btn { border: none; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .btn-accept { background: #1e7e34; color: #fff; }
+  .btn-decline { background: #c0392b; color: #fff; }
+
+  /* Pantalla de llamada en curso */
+  .call-screen { position: fixed; inset: 0; background: #0d1b2a; color: #fff; display: none; flex-direction: column; z-index: 50; }
+  .call-screen.active { display: flex; }
+  .status-bar { text-align: center; padding: 18px; font-weight: 700; }
+  .video-area { flex: 1; position: relative; background: #000; }
+  #remoteVideo { width: 100%; height: 100%; object-fit: cover; background: #111; }
+  #localVideo { position: absolute; bottom: 16px; right: 16px; width: 110px; height: 150px; object-fit: cover; border-radius: 10px; border: 2px solid rgba(255,255,255,0.4); background: #222; }
+  .controls { display: flex; justify-content: center; gap: 20px; padding: 24px; }
+  .btn-circle { width: 58px; height: 58px; border-radius: 50%; border: none; background: rgba(255,255,255,0.15); color: #fff; font-size: 20px; cursor: pointer; }
+  .btn-circle.active { background: var(--coral); }
+  .btn-hangup { background: #c0392b; }
+</style>
+</head>
+<body>
+  <header>
+    <strong>Llamadas</strong>
+    <a href="panel.html">← Panel</a>
+  </header>
+  <main>
+    <div id="list"></div>
+    <div class="empty" id="emptyMsg">No hay llamadas esperando.</div>
+  </main>
+
+  <div class="call-screen" id="callScreen">
+    <div class="status-bar" id="statusBar">Conectando…</div>
+    <div class="video-area">
+      <video id="remoteVideo" autoplay playsinline></video>
+      <video id="localVideo" autoplay playsinline muted></video>
+    </div>
+    <div class="controls">
+      <button class="btn-circle" id="muteBtn">🎤</button>
+      <button class="btn-circle" id="videoBtn">📷</button>
+      <button class="btn-circle btn-hangup" id="hangupBtn">⏹</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../webrtcCall.js"></script>
+  <script>
+    const SUPABASE_URL = 'https://ihrfaprvzdafclquuhlh.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_lcWymV25nHd2_iOMjRwD4A_XOXvOdPK';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let agentId = null;
+    let call = null;
+    let pollTimer = null;
+
+    (async () => {
+      const { data: aalData } = await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (!aalData || aalData.currentLevel !== 'aal2') {
+        window.location.href = 'login.html';
+        return;
+      }
+      const { data: userData } = await supabaseClient.auth.getUser();
+      if (!userData?.user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      agentId = userData.user.id;
+      loadRingingCalls();
+      pollTimer = setInterval(loadRingingCalls, 3000);
+    })();
+
+    async function loadRingingCalls() {
+      const { data, error } = await supabaseClient.rpc('get_ringing_calls_for_agent', { p_agent_id: agentId });
+      if (error) return;
+      renderList(data || []);
+    }
+
+    function renderList(calls) {
+      const list = document.getElementById('list');
+      const emptyMsg = document.getElementById('emptyMsg');
+      list.innerHTML = '';
+      if (!calls.length) {
+        emptyMsg.style.display = 'block';
+        return;
+      }
+      emptyMsg.style.display = 'none';
+      calls.forEach((c) => {
+        const card = document.createElement('div');
+        card.className = 'call-card';
+        card.innerHTML =
+          '<div><div class="info">Llamada entrante</div><div class="sub">Idioma: ' + (c.client_language || '—') + '</div></div>' +
+          '<div class="call-actions"><button class="btn btn-accept">Atender</button><button class="btn btn-decline">Rechazar</button></div>';
+        card.querySelector('.btn-accept').addEventListener('click', () => acceptCall(c.id));
+        card.querySelector('.btn-decline').addEventListener('click', () => declineCall(c.id));
+        list.appendChild(card);
+      });
+    }
+
+    async function acceptCall(callId) {
+      clearInterval(pollTimer);
+      const { error } = await supabaseClient
+        .from('call_requests')
+        .update({ status: 'accepted', accepted_by: agentId, updated_at: new Date().toISOString() })
+        .eq('id', callId);
+      if (error) {
+        alert('No se pudo atender la llamada — probá de nuevo.');
+        pollTimer = setInterval(loadRingingCalls, 3000);
+        return;
+      }
+      openCallScreen(callId);
+    }
+
+    async function declineCall(callId) {
+      await supabaseClient.from('call_requests').update({ status: 'declined', updated_at: new Date().toISOString() }).eq('id', callId);
+      loadRingingCalls();
+    }
+
+    function openCallScreen(callId) {
+      document.getElementById('callScreen').classList.add('active');
+      const statusBar = document.getElementById('statusBar');
+      call = startWebRTCCall({
+        supabaseClient,
+        channelName: 'call:' + callId,
+        isCaller: false,
+        localVideoEl: document.getElementById('localVideo'),
+        remoteVideoEl: document.getElementById('remoteVideo'),
+        onState(state) {
+          if (state === 'connected') statusBar.textContent = 'En llamada';
+          if (state === 'failed') statusBar.textContent = 'No se pudo conectar';
+          if (state === 'ended') closeCallScreen();
+        },
+      });
+      document.getElementById('hangupBtn').onclick = () => {
+        if (call) call.hangup();
+        closeCallScreen();
+      };
+      document.getElementById('muteBtn').onclick = function () {
+        if (!call) return;
+        this.classList.toggle('active', call.toggleMute());
+      };
+      document.getElementById('videoBtn').onclick = function () {
+        if (!call) return;
+        this.classList.toggle('active', call.toggleVideo());
+      };
+    }
+
+    function closeCallScreen() {
+      document.getElementById('callScreen').classList.remove('active');
+      call = null;
+      pollTimer = setInterval(loadRingingCalls, 3000);
+      loadRingingCalls();
+    }
+  </script>
+</body>
+</html>
