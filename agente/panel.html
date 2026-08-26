@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Mime Travel — Panel de agentes</title>
+<style>
+  :root {
+    --primary: #1B3A5C;
+    --coral: #FF7A59;
+    --light: #FAFAFA;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: var(--font-body);
+    background: var(--light);
+    color: #1A1A1A;
+  }
+  header {
+    background: var(--primary);
+    color: #fff;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  header h1 {
+    font-size: 16px;
+    margin: 0;
+  }
+  header button {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.5);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  main {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 40px 24px;
+    text-align: center;
+  }
+  main p {
+    color: rgba(26,26,26,0.6);
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1 id="whoami">Panel de agentes</h1>
+    <button id="logoutBtn">Salir</button>
+  </header>
+  <main>
+    <p>Base del panel de agentes en la web — recién arrancando. Acá va a ir lo que se construya después (cotizaciones, chat, llamadas).</p>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>
+    const SUPABASE_URL = 'https://ihrfaprvzdafclquuhlh.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_lcWymV25nHd2_iOMjRwD4A_XOXvOdPK';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Guardia de sesión: sin login + segundo factor verificado (aal2), no
+    // se puede ver nada de este panel — vuelve directo al login.
+    (async () => {
+      const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (!aalData || aalData.currentLevel !== 'aal2') {
+        window.location.href = 'login.html';
+        return;
+      }
+      const { data: userData } = await supabase.auth.getUser();
+      if (userData?.user) {
+        const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', userData.user.id).single();
+        document.getElementById('whoami').textContent = 'Hola, ' + (profile?.full_name || userData.user.email);
+      }
+    })();
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = 'login.html';
+    });
+  </script>
+</body>
+</html>
