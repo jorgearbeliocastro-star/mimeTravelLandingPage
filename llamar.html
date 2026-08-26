@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mime Travel — Llamar a un agente</title>
+<style>
+  :root {
+    --primary: #1B3A5C;
+    --coral: #FF7A59;
+    --dark: #1A1A1A;
+    --light: #FAFAFA;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: var(--font-body);
+    background: #0d1b2a;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .status-bar {
+    text-align: center;
+    padding: 18px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .video-area {
+    flex: 1;
+    position: relative;
+    background: #000;
+  }
+  #remoteVideo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #111;
+  }
+  #localVideo {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    width: 110px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.4);
+    background: #222;
+  }
+  .placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+  }
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 24px;
+  }
+  .btn-circle {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  .btn-circle.active { background: var(--coral); }
+  .btn-hangup { background: #c0392b; }
+  .fallback {
+    text-align: center;
+    padding: 0 24px 24px;
+  }
+  .fallback a {
+    color: var(--coral);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .fallback { display: none; }
+  .fallback.show { display: block; }
+</style>
+</head>
+<body>
+
+  <div class="status-bar" id="statusBar">Llamando…</div>
+
+  <div class="video-area">
+    <video id="remoteVideo" autoplay playsinline></video>
+    <div class="placeholder" id="placeholder">
+      <div class="avatar">📞</div>
+    </div>
+    <video id="localVideo" autoplay playsinline muted></video>
+  </div>
+
+  <div class="fallback" id="fallbackBox">
+    <p>No se pudo conectar la llamada.</p>
+    <a href="index.html#newsletter">Escribinos por el formulario de contacto</a>
+  </div>
+
+  <div class="controls" id="controls" style="display:none;">
+    <button class="btn-circle" id="muteBtn">🎤</button>
+    <button class="btn-circle" id="videoBtn">📷</button>
+    <button class="btn-circle btn-hangup" id="hangupBtn">⏹</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="webrtcCall.js"></script>
+  <script>
+    const SUPABASE_URL = 'https://ihrfaprvzdafclquuhlh.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_lcWymV25nHd2_iOMjRwD4A_XOXvOdPK';
+    const WEBHOOK_SECRET = '9aa883ff6caef8d5b41e2c749cccaf121860629737147d12';
+    const FUNCTIONS_URL = SUPABASE_URL + '/functions/v1/send-request-notification';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Mismo token que usa el resto de la web pública para identificar este
+    // navegador como "cliente sin cuenta" (ver getOrCreateWebClientToken en
+    // index.html) — reutiliza la misma clave para que sea el mismo cliente.
+    function getClientToken() {
+      const KEY = 'la-expancion.client-token';
+      let token = localStorage.getItem(KEY);
+      if (!token) {
+        token = crypto.randomUUID();
+        localStorage.setItem(KEY, token);
+      }
+      return token;
+    }
+
+    const statusBar = document.getElementById('statusBar');
+    const placeholder = document.getElementById('placeholder');
+    const controls = document.getElementById('controls');
+    const fallbackBox = document.getElementById('fallbackBox');
+    let call = null;
+    let ended = false;
+
+    function showFallback() {
+      controls.style.display = 'none';
+      fallbackBox.classList.add('show');
+    }
+
+    async function main() {
+      const clientToken = getClientToken();
+      const id = crypto.randomUUID();
+      const { error } = await supabaseClient.from('call_requests').insert({
+        id,
+        client_token: clientToken,
+        target_agent_id: null,
+        client_language: (navigator.language || 'es').split('-')[0],
+        created_by: null,
+      });
+      if (error) {
+        statusBar.textContent = 'No se pudo iniciar la llamada.';
+        showFallback();
+        return;
+      }
+      // Mismo aviso que recibe el agente cuando llega desde la app — así
+      // le suena igual, esté en el teléfono o mirando el panel web.
+      fetch(FUNCTIONS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': WEBHOOK_SECRET },
+        body: JSON.stringify({ type: 'INSERT', table: 'call_requests', record: { id, target_agent_id: null } }),
+      }).catch(() => {});
+
+      // Sondea el estado de la llamada (aceptada/rechazada/sin respuesta)
+      // hasta que alguien conteste — igual que hace la app.
+      const poll = setInterval(async () => {
+        if (ended) return clearInterval(poll);
+        const { data } = await supabaseClient.rpc('get_call_request_by_token', { p_token: clientToken, p_id: id });
+        const row = (data || [])[0];
+        if (!row) return;
+        if (row.status === 'accepted' && !call) {
+          clearInterval(poll);
+          statusBar.textContent = 'Conectando…';
+          startCall();
+        } else if (row.status === 'declined' || row.status === 'missed') {
+          clearInterval(poll);
+          statusBar.textContent = row.status === 'declined' ? 'Llamada rechazada' : 'Nadie contestó';
+          showFallback();
+        }
+      }, 2000);
+    }
+
+    function startCall() {
+      placeholder.style.display = 'none';
+      controls.style.display = 'flex';
+      call = startWebRTCCall({
+        supabaseClient,
+        channelName: 'call:' + window.__callId,
+        isCaller: true,
+        localVideoEl: document.getElementById('localVideo'),
+        remoteVideoEl: document.getElementById('remoteVideo'),
+        onState(state) {
+          if (state === 'connected') statusBar.textContent = 'En llamada';
+          if (state === 'failed') {
+            statusBar.textContent = 'No se pudo conectar';
+            showFallback();
+          }
+          if (state === 'ended') {
+            ended = true;
+            statusBar.textContent = 'Llamada finalizada';
+          }
+        },
+      });
+    }
+
+    document.getElementById('muteBtn').addEventListener('click', function () {
+      if (!call) return;
+      const isMuted = call.toggleMute();
+      this.classList.toggle('active', isMuted);
+    });
+    document.getElementById('videoBtn').addEventListener('click', function () {
+      if (!call) return;
+      const isOff = call.toggleVideo();
+      this.classList.toggle('active', isOff);
+    });
+    document.getElementById('hangupBtn').addEventListener('click', async function () {
+      ended = true;
+      if (call) call.hangup();
+      const clientToken = getClientToken();
+      try {
+        await supabaseClient.rpc('client_end_call', { p_token: clientToken, p_id: window.__callId });
+      } catch (e) {}
+      window.location.href = 'index.html';
+    });
+
+    main().then(() => {
+      // window.__callId se completa dentro de main() vía closure — ver abajo.
+    });
+  </script>
+</body>
+</html>
