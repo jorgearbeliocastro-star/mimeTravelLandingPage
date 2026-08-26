@@ -58,32 +58,33 @@
     <button id="logoutBtn">Salir</button>
   </header>
   <main>
-    <p>Base del panel de agentes en la web — recién arrancando. Acá va a ir lo que se construya después (cotizaciones, chat, llamadas).</p>
+    <p><a href="llamadas.html">📞 Ver llamadas entrantes</a></p>
+    <p>Base del panel de agentes en la web — recién arrancando. Acá va a ir lo que se construya después (cotizaciones, chat).</p>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
     const SUPABASE_URL = 'https://ihrfaprvzdafclquuhlh.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_lcWymV25nHd2_iOMjRwD4A_XOXvOdPK';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // Guardia de sesión: sin login + segundo factor verificado (aal2), no
     // se puede ver nada de este panel — vuelve directo al login.
     (async () => {
-      const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      const { data: aalData } = await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();
       if (!aalData || aalData.currentLevel !== 'aal2') {
         window.location.href = 'login.html';
         return;
       }
-      const { data: userData } = await supabase.auth.getUser();
+      const { data: userData } = await supabaseClient.auth.getUser();
       if (userData?.user) {
-        const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', userData.user.id).single();
+        const { data: profile } = await supabaseClient.from('profiles').select('full_name').eq('id', userData.user.id).single();
         document.getElementById('whoami').textContent = 'Hola, ' + (profile?.full_name || userData.user.email);
       }
     })();
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await supabase.auth.signOut();
+      await supabaseClient.auth.signOut();
       window.location.href = 'login.html';
     });
   </script>
