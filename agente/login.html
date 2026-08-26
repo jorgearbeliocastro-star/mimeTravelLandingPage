@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Mime Travel — Acceso de agentes</title>
+<style>
+  :root {
+    --primary: #1B3A5C;
+    --coral: #FF7A59;
+    --arena: #F5E6D3;
+    --dark: #1A1A1A;
+    --light: #FAFAFA;
+    --font-display: 'Georgia', serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: var(--font-body);
+    background: linear-gradient(160deg, var(--primary), #0d2035);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    color: var(--dark);
+  }
+  .card {
+    background: var(--light);
+    border-radius: 16px;
+    padding: 32px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    color: var(--primary);
+    margin: 0 0 4px;
+  }
+  p.sub {
+    margin: 0 0 24px;
+    font-size: 13px;
+    color: rgba(26,26,26,0.6);
+  }
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: rgba(26,26,26,0.7);
+  }
+  input {
+    width: 100%;
+    padding: 11px 12px;
+    border-radius: 8px;
+    border: 1.5px solid rgba(0,0,0,0.15);
+    font-size: 15px;
+    margin-bottom: 16px;
+    font-family: inherit;
+  }
+  input:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+  button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: var(--coral);
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  button:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+  .msg {
+    margin-top: 14px;
+    font-size: 13px;
+    text-align: center;
+  }
+  .msg.error { color: #c0392b; }
+  .msg.ok { color: #1e7e34; }
+  .qr-box {
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .qr-box img {
+    max-width: 180px;
+    border: 8px solid #fff;
+    border-radius: 8px;
+  }
+  .hint {
+    font-size: 12px;
+    color: rgba(26,26,26,0.55);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .step { display: none; }
+  .step.active { display: block; }
+  .back-link {
+    display: block;
+    text-align: center;
+    margin-top: 18px;
+    font-size: 12px;
+    color: rgba(26,26,26,0.5);
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>Panel de agentes</h1>
+    <p class="sub">Acceso solo para Agentes y Dueño de Mime Travel.</p>
+
+    <!-- Paso 1: usuario/contraseña -->
+    <div class="step active" id="stepLogin">
+      <form id="loginForm">
+        <label for="email">Correo</label>
+        <input type="email" id="email" autocomplete="username" required>
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" autocomplete="current-password" required>
+        <button type="submit" id="loginBtn">Entrar</button>
+      </form>
+    </div>
+
+    <!-- Paso 2a: activar verificación en dos pasos (primera vez) -->
+    <div class="step" id="stepEnroll">
+      <p class="hint">Es la primera vez que entrás desde acá — activá la verificación en dos pasos escaneando este código con Google Authenticator (u otra app similar), y confirmá con el código de 6 dígitos que te muestre.</p>
+      <div class="qr-box"><img id="qrImg" alt="Código QR"></div>
+      <form id="enrollForm">
+        <label for="enrollCode">Código de 6 dígitos</label>
+        <input type="text" id="enrollCode" inputmode="numeric" pattern="[0-9]*" maxlength="6" required>
+        <button type="submit" id="enrollBtn">Confirmar y activar</button>
+      </form>
+    </div>
+
+    <!-- Paso 2b: verificación normal (ya tiene MFA activado) -->
+    <div class="step" id="stepVerify">
+      <p class="hint">Ingresá el código de 6 dígitos de tu app autenticadora.</p>
+      <form id="verifyForm">
+        <label for="verifyCode">Código de 6 dígitos</label>
+        <input type="text" id="verifyCode" inputmode="numeric" pattern="[0-9]*" maxlength="6" required>
+        <button type="submit" id="verifyBtn">Verificar</button>
+      </form>
+    </div>
+
+    <div class="msg" id="msg"></div>
+    <a class="back-link" href="../index.html">← Volver a Mime Travel</a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>
+    // Mismo proyecto de Supabase que usa la web pública y la app (la
+    // expancion) — el anon key es público a propósito (protegido por RLS
+    // del lado del servidor, igual que en index.html). El panel de agente
+    // se decide SEPARADO de la app nativa a partir de ahora — no reusa ni
+    // depende de su código, aunque comparta la misma base de datos.
+    const SUPABASE_URL = 'https://ihrfaprvzdafclquuhlh.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_lcWymV25nHd2_iOMjRwD4A_XOXvOdPK';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const msgEl = document.getElementById('msg');
+    function showMsg(text, type) {
+      msgEl.textContent = text;
+      msgEl.className = 'msg ' + (type || '');
+    }
+    function showStep(id) {
+      document.querySelectorAll('.step').forEach((s) => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    // Después de un login correcto, decide qué paso de MFA mostrar según
+    // si el agente ya tiene un factor TOTP verificado o no.
+    async function proceedAfterPasswordLogin() {
+      const { data: factorsData, error: factorsError } = await supabase.auth.mfa.listFactors();
+      if (factorsError) {
+        showMsg('No se pudo verificar la seguridad de la cuenta: ' + factorsError.message, 'error');
+        return;
+      }
+      const verifiedTotp = (factorsData.totp || []).find((f) => f.status === 'verified');
+      if (verifiedTotp) {
+        const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({ factorId: verifiedTotp.id });
+        if (challengeError) {
+          showMsg('Error iniciando la verificación: ' + challengeError.message, 'error');
+          return;
+        }
+        window.__pendingFactorId = verifiedTotp.id;
+        window.__pendingChallengeId = challengeData.id;
+        showStep('stepVerify');
+        showMsg('', '');
+      } else {
+        // Primera vez: crea el factor TOTP y muestra el QR para escanear.
+        const { data: enrollData, error: enrollError } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
+        if (enrollError) {
+          showMsg('No se pudo iniciar la activación de MFA: ' + enrollError.message, 'error');
+          return;
+        }
+        window.__pendingFactorId = enrollData.id;
+        document.getElementById('qrImg').src = enrollData.totp.qr_code;
+        showStep('stepEnroll');
+        showMsg('', '');
+      }
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('loginBtn');
+      btn.disabled = true;
+      showMsg('Verificando…', '');
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        showMsg('Correo o contraseña incorrectos.', 'error');
+        btn.disabled = false;
+        return;
+      }
+      // Solo Agente/Dueño pueden entrar acá — un cliente o subagente que
+      // por error tenga cuenta no debería poder abrir este panel.
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role, status')
+        .eq('id', data.user.id)
+        .single();
+      if (profileError || !profile || (profile.role !== 'agent' && profile.role !== 'super_admin')) {
+        await supabase.auth.signOut();
+        showMsg('Esta cuenta no tiene acceso al panel de agentes.', 'error');
+        btn.disabled = false;
+        return;
+      }
+      if (profile.status === 'suspended') {
+        await supabase.auth.signOut();
+        showMsg('Esta cuenta está suspendida.', 'error');
+        btn.disabled = false;
+        return;
+      }
+      await proceedAfterPasswordLogin();
+      btn.disabled = false;
+    });
+
+    document.getElementById('enrollForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('enrollBtn');
+      btn.disabled = true;
+      const code = document.getElementById('enrollCode').value.trim();
+      const factorId = window.__pendingFactorId;
+      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({ factorId });
+      if (challengeError) {
+        showMsg('Error: ' + challengeError.message, 'error');
+        btn.disabled = false;
+        return;
+      }
+      const { error: verifyError } = await supabase.auth.mfa.verify({
+        factorId,
+        challengeId: challengeData.id,
+        code,
+      });
+      if (verifyError) {
+        showMsg('Código incorrecto, probá de nuevo.', 'error');
+        btn.disabled = false;
+        return;
+      }
+      showMsg('Verificación activada — entrando…', 'ok');
+      window.location.href = 'panel.html';
+    });
+
+    document.getElementById('verifyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('verifyBtn');
+      btn.disabled = true;
+      const code = document.getElementById('verifyCode').value.trim();
+      const { error } = await supabase.auth.mfa.verify({
+        factorId: window.__pendingFactorId,
+        challengeId: window.__pendingChallengeId,
+        code,
+      });
+      if (error) {
+        showMsg('Código incorrecto, probá de nuevo.', 'error');
+        btn.disabled = false;
+        return;
+      }
+      showMsg('¡Listo! Entrando…', 'ok');
+      window.location.href = 'panel.html';
+    });
+
+    // Si ya había una sesión con el segundo factor ya verificado (aal2),
+    // no hace falta pasar por el login de nuevo.
+    (async () => {
+      const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (data && data.currentLevel === 'aal2') {
+        window.location.href = 'panel.html';
+      }
+    })();
+  </script>
+</body>
+</html>
