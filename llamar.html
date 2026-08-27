@@ -129,15 +129,19 @@
     <a href="index.html?chat=1">Escribinos por el chat</a>
   </div>
 
+  <!-- Solo aparece cuando el AGENTE pide una foto puntual (ver
+       onPhotoRequest) — el cliente no decide solo cuándo mandarla. -->
+  <div class="photo-request-banner" id="photoRequestBanner">
+    <span id="photoRequestText"></span>
+    <button type="button" id="photoRequestBtn">Tomar foto</button>
+  </div>
+
   <div class="controls" id="controls" style="display:none;">
     <button class="btn-circle" id="muteBtn">🎤</button>
     <button class="btn-circle" id="videoBtn">📷</button>
-    <button class="btn-circle" id="passportBtn" title="Mostrar pasaporte al agente">🛂</button>
-    <button class="btn-circle" id="cardBtn" title="Mostrar tarjeta al agente">💳</button>
     <button class="btn-circle btn-hangup" id="hangupBtn">⏹</button>
   </div>
-  <input type="file" id="passportInput" accept="image/*" capture="environment" style="display:none;">
-  <input type="file" id="cardInput" accept="image/*" capture="environment" style="display:none;">
+  <input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none;">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="webrtcCall.js"></script>
