@@ -442,6 +442,18 @@
       }
       pendingPhotoKind = null;
     });
+    document.getElementById('pipBtn').addEventListener('click', async () => {
+      const video = document.getElementById('remoteVideo');
+      try {
+        if (document.pictureInPictureElement) {
+          await document.exitPictureInPicture();
+        } else {
+          await video.requestPictureInPicture();
+        }
+      } catch (err) {
+        alert('No se pudo abrir la ventana flotante en este navegador.');
+      }
+    });
     document.getElementById('hangupBtn').addEventListener('click', async function () {
       ended = true;
       if (call) await call.hangup();
