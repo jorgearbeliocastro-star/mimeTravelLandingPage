@@ -257,45 +257,54 @@
       e.preventDefault();
       const btn = document.getElementById('enrollBtn');
       btn.disabled = true;
-      const code = document.getElementById('enrollCode').value.trim();
-      const factorId = window.__pendingFactorId;
-      const { data: challengeData, error: challengeError } = await supabaseClient.auth.mfa.challenge({ factorId });
-      if (challengeError) {
-        showMsg('Error: ' + challengeError.message, 'error');
-        btn.disabled = false;
+      try {
+        const code = document.getElementById('enrollCode').value.trim();
+        const factorId = window.__pendingFactorId;
+        const { data: challengeData, error: challengeError } = await supabaseClient.auth.mfa.challenge({ factorId });
+        if (challengeError) {
+          showMsg('Error: ' + challengeError.message, 'error');
+          return;
+        }
+        const { error: verifyError } = await supabaseClient.auth.mfa.verify({
+          factorId,
+          challengeId: challengeData.id,
+          code,
+        });
+        if (verifyError) {
+          showMsg('Código incorrecto, probá de nuevo.', 'error');
+          return;
+        }
+        showMsg('Verificación activada — entrando…', 'ok');
+        window.location.href = 'panel.html';
         return;
+      } catch (err) {
+        showMsg('Error inesperado: ' + (err && err.message ? err.message : String(err)), 'error');
       }
-      const { error: verifyError } = await supabaseClient.auth.mfa.verify({
-        factorId,
-        challengeId: challengeData.id,
-        code,
-      });
-      if (verifyError) {
-        showMsg('Código incorrecto, probá de nuevo.', 'error');
-        btn.disabled = false;
-        return;
-      }
-      showMsg('Verificación activada — entrando…', 'ok');
-      window.location.href = 'panel.html';
+      btn.disabled = false;
     });
 
     document.getElementById('verifyForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('verifyBtn');
       btn.disabled = true;
-      const code = document.getElementById('verifyCode').value.trim();
-      const { error } = await supabaseClient.auth.mfa.verify({
-        factorId: window.__pendingFactorId,
-        challengeId: window.__pendingChallengeId,
-        code,
-      });
-      if (error) {
-        showMsg('Código incorrecto, probá de nuevo.', 'error');
-        btn.disabled = false;
+      try {
+        const code = document.getElementById('verifyCode').value.trim();
+        const { error } = await supabaseClient.auth.mfa.verify({
+          factorId: window.__pendingFactorId,
+          challengeId: window.__pendingChallengeId,
+          code,
+        });
+        if (error) {
+          showMsg('Código incorrecto, probá de nuevo.', 'error');
+          return;
+        }
+        showMsg('¡Listo! Entrando…', 'ok');
+        window.location.href = 'panel.html';
         return;
+      } catch (err) {
+        showMsg('Error inesperado: ' + (err && err.message ? err.message : String(err)), 'error');
       }
-      showMsg('¡Listo! Entrando…', 'ok');
-      window.location.href = 'panel.html';
+      btn.disabled = false;
     });
 
     // Si ya había una sesión con el segundo factor ya verificado (aal2),
