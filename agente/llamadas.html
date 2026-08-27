@@ -192,7 +192,16 @@
       <span id="photoOverlayLabel">No se guarda, solo se muestra acá</span>
       <button id="photoCloseBtn">✕</button>
     </div>
-    <img id="photoImg" alt="Foto del cliente">
+    <div class="photo-img-wrap">
+      <img id="photoImg" alt="Foto del cliente">
+      <!-- Marca de agua con el nombre del agente + hora en vivo — no
+           impide una captura (nada lo hace, ver conversación), pero si se
+           filtra queda trazado de quién la vio y cuándo. Varias copias
+           para que no alcance con recortar una esquina. -->
+      <div class="photo-watermark wm-1" id="wm1"></div>
+      <div class="photo-watermark wm-2" id="wm2"></div>
+      <div class="photo-watermark wm-3" id="wm3"></div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
