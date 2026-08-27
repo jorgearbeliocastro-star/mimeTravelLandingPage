@@ -151,17 +151,31 @@
       }
       agentId = userData.user.id;
       startPresenceHeartbeat(supabaseClient);
+      // El Dueño (super_admin) además puede ver TODAS las cotizaciones del
+      // equipo, no solo las propias — mismo criterio que ya tiene la app
+      // ("Todas las cotizaciones" vs "Cotizaciones nuevas"). Un Agente
+      // normal no ve esa pestaña.
+      const { data: profile } = await supabaseClient.from('profiles').select('role').eq('id', agentId).single();
+      if (profile?.role === 'super_admin') {
+        const allTab = document.createElement('div');
+        allTab.className = 'tab';
+        allTab.dataset.tab = 'all';
+        allTab.textContent = 'Todas (equipo)';
+        allTab.addEventListener('click', () => selectTab(allTab));
+        document.querySelector('.tabs').appendChild(allTab);
+      }
       loadQuotes();
       pollTimer = setInterval(loadQuotes, 6000);
     })();
 
+    function selectTab(tabEl) {
+      document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
+      tabEl.classList.add('active');
+      currentTab = tabEl.dataset.tab;
+      loadQuotes();
+    }
     document.querySelectorAll('.tab').forEach((tabEl) => {
-      tabEl.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
-        tabEl.classList.add('active');
-        currentTab = tabEl.dataset.tab;
-        loadQuotes();
-      });
+      tabEl.addEventListener('click', () => selectTab(tabEl));
     });
 
     async function loadQuotes() {
@@ -170,6 +184,11 @@
         // Nuevas sin tomar todavía — mismo criterio que "Cotizaciones
         // nuevas" en la app: solo pending, sin agente asignado.
         query = query.eq('status', 'pending');
+      } else if (currentTab === 'all') {
+        // Solo Dueño — todo el equipo, cotizadas/decididas (no pendientes
+        // sueltas, esas ya se ven en "Nuevas"; no compradas/expiradas,
+        // para no acumular ruido viejo).
+        query = query.in('status', ['quoted', 'decided']);
       } else {
         // Ya cotizadas por MÍ (tomadas), esperando o ya con decisión del
         // cliente — no incluye compradas/expiradas para no acumular ruido
@@ -205,10 +224,27 @@
             ? '<span class="badge decided-accepted">Aceptó — falta cobrar</span>'
             : '<span class="badge decided-declined">Rechazó</span>';
         }
+        // "Cuántos viajan" (lo que dijo el cliente AL PEDIR, antes de
+        // cotizar) — solo se pidió para cruceros hasta ahora, ver
+        // 0084_quote_requested_party.sql. Si ya aceptó, mejor mostrar los
+        // pasajeros completos que cargó (nombre real, no solo la cantidad).
+        let partyHtml = '';
+        if (q.requested_adults != null) {
+          partyHtml = (q.requested_adults) + ' adulto' + (q.requested_adults === 1 ? '' : 's') +
+            (q.requested_children ? ', ' + q.requested_children + ' niño(s)' : '');
+        }
+        let passengersHtml = '';
+        if (Array.isArray(q.passengers) && q.passengers.length) {
+          passengersHtml = '<div class="notes"><strong>Pasajeros:</strong> ' +
+            q.passengers.map((p) => (p.fullName || (p.firstName + ' ' + p.lastName) || 'Sin nombre').toString().replace(/</g, '&lt;')).join(', ') +
+            '</div>';
+        }
         card.innerHTML =
           '<div class="route">' + fmtRoute(q) + '</div>' +
-          '<div class="meta">' + (q.category || '') + ' · ' + (q.contact_name || 'Sin nombre') + (q.contact_phone ? ' · ' + q.contact_phone : '') + '</div>' +
+          '<div class="meta">' + (q.category || '') + ' · ' + (q.contact_name || 'Sin nombre') + (q.contact_phone ? ' · ' + q.contact_phone : '') + (q.contact_email ? ' · ' + q.contact_email : '') + '</div>' +
+          (partyHtml ? '<div class="meta">' + partyHtml + '</div>' : '') +
           (q.notes ? '<div class="notes">' + q.notes.replace(/</g, '&lt;') + '</div>' : '') +
+          passengersHtml +
           badgeHtml;
         list.appendChild(card);
 
