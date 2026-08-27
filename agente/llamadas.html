@@ -106,6 +106,19 @@
     </div>
   </div>
 
+  <!-- Foto del pasaporte que mande el cliente durante la llamada — llega
+       directo por el canal de datos de WebRTC, nunca pasa por Supabase.
+       Se cierra solo al colgar (ver closeCallScreen) — no queda guardada
+       en ningún lado, ni siquiera acá, solo vive en memoria mientras dura
+       la pestaña abierta. */-->
+  <div class="photo-overlay" id="photoOverlay">
+    <div class="photo-overlay-header">
+      <span>Pasaporte del cliente — no se guarda, solo se muestra acá</span>
+      <button id="photoCloseBtn">✕</button>
+    </div>
+    <img id="photoImg" alt="Foto del pasaporte">
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="../webrtcCall.js"></script>
   <script src="presence.js"></script>
