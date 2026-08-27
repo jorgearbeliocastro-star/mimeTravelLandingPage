@@ -365,8 +365,13 @@
             shareScreenBtn.textContent = '🖥️ Volver a la cámara';
           }
         } catch (err) {
-          // El usuario canceló el selector de pantalla, o el navegador no
-          // lo soporta — no bloqueante.
+          // Si el navegador no soporta getDisplayMedia (típico en
+          // celulares — hoy compartir pantalla solo anda desde una
+          // computadora) o el usuario canceló el selector, antes esto
+          // quedaba en silencio total y parecía que "no hacía nada".
+          if (err && err.name !== 'NotAllowedError') {
+            alert('No se pudo compartir la pantalla: ' + (err.message || err.name || 'no soportado en este navegador. Probá desde una computadora.'));
+          }
         }
       };
       document.getElementById('hangupBtn').onclick = async () => {
