@@ -62,7 +62,23 @@
   .btn-decline { background: #c0392b; color: #fff; }
 
   /* Pantalla de llamada en curso */
-  .call-screen { position: fixed; inset: 0; background: #0d1b2a; color: #fff; display: none; flex-direction: column; z-index: 50; }
+  .call-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    /* inset:0 (alto por "bottom:0") en el celular se estira detrás de la
+       barra del navegador y empuja los controles de abajo fuera de lo que
+       se ve — con alto explícito en dvh (el "viewport dinámico" real) se
+       ajusta solo al espacio visible. */
+    height: 100vh;
+    height: 100dvh;
+    background: #0d1b2a;
+    color: #fff;
+    display: none;
+    flex-direction: column;
+    z-index: 50;
+  }
   .call-screen.active { display: flex; }
   .status-bar { text-align: center; padding: 18px; font-weight: 700; }
   .client-info-box {
