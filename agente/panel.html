@@ -91,6 +91,63 @@
       await supabaseClient.auth.signOut();
       window.location.href = 'login.html';
     });
+
+    // Llave pública VAPID — es pública a propósito (el navegador la usa
+    // para cifrar hacia el servidor de push), la privada solo vive en el
+    // secret de la función send-web-push, nunca acá.
+    const VAPID_PUBLIC_KEY = 'BGa5n6mV8kYVoF9fYsiEo-2M1jHRWd-pA2OTyLmAWbe1YCNsE3EGZv-ysXU_69iUaxmskaOng0OTfXT5C4M1_80';
+    function urlBase64ToUint8Array(base64String) {
+      const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+      const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+      const rawData = atob(base64);
+      return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
+    }
+
+    const pushBtn = document.getElementById('pushBtn');
+    const pushMsg = document.getElementById('pushMsg');
+
+    async function refreshPushButton() {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        pushBtn.disabled = true;
+        pushMsg.textContent = 'Este navegador no soporta notificaciones push.';
+        return;
+      }
+      const reg = await navigator.serviceWorker.register('sw.js');
+      const existing = await reg.pushManager.getSubscription();
+      pushBtn.textContent = existing ? '🔔 Notificaciones activadas' : '🔔 Activar notificaciones de llamadas';
+    }
+
+    pushBtn.addEventListener('click', async () => {
+      pushBtn.disabled = true;
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          pushMsg.textContent = 'No se activó — hace falta permitir las notificaciones.';
+          return;
+        }
+        const reg = await navigator.serviceWorker.register('sw.js');
+        let sub = await reg.pushManager.getSubscription();
+        if (!sub) {
+          sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+          });
+        }
+        const { data: userData } = await supabaseClient.auth.getUser();
+        const { error } = await supabaseClient
+          .from('agent_push_subscriptions')
+          .insert({ agent_id: userData.user.id, subscription: sub.toJSON() });
+        if (error) throw error;
+        pushMsg.textContent = 'Notificaciones activadas en este dispositivo.';
+        pushBtn.textContent = '🔔 Notificaciones activadas';
+      } catch (err) {
+        pushMsg.textContent = 'Error: ' + (err && err.message ? err.message : String(err));
+      } finally {
+        pushBtn.disabled = false;
+      }
+    });
+
+    refreshPushButton();
   </script>
 </body>
 </html>
