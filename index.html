@@ -6751,6 +6751,12 @@
           window.alert(t('quotePaxMissing'));
           return;
         }
+        // Sin el consentimiento marcado, no se manda la aceptación — ver
+        // comentario arriba de dónde se arma el checkbox (payment_consent_at).
+        if (mode === 'accept' && !document.getElementById('paymentConsentCheck')?.checked) {
+          window.alert(t('quotePaymentConsentMissing'));
+          return;
+        }
 
         quoteDecisionInFlight = true;
         const clientToken = getOrCreateWebClientToken();
@@ -6758,6 +6764,10 @@
           ? laExpancion.rpc('decide_quote_request_with_tier', { p_token: clientToken, p_id: activeQuoteId, p_accept: true, p_tier: selectedQuoteTier, p_insurance_qty: selectedWantsInsurance ? 1 : 0, p_extra_bag_qty: selectedExtraBagQty, p_carry_on_qty: 0, p_chosen_seat_type: selectedChosenSeatType || null, p_wants_refundable: selectedWantsRefundable, p_chosen_custom_addon_labels: Object.keys(selectedCustomAddons).filter((label) => selectedCustomAddons[label]), p_cabin_deck_preference: selectedCabinDeckPreference || null, p_cabin_position_preference: selectedCabinPositionPreference || null, p_cabin_connecting_with: selectedCabinConnectingWith || null, p_cabin_bed_config: selectedCabinBedConfig || null }).then(({ error }) => {
               if (error) throw error;
               notifyQuoteDecisionWeb(activeQuoteId);
+              // No bloqueante a propósito — si esto falla, igual se
+              // completó la aceptación en sí; se reintenta como mucho a
+              // mano si hace falta, no vale la pena trabar la venta por esto.
+              return laExpancion.rpc('record_payment_consent', { p_token: clientToken, p_id: activeQuoteId }).catch(() => {});
             })
           : Promise.resolve();
         decideStep
