@@ -67,6 +67,7 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="presence.js"></script>
   <script>
     const SUPABASE_URL = 'https://ihrfaprvzdafclquuhlh.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_lcWymV25nHd2_iOMjRwD4A_XOXvOdPK';
@@ -85,6 +86,10 @@
         const { data: profile } = await supabaseClient.from('profiles').select('full_name').eq('id', userData.user.id).single();
         document.getElementById('whoami').textContent = 'Hola, ' + (profile?.full_name || userData.user.email);
       }
+      // Ahora que la app queda de lado, el "latido" de presencia (para
+      // saber si el agente está conectado) tiene que salir de acá — antes
+      // solo lo mandaba la app nativa.
+      startPresenceHeartbeat(supabaseClient);
     })();
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
