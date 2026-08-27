@@ -148,6 +148,14 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
     pc = new RTCPeerConnection({ iceServers: CALL_ICE_SERVERS });
     localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
 
+    // El que llama crea el canal de datos (para la foto del pasaporte);
+    // el otro lado lo recibe acá cuando se negocie la conexión.
+    if (isCaller) {
+      setupDataChannel(pc.createDataChannel('photo'));
+    } else {
+      pc.ondatachannel = (event) => setupDataChannel(event.channel);
+    }
+
     const logTag = '[call:' + (isCaller ? 'caller' : 'callee') + ']';
 
     pc.ontrack = (event) => {
