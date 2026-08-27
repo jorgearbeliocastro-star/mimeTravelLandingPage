@@ -251,6 +251,16 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
       });
   })();
 
+  async function stopScreenShareInternal(localVideoEl) {
+    if (!sharingScreen) return;
+    if (screenStream) screenStream.getTracks().forEach((t) => t.stop());
+    screenStream = null;
+    sharingScreen = false;
+    const sender = pc && pc.getSenders().find((s) => s.track && s.track.kind === 'video');
+    if (sender && cameraTrack) await sender.replaceTrack(cameraTrack);
+    if (localVideoEl && localStream) localVideoEl.srcObject = localStream;
+  }
+
   return {
     async hangup() {
       // Espera a que el aviso de "colgar" realmente salga por el canal
