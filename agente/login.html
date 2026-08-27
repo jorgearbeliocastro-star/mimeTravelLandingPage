@@ -216,35 +216,41 @@
       const btn = document.getElementById('loginBtn');
       btn.disabled = true;
       showMsg('Verificando…', '');
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-      if (error) {
-        showMsg('Correo o contraseña incorrectos.', 'error');
+      // Envuelve TODO el intento de login en un try/catch — sin esto, si
+      // algo se rompe a mitad de camino (ej. un error inesperado al armar
+      // el código QR de MFA), la pantalla se quedaba trabada en "Verificando…"
+      // con el botón desactivado para siempre, sin ningún mensaje visible.
+      try {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) {
+          showMsg('Correo o contraseña incorrectos.', 'error');
+          return;
+        }
+        // Solo Agente/Dueño pueden entrar acá — un cliente o subagente que
+        // por error tenga cuenta no debería poder abrir este panel.
+        const { data: profile, error: profileError } = await supabaseClient
+          .from('profiles')
+          .select('role, status')
+          .eq('id', data.user.id)
+          .single();
+        if (profileError || !profile || (profile.role !== 'agent' && profile.role !== 'super_admin')) {
+          await supabaseClient.auth.signOut();
+          showMsg('Esta cuenta no tiene acceso al panel de agentes.', 'error');
+          return;
+        }
+        if (profile.status === 'suspended') {
+          await supabaseClient.auth.signOut();
+          showMsg('Esta cuenta está suspendida.', 'error');
+          return;
+        }
+        await proceedAfterPasswordLogin();
+      } catch (err) {
+        showMsg('Error inesperado: ' + (err && err.message ? err.message : String(err)), 'error');
+      } finally {
         btn.disabled = false;
-        return;
       }
-      // Solo Agente/Dueño pueden entrar acá — un cliente o subagente que
-      // por error tenga cuenta no debería poder abrir este panel.
-      const { data: profile, error: profileError } = await supabaseClient
-        .from('profiles')
-        .select('role, status')
-        .eq('id', data.user.id)
-        .single();
-      if (profileError || !profile || (profile.role !== 'agent' && profile.role !== 'super_admin')) {
-        await supabaseClient.auth.signOut();
-        showMsg('Esta cuenta no tiene acceso al panel de agentes.', 'error');
-        btn.disabled = false;
-        return;
-      }
-      if (profile.status === 'suspended') {
-        await supabaseClient.auth.signOut();
-        showMsg('Esta cuenta está suspendida.', 'error');
-        btn.disabled = false;
-        return;
-      }
-      await proceedAfterPasswordLogin();
-      btn.disabled = false;
     });
 
     document.getElementById('enrollForm').addEventListener('submit', async (e) => {
