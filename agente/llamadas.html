@@ -147,7 +147,7 @@
         card.innerHTML =
           '<div><div class="info">Llamada entrante</div><div class="sub">Idioma: ' + (c.client_language || '—') + '</div></div>' +
           '<div class="call-actions"><button class="btn btn-accept">Atender</button><button class="btn btn-decline">Rechazar</button></div>';
-        card.querySelector('.btn-accept').addEventListener('click', () => acceptCall(c.id));
+        card.querySelector('.btn-accept').addEventListener('click', () => acceptCall(c.id, c.client_token));
         card.querySelector('.btn-decline').addEventListener('click', () => declineCall(c.id));
         list.appendChild(card);
       });
