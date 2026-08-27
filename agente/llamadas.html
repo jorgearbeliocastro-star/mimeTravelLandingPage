@@ -237,6 +237,7 @@
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let agentId = null;
+    let agentName = '';
     let call = null;
     let pollTimer = null;
 
@@ -252,10 +253,39 @@
         return;
       }
       agentId = userData.user.id;
+      const { data: profile } = await supabaseClient.from('profiles').select('full_name').eq('id', agentId).single();
+      agentName = profile?.full_name || userData.user.email || '';
       startPresenceHeartbeat(supabaseClient);
       loadRingingCalls();
       pollTimer = setInterval(loadRingingCalls, 3000);
     })();
+
+    // Marca de agua en vivo (nombre + hora, se actualiza cada segundo)
+    // sobre la foto del pasaporte/tarjeta — solo corre mientras el
+    // overlay está visible.
+    setInterval(() => {
+      if (!document.getElementById('photoOverlay').classList.contains('active')) return;
+      const text = agentName + ' · ' + new Date().toLocaleString('es');
+      document.getElementById('wm1').textContent = text;
+      document.getElementById('wm2').textContent = text;
+      document.getElementById('wm3').textContent = text;
+    }, 1000);
+
+    // Si la pestaña pierde el foco mientras se está mostrando la foto (ej.
+    // el agente abre la herramienta de captura de pantalla), se difumina
+    // sola — no frena una foto sacada con OTRO celular, pero sí el caso
+    // más común de captura accidental o casual.
+    document.addEventListener('visibilitychange', () => {
+      document.getElementById('photoOverlay').classList.toggle('blurred', document.visibilityState !== 'visible');
+    });
+    window.addEventListener('blur', () => {
+      if (document.getElementById('photoOverlay').classList.contains('active')) {
+        document.getElementById('photoOverlay').classList.add('blurred');
+      }
+    });
+    window.addEventListener('focus', () => {
+      document.getElementById('photoOverlay').classList.remove('blurred');
+    });
 
     async function loadRingingCalls() {
       const { data, error } = await supabaseClient.rpc('get_ringing_calls_for_agent', { p_agent_id: agentId });
