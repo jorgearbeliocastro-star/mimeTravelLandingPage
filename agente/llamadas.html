@@ -68,7 +68,7 @@
   .video-area { flex: 1; position: relative; background: #000; }
   #remoteVideo { width: 100%; height: 100%; object-fit: cover; background: #111; }
   #localVideo { position: absolute; bottom: 16px; right: 16px; width: 110px; height: 150px; object-fit: cover; border-radius: 10px; border: 2px solid rgba(255,255,255,0.4); background: #222; }
-  .controls { display: flex; justify-content: center; gap: 20px; padding: 24px; }
+  .controls { display: flex; justify-content: center; gap: 20px; padding: 24px; padding-bottom: max(24px, env(safe-area-inset-bottom)); }
   .btn-circle { width: 58px; height: 58px; border-radius: 50%; border: none; background: rgba(255,255,255,0.15); color: #fff; font-size: 20px; cursor: pointer; }
   .btn-circle.active { background: var(--coral); }
   .btn-hangup { background: #c0392b; }
