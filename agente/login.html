@@ -166,7 +166,7 @@
     // depende de su código, aunque comparta la misma base de datos.
     const SUPABASE_URL = 'https://ihrfaprvzdafclquuhlh.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_lcWymV25nHd2_iOMjRwD4A_XOXvOdPK';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const msgEl = document.getElementById('msg');
     function showMsg(text, type) {
@@ -181,14 +181,14 @@
     // Después de un login correcto, decide qué paso de MFA mostrar según
     // si el agente ya tiene un factor TOTP verificado o no.
     async function proceedAfterPasswordLogin() {
-      const { data: factorsData, error: factorsError } = await supabase.auth.mfa.listFactors();
+      const { data: factorsData, error: factorsError } = await supabaseClient.auth.mfa.listFactors();
       if (factorsError) {
         showMsg('No se pudo verificar la seguridad de la cuenta: ' + factorsError.message, 'error');
         return;
       }
       const verifiedTotp = (factorsData.totp || []).find((f) => f.status === 'verified');
       if (verifiedTotp) {
-        const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({ factorId: verifiedTotp.id });
+        const { data: challengeData, error: challengeError } = await supabaseClient.auth.mfa.challenge({ factorId: verifiedTotp.id });
         if (challengeError) {
           showMsg('Error iniciando la verificación: ' + challengeError.message, 'error');
           return;
@@ -199,7 +199,7 @@
         showMsg('', '');
       } else {
         // Primera vez: crea el factor TOTP y muestra el QR para escanear.
-        const { data: enrollData, error: enrollError } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
+        const { data: enrollData, error: enrollError } = await supabaseClient.auth.mfa.enroll({ factorType: 'totp' });
         if (enrollError) {
           showMsg('No se pudo iniciar la activación de MFA: ' + enrollError.message, 'error');
           return;
@@ -218,7 +218,7 @@
       showMsg('Verificando…', '');
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
       if (error) {
         showMsg('Correo o contraseña incorrectos.', 'error');
         btn.disabled = false;
@@ -226,19 +226,19 @@
       }
       // Solo Agente/Dueño pueden entrar acá — un cliente o subagente que
       // por error tenga cuenta no debería poder abrir este panel.
-      const { data: profile, error: profileError } = await supabase
+      const { data: profile, error: profileError } = await supabaseClient
         .from('profiles')
         .select('role, status')
         .eq('id', data.user.id)
         .single();
       if (profileError || !profile || (profile.role !== 'agent' && profile.role !== 'super_admin')) {
-        await supabase.auth.signOut();
+        await supabaseClient.auth.signOut();
         showMsg('Esta cuenta no tiene acceso al panel de agentes.', 'error');
         btn.disabled = false;
         return;
       }
       if (profile.status === 'suspended') {
-        await supabase.auth.signOut();
+        await supabaseClient.auth.signOut();
         showMsg('Esta cuenta está suspendida.', 'error');
         btn.disabled = false;
         return;
@@ -253,13 +253,13 @@
       btn.disabled = true;
       const code = document.getElementById('enrollCode').value.trim();
       const factorId = window.__pendingFactorId;
-      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({ factorId });
+      const { data: challengeData, error: challengeError } = await supabaseClient.auth.mfa.challenge({ factorId });
       if (challengeError) {
         showMsg('Error: ' + challengeError.message, 'error');
         btn.disabled = false;
         return;
       }
-      const { error: verifyError } = await supabase.auth.mfa.verify({
+      const { error: verifyError } = await supabaseClient.auth.mfa.verify({
         factorId,
         challengeId: challengeData.id,
         code,
@@ -278,7 +278,7 @@
       const btn = document.getElementById('verifyBtn');
       btn.disabled = true;
       const code = document.getElementById('verifyCode').value.trim();
-      const { error } = await supabase.auth.mfa.verify({
+      const { error } = await supabaseClient.auth.mfa.verify({
         factorId: window.__pendingFactorId,
         challengeId: window.__pendingChallengeId,
         code,
@@ -295,7 +295,7 @@
     // Si ya había una sesión con el segundo factor ya verificado (aal2),
     // no hace falta pasar por el login de nuevo.
     (async () => {
-      const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      const { data } = await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();
       if (data && data.currentLevel === 'aal2') {
         window.location.href = 'panel.html';
       }
