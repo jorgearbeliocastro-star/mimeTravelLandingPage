@@ -286,6 +286,38 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
       localStream.getVideoTracks().forEach((t) => (t.enabled = !videoOff));
       return videoOff;
     },
+    // Comparte la pantalla del agente en vez de la cámara — reemplaza la
+    // track de video que ya viaja por la conexión (sin tener que
+    // renegociar nada), así el otro lado la ve en el mismo cuadro de
+    // video de siempre. Vuelve sola a la cámara si el agente usa el botón
+    // nativo del navegador ("Dejar de compartir") en vez del nuestro.
+    async startScreenShare(localVideoEl) {
+      if (!pc) throw new Error('La llamada todavía no está lista.');
+      screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+      const screenTrack = screenStream.getVideoTracks()[0];
+      const sender = pc.getSenders().find((s) => s.track && s.track.kind === 'video');
+      if (sender) await sender.replaceTrack(screenTrack);
+      if (localVideoEl) localVideoEl.srcObject = screenStream;
+      sharingScreen = true;
+      screenTrack.onended = () => {
+        // No es async acá (el evento no espera promesas) — dispara el
+        // método público, que sí se puede llamar como una acción normal.
+        this.stopScreenShare(localVideoEl);
+      };
+      return true;
+    },
+    async stopScreenShare(localVideoEl) {
+      if (!sharingScreen) return;
+      if (screenStream) screenStream.getTracks().forEach((t) => t.stop());
+      screenStream = null;
+      sharingScreen = false;
+      const sender = pc && pc.getSenders().find((s) => s.track && s.track.kind === 'video');
+      if (sender && cameraTrack) await sender.replaceTrack(cameraTrack);
+      if (localVideoEl && localStream) localVideoEl.srcObject = localStream;
+    },
+    isSharingScreen() {
+      return sharingScreen;
+    },
     // Manda una foto (pasaporte, tarjeta de pago, lo que haga falta)
     // directo al otro lado de la llamada, en pedazos chicos por el canal
     // de datos — nunca toca Supabase ni ningún servidor nuestro, y no
