@@ -212,9 +212,11 @@
       fetch(FUNCTIONS_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': WEBHOOK_SECRET },
-        body: JSON.stringify({ type: 'INSERT', table: 'call_requests', record: { id, target_agent_id: null } }),
+        body: JSON.stringify({ type: 'INSERT', table: 'call_requests', record: { id, target_agent_id: targetAgentId } }),
       }).catch(() => {});
-      // Notificación push real del navegador, propia de la web — a todos
+      // Notificación push real del navegador, propia de la web — si hay un
+      // agente puntual conectado le llega solo a él, si no, a todos los
+      // agentes suscriptos (pool general).
       // los agentes suscriptos desde agente/panel.html (sin agentId = a
       // todos, mismo criterio que el pool general de siempre).
       fetch(WEB_PUSH_FUNCTIONS_URL, {
