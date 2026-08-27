@@ -132,8 +132,10 @@
   <div class="controls" id="controls" style="display:none;">
     <button class="btn-circle" id="muteBtn">🎤</button>
     <button class="btn-circle" id="videoBtn">📷</button>
+    <button class="btn-circle" id="passportBtn" title="Mostrar pasaporte al agente">🛂</button>
     <button class="btn-circle btn-hangup" id="hangupBtn">⏹</button>
   </div>
+  <input type="file" id="passportInput" accept="image/*" capture="environment" style="display:none;">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="webrtcCall.js"></script>
