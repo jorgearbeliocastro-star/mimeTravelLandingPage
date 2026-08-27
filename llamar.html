@@ -140,9 +140,18 @@
 </head>
 <body>
 
-  <div class="status-bar" id="statusBar">Llamando…</div>
+  <!-- Elección inicial: con video o solo audio — antes de que nada empiece
+       a llamar. Recién al elegir arranca main() (ver abajo). -->
+  <div class="choice-screen" id="choiceScreen">
+    <div class="avatar" style="margin-bottom: 20px;">📞</div>
+    <p style="margin-bottom: 20px; text-align: center; padding: 0 24px;">¿Cómo preferís hacer la llamada?</p>
+    <button type="button" class="choice-btn" id="choiceVideoBtn">📹 Con video</button>
+    <button type="button" class="choice-btn" id="choiceAudioBtn">🎤 Solo audio</button>
+  </div>
 
-  <div class="video-area">
+  <div class="status-bar" id="statusBar" style="display:none;">Llamando…</div>
+
+  <div class="video-area" id="videoArea" style="display:none;">
     <video id="remoteVideo" autoplay playsinline></video>
     <div class="placeholder" id="placeholder">
       <div class="avatar">📞</div>
