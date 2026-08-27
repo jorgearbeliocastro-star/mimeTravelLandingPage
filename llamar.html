@@ -302,6 +302,20 @@
       const isOff = call.toggleVideo();
       this.classList.toggle('active', isOff);
     });
+    document.getElementById('passportBtn').addEventListener('click', () => {
+      if (!call) return;
+      document.getElementById('passportInput').click();
+    });
+    document.getElementById('passportInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      e.target.value = ''; // permite elegir la misma foto de nuevo si hace falta reenviar
+      if (!file || !call) return;
+      try {
+        await call.sendPhoto(file);
+      } catch (err) {
+        alert('No se pudo mandar la foto: ' + (err && err.message ? err.message : String(err)));
+      }
+    });
     document.getElementById('hangupBtn').addEventListener('click', async function () {
       ended = true;
       if (call) await call.hangup();
