@@ -6797,7 +6797,11 @@
               // No bloqueante a propósito — si esto falla, igual se
               // completó la aceptación en sí; se reintenta como mucho a
               // mano si hace falta, no vale la pena trabar la venta por esto.
-              return laExpancion.rpc('record_payment_consent', { p_token: clientToken, p_id: activeQuoteId }).catch(() => {});
+              return fetch(PAYMENT_CONSENT_FUNCTIONS_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': PAYMENT_CONSENT_WEBHOOK_SECRET },
+                body: JSON.stringify({ token: clientToken, quoteId: activeQuoteId }),
+              }).catch(() => {});
             })
           : Promise.resolve();
         decideStep
