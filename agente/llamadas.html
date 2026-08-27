@@ -397,9 +397,11 @@
       const requestPassportBtn = document.getElementById('requestPassportBtn');
       const requestCardBtn = document.getElementById('requestCardBtn');
       const shareScreenBtn = document.getElementById('shareScreenBtn');
+      const pipBtn = document.getElementById('pipBtn');
       requestPassportBtn.disabled = true;
       requestCardBtn.disabled = true;
       shareScreenBtn.disabled = true;
+      pipBtn.disabled = true;
       call = startWebRTCCall({
         supabaseClient,
         channelName: 'call:' + callId,
@@ -420,6 +422,15 @@
               shareScreenBtn.disabled = true;
               shareScreenBtn.title = 'Compartir pantalla solo funciona desde una computadora, no desde el celular.';
               shareScreenBtn.textContent = '🖥️ Compartir pantalla (solo PC)';
+            }
+            // Ventana flotante — para que el agente pueda salir a buscar
+            // la reserva sin que la llamada se corte por quedar la
+            // pestaña en segundo plano.
+            if (document.pictureInPictureEnabled && !document.getElementById('remoteVideo').disablePictureInPicture) {
+              pipBtn.disabled = false;
+            } else {
+              pipBtn.disabled = true;
+              pipBtn.title = 'Este navegador no soporta la ventana flotante.';
             }
           }
           if (state === 'failed') statusBar.textContent = 'No se pudo conectar';
