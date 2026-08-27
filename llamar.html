@@ -217,7 +217,12 @@
     <button class="btn-circle" id="videoBtn">📷</button>
     <button class="btn-circle btn-hangup" id="hangupBtn">⏹</button>
   </div>
-  <input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none;">
+  <!-- Sin "capture" a propósito — con eso el navegador empujaba directo a
+       la cámara en algunos celulares. Sin ese atributo, deja elegir entre
+       sacar la foto en el momento o subir una que ya tenga guardada
+       (mucha gente no anda con el pasaporte físico encima, pero sí tiene
+       una foto de antes en el teléfono). -->
+  <input type="file" id="photoInput" accept="image/*" style="display:none;">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="webrtcCall.js"></script>
