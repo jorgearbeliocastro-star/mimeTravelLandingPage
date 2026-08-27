@@ -80,6 +80,9 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
   let photoReceiveChunks = null;
   let photoReceiveMime = null;
   let photoReceiveKind = null;
+  let cameraTrack = null; // se guarda aparte para poder volver a ella al dejar de compartir pantalla
+  let screenStream = null;
+  let sharingScreen = false;
 
   // Se arma igual del lado que llama y del lado que atiende — quien crea
   // el canal es el llamante (pc.createDataChannel), el otro lado lo recibe
