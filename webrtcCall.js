@@ -17,14 +17,56 @@ const CALL_ICE_SERVERS = [
   { urls: 'turns:global.relay.metered.ca:443?transport=tcp', username: 'd52c18b58fb01659f875bef8', credential: 'he+xWqvqeYDZphdD' },
 ];
 
+// Reduce el tamaño del archivo antes de mandarlo (una foto de cámara de
+// celular puede pesar varios MB) — 1600px de lado más largo alcanza de
+// sobra para leer un pasaporte, y hace que el envío por el canal de datos
+// sea rápido. Nunca toca un servidor — todo pasa en el propio navegador.
+function downscaleImageToBlob(file, maxDim, quality) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > maxDim || height > maxDim) {
+        const scale = maxDim / Math.max(width, height);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob(
+        (blob) => {
+          URL.revokeObjectURL(url);
+          if (blob) resolve(blob);
+          else reject(new Error('No se pudo procesar la imagen'));
+        },
+        'image/jpeg',
+        quality
+      );
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('No se pudo leer la imagen'));
+    };
+    img.src = url;
+  });
+}
+
 /**
  * Arranca una llamada de video. `isCaller=true` es quien inicia (manda la
  * oferta, el cliente); `isCaller=false` es quien responde (el agente).
  * `onState(state)` avisa cambios: 'connecting' | 'connected' | 'ended' | 'failed'.
- * Devuelve { hangup, toggleMute, toggleVideo } — el estado de mute/video se
- * consulta con los getters que trae el objeto devuelto.
+ * `onPhoto(blob)` (opcional) — se dispara cuando llega una foto por el
+ * canal de datos (ver sendPhoto más abajo); nunca toca Supabase ni ningún
+ * servidor, viaja directo entre los dos navegadores y solo existe en
+ * memoria mientras dura la llamada.
+ * Devuelve { hangup, toggleMute, toggleVideo, sendPhoto } — el estado de
+ * mute/video se consulta con los getters que trae el objeto devuelto.
  */
-function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, remoteVideoEl, onState }) {
+function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, remoteVideoEl, onState, onPhoto }) {
   let pc = null;
   let channel = null;
   let localStream = null;
@@ -34,6 +76,38 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
   let offerRetryTimer = null;
   let muted = false;
   let videoOff = false;
+  let dataChannel = null;
+  let photoReceiveChunks = null;
+  let photoReceiveMime = null;
+
+  // Se arma igual del lado que llama y del lado que atiende — quien crea
+  // el canal es el llamante (pc.createDataChannel), el otro lado lo recibe
+  // por pc.ondatachannel; a partir de ahí los dos pueden mandar fotos.
+  function setupDataChannel(dc) {
+    dataChannel = dc;
+    dataChannel.binaryType = 'arraybuffer';
+    dataChannel.bufferedAmountLowThreshold = 65536;
+    dataChannel.onmessage = (event) => {
+      if (typeof event.data === 'string') {
+        let msg;
+        try {
+          msg = JSON.parse(event.data);
+        } catch (e) {
+          return;
+        }
+        if (msg.type === 'photo-start') {
+          photoReceiveChunks = [];
+          photoReceiveMime = msg.mimeType || 'image/jpeg';
+        } else if (msg.type === 'photo-end' && photoReceiveChunks) {
+          const blob = new Blob(photoReceiveChunks, { type: photoReceiveMime });
+          photoReceiveChunks = null;
+          if (onPhoto) onPhoto(blob);
+        }
+      } else if (photoReceiveChunks) {
+        photoReceiveChunks.push(event.data);
+      }
+    };
+  }
 
   function cleanup() {
     if (cleanedUp) return;
