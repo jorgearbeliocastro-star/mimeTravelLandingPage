@@ -83,6 +83,9 @@
     justify-content: center;
     gap: 20px;
     padding: 24px;
+    /* Deja espacio extra si el teléfono tiene barra de gestos abajo —
+       si no, los botones quedaban pegados o tapados por ella. */
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
   }
   .btn-circle {
     width: 58px;
