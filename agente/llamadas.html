@@ -208,9 +208,11 @@
       loadRingingCalls();
     }
 
-    function openCallScreen(callId) {
+    function openCallScreen(callId, clientToken) {
       document.getElementById('callScreen').classList.add('active');
       const statusBar = document.getElementById('statusBar');
+      document.getElementById('clientInfoBox').textContent = '';
+      if (clientToken) loadClientInfo(clientToken);
       call = startWebRTCCall({
         supabaseClient,
         channelName: 'call:' + callId,
