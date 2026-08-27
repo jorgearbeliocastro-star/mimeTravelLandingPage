@@ -303,7 +303,7 @@
         localVideoEl: document.getElementById('localVideo'),
         remoteVideoEl: document.getElementById('remoteVideo'),
         onState(state) {
-          if (state === 'connected') statusBar.textContent = 'En llamada';
+          if (state === 'connected') statusBar.textContent = agentName ? 'En llamada con ' + agentName : 'En llamada';
           if (state === 'failed') {
             // Cubre además el caso de que el agente cierre la pestaña de
             // golpe (sin tocar "colgar") — nunca llega el aviso de
