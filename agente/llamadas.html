@@ -303,6 +303,7 @@
 
     function closeCallScreen() {
       document.getElementById('callScreen').classList.remove('active');
+      hidePassportPhoto();
       call = null;
       pollTimer = setInterval(loadRingingCalls, 3000);
       loadRingingCalls();
