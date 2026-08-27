@@ -177,10 +177,26 @@
       const clientToken = getClientToken();
       const id = crypto.randomUUID();
       window.__callId = id;
+
+      // Si este cliente ya tiene un Agente asignado (le cotizó antes) Y ese
+      // Agente está conectado ahora mismo, la llamada le suena solo a él —
+      // si no está conectado, cae al pool general en vez de sonarle a nadie
+      // y no conectar nunca.
+      let targetAgentId = null;
+      try {
+        const { data: preferredAgentId } = await supabaseClient.rpc('get_preferred_agent_for_client', { p_token: clientToken });
+        if (preferredAgentId) {
+          const { data: isOnline } = await supabaseClient.rpc('is_agent_recently_active', { p_agent_id: preferredAgentId });
+          if (isOnline) targetAgentId = preferredAgentId;
+        }
+      } catch (e) {
+        // no bloqueante — si falla el chequeo, se llama al pool general igual
+      }
+
       const { error } = await supabaseClient.from('call_requests').insert({
         id,
         client_token: clientToken,
-        target_agent_id: null,
+        target_agent_id: targetAgentId,
         client_language: (navigator.language || 'es').split('-')[0],
         created_by: null,
       });
