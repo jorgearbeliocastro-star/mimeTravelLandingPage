@@ -328,8 +328,12 @@
       placeholder.style.display = 'none';
       controls.style.display = 'flex';
       // Si eligió "Solo audio", ni siquiera se le pide permiso de cámara —
-      // el localVideo/remoteVideo quedan sin imagen, solo audio.
-      if (!wantsVideo) document.getElementById('localVideo').style.display = 'none';
+      // el localVideo/remoteVideo quedan sin imagen, solo audio, y el
+      // botón de prender/apagar cámara no tiene sentido (no hay track).
+      if (!wantsVideo) {
+        document.getElementById('localVideo').style.display = 'none';
+        document.getElementById('videoBtn').style.display = 'none';
+      }
       call = startWebRTCCall({
         supabaseClient,
         channelName: 'call:' + window.__callId,
