@@ -141,8 +141,18 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
   })();
 
   return {
-    hangup() {
-      if (channel) channel.send({ type: 'broadcast', event: 'hangup', payload: {} });
+    async hangup() {
+      // Espera a que el aviso de "colgar" realmente salga por el canal
+      // ANTES de cerrarlo — si se cierra el canal enseguida, el mensaje a
+      // veces no llega a salir y el otro lado se queda con la llamada
+      // "viva" para siempre.
+      if (channel) {
+        try {
+          await channel.send({ type: 'broadcast', event: 'hangup', payload: {} });
+        } catch (e) {
+          // no bloqueante — igual se cierra todo abajo
+        }
+      }
       onState('ended');
       cleanup();
     },
