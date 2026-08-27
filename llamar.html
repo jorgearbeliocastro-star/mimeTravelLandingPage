@@ -235,7 +235,7 @@
     });
     document.getElementById('hangupBtn').addEventListener('click', async function () {
       ended = true;
-      if (call) call.hangup();
+      if (call) await call.hangup();
       const clientToken = getClientToken();
       try {
         await supabaseClient.rpc('client_end_call', { p_token: clientToken, p_id: window.__callId });
