@@ -347,7 +347,16 @@
             statusBar.textContent = 'En llamada';
             requestPassportBtn.disabled = false;
             requestCardBtn.disabled = false;
-            shareScreenBtn.disabled = false;
+            // Compartir pantalla no existe en navegadores de celular (ni
+            // Chrome ni Safari lo soportan) — sin esto, el botón se veía
+            // igual de activo pero tocarlo no hacía nada, sin explicación.
+            if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+              shareScreenBtn.disabled = false;
+            } else {
+              shareScreenBtn.disabled = true;
+              shareScreenBtn.title = 'Compartir pantalla solo funciona desde una computadora, no desde el celular.';
+              shareScreenBtn.textContent = '🖥️ Compartir pantalla (solo PC)';
+            }
           }
           if (state === 'failed') statusBar.textContent = 'No se pudo conectar';
           if (state === 'ended') closeCallScreen();
