@@ -458,6 +458,19 @@
           }
         }
       };
+
+      pipBtn.onclick = async () => {
+        const video = document.getElementById('remoteVideo');
+        try {
+          if (document.pictureInPictureElement) {
+            await document.exitPictureInPicture();
+          } else {
+            await video.requestPictureInPicture();
+          }
+        } catch (err) {
+          alert('No se pudo abrir la ventana flotante: ' + (err.message || err.name));
+        }
+      };
       document.getElementById('hangupBtn').onclick = async () => {
         if (call) await call.hangup();
         closeCallScreen();
