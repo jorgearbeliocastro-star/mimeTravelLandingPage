@@ -130,6 +130,10 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_lcWymV25nHd2_iOMjRwD4A_XOXvOdPK';
     const WEBHOOK_SECRET = '9aa883ff6caef8d5b41e2c749cccaf121860629737147d12';
     const FUNCTIONS_URL = SUPABASE_URL + '/functions/v1/send-request-notification';
+    // Función propia de la web (no la de la app) para la notificación push
+    // real del navegador — ver supabase/functions/send-web-push acá mismo.
+    const WEB_PUSH_WEBHOOK_SECRET = '3a61e1f14f2ff3350889bd67cf2250bebde907e17b6d733e';
+    const WEB_PUSH_FUNCTIONS_URL = SUPABASE_URL + '/functions/v1/send-web-push';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // Mismo token que usa el resto de la web pública para identificar este
