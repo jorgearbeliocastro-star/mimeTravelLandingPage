@@ -301,6 +301,14 @@
       const statusBar = document.getElementById('statusBar');
       document.getElementById('clientInfoBox').textContent = '';
       if (clientToken) loadClientInfo(clientToken);
+      // Los botones de "Pedir foto" arrancan bloqueados — si se piden antes
+      // de que la llamada esté conectada de verdad, ese aviso puntual se
+      // pierde sin reintento (a diferencia de la oferta/respuesta de la
+      // llamada en sí, que sí reintenta) y nunca le llega al cliente.
+      const requestPassportBtn = document.getElementById('requestPassportBtn');
+      const requestCardBtn = document.getElementById('requestCardBtn');
+      requestPassportBtn.disabled = true;
+      requestCardBtn.disabled = true;
       call = startWebRTCCall({
         supabaseClient,
         channelName: 'call:' + callId,
@@ -308,7 +316,11 @@
         localVideoEl: document.getElementById('localVideo'),
         remoteVideoEl: document.getElementById('remoteVideo'),
         onState(state) {
-          if (state === 'connected') statusBar.textContent = 'En llamada';
+          if (state === 'connected') {
+            statusBar.textContent = 'En llamada';
+            requestPassportBtn.disabled = false;
+            requestCardBtn.disabled = false;
+          }
           if (state === 'failed') statusBar.textContent = 'No se pudo conectar';
           if (state === 'ended') closeCallScreen();
         },
