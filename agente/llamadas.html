@@ -252,6 +252,23 @@
       loadRingingCalls();
     }
 
+    let currentPhotoUrl = null;
+    function showPassportPhoto(blob) {
+      if (currentPhotoUrl) URL.revokeObjectURL(currentPhotoUrl); // la anterior no queda ni en memoria
+      currentPhotoUrl = URL.createObjectURL(blob);
+      document.getElementById('photoImg').src = currentPhotoUrl;
+      document.getElementById('photoOverlay').classList.add('active');
+    }
+    function hidePassportPhoto() {
+      document.getElementById('photoOverlay').classList.remove('active');
+      if (currentPhotoUrl) {
+        URL.revokeObjectURL(currentPhotoUrl);
+        currentPhotoUrl = null;
+      }
+      document.getElementById('photoImg').src = '';
+    }
+    document.getElementById('photoCloseBtn').addEventListener('click', hidePassportPhoto);
+
     function openCallScreen(callId, clientToken) {
       document.getElementById('callScreen').classList.add('active');
       const statusBar = document.getElementById('statusBar');
@@ -268,6 +285,7 @@
           if (state === 'failed') statusBar.textContent = 'No se pudo conectar';
           if (state === 'ended') closeCallScreen();
         },
+        onPhoto: showPassportPhoto,
       });
       document.getElementById('hangupBtn').onclick = async () => {
         if (call) await call.hangup();
