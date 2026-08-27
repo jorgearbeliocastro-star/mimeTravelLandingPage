@@ -145,11 +145,35 @@
     opacity: 0.4;
     cursor: default;
   }
-  .photo-overlay img {
+  .photo-img-wrap {
     flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  .photo-img-wrap img {
     width: 100%;
     height: 100%;
     object-fit: contain;
+  }
+  .photo-watermark {
+    position: absolute;
+    color: rgba(255,255,255,0.55);
+    text-shadow: 0 0 4px rgba(0,0,0,0.8);
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    pointer-events: none;
+    transform: rotate(-25deg);
+  }
+  .wm-1 { top: 15%; left: 8%; }
+  .wm-2 { top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-25deg); }
+  .wm-3 { bottom: 15%; right: 8%; }
+  /* Si la pestaña pierde el foco (ej. alguien abre la herramienta de
+     captura de Windows/Mac), la foto se tapa sola — no impide una
+     captura hecha con OTRO celular apuntando a la pantalla, pero sí
+     frena el caso más común. */
+  .photo-overlay.blurred .photo-img-wrap img {
+    filter: blur(30px);
   }
 </style>
 </head>
