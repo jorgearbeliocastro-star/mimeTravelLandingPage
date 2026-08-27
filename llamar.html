@@ -238,8 +238,17 @@
         onState(state) {
           if (state === 'connected') statusBar.textContent = 'En llamada';
           if (state === 'failed') {
+            // Cubre además el caso de que el agente cierre la pestaña de
+            // golpe (sin tocar "colgar") — nunca llega el aviso de
+            // hangup, pero WebRTC igual termina detectando la conexión
+            // caída sola y cae acá.
+            if (ended) return;
+            ended = true;
             statusBar.textContent = 'No se pudo conectar';
             showFallback();
+            setTimeout(() => {
+              window.location.href = 'index.html';
+            }, 4000);
           }
           if (state === 'ended') {
             // Esto se dispara tanto si cuelga el cliente (ya lo manda a
