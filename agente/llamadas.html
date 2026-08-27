@@ -181,8 +181,8 @@
           if (state === 'ended') closeCallScreen();
         },
       });
-      document.getElementById('hangupBtn').onclick = () => {
-        if (call) call.hangup();
+      document.getElementById('hangupBtn').onclick = async () => {
+        if (call) await call.hangup();
         closeCallScreen();
       };
       document.getElementById('muteBtn').onclick = function () {
