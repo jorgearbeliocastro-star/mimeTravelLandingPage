@@ -312,7 +312,7 @@
           alert('Poné el número de confirmación que te dio la agencia.');
           return;
         }
-        if (!confirm('¿Confirmás que la venta ya está cerrada en ' + '(la agencia) con la referencia "' + reference + '"?')) return;
+        if (!confirm('¿Confirmás que la venta ya está cerrada con la agencia, con la referencia "' + reference + '"?')) return;
         btn.disabled = true;
         const { error } = await supabaseClient
           .from('quote_requests')
