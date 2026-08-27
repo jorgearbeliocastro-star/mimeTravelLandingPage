@@ -120,12 +120,8 @@
         window.location.href = 'login.html';
         return;
       }
-      startPresenceHeartbeat(supabaseClient);
-      if (false) {
-        window.location.href = 'login.html';
-        return;
-      }
       agentId = userData.user.id;
+      startPresenceHeartbeat(supabaseClient);
       loadRingingCalls();
       pollTimer = setInterval(loadRingingCalls, 3000);
     })();
