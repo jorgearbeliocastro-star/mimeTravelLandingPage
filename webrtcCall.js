@@ -99,10 +99,13 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
         if (msg.type === 'photo-start') {
           photoReceiveChunks = [];
           photoReceiveMime = msg.mimeType || 'image/jpeg';
+          photoReceiveKind = msg.kind || 'document';
         } else if (msg.type === 'photo-end' && photoReceiveChunks) {
           const blob = new Blob(photoReceiveChunks, { type: photoReceiveMime });
+          const kind = photoReceiveKind;
           photoReceiveChunks = null;
-          if (onPhoto) onPhoto(blob);
+          photoReceiveKind = null;
+          if (onPhoto) onPhoto(blob, kind);
         }
       } else if (photoReceiveChunks) {
         photoReceiveChunks.push(event.data);
