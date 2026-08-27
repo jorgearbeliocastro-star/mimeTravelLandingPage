@@ -416,9 +416,16 @@
       window.location.href = 'index.html';
     });
 
-    main().then(() => {
-      // window.__callId se completa dentro de main() vía closure — ver abajo.
-    });
+    let wantsVideo = true;
+    function startAfterChoice(withVideo) {
+      wantsVideo = withVideo;
+      document.getElementById('choiceScreen').style.display = 'none';
+      statusBar.style.display = 'block';
+      document.getElementById('videoArea').style.display = 'block';
+      main();
+    }
+    document.getElementById('choiceVideoBtn').addEventListener('click', () => startAfterChoice(true));
+    document.getElementById('choiceAudioBtn').addEventListener('click', () => startAfterChoice(false));
   </script>
 </body>
 </html>
