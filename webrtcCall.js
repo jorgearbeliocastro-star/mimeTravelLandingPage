@@ -263,5 +263,31 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
       localStream.getVideoTracks().forEach((t) => (t.enabled = !videoOff));
       return videoOff;
     },
+    // Manda una foto (ej. del pasaporte) directo al otro lado de la
+    // llamada, en pedazos chicos por el canal de datos — nunca toca
+    // Supabase ni ningún servidor nuestro, y no queda guardada en ningún
+    // lado una vez que el otro la recibe (solo vive en la memoria del
+    // navegador de quien la ve, mientras dura la llamada).
+    async sendPhoto(file) {
+      if (!dataChannel || dataChannel.readyState !== 'open') {
+        throw new Error('El canal para mandar la foto todavía no está listo.');
+      }
+      const blob = await downscaleImageToBlob(file, 1600, 0.8);
+      const buffer = await blob.arrayBuffer();
+      dataChannel.send(JSON.stringify({ type: 'photo-start', mimeType: blob.type, size: buffer.byteLength }));
+      const CHUNK_SIZE = 16384;
+      for (let offset = 0; offset < buffer.byteLength; offset += CHUNK_SIZE) {
+        if (dataChannel.bufferedAmount > 262144) {
+          await new Promise((resolve) => {
+            dataChannel.onbufferedamountlow = () => {
+              dataChannel.onbufferedamountlow = null;
+              resolve();
+            };
+          });
+        }
+        dataChannel.send(buffer.slice(offset, offset + CHUNK_SIZE));
+      }
+      dataChannel.send(JSON.stringify({ type: 'photo-end' }));
+    },
   };
 }
