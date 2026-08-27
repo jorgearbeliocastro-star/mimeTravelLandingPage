@@ -224,6 +224,14 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
         onState('ended');
         cleanup();
       })
+      // El agente pide una foto puntual (pasaporte/tarjeta) — va por el
+      // canal de señalización (ya está levantado desde el arranque, a
+      // diferencia del canal de datos que recién existe una vez que la
+      // conexión de video terminó de armarse), así el aviso le llega al
+      // cliente apenas el agente lo pide, sin esperar nada más.
+      .on('broadcast', { event: 'request-photo' }, ({ payload }) => {
+        if (onPhotoRequest) onPhotoRequest(payload.kind);
+      })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED' && isCaller) {
           const offer = await pc.createOffer();
