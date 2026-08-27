@@ -308,16 +308,24 @@
       if (!call) return;
       document.getElementById('passportInput').click();
     });
-    document.getElementById('passportInput').addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      e.target.value = ''; // permite elegir la misma foto de nuevo si hace falta reenviar
-      if (!file || !call) return;
-      try {
-        await call.sendPhoto(file);
-      } catch (err) {
-        alert('No se pudo mandar la foto: ' + (err && err.message ? err.message : String(err)));
-      }
+    document.getElementById('cardBtn').addEventListener('click', () => {
+      if (!call) return;
+      document.getElementById('cardInput').click();
     });
+    function sendPhotoFromInput(inputId, kind) {
+      document.getElementById(inputId).addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        e.target.value = ''; // permite elegir la misma foto de nuevo si hace falta reenviar
+        if (!file || !call) return;
+        try {
+          await call.sendPhoto(file, kind);
+        } catch (err) {
+          alert('No se pudo mandar la foto: ' + (err && err.message ? err.message : String(err)));
+        }
+      });
+    }
+    sendPhotoFromInput('passportInput', 'passport');
+    sendPhotoFromInput('cardInput', 'card');
     document.getElementById('hangupBtn').addEventListener('click', async function () {
       ended = true;
       if (call) await call.hangup();
