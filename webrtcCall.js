@@ -121,6 +121,7 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
     cleanedUp = true;
     if (offerRetryTimer) clearInterval(offerRetryTimer);
     if (localStream) localStream.getTracks().forEach((t) => t.stop());
+    if (screenStream) screenStream.getTracks().forEach((t) => t.stop());
     if (pc) pc.close();
     if (channel) supabaseClient.removeChannel(channel);
   }
