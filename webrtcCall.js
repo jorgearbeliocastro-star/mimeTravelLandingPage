@@ -267,18 +267,20 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
       localStream.getVideoTracks().forEach((t) => (t.enabled = !videoOff));
       return videoOff;
     },
-    // Manda una foto (ej. del pasaporte) directo al otro lado de la
-    // llamada, en pedazos chicos por el canal de datos — nunca toca
-    // Supabase ni ningún servidor nuestro, y no queda guardada en ningún
-    // lado una vez que el otro la recibe (solo vive en la memoria del
-    // navegador de quien la ve, mientras dura la llamada).
-    async sendPhoto(file) {
+    // Manda una foto (pasaporte, tarjeta de pago, lo que haga falta)
+    // directo al otro lado de la llamada, en pedazos chicos por el canal
+    // de datos — nunca toca Supabase ni ningún servidor nuestro, y no
+    // queda guardada en ningún lado una vez que el otro la recibe (solo
+    // vive en la memoria del navegador de quien la ve, mientras dura la
+    // llamada). `kind` es solo una etiqueta para que el que la reciba
+    // sepa qué está mirando (ej. 'passport', 'card').
+    async sendPhoto(file, kind) {
       if (!dataChannel || dataChannel.readyState !== 'open') {
         throw new Error('El canal para mandar la foto todavía no está listo.');
       }
       const blob = await downscaleImageToBlob(file, 1600, 0.8);
       const buffer = await blob.arrayBuffer();
-      dataChannel.send(JSON.stringify({ type: 'photo-start', mimeType: blob.type, size: buffer.byteLength }));
+      dataChannel.send(JSON.stringify({ type: 'photo-start', mimeType: blob.type, size: buffer.byteLength, kind: kind || 'document' }));
       const CHUNK_SIZE = 16384;
       for (let offset = 0; offset < buffer.byteLength; offset += CHUNK_SIZE) {
         if (dataChannel.bufferedAmount > 262144) {
