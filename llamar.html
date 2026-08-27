@@ -334,28 +334,35 @@
       const isOff = call.toggleVideo();
       this.classList.toggle('active', isOff);
     });
-    document.getElementById('passportBtn').addEventListener('click', () => {
-      if (!call) return;
-      document.getElementById('passportInput').click();
-    });
-    document.getElementById('cardBtn').addEventListener('click', () => {
-      if (!call) return;
-      document.getElementById('cardInput').click();
-    });
-    function sendPhotoFromInput(inputId, kind) {
-      document.getElementById(inputId).addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        e.target.value = ''; // permite elegir la misma foto de nuevo si hace falta reenviar
-        if (!file || !call) return;
-        try {
-          await call.sendPhoto(file, kind);
-        } catch (err) {
-          alert('No se pudo mandar la foto: ' + (err && err.message ? err.message : String(err)));
-        }
-      });
+    // El agente pide la foto (ver requestPhoto en agente/llamadas.html) —
+    // acá solo se muestra el aviso con lo que pidió; el cliente decide si
+    // la toma tocando el botón (el navegador no deja abrir la cámara sola
+    // sin que la persona toque algo, así que igual haría falta este paso).
+    const PHOTO_REQUEST_LABELS = {
+      passport: 'El agente te pidió una foto de tu pasaporte.',
+      card: 'El agente te pidió una foto de tu tarjeta.',
+    };
+    let pendingPhotoKind = null;
+    function showPhotoRequestBanner(kind) {
+      pendingPhotoKind = kind;
+      document.getElementById('photoRequestText').textContent = PHOTO_REQUEST_LABELS[kind] || 'El agente pidió una foto.';
+      document.getElementById('photoRequestBanner').classList.add('show');
     }
-    sendPhotoFromInput('passportInput', 'passport');
-    sendPhotoFromInput('cardInput', 'card');
+    document.getElementById('photoRequestBtn').addEventListener('click', () => {
+      document.getElementById('photoInput').click();
+    });
+    document.getElementById('photoInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      e.target.value = ''; // permite volver a elegir la misma foto si hace falta reenviar
+      document.getElementById('photoRequestBanner').classList.remove('show');
+      if (!file || !call || !pendingPhotoKind) return;
+      try {
+        await call.sendPhoto(file, pendingPhotoKind);
+      } catch (err) {
+        alert('No se pudo mandar la foto: ' + (err && err.message ? err.message : String(err)));
+      }
+      pendingPhotoKind = null;
+    });
     document.getElementById('hangupBtn').addEventListener('click', async function () {
       ended = true;
       if (call) await call.hangup();
