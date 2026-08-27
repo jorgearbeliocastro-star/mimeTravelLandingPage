@@ -72,21 +72,32 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
     pc = new RTCPeerConnection({ iceServers: CALL_ICE_SERVERS });
     localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
 
+    const logTag = '[call:' + (isCaller ? 'caller' : 'callee') + ']';
+
     pc.ontrack = (event) => {
+      console.log(logTag, 'ontrack recibido, streams:', event.streams.length);
       if (remoteVideoEl && event.streams[0]) {
         remoteVideoEl.srcObject = event.streams[0];
-        remoteVideoEl.play().catch(() => {});
+        remoteVideoEl.play().catch((e) => console.log(logTag, 'error reproduciendo remoto:', e.message));
       }
     };
 
     pc.onconnectionstatechange = () => {
+      console.log(logTag, 'connectionState ->', pc.connectionState, '| iceConnectionState:', pc.iceConnectionState);
       if (pc.connectionState === 'connected') onState('connected');
       else if (pc.connectionState === 'failed') onState('failed');
     };
 
+    // Diagnóstico: si ninguno de los candidatos generados es "relay" (TURN)
+    // ni logra conectar, es señal de que el TURN de respaldo tampoco está
+    // sirviendo para esta conexión puntual.
     pc.onicecandidate = (event) => {
       if (event.candidate) {
+        const type = (event.candidate.candidate || '').split(' ')[7];
+        console.log(logTag, 'candidato local:', type);
         channel.send({ type: 'broadcast', event: 'ice-candidate', payload: { candidate: event.candidate, from: isCaller ? 'caller' : 'callee' } });
+      } else {
+        console.log(logTag, 'fin de recolección de candidatos');
       }
     };
 
