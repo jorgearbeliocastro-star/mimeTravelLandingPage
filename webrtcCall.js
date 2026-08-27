@@ -299,21 +299,11 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
       if (sender) await sender.replaceTrack(screenTrack);
       if (localVideoEl) localVideoEl.srcObject = screenStream;
       sharingScreen = true;
-      screenTrack.onended = () => {
-        // No es async acá (el evento no espera promesas) — dispara el
-        // método público, que sí se puede llamar como una acción normal.
-        this.stopScreenShare(localVideoEl);
-      };
+      screenTrack.onended = () => stopScreenShareInternal(localVideoEl);
       return true;
     },
-    async stopScreenShare(localVideoEl) {
-      if (!sharingScreen) return;
-      if (screenStream) screenStream.getTracks().forEach((t) => t.stop());
-      screenStream = null;
-      sharingScreen = false;
-      const sender = pc && pc.getSenders().find((s) => s.track && s.track.kind === 'video');
-      if (sender && cameraTrack) await sender.replaceTrack(cameraTrack);
-      if (localVideoEl && localStream) localVideoEl.srcObject = localStream;
+    stopScreenShare(localVideoEl) {
+      return stopScreenShareInternal(localVideoEl);
     },
     isSharingScreen() {
       return sharingScreen;
