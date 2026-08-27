@@ -146,6 +146,7 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
       onState('failed');
       return;
     }
+    cameraTrack = localStream.getVideoTracks()[0] || null;
     if (localVideoEl) {
       localVideoEl.srcObject = localStream;
       localVideoEl.muted = true; // nunca escuchar el propio micrófono de vuelta
