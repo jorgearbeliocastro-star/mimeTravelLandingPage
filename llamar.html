@@ -361,7 +361,16 @@
         localVideoEl: document.getElementById('localVideo'),
         remoteVideoEl: document.getElementById('remoteVideo'),
         onState(state) {
-          if (state === 'connected') statusBar.textContent = agentName ? 'En llamada con ' + agentName : 'En llamada';
+          if (state === 'connected') {
+            statusBar.textContent = agentName ? 'En llamada con ' + agentName : 'En llamada';
+            // Ventana flotante — para que el cliente pueda salir a buscar
+            // algo (el pasaporte, la tarjeta) en otra app sin que la
+            // llamada se corte por quedar la pestaña en segundo plano.
+            const pipRow = document.getElementById('pipRow');
+            if (document.pictureInPictureEnabled) {
+              pipRow.style.display = 'block';
+            }
+          }
           if (state === 'failed') {
             // Cubre además el caso de que el agente cierre la pestaña de
             // golpe (sin tocar "colgar") — nunca llega el aviso de
