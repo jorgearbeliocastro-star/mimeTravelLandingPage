@@ -89,7 +89,11 @@
     font-size: 13px;
     line-height: 1.5;
   }
-  .video-area { flex: 1; position: relative; background: #000; }
+  /* min-height:0 es necesario porque por defecto un hijo flex no se achica
+     más chico que el tamaño de SU contenido (acá, los <video>) — sin esto,
+     el área de video empujaba los botones de abajo fuera de la pantalla
+     en vez de compartir el espacio con ellos. */
+  .video-area { flex: 1; min-height: 0; position: relative; background: #000; }
   #remoteVideo { width: 100%; height: 100%; object-fit: cover; background: #111; }
   #localVideo { position: absolute; bottom: 16px; right: 16px; width: 110px; height: 150px; object-fit: cover; border-radius: 10px; border: 2px solid rgba(255,255,255,0.4); background: #222; }
   .controls { display: flex; justify-content: center; gap: 20px; padding: 24px; padding-bottom: max(24px, env(safe-area-inset-bottom)); }
