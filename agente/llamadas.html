@@ -392,6 +392,7 @@
     function closeCallScreen() {
       document.getElementById('callScreen').classList.remove('active');
       hidePassportPhoto();
+      document.getElementById('shareScreenBtn').textContent = '🖥️ Compartir pantalla';
       call = null;
       pollTimer = setInterval(loadRingingCalls, 3000);
       loadRingingCalls();
