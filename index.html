@@ -7668,6 +7668,14 @@
       }
       openHelpModal();
     });
+    // Si llega desde llamar.html con "?chat=1" (la llamada no conectó y
+    // el cliente eligió pasar al chat en vez de reintentar), abre el
+    // mismo flujo de "Necesito ayuda" solo, sin que tenga que buscar el
+    // botón — mismo mecanismo que ya arma la cotización tipo "Consulta
+    // general" cuando escribe su mensaje.
+    if (new URLSearchParams(window.location.search).get('chat') === '1') {
+      needHelpBtn.click();
+    }
     helpCloseBtn.addEventListener('click', closeHelpModal);
     helpOverlay.addEventListener('click', function (e) {
       if (e.target === helpOverlay) closeHelpModal();
