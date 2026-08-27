@@ -327,10 +327,14 @@
     function startCall() {
       placeholder.style.display = 'none';
       controls.style.display = 'flex';
+      // Si eligió "Solo audio", ni siquiera se le pide permiso de cámara —
+      // el localVideo/remoteVideo quedan sin imagen, solo audio.
+      if (!wantsVideo) document.getElementById('localVideo').style.display = 'none';
       call = startWebRTCCall({
         supabaseClient,
         channelName: 'call:' + window.__callId,
         isCaller: true,
+        video: wantsVideo,
         localVideoEl: document.getElementById('localVideo'),
         remoteVideoEl: document.getElementById('remoteVideo'),
         onState(state) {
