@@ -174,11 +174,21 @@
         return;
       }
       // Mismo aviso que recibe el agente cuando llega desde la app — así
-      // le suena igual, esté en el teléfono o mirando el panel web.
+      // le suena igual, esté en el teléfono o mirando el panel web (con los
+      // push de la app pausados, este de acá queda inerte por ahora, pero
+      // no hace daño dejarlo — ver PUSH_NOTIFICATIONS_DISABLED).
       fetch(FUNCTIONS_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': WEBHOOK_SECRET },
         body: JSON.stringify({ type: 'INSERT', table: 'call_requests', record: { id, target_agent_id: null } }),
+      }).catch(() => {});
+      // Notificación push real del navegador, propia de la web — a todos
+      // los agentes suscriptos desde agente/panel.html (sin agentId = a
+      // todos, mismo criterio que el pool general de siempre).
+      fetch(WEB_PUSH_FUNCTIONS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': WEB_PUSH_WEBHOOK_SECRET },
+        body: JSON.stringify({ title: 'Llamada entrante', body: 'Un cliente te está llamando — tocá para atender.', url: 'llamadas.html' }),
       }).catch(() => {});
 
       // Sondea el estado de la llamada (aceptada/rechazada/sin respuesta)
