@@ -263,6 +263,13 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
       onState('ended');
       cleanup();
     },
+    // Lo usa el agente para pedirle al cliente que muestre el pasaporte o
+    // la tarjeta — el cliente recibe el aviso por onPhotoRequest y ahí
+    // decide si toma la foto (no se le abre la cámara sola, el navegador
+    // no deja hacer eso sin que la persona toque algo).
+    requestPhoto(kind) {
+      if (channel) channel.send({ type: 'broadcast', event: 'request-photo', payload: { kind } });
+    },
     toggleMute() {
       if (!localStream) return muted;
       muted = !muted;
