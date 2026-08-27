@@ -45,15 +45,19 @@
     border-radius: 12px;
     padding: 16px;
     margin-bottom: 12px;
+    /* Antes iba todo en una sola fila (info + 2 botones) — en pantallas
+       angostas de celular no entraba y los botones terminaban superpuestos
+       encima del texto. Apilado en columna, cada cosa en su propia línea,
+       no se puede superponer sea cual sea el ancho de pantalla. */
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+    flex-direction: column;
+    gap: 10px;
   }
   .call-card .info { font-size: 14px; font-weight: 700; }
   .call-card .sub { font-size: 12px; color: rgba(26,26,26,0.5); }
   .call-actions { display: flex; gap: 8px; }
-  .btn { border: none; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .call-actions .btn { flex: 1; }
+  .btn { border: none; border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 700; cursor: pointer; }
   .btn-accept { background: #1e7e34; color: #fff; }
   .btn-decline { background: #c0392b; color: #fff; }
 
