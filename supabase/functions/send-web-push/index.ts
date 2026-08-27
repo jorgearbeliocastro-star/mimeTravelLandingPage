@@ -66,6 +66,6 @@ Deno.serve(async (req) => {
   }
 
   return new Response(JSON.stringify({ sent: results.filter((r) => r.status === 'fulfilled').length }), {
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
   });
 });
