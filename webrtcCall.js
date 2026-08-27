@@ -79,6 +79,7 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
   let dataChannel = null;
   let photoReceiveChunks = null;
   let photoReceiveMime = null;
+  let photoReceiveKind = null;
 
   // Se arma igual del lado que llama y del lado que atiende — quien crea
   // el canal es el llamante (pc.createDataChannel), el otro lado lo recibe
