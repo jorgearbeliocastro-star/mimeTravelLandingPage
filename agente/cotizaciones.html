@@ -226,9 +226,21 @@
         } else if (q.status === 'decided' && q.client_decision === 'accepted') {
           const info = document.createElement('div');
           info.className = 'already-quoted';
+          const hasConsent = !!(q.payment_consent_at && q.payment_consent_ip);
           info.textContent = 'Precio aceptado: USD ' + (q.quoted_price_basic_usd ?? q.quoted_price_usd) +
-            (q.payment_consent_at ? ' — consentimiento de cobro confirmado' : ' — SIN consentimiento de cobro todavía');
+            (hasConsent ? ' — consentimiento de cobro confirmado' : ' — SIN consentimiento de cobro todavía');
           card.appendChild(info);
+
+          // Regla que quedó definida: sin el consentimiento (fecha + IP)
+          // guardado, no se puede cerrar la venta — sin eso no hay
+          // respaldo si el cliente después dice que no reconoce el cargo.
+          const sellBtn = document.createElement('button');
+          sellBtn.className = 'claim-btn';
+          sellBtn.textContent = hasConsent ? '✅ Marcar como vendido' : '🔒 Falta consentimiento de cobro';
+          sellBtn.disabled = !hasConsent;
+          if (!hasConsent) sellBtn.style.opacity = '0.5';
+          sellBtn.addEventListener('click', () => showSellForm(card, q));
+          card.appendChild(sellBtn);
         }
       });
     }
