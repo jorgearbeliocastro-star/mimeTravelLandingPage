@@ -57,9 +57,11 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
   }
 
   (async function start() {
+    console.log('[call:' + (isCaller ? 'caller' : 'callee') + ']', 'iniciando, canal:', channelName);
     try {
       localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
     } catch (e) {
+      console.log('[call]', 'getUserMedia falló:', e.name, e.message);
       onState('failed');
       return;
     }
