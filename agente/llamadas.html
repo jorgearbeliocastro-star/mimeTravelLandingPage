@@ -332,8 +332,10 @@
       // llamada en sí, que sí reintenta) y nunca le llega al cliente.
       const requestPassportBtn = document.getElementById('requestPassportBtn');
       const requestCardBtn = document.getElementById('requestCardBtn');
+      const shareScreenBtn = document.getElementById('shareScreenBtn');
       requestPassportBtn.disabled = true;
       requestCardBtn.disabled = true;
+      shareScreenBtn.disabled = true;
       call = startWebRTCCall({
         supabaseClient,
         channelName: 'call:' + callId,
@@ -345,12 +347,28 @@
             statusBar.textContent = 'En llamada';
             requestPassportBtn.disabled = false;
             requestCardBtn.disabled = false;
+            shareScreenBtn.disabled = false;
           }
           if (state === 'failed') statusBar.textContent = 'No se pudo conectar';
           if (state === 'ended') closeCallScreen();
         },
         onPhoto: showPassportPhoto,
       });
+      shareScreenBtn.onclick = async () => {
+        if (!call) return;
+        try {
+          if (call.isSharingScreen()) {
+            await call.stopScreenShare(document.getElementById('localVideo'));
+            shareScreenBtn.textContent = '🖥️ Compartir pantalla';
+          } else {
+            await call.startScreenShare(document.getElementById('localVideo'));
+            shareScreenBtn.textContent = '🖥️ Volver a la cámara';
+          }
+        } catch (err) {
+          // El usuario canceló el selector de pantalla, o el navegador no
+          // lo soporta — no bloqueante.
+        }
+      };
       document.getElementById('hangupBtn').onclick = async () => {
         if (call) await call.hangup();
         closeCallScreen();
