@@ -6704,6 +6704,21 @@
         if (removeBtn) removeBtn.closest('[data-pax-block]').remove();
       });
 
+      // Consentimiento de cobro — solo al aceptar de verdad (mode='accept'),
+      // no al "solo enviar mis datos". El agente cobra por teléfono/video,
+      // no hay un link de pago seguro de por medio (ver payment_consent_at):
+      // esto deja constancia de que el cliente autorizó el cobro ANTES de
+      // que el agente le pida los datos de la tarjeta, para cubrir a la
+      // agencia si después dice que no reconoce el cargo.
+      if (mode === 'accept') {
+        const consentWrap = document.createElement('label');
+        consentWrap.className = 'quote-pax-consent';
+        consentWrap.innerHTML =
+          '<input type="checkbox" id="paymentConsentCheck" required> ' +
+          '<span>' + t('quotePaymentConsentLabel') + '</span>';
+        form.appendChild(consentWrap);
+      }
+
       const actions = document.createElement('div');
       actions.className = 'quote-pax-actions';
       actions.innerHTML =
