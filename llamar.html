@@ -216,13 +216,17 @@
       }).catch(() => {});
       // Notificación push real del navegador, propia de la web — si hay un
       // agente puntual conectado le llega solo a él, si no, a todos los
-      // agentes suscriptos (pool general).
-      // los agentes suscriptos desde agente/panel.html (sin agentId = a
-      // todos, mismo criterio que el pool general de siempre).
+      // agentes suscriptos desde agente/panel.html (sin agentId = pool
+      // general, mismo criterio que siempre).
       fetch(WEB_PUSH_FUNCTIONS_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': WEB_PUSH_WEBHOOK_SECRET },
-        body: JSON.stringify({ title: 'Llamada entrante', body: 'Un cliente te está llamando — tocá para atender.', url: 'llamadas.html' }),
+        body: JSON.stringify({
+          agentId: targetAgentId,
+          title: 'Llamada entrante',
+          body: 'Un cliente te está llamando — tocá para atender.',
+          url: 'llamadas.html',
+        }),
       }).catch(() => {});
 
       // Sondea el estado de la llamada (aceptada/rechazada/sin respuesta)
