@@ -290,6 +290,48 @@
         loadQuotes();
       });
     }
+
+    // Cierre de venta — pide el número de confirmación/referencia que da
+    // la agencia (Classic Vacations, Downtown Travel, etc.) al cerrar la
+    // compra ahí. Ya se validó antes que exista el consentimiento de cobro
+    // (ver hasConsent más arriba) — acá solo falta la referencia.
+    function showSellForm(card, quote) {
+      if (card.querySelector('.price-row')) return;
+      const row = document.createElement('div');
+      row.className = 'price-row';
+      row.innerHTML =
+        '<input type="text" placeholder="N.º de confirmación de la agencia">' +
+        '<button type="button">Confirmar venta</button>';
+      card.appendChild(row);
+      const input = row.querySelector('input');
+      const btn = row.querySelector('button');
+      input.focus();
+      btn.addEventListener('click', async () => {
+        const reference = input.value.trim();
+        if (!reference) {
+          alert('Poné el número de confirmación que te dio la agencia.');
+          return;
+        }
+        if (!confirm('¿Confirmás que la venta ya está cerrada en ' + '(la agencia) con la referencia "' + reference + '"?')) return;
+        btn.disabled = true;
+        const { error } = await supabaseClient
+          .from('quote_requests')
+          .update({
+            status: 'purchased',
+            reference_code: reference,
+            purchased_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', quote.id)
+          .eq('status', 'decided'); // por las dudas de que algo haya cambiado justo antes
+        if (error) {
+          alert('No se pudo confirmar: ' + error.message);
+          btn.disabled = false;
+          return;
+        }
+        loadQuotes();
+      });
+    }
   </script>
 </body>
 </html>
