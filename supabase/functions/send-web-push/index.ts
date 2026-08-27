@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
   let query = supabase.from('agent_push_subscriptions').select('subscription');
   if (body.agentId) query = query.eq('agent_id', body.agentId);
   const { data: subs, error } = await query;
-  if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+  if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: CORS_HEADERS });
 
   const payload = JSON.stringify({ title, body: msgBody, url });
   const results = await Promise.allSettled(
