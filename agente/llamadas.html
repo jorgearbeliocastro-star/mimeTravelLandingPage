@@ -153,7 +153,7 @@
       });
     }
 
-    async function acceptCall(callId) {
+    async function acceptCall(callId, clientToken) {
       clearInterval(pollTimer);
       const { error } = await supabaseClient
         .from('call_requests')
@@ -164,7 +164,34 @@
         pollTimer = setInterval(loadRingingCalls, 3000);
         return;
       }
-      openCallScreen(callId);
+      openCallScreen(callId, clientToken);
+    }
+
+    // Quién es y qué tiene reservado/cotizado — mismo dato que ya ve el
+    // agente en la app, solo que acá se busca por client_token (así el
+    // que atienda, sea o no el agente de siempre, sabe con quién habla en
+    // vez de entrar a ciegas). Solo la más reciente, no hace falta el
+    // historial completo en la llamada.
+    async function loadClientInfo(clientToken) {
+      const infoBox = document.getElementById('clientInfoBox');
+      infoBox.textContent = 'Buscando datos del cliente…';
+      const { data, error } = await supabaseClient
+        .from('quote_requests')
+        .select('contact_name, contact_email, contact_phone, category, origin, destination, status')
+        .eq('client_token', clientToken)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error || !data) {
+        infoBox.textContent = 'Sin cotizaciones anteriores de este cliente.';
+        return;
+      }
+      const route = data.origin ? data.origin + ' → ' + data.destination : data.destination;
+      infoBox.innerHTML =
+        '<strong>' + (data.contact_name || 'Sin nombre') + '</strong><br>' +
+        (data.contact_email ? data.contact_email + '<br>' : '') +
+        (data.contact_phone ? data.contact_phone + '<br>' : '') +
+        route + ' · ' + data.status;
     }
 
     async function declineCall(callId) {
