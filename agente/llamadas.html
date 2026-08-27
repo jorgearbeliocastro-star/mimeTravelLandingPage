@@ -326,6 +326,12 @@
         if (!call) return;
         this.classList.toggle('active', call.toggleVideo());
       };
+      document.getElementById('requestPassportBtn').onclick = () => {
+        if (call) call.requestPhoto('passport');
+      };
+      document.getElementById('requestCardBtn').onclick = () => {
+        if (call) call.requestPhoto('card');
+      };
     }
 
     function closeCallScreen() {
