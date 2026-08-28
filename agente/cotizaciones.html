@@ -188,8 +188,18 @@
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let agentId = null;
+    let agentName = '';
     let currentTab = 'new';
     let pollTimer = null;
+
+    const FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ajax/contacto@mimetravel.com';
+    function sendSaleToFormSubmit(data) {
+      return fetch(FORMSUBMIT_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(data),
+      });
+    }
 
     (async () => {
       const { data: aalData } = await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();
