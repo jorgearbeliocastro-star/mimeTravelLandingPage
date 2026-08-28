@@ -66,7 +66,7 @@ function downscaleImageToBlob(file, maxDim, quality) {
  * Devuelve { hangup, toggleMute, toggleVideo, sendPhoto } — el estado de
  * mute/video se consulta con los getters que trae el objeto devuelto.
  */
-function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, remoteVideoEl, onState, onPhoto, onPhotoRequest, video = true }) {
+function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, remoteVideoEl, onState, onPhoto, onPhotoRequest, onEmailRequest, onEmail, video = true }) {
   let pc = null;
   let channel = null;
   let localStream = null;
