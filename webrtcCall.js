@@ -365,5 +365,15 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
       }
       dataChannel.send(JSON.stringify({ type: 'photo-end' }));
     },
+    // Manda el correo directo por el canal de datos — igual que la foto,
+    // nunca toca Supabase de este lado; es el agente quien decide después
+    // si lo guarda (ver onEmail). `source` es 'manual' o 'google', solo
+    // para que el agente sepa qué tan confiable es el dato.
+    sendEmail(email, source) {
+      if (!dataChannel || dataChannel.readyState !== 'open') {
+        throw new Error('El canal para mandar el correo todavía no está listo.');
+      }
+      dataChannel.send(JSON.stringify({ type: 'email-data', email, source: source || 'manual' }));
+    },
   };
 }
