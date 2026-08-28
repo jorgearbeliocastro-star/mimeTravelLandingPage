@@ -208,6 +208,19 @@
     <button type="button" id="photoRequestBtn">Tomar o subir foto</button>
   </div>
 
+  <!-- Solo aparece cuando el AGENTE pide el correo (para emitir el tiket) —
+       igual que con la foto, el cliente decide cómo responder: a mano o
+       con un toque desde Google. -->
+  <div class="photo-request-banner" id="emailRequestBanner">
+    <span>El agente te pidió tu correo (para enviarte el tiket).</span>
+    <div id="googleEmailBtn"></div>
+    <form id="emailRequestForm" style="display:flex; gap:8px; margin-top:8px;">
+      <input type="email" id="emailRequestInput" placeholder="tu@email.com" required
+        style="flex:1; padding:10px; border-radius:8px; border:none; font-size:14px;">
+      <button type="submit">Enviar</button>
+    </form>
+  </div>
+
   <div class="pip-row" id="pipRow" style="display:none;">
     <button type="button" id="pipBtn">🗗 Ventana flotante (para buscar algo sin cortar la llamada)</button>
   </div>
