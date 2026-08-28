@@ -27,14 +27,18 @@
     color: var(--dark);
     min-height: 100vh;
   }
+  /* Mismo fondo de playa que la portada pública (mimetravel.com) — con
+     degradé oscuro encima para que el texto siga siendo legible. */
   header {
-    background: linear-gradient(135deg, var(--primary), #234a73);
+    background:
+      linear-gradient(135deg, rgba(27,58,92,0.88), rgba(15,30,48,0.82)),
+      url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=60') center/cover no-repeat;
     color: #fff;
     padding: 20px 28px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
   }
   header .brand {
     display: flex;
@@ -42,16 +46,17 @@
     gap: 10px;
   }
   header .brand-mark {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: var(--turquesa);
+    background: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
     flex-shrink: 0;
+    overflow: hidden;
   }
+  header .brand-mark img { width: 100%; height: 100%; object-fit: cover; }
   header .brand-text {
     display: flex;
     flex-direction: column;
