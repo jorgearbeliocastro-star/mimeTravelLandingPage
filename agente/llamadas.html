@@ -339,6 +339,20 @@
       }
     }
 
+    // Estos datos los llena CUALQUIER visitante anónimo desde la web
+    // pública (nombre, teléfono, correo, idioma del navegador) — sin
+    // escapar, alguien podría meter HTML/JS ahí y que se ejecute acá, con
+    // la sesión autenticada del agente. Se usa en cada lugar donde un
+    // campo de cliente entra a innerHTML.
+    function escapeHtml(str) {
+      return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
     async function loadRingingCalls() {
       const { data, error } = await supabaseClient.rpc('get_ringing_calls_for_agent', { p_agent_id: agentId });
       if (error) return;
