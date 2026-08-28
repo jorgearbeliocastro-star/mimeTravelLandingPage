@@ -480,6 +480,57 @@
       }
       pendingPhotoKind = null;
     });
+    // El agente pide el correo (ver requestEmail en agente/llamadas.html,
+    // solo cuando hace falta emitir el tiket) — el cliente responde a mano
+    // o con Google, nunca se pide antes de que haga falta de verdad.
+    function showEmailRequestBanner() {
+      document.getElementById('emailRequestBanner').classList.add('show');
+    }
+    function hideEmailRequestBanner() {
+      document.getElementById('emailRequestBanner').classList.remove('show');
+    }
+    document.getElementById('emailRequestForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('emailRequestInput').value.trim();
+      if (!email || !call) return;
+      try {
+        await call.sendEmail(email, 'manual');
+        hideEmailRequestBanner();
+      } catch (err) {
+        alert('No se pudo mandar el correo: ' + (err && err.message ? err.message : String(err)));
+      }
+    });
+
+    // Botón "Continuar con Google" — solo se arma si hay un client ID real
+    // configurado (hace falta crearlo en Google Cloud Console, autorizando
+    // el dominio mimetravel.com; hasta entonces queda solo el input a
+    // mano, que funciona igual sin depender de esto). Da el correo con un
+    // solo toque, ya verificado por Google — más rápido y confiable que
+    // escribirlo a mano en medio de una llamada.
+    const GOOGLE_CLIENT_ID = ''; // pendiente: pegar acá el client ID una vez creado en Google Cloud Console
+    function decodeGoogleJwtEmail(credential) {
+      const payload = JSON.parse(atob(credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      return payload.email;
+    }
+    function initGoogleEmailButton() {
+      if (!GOOGLE_CLIENT_ID || !window.google || !window.google.accounts) return;
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: async (response) => {
+          if (!call) return;
+          try {
+            const email = decodeGoogleJwtEmail(response.credential);
+            await call.sendEmail(email, 'google');
+            hideEmailRequestBanner();
+          } catch (err) {
+            alert('No se pudo mandar el correo: ' + (err && err.message ? err.message : String(err)));
+          }
+        },
+      });
+      window.google.accounts.id.renderButton(document.getElementById('googleEmailBtn'), { theme: 'filled_blue', size: 'large', text: 'continue_with' });
+    }
+    window.addEventListener('load', () => setTimeout(initGoogleEmailButton, 500));
+
     document.getElementById('pipBtn').addEventListener('click', async () => {
       const video = document.getElementById('remoteVideo');
       try {
