@@ -442,10 +442,13 @@
         updated_at: new Date().toISOString(),
       });
       if (error) {
-        infoBox.innerHTML += '<br><strong style="color:#ffb4b4;">No se pudo guardar el correo: ' + error.message + '</strong>';
+        infoBox.innerHTML += '<br><strong style="color:#ffb4b4;">No se pudo guardar el correo: ' + escapeHtml(error.message) + '</strong>';
         return;
       }
-      infoBox.innerHTML += '<br>✉️ Correo guardado: <strong>' + email + '</strong> (' + (source === 'google' ? 'Google' : 'a mano') + ')';
+      // `email` viaja por el canal de datos de WebRTC directo desde el
+      // cliente (a mano o desde el token de Google) — igual de no confiable
+      // que cualquier otro campo que llena el cliente, se escapa igual.
+      infoBox.innerHTML += '<br>✉️ Correo guardado: <strong>' + escapeHtml(email) + '</strong> (' + (source === 'google' ? 'Google' : 'a mano') + ')';
     }
 
     async function declineCall(callId) {
