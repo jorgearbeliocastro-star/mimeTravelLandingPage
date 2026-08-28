@@ -441,6 +441,7 @@
           if (state === 'ended') closeCallScreen();
         },
         onPhoto: showPassportPhoto,
+        onEmail: (email, source) => saveClientEmail(callId, clientToken, email, source),
       });
       shareScreenBtn.onclick = async () => {
         if (!call) return;
