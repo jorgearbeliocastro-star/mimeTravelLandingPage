@@ -507,7 +507,7 @@
     // mano, que funciona igual sin depender de esto). Da el correo con un
     // solo toque, ya verificado por Google — más rápido y confiable que
     // escribirlo a mano en medio de una llamada.
-    const GOOGLE_CLIENT_ID = '146724506715-hsvvl5tmqegs59aoloaj128p38k59g9h.apps.googleusercontent.com';
+    const GOOGLE_CLIENT_ID = '146724506715-hsvvl5tmqeqs59aoloaj128p38k59g9h.apps.googleusercontent.com';
     function decodeGoogleJwtEmail(credential) {
       const payload = JSON.parse(atob(credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
       return payload.email;
