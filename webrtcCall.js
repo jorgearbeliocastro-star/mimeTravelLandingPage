@@ -109,6 +109,11 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
           photoReceiveChunks = null;
           photoReceiveKind = null;
           if (onPhoto) onPhoto(blob, kind);
+        } else if (msg.type === 'email-data') {
+          // Nunca pasa por Supabase en este punto — viaja directo entre los
+          // dos navegadores, igual que la foto. Es el agente quien decide
+          // después si lo guarda (ver onEmail en agente/llamadas.html).
+          if (onEmail) onEmail(msg.email, msg.source || 'manual');
         }
       } else if (photoReceiveChunks) {
         photoReceiveChunks.push(event.data);
