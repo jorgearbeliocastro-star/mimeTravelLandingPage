@@ -331,7 +331,83 @@
           sellBtn.addEventListener('click', () => showSellForm(card, q));
           card.appendChild(sellBtn);
         }
+
+        // Chat con el cliente — mismo mecanismo que ya usa la app
+        // (quote_request_messages), disponible para CUALQUIER cotización,
+        // no solo las de "Consulta general". Antes esto solo se podía
+        // contestar desde la app; algunos clientes prefieren escribir en
+        // vez de llamar.
+        const chatBtn = document.createElement('button');
+        chatBtn.className = 'chat-toggle-btn';
+        chatBtn.textContent = '💬 Chat';
+        chatBtn.addEventListener('click', () => toggleChat(card, q));
+        card.appendChild(chatBtn);
       });
+    }
+
+    async function toggleChat(card, quote) {
+      const existing = card.querySelector('.chat-thread');
+      if (existing) {
+        existing.remove();
+        return;
+      }
+      const thread = document.createElement('div');
+      thread.className = 'chat-thread';
+      thread.innerHTML =
+        '<div class="chat-messages"><span style="font-size:12px;color:rgba(26,26,26,0.5);">Cargando…</span></div>' +
+        '<form class="chat-form">' +
+        '<input type="text" placeholder="Escribí tu respuesta…" autocomplete="off" required>' +
+        '<button type="submit">Enviar</button>' +
+        '</form>';
+      card.appendChild(thread);
+      await loadChatMessages(thread, quote.id);
+
+      thread.querySelector('.chat-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const input = thread.querySelector('input');
+        const body = input.value.trim();
+        if (!body) return;
+        input.value = '';
+        const { error } = await supabaseClient
+          .from('quote_request_messages')
+          .insert({ quote_request_id: quote.id, sender: 'agent', sender_agent_id: agentId, body });
+        if (error) {
+          alert('No se pudo enviar: ' + error.message);
+          return;
+        }
+        // Mismo aviso que ya recibe el cliente cuando el agente le escribe
+        // (hoy pausado mientras se prueba la web — ver PUSH_NOTIFICATIONS_DISABLED).
+        fetch('https://ihrfaprvzdafclquuhlh.supabase.co/functions/v1/send-request-notification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': '9aa883ff6caef8d5b41e2c749cccaf121860629737147d12' },
+          body: JSON.stringify({ type: 'INSERT', table: 'agent_message', record: { quoteRequestId: quote.id } }),
+        }).catch(() => {});
+        await loadChatMessages(thread, quote.id);
+      });
+    }
+
+    async function loadChatMessages(thread, quoteId) {
+      const { data, error } = await supabaseClient
+        .from('quote_request_messages')
+        .select('*')
+        .eq('quote_request_id', quoteId)
+        .order('created_at', { ascending: true });
+      const messagesEl = thread.querySelector('.chat-messages');
+      if (error) {
+        messagesEl.innerHTML = '<span style="font-size:12px;color:#c0392b;">No se pudo cargar el chat.</span>';
+        return;
+      }
+      messagesEl.innerHTML = '';
+      if (!data.length) {
+        messagesEl.innerHTML = '<span style="font-size:12px;color:rgba(26,26,26,0.5);">Sin mensajes todavía.</span>';
+      }
+      data.forEach((m) => {
+        const b = document.createElement('div');
+        b.className = 'chat-bubble ' + (m.sender === 'client' ? 'client' : 'agent');
+        b.textContent = m.body;
+        messagesEl.appendChild(b);
+      });
+      messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
     // Precio básico y simple nada más (un solo número) — a propósito no
