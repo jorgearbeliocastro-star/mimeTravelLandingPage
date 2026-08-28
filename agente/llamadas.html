@@ -397,10 +397,12 @@
       // llamada en sí, que sí reintenta) y nunca le llega al cliente.
       const requestPassportBtn = document.getElementById('requestPassportBtn');
       const requestCardBtn = document.getElementById('requestCardBtn');
+      const requestEmailBtn = document.getElementById('requestEmailBtn');
       const shareScreenBtn = document.getElementById('shareScreenBtn');
       const pipBtn = document.getElementById('pipBtn');
       requestPassportBtn.disabled = true;
       requestCardBtn.disabled = true;
+      requestEmailBtn.disabled = true;
       shareScreenBtn.disabled = true;
       pipBtn.disabled = true;
       call = startWebRTCCall({
