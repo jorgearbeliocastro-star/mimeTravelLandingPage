@@ -289,10 +289,62 @@
       document.getElementById('photoOverlay').classList.remove('blurred');
     });
 
+    // Tono de llamada propio, sintetizado (dos osciladores, como el tono
+    // clásico de teléfono) — no depende de ningún archivo de audio externo.
+    // Suena mientras esta pestaña esté abierta y haya al menos una llamada
+    // sin atender; la notificación push del sistema (con el sonido genérico
+    // de Windows) cubre el caso de la pestaña cerrada/en otra ventana.
+    let audioCtx = null;
+    let ringing = false;
+    let ringTimer = null;
+    function playRingBurst() {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      [0, 0.45].forEach((offset) => {
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc1.frequency.value = 440;
+        osc2.frequency.value = 480;
+        gain.gain.setValueAtTime(0.0001, now + offset);
+        gain.gain.exponentialRampToValueAtTime(0.3, now + offset + 0.02);
+        gain.gain.setValueAtTime(0.3, now + offset + 0.35);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + 0.4);
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc1.start(now + offset);
+        osc2.start(now + offset);
+        osc1.stop(now + offset + 0.4);
+        osc2.stop(now + offset + 0.4);
+      });
+    }
+    function startRingtone() {
+      if (ringing) return;
+      ringing = true;
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+      playRingBurst();
+      // Cada 2 segundos en vez de la cadencia típica de teléfono (~4s) —
+      // pedido explícito: que suene más seguido, para no perderse una
+      // llamada por tenerlo bajo.
+      ringTimer = setInterval(playRingBurst, 2000);
+    }
+    function stopRingtone() {
+      ringing = false;
+      if (ringTimer) {
+        clearInterval(ringTimer);
+        ringTimer = null;
+      }
+    }
+
     async function loadRingingCalls() {
       const { data, error } = await supabaseClient.rpc('get_ringing_calls_for_agent', { p_agent_id: agentId });
       if (error) return;
-      renderList(data || []);
+      const calls = data || [];
+      if (calls.length) startRingtone();
+      else stopRingtone();
+      renderList(calls);
     }
 
     function renderList(calls) {
