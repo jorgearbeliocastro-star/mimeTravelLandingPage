@@ -252,6 +252,11 @@
   <input type="file" id="photoInput" accept="image/*" style="display:none;">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <!-- Google Identity Services — solo para el botón "Continuar con Google"
+       de acá abajo (pedido de correo en llamada). No hace falta si
+       GOOGLE_CLIENT_ID queda vacío: el botón simplemente no aparece y
+       queda el input a mano. -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="webrtcCall.js"></script>
   <script>
     const SUPABASE_URL = 'https://ihrfaprvzdafclquuhlh.supabase.co';
