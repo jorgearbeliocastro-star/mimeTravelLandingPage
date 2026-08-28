@@ -297,6 +297,12 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
     requestPhoto(kind) {
       if (channel) channel.send({ type: 'broadcast', event: 'request-photo', payload: { kind } });
     },
+    // Lo usa el agente para pedirle el correo al cliente — mismo patrón que
+    // requestPhoto: el aviso le llega ya (canal de señalización, no el de
+    // datos), el cliente decide si lo escribe a mano o entra con Google.
+    requestEmail() {
+      if (channel) channel.send({ type: 'broadcast', event: 'request-email', payload: {} });
+    },
     toggleMute() {
       if (!localStream) return muted;
       muted = !muted;
