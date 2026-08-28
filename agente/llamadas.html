@@ -434,6 +434,7 @@
     }
 
     async function declineCall(callId) {
+      stopRingtone();
       await supabaseClient.from('call_requests').update({ status: 'declined', updated_at: new Date().toISOString() }).eq('id', callId);
       loadRingingCalls();
     }
