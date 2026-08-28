@@ -245,8 +245,18 @@
       }
       const { data: userData } = await supabaseClient.auth.getUser();
       if (userData?.user) {
-        const { data: profile } = await supabaseClient.from('profiles').select('full_name').eq('id', userData.user.id).single();
-        document.getElementById('whoami').textContent = 'Hola, ' + (profile?.full_name || userData.user.email);
+        const { data: profile } = await supabaseClient.from('profiles').select('full_name, role').eq('id', userData.user.id).single();
+        document.getElementById('whoami').textContent = profile?.full_name || userData.user.email;
+        // Deja claro con qué tipo de cuenta se entró — la pantalla es la
+        // misma para las dos, solo cambia lo que se ve adentro (ej. la
+        // pestaña "Todas (equipo)" en cotizaciones, solo para el dueño).
+        const roleBadge = document.getElementById('roleBadge');
+        if (profile?.role === 'super_admin') {
+          roleBadge.textContent = 'Dueño';
+          roleBadge.classList.add('owner');
+        } else {
+          roleBadge.textContent = 'Agente';
+        }
       }
       // Ahora que la app queda de lado, el "latido" de presencia (para
       // saber si el agente está conectado) tiene que salir de acá — antes
