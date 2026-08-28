@@ -111,6 +111,59 @@
     cursor: pointer;
   }
   .already-quoted { font-size: 13px; margin-top: 8px; color: rgba(26,26,26,0.7); }
+  .chat-toggle-btn {
+    margin-top: 8px;
+    margin-left: 8px;
+    border: 1.5px solid rgba(0,0,0,0.15);
+    background: #fff;
+    color: rgba(26,26,26,0.7);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .chat-thread {
+    margin-top: 10px;
+    border-top: 1px solid rgba(0,0,0,0.08);
+    padding-top: 10px;
+  }
+  .chat-messages {
+    max-height: 240px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .chat-bubble {
+    max-width: 82%;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .chat-bubble.client { align-self: flex-start; background: #eee; }
+  .chat-bubble.agent { align-self: flex-end; background: var(--primary); color: #fff; }
+  .chat-form { display: flex; gap: 6px; }
+  .chat-form input {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 16px;
+    border: 1.5px solid rgba(0,0,0,0.15);
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .chat-form button {
+    border: none;
+    background: var(--coral);
+    color: #fff;
+    border-radius: 16px;
+    padding: 0 14px;
+    font-weight: 700;
+    font-size: 12.5px;
+    cursor: pointer;
+  }
 </style>
 </head>
 <body>
