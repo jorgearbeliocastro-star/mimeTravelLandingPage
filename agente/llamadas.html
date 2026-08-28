@@ -417,12 +417,12 @@
         infoBox.textContent = 'Sin cotizaciones anteriores de este cliente.';
         return;
       }
-      const route = data.origin ? data.origin + ' → ' + data.destination : data.destination;
+      const route = data.origin ? escapeHtml(data.origin) + ' → ' + escapeHtml(data.destination) : escapeHtml(data.destination);
       infoBox.innerHTML =
-        '<strong>' + (data.contact_name || 'Sin nombre') + '</strong><br>' +
-        (data.contact_email ? data.contact_email + '<br>' : '') +
-        (data.contact_phone ? data.contact_phone + '<br>' : '') +
-        route + ' · ' + data.status;
+        '<strong>' + escapeHtml(data.contact_name || 'Sin nombre') + '</strong><br>' +
+        (data.contact_email ? escapeHtml(data.contact_email) + '<br>' : '') +
+        (data.contact_phone ? escapeHtml(data.contact_phone) + '<br>' : '') +
+        route + ' · ' + escapeHtml(data.status);
     }
 
     // El correo llega directo por el canal de datos (nunca pasa por
