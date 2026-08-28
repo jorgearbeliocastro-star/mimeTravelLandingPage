@@ -369,6 +369,7 @@
     }
 
     async function acceptCall(callId, clientToken) {
+      stopRingtone();
       clearInterval(pollTimer);
       const { error } = await supabaseClient
         .from('call_requests')
