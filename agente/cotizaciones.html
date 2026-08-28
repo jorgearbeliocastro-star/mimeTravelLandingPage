@@ -373,14 +373,14 @@
         let passengersHtml = '';
         if (Array.isArray(q.passengers) && q.passengers.length) {
           passengersHtml = '<div class="notes"><strong>Pasajeros:</strong> ' +
-            q.passengers.map((p) => (p.fullName || (p.firstName + ' ' + p.lastName) || 'Sin nombre').toString().replace(/</g, '&lt;')).join(', ') +
+            q.passengers.map((p) => escapeHtml(p.fullName || (p.firstName + ' ' + p.lastName) || 'Sin nombre')).join(', ') +
             '</div>';
         }
         card.innerHTML =
           '<div class="route">' + fmtRoute(q) + '</div>' +
-          '<div class="meta">' + (q.category || '') + ' · ' + (q.contact_name || 'Sin nombre') + (q.contact_phone ? ' · ' + q.contact_phone : '') + (q.contact_email ? ' · ' + q.contact_email : '') + '</div>' +
-          (partyHtml ? '<div class="meta">' + partyHtml + '</div>' : '') +
-          (q.notes ? '<div class="notes">' + q.notes.replace(/</g, '&lt;') + '</div>' : '') +
+          '<div class="meta">' + escapeHtml(q.category || '') + ' · ' + escapeHtml(q.contact_name || 'Sin nombre') + (q.contact_phone ? ' · ' + escapeHtml(q.contact_phone) : '') + (q.contact_email ? ' · ' + escapeHtml(q.contact_email) : '') + '</div>' +
+          (partyHtml ? '<div class="meta">' + escapeHtml(partyHtml) + '</div>' : '') +
+          (q.notes ? '<div class="notes">' + escapeHtml(q.notes) + '</div>' : '') +
           passengersHtml +
           badgeHtml;
         list.appendChild(card);
