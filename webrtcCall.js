@@ -242,6 +242,13 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
       .on('broadcast', { event: 'request-photo' }, ({ payload }) => {
         if (onPhotoRequest) onPhotoRequest(payload.kind);
       })
+      // Mismo mecanismo que "pedir foto" pero para el correo — el agente
+      // lo pide solo cuando de verdad hace falta (para emitir el tiket),
+      // el cliente decide cómo responder (a mano o con Google) del otro
+      // lado (ver onEmailRequest).
+      .on('broadcast', { event: 'request-email' }, () => {
+        if (onEmailRequest) onEmailRequest();
+      })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED' && isCaller) {
           const offer = await pc.createOffer();
