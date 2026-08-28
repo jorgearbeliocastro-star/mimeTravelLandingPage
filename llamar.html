@@ -147,6 +147,20 @@
     font-weight: 700;
   }
   .photo-request-banner.show { display: flex; }
+  /* El de correo lleva más contenido (botón de Google + input a mano) que
+     no entra bien en una sola fila como el de la foto — se apila en
+     columna en vez de reusar el layout de fila del resto. */
+  #emailRequestBanner.show { display: flex; flex-direction: column; align-items: stretch; }
+  #emailRequestBanner button[type="submit"] {
+    border: none;
+    background: #fff;
+    color: var(--coral);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
   .photo-request-banner button {
     border: none;
     background: #fff;
