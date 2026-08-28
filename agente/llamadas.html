@@ -357,6 +357,29 @@
         route + ' · ' + data.status;
     }
 
+    // El correo llega directo por el canal de datos (nunca pasa por
+    // Supabase de lado del cliente) — acá, del lado del agente, recién se
+    // guarda, y solo en esta tabla puntual (no en quote_requests, para no
+    // tocar/mezclar filas de cotizaciones reales). client_token como clave
+    // es lo que permite, a futuro, encontrar el correo de un cliente que
+    // llamó sin haber pasado nunca por un formulario de cotización.
+    async function saveClientEmail(callId, clientToken, email, source) {
+      const infoBox = document.getElementById('clientInfoBox');
+      const { error } = await supabaseClient.from('client_contacts').upsert({
+        client_token: clientToken,
+        email,
+        email_source: source,
+        captured_by_agent_id: agentId,
+        call_request_id: callId,
+        updated_at: new Date().toISOString(),
+      });
+      if (error) {
+        infoBox.innerHTML += '<br><strong style="color:#ffb4b4;">No se pudo guardar el correo: ' + error.message + '</strong>';
+        return;
+      }
+      infoBox.innerHTML += '<br>✉️ Correo guardado: <strong>' + email + '</strong> (' + (source === 'google' ? 'Google' : 'a mano') + ')';
+    }
+
     async function declineCall(callId) {
       await supabaseClient.from('call_requests').update({ status: 'declined', updated_at: new Date().toISOString() }).eq('id', callId);
       loadRingingCalls();
