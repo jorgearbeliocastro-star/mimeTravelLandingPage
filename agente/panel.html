@@ -376,7 +376,9 @@
     })();
 
     // Mismo tono y misma cadencia (0.5s entre repeticiones) que
-    // agente/llamadas.html — ver ese archivo para el porqué del gap.
+    // agente/llamadas.html — ver ese archivo para el porqué del gap. Solo
+    // le suena de verdad a la llamada más vieja de la cola — las demás no
+    // repiten el mismo timbre encima, quedan "en espera" (ver piano abajo).
     let ringing = false;
     let ringTimer = null;
     const ringtoneAudio = document.getElementById('ringtoneAudio');
@@ -403,19 +405,114 @@
       ringtoneAudio.currentTime = 0;
     }
 
-    // Se guarda la última lista para que, al tocar la tarjeta, se sepa si
-    // hay una sola llamada sonando (y se pueda entrar directo a atenderla)
-    // o varias (y haga falta elegir cuál, en la lista de siempre).
-    let lastRingingCalls = [];
+    // Piano de espera para las llamadas que NO son la primera de la cola
+    // — mismo sonido sintetizado (arpegio Cmaj7-Am7-Fmaj7-Gsus) que ya
+    // escucha el propio cliente en llamar.html mientras aguarda, así el
+    // agente reconoce de oído que esas son "las que están esperando", no
+    // la que está sonando de verdad.
+    let holdAudioCtx = null;
+    let holdMasterGain = null;
+    let holdNoteTimer = null;
+    let holdStep = 0;
+    const HOLD_PROGRESSION = [
+      [261.63, 329.63, 392.0, 493.88], // Cmaj7: C4 E4 G4 B4
+      [220.0, 261.63, 329.63, 392.0],  // Am7:   A3 C4 E4 G4
+      [174.61, 220.0, 261.63, 329.63], // Fmaj7: F3 A3 C4 E4
+      [196.0, 261.63, 293.66, 349.23], // Gsus:  G3 C4 D4 F4
+    ];
+    function playHoldNote(freq, when) {
+      const dur = 2.6;
+      const filter = holdAudioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 3200;
+      filter.connect(holdMasterGain);
+      const fundGain = holdAudioCtx.createGain();
+      fundGain.gain.setValueAtTime(0.0001, when);
+      fundGain.gain.linearRampToValueAtTime(0.34, when + 0.008);
+      fundGain.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+      const osc1 = holdAudioCtx.createOscillator();
+      osc1.type = 'triangle';
+      osc1.frequency.value = freq;
+      osc1.connect(fundGain);
+      fundGain.connect(filter);
+      const overtoneGain = holdAudioCtx.createGain();
+      overtoneGain.gain.setValueAtTime(0.0001, when);
+      overtoneGain.gain.linearRampToValueAtTime(0.09, when + 0.006);
+      overtoneGain.gain.exponentialRampToValueAtTime(0.0001, when + dur * 0.55);
+      const osc2 = holdAudioCtx.createOscillator();
+      osc2.type = 'sine';
+      osc2.frequency.value = freq * 2;
+      osc2.connect(overtoneGain);
+      overtoneGain.connect(filter);
+      osc1.start(when);
+      osc1.stop(when + dur + 0.1);
+      osc2.start(when);
+      osc2.stop(when + dur + 0.1);
+    }
+    function scheduleNextHoldNote() {
+      const chord = HOLD_PROGRESSION[Math.floor(holdStep / 4) % HOLD_PROGRESSION.length];
+      const note = chord[holdStep % 4];
+      playHoldNote(note, holdAudioCtx.currentTime + 0.05);
+      holdStep++;
+      holdNoteTimer = setTimeout(scheduleNextHoldNote, 720);
+    }
+    function startHoldPiano() {
+      if (holdNoteTimer) return;
+      if (!holdAudioCtx) holdAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (holdAudioCtx.state === 'suspended') holdAudioCtx.resume().catch(() => {});
+      holdMasterGain = holdMasterGain || holdAudioCtx.createGain();
+      holdMasterGain.gain.value = 0.4;
+      holdMasterGain.connect(holdAudioCtx.destination);
+      holdStep = 0;
+      scheduleNextHoldNote();
+    }
+    function stopHoldPiano() {
+      if (holdNoteTimer) {
+        clearTimeout(holdNoteTimer);
+        holdNoteTimer = null;
+      }
+    }
+
+    function goToCall(c) {
+      window.location.href = 'llamadas.html?accept=' + encodeURIComponent(c.id) + '&token=' + encodeURIComponent(c.client_token || '');
+    }
+
+    // Una fila por llamada: la primera (más vieja) suena de verdad y dice
+    // "Atender"; el resto queda marcado "En espera" — se puede tocar
+    // cualquiera para saltar la cola y atenderla antes que la que sonaba.
+    function renderCallsList(calls) {
+      const list = document.getElementById('callsList');
+      list.innerHTML = '';
+      if (!calls.length) {
+        list.hidden = true;
+        return;
+      }
+      list.hidden = false;
+      calls.forEach((c, i) => {
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'call-item ' + (i === 0 ? 'call-ringing' : 'call-waiting');
+        item.innerHTML =
+          '<span><span class="call-item-icon">' + (i === 0 ? '📞' : '🎹') + '</span> ' +
+          (i === 0 ? 'Llamada entrante' : 'En espera #' + (i + 1)) +
+          '<div class="call-item-sub">' + (i === 0 ? 'Tocá para atender' : 'Escucha piano — tocá para atenderla antes') + '</div></span>';
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          goToCall(c);
+        });
+        list.appendChild(item);
+      });
+    }
 
     async function pollRingingCalls() {
       if (!agentId) return;
       const { data, error } = await supabaseClient.rpc('get_ringing_calls_for_agent', { p_agent_id: agentId });
       if (error) return; // no bloqueante — el detalle real se ve al entrar a llamadas.html
-      lastRingingCalls = data || [];
-      const count = lastRingingCalls.length;
+      const calls = data || [];
+      const count = calls.length;
       const badge = document.getElementById('callBadge');
       const card = document.getElementById('callsNavCard');
+      renderCallsList(calls);
       if (count > 0) {
         badge.textContent = String(count);
         badge.hidden = false;
@@ -426,20 +523,25 @@
         card.classList.remove('ringing');
         stopRingtone();
       }
+      if (count > 1) {
+        startHoldPiano();
+      } else {
+        stopHoldPiano();
+      }
     }
 
-    // Antes tocar la tarjeta siempre llevaba a la lista de llamadas.html,
-    // aunque solo hubiera una sonando — un paso de más ("Atender" ahí
-    // adentro) que no hace falta cuando no hay nada que elegir. Con una
-    // sola llamada, entra directo a atenderla; con dos o más (raro, pero
-    // puede pasar), sí lleva a la lista para elegir cuál.
+    // La tarjeta ya no es un link — puede contener botones por llamada.
+    // Tocarla fuera de esos botones (o con 0 llamadas) lleva a la lista
+    // de siempre, igual que antes.
     document.getElementById('callsNavCard').addEventListener('click', (e) => {
-      if (lastRingingCalls.length === 1) {
+      if (e.target.closest('.call-item')) return; // ya lo maneja su propio handler
+      window.location.href = 'llamadas.html';
+    });
+    document.getElementById('callsNavCard').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        const c = lastRingingCalls[0];
-        window.location.href = 'llamadas.html?accept=' + encodeURIComponent(c.id) + '&token=' + encodeURIComponent(c.client_token || '');
+        window.location.href = 'llamadas.html';
       }
-      // 0 o 2+: navegación normal a la lista (el href ya apunta ahí).
     });
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
