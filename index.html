@@ -7765,29 +7765,6 @@
     // de cotizar. Si ya tiene una cotización o consulta abierta en ESTE
     // navegador, `restoreStoredQuote()` ya la retoma con `quoteReopenBtn` —
     // este botón es para el resto de los casos.
-    // Antes de dejar entrar a llamar.html, chequea que el dispositivo
-    // realmente tenga cámara/micrófono — muchas PC de escritorio no
-    // tienen ninguno de los dos, y sin esto el cliente entraba a la
-    // pantalla de llamada y se quedaba trabado sin entender por qué no
-    // conecta. getUserMedia es la única forma confiable de saberlo (la
-    // sola lista de dispositivos a veces miente si nunca se dio permiso).
-    document.getElementById('callAgentBtn').addEventListener('click', function (e) {
-      e.preventDefault();
-      navigator.mediaDevices.getUserMedia({ audio: true, video: true })
-        .then((stream) => {
-          stream.getTracks().forEach((t) => t.stop()); // solo era para probar, no se necesita prendida
-          window.location.href = 'llamar.html';
-        })
-        .catch((err) => {
-          if (err && (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError')) {
-            window.alert(t('callNoDeviceMsg'));
-          } else if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) {
-            window.alert(t('callPermissionDeniedMsg'));
-          } else {
-            window.alert(t('callNoDeviceMsg'));
-          }
-        });
-    });
 
     const needHelpBtn = document.getElementById('needHelpBtn');
     const helpOverlay = document.getElementById('helpOverlay');
