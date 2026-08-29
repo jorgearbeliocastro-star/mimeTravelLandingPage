@@ -1523,42 +1523,8 @@
       display: none;
     }
 
-    /* El botón "¿Necesitás ayuda?" cambia su texto a "Agente [nombre
-       completo]" cuando el cliente ya tiene uno asignado (ver
-       personalizeNeedHelpBtn) — un nombre largo desbordaba el header
-       entero en mobile. Envolver solo `.nav-actions` no alcanzaba: como
-       sigue siendo UN solo ítem flex dentro de `header .container`, su
-       ancho quedaba acotado al hueco que deja el logo, no al ancho total
-       de la pantalla. Por eso ahora es el header ENTERO el que puede
-       pasar a dos filas — el logo arriba, los botones abajo ocupando todo
-       el ancho disponible — así siempre hay espacio de sobra.
-       flex-basis:100% fuerza a nav-actions a tomar toda la fila cuando
-       hay wrap (si no, seguiría intentando compartir fila con el logo). */
-    header .container {
-      flex-wrap: wrap;
-      row-gap: 10px;
-    }
     .nav-actions {
       gap: 10px;
-      flex-wrap: wrap;
-      row-gap: 8px;
-      justify-content: flex-end;
-      flex-basis: 100%;
-    }
-    /* .btn-help hereda de .btn "display:inline-flex" + "justify-content:
-       center" — sobre eso, text-overflow:ellipsis NO funciona (limitación
-       real de flexbox) y el centrado recorta el texto PAREJO de los dos
-       lados, dejando algo ilegible tipo "gente Jorge Arbelio Cast" en vez
-       de mostrar el principio. Pasando a display:block + text-align:left
-       se arreglan las dos cosas: el "…" ahora sí aparece, y el recorte
-       (si hiciera falta) pasa a ser solo al final, legible. */
-    .nav-actions .btn-help {
-      display: block;
-      max-width: 42vw;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      text-align: left;
     }
 
     .menu-toggle {
