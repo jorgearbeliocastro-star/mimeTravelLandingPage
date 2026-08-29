@@ -289,6 +289,8 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_lcWymV25nHd2_iOMjRwD4A_XOXvOdPK';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    let agentId = null;
+
     // Guardia de sesión: sin login + segundo factor verificado (aal2), no
     // se puede ver nada de este panel — vuelve directo al login.
     (async () => {
@@ -299,6 +301,7 @@
       }
       const { data: userData } = await supabaseClient.auth.getUser();
       if (userData?.user) {
+        agentId = userData.user.id;
         const { data: profile } = await supabaseClient.from('profiles').select('full_name, role').eq('id', userData.user.id).single();
         document.getElementById('whoami').textContent = profile?.full_name || userData.user.email;
         // Deja claro con qué tipo de cuenta se entró — la pantalla es la
@@ -316,7 +319,31 @@
       // saber si el agente está conectado) tiene que salir de acá — antes
       // solo lo mandaba la app nativa.
       startPresenceHeartbeat(supabaseClient);
+      // Antes, si el agente se quedaba en esta pantalla de inicio, la única
+      // forma de enterarse de una llamada entrante era el push del
+      // navegador — si no lo veía o no estaba activado en ese dispositivo,
+      // no había ningún otro aviso acá. Este sondeo hace que la tarjeta de
+      // "Llamadas entrantes" avise por sí sola, sin depender del push.
+      pollRingingCalls();
+      setInterval(pollRingingCalls, 4000);
     })();
+
+    async function pollRingingCalls() {
+      if (!agentId) return;
+      const { data, error } = await supabaseClient.rpc('get_ringing_calls_for_agent', { p_agent_id: agentId });
+      if (error) return; // no bloqueante — el detalle real se ve al entrar a llamadas.html
+      const count = (data || []).length;
+      const badge = document.getElementById('callBadge');
+      const card = document.getElementById('callsNavCard');
+      if (count > 0) {
+        badge.textContent = String(count);
+        badge.hidden = false;
+        card.classList.add('ringing');
+      } else {
+        badge.hidden = true;
+        card.classList.remove('ringing');
+      }
+    }
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       await supabaseClient.auth.signOut();
