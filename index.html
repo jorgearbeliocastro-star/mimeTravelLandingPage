@@ -1527,6 +1527,20 @@
       gap: 10px;
     }
 
+    /* El botón "¿Necesitás ayuda?" pasa a decir "Agente [nombre completo]"
+       cuando el cliente ya tiene uno asignado (ver personalizeNeedHelpBtn)
+       — en pantallas angostas ese texto no entra en una sola línea y
+       desbordaba/rompía el header. Sin recortar ni esconder texto: se dej
+       que se acomode en 2 líneas DENTRO del mismo botón (el botón se hace
+       más alto, nunca se corta nada). max-width es lo que fuerza a que
+       envuelva en vez de estirar el botón más allá de la pantalla. */
+    .nav-actions .btn-help {
+      max-width: 46vw;
+      white-space: normal;
+      text-align: center;
+      line-height: 1.25;
+    }
+
     .menu-toggle {
       display: block;
       z-index: 110;
