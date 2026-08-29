@@ -253,8 +253,12 @@
     // queda 'accepted' colgada, bloqueándolo como "ocupado" sin ninguna
     // llamada real. `keepalive` hace que el pedido siga viajando aunque
     // la página ya se haya ido.
+    let currentAccessToken = null; // el PATCH de abajo necesita el JWT real del Agente, la RLS no acepta solo la anon key
+    supabaseClient.auth.onAuthStateChange((_event, session) => {
+      currentAccessToken = session?.access_token || null;
+    });
     window.addEventListener('pagehide', () => {
-      if (!activeCallId) return;
+      if (!activeCallId || !currentAccessToken) return;
       try {
         fetch(SUPABASE_URL + '/rest/v1/call_requests?id=eq.' + activeCallId, {
           method: 'PATCH',
@@ -262,7 +266,7 @@
           headers: {
             'Content-Type': 'application/json',
             apikey: SUPABASE_ANON_KEY,
-            Authorization: 'Bearer ' + SUPABASE_ANON_KEY,
+            Authorization: 'Bearer ' + currentAccessToken,
           },
           body: JSON.stringify({ status: 'ended', updated_at: new Date().toISOString() }),
         });
