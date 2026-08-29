@@ -506,7 +506,10 @@
           .select('status')
           .eq('id', callId)
           .maybeSingle();
-        if (data && data.status === 'ended') closeCallScreen();
+        if (data && data.status === 'ended') {
+          console.log('[llamadas] endedPoll: call_requests.id=' + callId + ' pasó a ended, cerrando pantalla de llamada');
+          closeCallScreen();
+        }
       }, 4000);
       // Los botones de "Pedir foto" arrancan bloqueados — si se piden antes
       // de que la llamada esté conectada de verdad, ese aviso puntual se
