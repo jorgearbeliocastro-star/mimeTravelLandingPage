@@ -4463,9 +4463,9 @@
         body: JSON.stringify({ type: 'INSERT', table: 'quote_requests', record }),
       }).catch(() => {});
       // Aviso real del navegador — si el cliente ya tiene un agente
-      // asignado le suena solo a él, si no, a todo el pool (mismo criterio
-      // que en llamar.html). No bloqueante: si falla, la cotización ya
-      // quedó guardada igual, solo no sonó ningún aviso.
+      // asignado le suena solo a él, si no, a todo el pool. No bloqueante:
+      // si falla, la cotización ya quedó guardada igual, solo no sonó
+      // ningún aviso.
       fetch(WEB_PUSH_FUNCTIONS_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': WEB_PUSH_WEBHOOK_SECRET },
