@@ -3477,8 +3477,6 @@
       quotePaxSubmitAccept: 'Aceptar y enviar mis datos',
       quotePaymentConsentLabel: 'Autorizo a que se me cobre el monto de esta cotización en la tarjeta que voy a indicarle a mi agente por teléfono/videollamada.',
       quotePaymentConsentMissing: 'Tenés que marcar la casilla de autorización de cobro para poder aceptar.',
-      callNoDeviceMsg: 'Este dispositivo no tiene cámara o micrófono, así que no puede hacer videollamadas. Entrá a mimetravel.com desde tu teléfono para poder llamar a un agente.',
-      callPermissionDeniedMsg: 'Necesitamos permiso de cámara y micrófono para hacer la llamada — revisá los permisos del navegador e intentá de nuevo.',
       quotePaxSubmitOnly: 'Enviar mis datos',
       quotePaxCancel: 'Cancelar',
       quotePaxMissing: 'Completá todos los campos de cada pasajero para continuar.',
@@ -3496,7 +3494,6 @@
       navAbout: 'About us',
       navContact: 'Contact',
       navPlanTrip: 'Plan your trip',
-      callAgentBtn: '📞 Call an agent',
       needHelpBtn: 'Need help?',
       modalCloseAria: 'Close',
       presaleTitlePrefix: 'Tell us about your trip to',
@@ -3746,8 +3743,6 @@
       quotePaxSubmitAccept: 'Accept and submit my info',
       quotePaymentConsentLabel: 'I authorize being charged the amount of this quote on the card I will provide to my agent by phone/video call.',
       quotePaymentConsentMissing: 'You need to check the payment authorization box to accept.',
-      callNoDeviceMsg: "This device doesn't have a camera or microphone, so it can't make video calls. Open mimetravel.com from your phone to call an agent.",
-      callPermissionDeniedMsg: 'We need camera and microphone permission to make the call — check your browser permissions and try again.',
       quotePaxSubmitOnly: 'Submit my info',
       quotePaxCancel: 'Cancel',
       quotePaxMissing: 'Fill in every field for each passenger to continue.',
@@ -3764,7 +3759,6 @@
       navAbout: 'Chi siamo',
       navContact: 'Contatti',
       navPlanTrip: 'Pianifica il tuo viaggio',
-      callAgentBtn: '📞 Chiama un agente',
       needHelpBtn: 'Hai bisogno di aiuto?',
       modalCloseAria: 'Chiudi',
       presaleTitlePrefix: 'Raccontaci del tuo viaggio a',
@@ -4013,8 +4007,6 @@
       quotePaxSubmitAccept: 'Accetta e invia i miei dati',
       quotePaymentConsentLabel: 'Autorizzo l\'addebito dell\'importo di questo preventivo sulla carta che fornirò al mio agente per telefono/videochiamata.',
       quotePaymentConsentMissing: 'Devi selezionare la casella di autorizzazione al pagamento per accettare.',
-      callNoDeviceMsg: 'Questo dispositivo non ha telecamera o microfono, quindi non può fare videochiamate. Apri mimetravel.com dal tuo cellulare per chiamare un agente.',
-      callPermissionDeniedMsg: 'Serve il permesso di fotocamera e microfono per fare la chiamata — controlla i permessi del browser e riprova.',
       quotePaxSubmitOnly: 'Invia i miei dati',
       quotePaxCancel: 'Annulla',
       quotePaxMissing: 'Completa tutti i campi di ogni passeggero per continuare.',
@@ -4031,7 +4023,6 @@
       navAbout: 'Sobre nós',
       navContact: 'Contato',
       navPlanTrip: 'Planeje sua viagem',
-      callAgentBtn: '📞 Ligar para um agente',
       needHelpBtn: 'Precisa de ajuda?',
       modalCloseAria: 'Fechar',
       presaleTitlePrefix: 'Conte-nos sobre sua viagem para',
@@ -4280,8 +4271,6 @@
       quotePaxSubmitAccept: 'Aceitar e enviar meus dados',
       quotePaymentConsentLabel: 'Autorizo a cobrança do valor desta cotação no cartão que vou informar ao meu agente por telefone/videochamada.',
       quotePaymentConsentMissing: 'Você precisa marcar a caixa de autorização de cobrança para aceitar.',
-      callNoDeviceMsg: 'Este dispositivo não tem câmera ou microfone, então não pode fazer videochamadas. Abra mimetravel.com pelo seu celular para ligar para um agente.',
-      callPermissionDeniedMsg: 'Precisamos de permissão de câmera e microfone para fazer a ligação — verifique as permissões do navegador e tente de novo.',
       quotePaxSubmitOnly: 'Enviar meus dados',
       quotePaxCancel: 'Cancelar',
       quotePaxMissing: 'Preencha todos os campos de cada passageiro para continuar.',
@@ -7794,14 +7783,6 @@
       }
       openHelpModal();
     });
-    // Si llega desde llamar.html con "?chat=1" (la llamada no conectó y
-    // el cliente eligió pasar al chat en vez de reintentar), abre el
-    // mismo flujo de "Necesito ayuda" solo, sin que tenga que buscar el
-    // botón — mismo mecanismo que ya arma la cotización tipo "Consulta
-    // general" cuando escribe su mensaje.
-    if (new URLSearchParams(window.location.search).get('chat') === '1') {
-      needHelpBtn.click();
-    }
     helpCloseBtn.addEventListener('click', closeHelpModal);
     helpOverlay.addEventListener('click', function (e) {
       if (e.target === helpOverlay) closeHelpModal();
