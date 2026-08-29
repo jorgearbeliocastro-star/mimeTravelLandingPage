@@ -619,11 +619,17 @@
     }
 
     function closeCallScreen() {
-      document.getElementById('callScreen').classList.remove('active');
+      const callScreen = document.getElementById('callScreen');
+      if (!callScreen.classList.contains('active')) return; // ya se cerró (broadcast y sondeo llegaron casi juntos)
+      callScreen.classList.remove('active');
       hidePassportPhoto();
       document.getElementById('shareScreenBtn').textContent = '🖥️ Compartir pantalla';
       if (document.pictureInPictureElement) document.exitPictureInPicture().catch(() => {});
       call = null;
+      if (endedPoll) {
+        clearInterval(endedPoll);
+        endedPoll = null;
+      }
       pollTimer = setInterval(loadRingingCalls, 3000);
       loadRingingCalls();
     }
