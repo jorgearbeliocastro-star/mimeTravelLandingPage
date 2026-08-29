@@ -290,6 +290,32 @@
     let ended = false;
     let agentName = null;
 
+    // Último recurso: si el celular mata la pestaña de golpe (se va a
+    // segundo plano y el sistema la cierra, se cierra el navegador, etc.)
+    // ni el hangup normal ni el 'failed' de WebRTC llegan a dispararse —
+    // la fila queda 'ringing'/'accepted' colgada, marcando al Agente como
+    // ocupado sin ninguna llamada real. `pagehide` es el evento que más
+    // confiablemente todavía dispara en ese momento (más que
+    // 'beforeunload', que muchos navegadores móviles ya ni respetan); con
+    // `keepalive` el pedido sigue viajando aunque la página ya se haya ido.
+    window.addEventListener('pagehide', () => {
+      if (ended || !window.__callId) return;
+      try {
+        fetch(SUPABASE_URL + '/rest/v1/rpc/client_end_call', {
+          method: 'POST',
+          keepalive: true,
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: 'Bearer ' + SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({ p_token: getClientToken(), p_id: window.__callId }),
+        });
+      } catch (e) {
+        // no bloqueante — la página se está yendo de todos modos
+      }
+    });
+
     function showFallback() {
       controls.style.display = 'none';
       fallbackBox.classList.add('show');
