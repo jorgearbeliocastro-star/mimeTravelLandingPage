@@ -661,6 +661,7 @@
     });
     document.getElementById('hangupBtn').addEventListener('click', async function () {
       ended = true;
+      stopHoldMusic();
       if (call) await call.hangup();
       const clientToken = getClientToken();
       try {
