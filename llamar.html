@@ -490,6 +490,8 @@
       const queueMsgTimer = setTimeout(() => {
         if (ended || statusBar.textContent !== 'Llamando…') return;
         statusBar.textContent = 'Todos los agentes están ocupados — tu llamada quedó en espera.';
+        stopRingbackTone();
+        startHoldMusic();
       }, 15000);
 
       // Sondea el estado de la llamada (aceptada/rechazada/sin respuesta)
