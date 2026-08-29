@@ -301,23 +301,32 @@
     function playRingBurst() {
       if (!audioCtx) return;
       const now = audioCtx.currentTime;
-      const clinks = 6;
-      for (let i = 0; i < clinks; i++) {
-        const offset = i * 0.09 + Math.random() * 0.02;
-        const freq = 1800 + Math.random() * 1800; // metálico, agudo
+      // Monedas rebotando en el piso: cada rebote pierde energía (más
+      // suave) Y pasa más seguido (los rebotes se juntan a medida que se
+      // frenan) — así suena a un puñado cayendo, no a clics parejos.
+      let t = 0;
+      let amp = 0.35;
+      let interval = 0.11;
+      const bounces = 13;
+      for (let i = 0; i < bounces; i++) {
+        const freq = 1600 + Math.random() * 2200; // metálico, agudo
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, now + offset);
-        // Ataque instantáneo y caída rápida — así suena a "clink" seco,
-        // no a un tono sostenido.
-        gain.gain.setValueAtTime(0.0001, now + offset);
-        gain.gain.exponentialRampToValueAtTime(0.22, now + offset + 0.005);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + 0.18);
+        osc.frequency.setValueAtTime(freq, now + t);
+        // Un poco de caída de tono dentro del propio golpe — un "clink"
+        // metálico real no queda en un tono fijo, baja apenas al apagarse.
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.55, now + t + 0.07);
+        gain.gain.setValueAtTime(0.0001, now + t);
+        gain.gain.exponentialRampToValueAtTime(amp, now + t + 0.004);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + t + 0.09);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-        osc.start(now + offset);
-        osc.stop(now + offset + 0.2);
+        osc.start(now + t);
+        osc.stop(now + t + 0.1);
+        t += interval;
+        amp *= 0.82;
+        interval *= 0.85;
       }
     }
     function startRingtone() {
