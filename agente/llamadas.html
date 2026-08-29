@@ -471,6 +471,22 @@
       const statusBar = document.getElementById('statusBar');
       document.getElementById('clientInfoBox').textContent = '';
       if (clientToken) loadClientInfo(clientToken);
+      // Respaldo: si el cliente cuelga, manda el aviso de "hangup" por el
+      // canal en vivo (WebRTC/Realtime) Y actualiza call_requests a
+      // 'ended' (ver client_end_call). Si ese aviso puntual se pierde
+      // (red mala, celular del cliente en segundo plano), antes esta
+      // pantalla se quedaba trabada para siempre — este sondeo agarra el
+      // cambio de estado directo de la base, sin depender de que el
+      // canal en vivo siga sano. Mismo mecanismo que ya usa llamar.html
+      // del lado del cliente para el caso simétrico (agente cuelga).
+      endedPoll = setInterval(async () => {
+        const { data } = await supabaseClient
+          .from('call_requests')
+          .select('status')
+          .eq('id', callId)
+          .maybeSingle();
+        if (data && data.status === 'ended') closeCallScreen();
+      }, 4000);
       // Los botones de "Pedir foto" arrancan bloqueados — si se piden antes
       // de que la llamada esté conectada de verdad, ese aviso puntual se
       // pierde sin reintento (a diferencia de la oferta/respuesta de la
