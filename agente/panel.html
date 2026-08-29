@@ -511,20 +511,6 @@
 
     async function pollRingingCalls() {
       if (!agentId) return;
-      // Regla dura, sin excepciones: si el agente ya está en una llamada
-      // (aunque esté atendiéndola desde otra pestaña, ej. llamadas.html),
-      // no puede sonar NADA acá — ni timbre ni piano de espera. Se
-      // revisa esto primero y directo, no alcanza con que la lista venga
-      // vacía por el otro lado.
-      const { data: onCall } = await supabaseClient.rpc('is_agent_on_active_call', { p_agent_id: agentId });
-      if (onCall) {
-        document.getElementById('callBadge').hidden = true;
-        document.getElementById('callsNavCard').classList.remove('ringing');
-        document.getElementById('callsList').hidden = true;
-        stopRingtone();
-        stopHoldPiano();
-        return;
-      }
       const { data, error } = await supabaseClient.rpc('get_ringing_calls_for_agent', { p_agent_id: agentId });
       if (error) {
         // Antes esto se tragaba el error sin avisar — el botón se veía
