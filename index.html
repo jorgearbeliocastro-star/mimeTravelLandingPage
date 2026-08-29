@@ -1561,8 +1561,12 @@
       align-items: flex-start;
     }
 
+    /* 130px alcanzaba para un header de 1 línea. Si el botón "Agente
+       [nombre]" envuelve a 2 líneas (ver .nav-actions .btn-help arriba),
+       el header queda un poco más alto — este margen de más evita que el
+       título del Hero quede tapado detrás en ese caso. */
     .hero-content {
-      padding-top: 130px;
+      padding-top: 150px;
       margin-top: 0;
     }
 
