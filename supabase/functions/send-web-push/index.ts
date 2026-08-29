@@ -43,29 +43,14 @@ Deno.serve(async (req) => {
   const { title, body: msgBody, url } = body;
   // Sin agentId = avisa a TODOS los agentes suscriptos (llamada general,
   // sin agente asignado — mismo criterio que el pool de siempre).
-  let query = supabase.from('agent_push_subscriptions').select('subscription, agent_id');
+  let query = supabase.from('agent_push_subscriptions').select('subscription');
   if (body.agentId) query = query.eq('agent_id', body.agentId);
   const { data: subs, error } = await query;
   if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: CORS_HEADERS });
 
-  let targetSubs = subs ?? [];
-  if (!body.agentId) {
-    // Llamada suelta del pool: no le avisa (ni le suena, ni le vibra el
-    // celular) a un agente que ya está en otra llamada — mismo criterio
-    // que get_ringing_calls_for_agent ya aplica para la lista (ver
-    // migración 0085 de la-expancion). Antes esto se le mandaba a
-    // cualquier agente ocupado igual, aunque no pudiera atenderla.
-    const agentIds = [...new Set(targetSubs.map((s: any) => s.agent_id).filter(Boolean))];
-    const busyChecks = await Promise.all(
-      agentIds.map((id) => supabase.rpc('is_agent_busy', { p_agent_id: id }))
-    );
-    const busyAgentIds = new Set(agentIds.filter((_, i) => busyChecks[i].data === true));
-    targetSubs = targetSubs.filter((s: any) => !s.agent_id || !busyAgentIds.has(s.agent_id));
-  }
-
   const payload = JSON.stringify({ title, body: msgBody, url });
   const results = await Promise.allSettled(
-    targetSubs.map((row: any) => webpush.sendNotification(row.subscription, payload))
+    (subs ?? []).map((row: any) => webpush.sendNotification(row.subscription, payload))
   );
   // Las suscripciones que ya no sirven (410/404 — el navegador se
   // desinstaló, se borraron los datos, etc.) se limpian solas para no
