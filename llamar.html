@@ -589,6 +589,7 @@
         localVideoEl: document.getElementById('localVideo'),
         remoteVideoEl: document.getElementById('remoteVideo'),
         onState(state) {
+          console.log('[llamar] onState: call_requests.id=' + window.__callId + ' -> ' + state);
           if (state === 'connected') {
             statusBar.textContent = agentName ? 'En llamada con ' + agentName : 'En llamada';
             // Ventana flotante — para que el cliente pueda salir a buscar
