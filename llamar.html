@@ -607,6 +607,13 @@
             // caída sola y cae acá.
             if (ended) return;
             ended = true;
+            stopWaitingAudio();
+            // Antes esto solo actualizaba la pantalla — la fila en la
+            // base se quedaba en 'ringing'/'accepted' para siempre (nadie
+            // más la cerraba), y eso marcaba al Agente como "ocupado"
+            // sin ninguna llamada real en curso, bloqueándole las
+            // llamadas nuevas del pool hasta que pasaran 2 horas.
+            supabaseClient.rpc('client_end_call', { p_token: getClientToken(), p_id: window.__callId }).catch(() => {});
             statusBar.textContent = 'No se pudo conectar';
             showFallback();
             setTimeout(() => {
