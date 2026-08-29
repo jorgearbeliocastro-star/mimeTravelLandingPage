@@ -532,6 +532,7 @@
         localVideoEl: document.getElementById('localVideo'),
         remoteVideoEl: document.getElementById('remoteVideo'),
         onState(state) {
+          console.log('[llamadas] onState: call_requests.id=' + callId + ' -> ' + state);
           if (state === 'connected') {
             statusBar.textContent = 'En llamada';
             requestPassportBtn.disabled = false;
