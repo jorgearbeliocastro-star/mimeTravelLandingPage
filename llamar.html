@@ -541,7 +541,7 @@
     function handleCallEnded() {
       if (ended) return;
       ended = true;
-      stopHoldMusic();
+      stopWaitingAudio();
       statusBar.textContent = 'Llamada finalizada';
       controls.style.display = 'none';
       setTimeout(() => {
