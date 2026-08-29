@@ -454,20 +454,7 @@
               window.location.href = 'index.html';
             }, 4000);
           }
-          if (state === 'ended') {
-            // Esto se dispara tanto si cuelga el cliente (ya lo manda a
-            // index.html el botón de colgar) como si cuelga el AGENTE —
-            // antes, en ese segundo caso, la pantalla se quedaba trabada
-            // mostrando "Llamada finalizada" para siempre sin volver a
-            // ningún lado.
-            if (ended) return; // ya se está manejando por otro lado (botón colgar)
-            ended = true;
-            statusBar.textContent = 'Llamada finalizada';
-            controls.style.display = 'none';
-            setTimeout(() => {
-              window.location.href = 'index.html';
-            }, 1500);
-          }
+          if (state === 'ended') handleCallEnded();
         },
         onPhotoRequest: showPhotoRequestBanner,
         onEmailRequest: showEmailRequestBanner,
