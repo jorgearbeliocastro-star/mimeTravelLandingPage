@@ -380,6 +380,19 @@
       }, 2000);
     }
 
+    // Se dispara tanto por el aviso en vivo (WebRTC/onState) como por el
+    // sondeo de respaldo de más abajo — cualquiera de los dos que llegue
+    // primero. `ended` evita que se ejecute dos veces.
+    function handleCallEnded() {
+      if (ended) return;
+      ended = true;
+      statusBar.textContent = 'Llamada finalizada';
+      controls.style.display = 'none';
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 1500);
+    }
+
     function startCall() {
       placeholder.style.display = 'none';
       controls.style.display = 'flex';
@@ -390,6 +403,26 @@
         document.getElementById('localVideo').style.display = 'none';
         document.getElementById('videoBtn').style.display = 'none';
       }
+      // Respaldo: el aviso de "colgar" viaja por el canal en vivo de la
+      // llamada (WebRTC/Realtime) — si ese aviso puntual se pierde (red
+      // mala, este celular en segundo plano), la pantalla se quedaba
+      // trabada para siempre. Este sondeo consulta la base directo, sin
+      // depender de que la conexión en vivo siga sana, y agarra el "colgó
+      // el agente" (ver el update a call_requests en agente/llamadas.html)
+      // aunque el otro aviso nunca llegue.
+      const endedPoll = setInterval(async () => {
+        if (ended) return clearInterval(endedPoll);
+        try {
+          const { data } = await supabaseClient.rpc('get_call_request_by_token', { p_token: getClientToken(), p_id: window.__callId });
+          const row = (data || [])[0];
+          if (row && row.status === 'ended') {
+            clearInterval(endedPoll);
+            handleCallEnded();
+          }
+        } catch (e) {
+          // no bloqueante — se reintenta en el próximo ciclo
+        }
+      }, 4000);
       call = startWebRTCCall({
         supabaseClient,
         channelName: 'call:' + window.__callId,
