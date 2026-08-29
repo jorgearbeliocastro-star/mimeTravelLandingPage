@@ -358,11 +358,17 @@
       ringtoneAudio.currentTime = 0;
     }
 
+    // Se guarda la última lista para que, al tocar la tarjeta, se sepa si
+    // hay una sola llamada sonando (y se pueda entrar directo a atenderla)
+    // o varias (y haga falta elegir cuál, en la lista de siempre).
+    let lastRingingCalls = [];
+
     async function pollRingingCalls() {
       if (!agentId) return;
       const { data, error } = await supabaseClient.rpc('get_ringing_calls_for_agent', { p_agent_id: agentId });
       if (error) return; // no bloqueante — el detalle real se ve al entrar a llamadas.html
-      const count = (data || []).length;
+      lastRingingCalls = data || [];
+      const count = lastRingingCalls.length;
       const badge = document.getElementById('callBadge');
       const card = document.getElementById('callsNavCard');
       if (count > 0) {
@@ -376,6 +382,20 @@
         stopRingtone();
       }
     }
+
+    // Antes tocar la tarjeta siempre llevaba a la lista de llamadas.html,
+    // aunque solo hubiera una sonando — un paso de más ("Atender" ahí
+    // adentro) que no hace falta cuando no hay nada que elegir. Con una
+    // sola llamada, entra directo a atenderla; con dos o más (raro, pero
+    // puede pasar), sí lleva a la lista para elegir cuál.
+    document.getElementById('callsNavCard').addEventListener('click', (e) => {
+      if (lastRingingCalls.length === 1) {
+        e.preventDefault();
+        const c = lastRingingCalls[0];
+        window.location.href = 'llamadas.html?accept=' + encodeURIComponent(c.id) + '&token=' + encodeURIComponent(c.client_token || '');
+      }
+      // 0 o 2+: navegación normal a la lista (el href ya apunta ahí).
+    });
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       await supabaseClient.auth.signOut();
