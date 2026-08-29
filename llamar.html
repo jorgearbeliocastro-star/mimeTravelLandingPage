@@ -351,6 +351,17 @@
         }),
       }).catch(() => {});
 
+      // Si nadie contestó todavía a los 15s, lo más probable es que todos
+      // los Agentes estén ocupados con otra llamada (ver migración 0085 —
+      // ahí no le suena a nadie hasta que uno se desocupe) y no que la
+      // estén ignorando. Avisa eso para que no cuelgue pensando que nadie
+      // la vio — la llamada sigue en cola, esperando a que alguien se
+      // libere (hasta 8 minutos, ver migración 0086).
+      const queueMsgTimer = setTimeout(() => {
+        if (ended || statusBar.textContent !== 'Llamando…') return;
+        statusBar.textContent = 'Todos los agentes están ocupados — tu llamada quedó en espera.';
+      }, 15000);
+
       // Sondea el estado de la llamada (aceptada/rechazada/sin respuesta)
       // hasta que alguien conteste — igual que hace la app.
       const poll = setInterval(async () => {
