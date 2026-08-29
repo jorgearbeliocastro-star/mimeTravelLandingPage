@@ -244,6 +244,7 @@
     let agentName = '';
     let call = null;
     let pollTimer = null;
+    let endedPoll = null;
 
     (async () => {
       const { data: aalData } = await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();
