@@ -340,7 +340,17 @@
 
     async function loadRingingCalls() {
       const { data, error } = await supabaseClient.rpc('get_ringing_calls_for_agent', { p_agent_id: agentId });
-      if (error) return;
+      if (error) {
+        // Antes esto se tragaba el error sin avisar — la pantalla se veía
+        // exactamente igual que "no hay llamadas" aunque en realidad la
+        // consulta hubiera fallado, así que un fallo silencioso era
+        // indistinguible de que de verdad no había nada esperando.
+        console.error('[llamadas] get_ringing_calls_for_agent falló:', error);
+        document.getElementById('emptyMsg').textContent = 'No se pudo consultar si hay llamadas esperando — revisá la conexión.';
+        document.getElementById('emptyMsg').style.display = 'block';
+        return;
+      }
+      document.getElementById('emptyMsg').textContent = 'No hay llamadas esperando.';
       const calls = data || [];
       if (calls.length) startRingtone();
       else stopRingtone();
