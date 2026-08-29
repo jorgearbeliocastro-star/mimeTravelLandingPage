@@ -566,7 +566,7 @@
           console.log('[llamadas] onState: call_requests.id=' + callId + ' -> ' + state);
           if (state === 'connected') {
             statusBar.textContent = 'En llamada';
-            // Late Late para que el cron de respaldo (0089) nunca marque
+            // "Latido": para que el cron de respaldo (0089) nunca marque
             // como "colgada" una llamada larga que sigue en curso de
             // verdad — sin esto, bajar ese cron a pocos minutos hubiera
             // cortado llamadas reales que duraran más que eso.
