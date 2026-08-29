@@ -5431,10 +5431,21 @@
     // pedir tipear una fecha exacta. Solo una vez por input (evita
     // duplicar el listener cada vez que se repinta el formulario).
     function setupMonthPicker(input) {
-      if (input.dataset.monthPickerReady === 'true') return;
-      input.dataset.monthPickerReady = 'true';
+      // El mismo casillero de input se reutiliza entre pestañas (Vuelos,
+      // Cruceros, Hoteles...) — si ya se armó el panel para este input en
+      // una pasada anterior (ej. estaba en Cruceros), no hay que crear
+      // otro de cero, solo reengancharlo si quedó afuera del documento
+      // (ver el "else" de más abajo, donde se saca al dejar de ser un
+      // campo de mes completo).
+      if (input._monthPickerPanel) {
+        if (!input._monthPickerPanel.isConnected) {
+          input.insertAdjacentElement('afterend', input._monthPickerPanel);
+        }
+        return;
+      }
       const panel = document.createElement('div');
       panel.className = 'month-picker-panel';
+      input._monthPickerPanel = panel;
       input.insertAdjacentElement('afterend', panel);
 
       function closePanel() {
