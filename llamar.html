@@ -374,8 +374,18 @@
           startCall();
         } else if (row.status === 'declined' || row.status === 'missed') {
           clearInterval(poll);
+          if (ended) return;
+          ended = true;
           statusBar.textContent = row.status === 'declined' ? 'Llamada rechazada' : 'Nadie contestó';
           showFallback();
+          // Único de los 4 casos que se quedaba sin volver solo a la
+          // página principal — "no se pudo conectar" y "colgó el agente
+          // ya conectado" sí redirigían, pero "rechazó" o "nadie
+          // contestó" (ANTES de conectar) se quedaban clavados para
+          // siempre en esta pantalla.
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 4000);
         }
       }, 2000);
     }
