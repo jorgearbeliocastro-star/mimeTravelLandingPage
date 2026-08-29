@@ -416,6 +416,13 @@
         holdNoteTimer = null;
       }
     }
+    // Corta cualquiera de los dos que esté sonando — se usa en todos los
+    // puntos donde la llamada deja de estar "esperando" (conecta, la
+    // rechazan, nadie contestó, cuelga, error).
+    function stopWaitingAudio() {
+      stopRingbackTone();
+      stopHoldMusic();
+    }
 
     async function main() {
       const clientToken = getClientToken();
