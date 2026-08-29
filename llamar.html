@@ -460,6 +460,7 @@
           clearInterval(poll);
           if (ended) return;
           ended = true;
+          stopHoldMusic();
           statusBar.textContent = row.status === 'declined' ? 'Llamada rechazada' : 'Nadie contestó';
           showFallback();
           // Único de los 4 casos que se quedaba sin volver solo a la
