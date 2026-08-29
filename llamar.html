@@ -572,6 +572,7 @@
         try {
           const { data } = await supabaseClient.rpc('get_call_request_by_token', { p_token: getClientToken(), p_id: window.__callId });
           const row = (data || [])[0];
+          if (row) console.log('[llamar] endedPoll: call_requests.id=' + window.__callId + ' status=' + row.status);
           if (row && row.status === 'ended') {
             clearInterval(endedPoll);
             handleCallEnded();
