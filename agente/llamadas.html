@@ -298,26 +298,46 @@
     let audioCtx = null;
     let ringing = false;
     let ringTimer = null;
+    // Un solo golpe metálico — dos parciales inarmónicos (no múltiplos
+    // exactos) apagándose rápido, para que timbre a moneda de metal real
+    // y no a un clic seco ni a un tono de sintetizador.
+    function playCoinHit(startTime, amp) {
+      const freq = 1500 + Math.random() * 1800;
+      [1, 2.76].forEach((mult, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq * mult, startTime);
+        const peak = amp / (idx + 1);
+        gain.gain.setValueAtTime(0.0001, startTime);
+        gain.gain.exponentialRampToValueAtTime(peak, startTime + 0.003);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.15);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(startTime);
+        osc.stop(startTime + 0.16);
+      });
+    }
     function playRingBurst() {
       if (!audioCtx) return;
       const now = audioCtx.currentTime;
-      const clinks = 6;
-      for (let i = 0; i < clinks; i++) {
-        const offset = i * 0.09 + Math.random() * 0.02;
-        const freq = 1800 + Math.random() * 1800; // metálico, agudo
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, now + offset);
-        // Ataque instantáneo y caída rápida — así suena a "clink" seco,
-        // no a un tono sostenido.
-        gain.gain.setValueAtTime(0.0001, now + offset);
-        gain.gain.exponentialRampToValueAtTime(0.22, now + offset + 0.005);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + 0.18);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(now + offset);
-        osc.stop(now + offset + 0.2);
+      // Un puñado de monedas cayendo sobre metal — varias "monedas" a la
+      // vez (no una sola rebotando), cada una con su propia cadencia de
+      // rebotes que se apagan y se juntan en el tiempo a medida que
+      // pierden energía. Superpuestas entre sí suena a puñado, no a una
+      // sola moneda.
+      const coins = 4;
+      for (let c = 0; c < coins; c++) {
+        let t = Math.random() * 0.08; // cada moneda cae en un instante levemente distinto
+        let amp = 0.22 + Math.random() * 0.1;
+        let interval = 0.09 + Math.random() * 0.04;
+        const bounces = 9;
+        for (let i = 0; i < bounces; i++) {
+          playCoinHit(now + t, amp);
+          t += interval;
+          amp *= 0.8;
+          interval *= 0.84;
+        }
       }
     }
     function startRingtone() {
