@@ -74,6 +74,7 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
   let pendingCandidates = [];
   let cleanedUp = false;
   let offerRetryTimer = null;
+  let reconnectTimer = null;
   let muted = false;
   let videoOff = false;
   let dataChannel = null;
