@@ -645,7 +645,11 @@
 
     function closeCallScreen() {
       const callScreen = document.getElementById('callScreen');
-      if (!callScreen.classList.contains('active')) return; // ya se cerró (broadcast y sondeo llegaron casi juntos)
+      if (!callScreen.classList.contains('active')) {
+        console.log('[llamadas] closeCallScreen: llamada de más, la pantalla ya estaba cerrada');
+        return; // ya se cerró (broadcast y sondeo llegaron casi juntos)
+      }
+      console.trace('[llamadas] closeCallScreen: cerrando pantalla de llamada (ver el resto del trace para quién la llamó)');
       callScreen.classList.remove('active');
       hidePassportPhoto();
       document.getElementById('shareScreenBtn').textContent = '🖥️ Compartir pantalla';
