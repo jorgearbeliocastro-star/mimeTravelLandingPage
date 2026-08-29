@@ -41,30 +41,16 @@ Deno.serve(async (req) => {
   if (!body) return new Response('bad request', { status: 400, headers: CORS_HEADERS });
 
   const { title, body: msgBody, url } = body;
-  // Sin agentId = avisa a TODOS los agentes suscriptos (llamada general,
-  // sin agente asignado — mismo criterio que el pool de siempre).
-  let query = supabase.from('agent_push_subscriptions').select('subscription, agent_id');
+  // Sin agentId = avisa a TODOS los agentes suscriptos (cotización general,
+  // sin agente asignado).
+  let query = supabase.from('agent_push_subscriptions').select('subscription');
   if (body.agentId) query = query.eq('agent_id', body.agentId);
   const { data: subs, error } = await query;
   if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: CORS_HEADERS });
 
-  // No le avisa (ni le suena ni le vibra el celular) a un agente que ya
-  // está REALMENTE hablando con otro cliente (llamada 'accepted') — mismo
-  // criterio que get_ringing_calls_for_agent (ver migración 0092 de
-  // la-expancion). OJO: usa is_agent_on_active_call, no is_agent_busy —
-  // esa otra cuenta como "ocupado" también una llamada apenas sonando
-  // sin contestar, lo que trababa este mismo aviso para la primera
-  // llamada que entraba (nunca estuvo realmente ocupado).
-  const agentIds = [...new Set((subs ?? []).map((s: any) => s.agent_id).filter(Boolean))];
-  const busyChecks = await Promise.all(
-    agentIds.map((id) => supabase.rpc('is_agent_on_active_call', { p_agent_id: id }))
-  );
-  const busyAgentIds = new Set(agentIds.filter((_, i) => busyChecks[i].data === true));
-  const targetSubs = (subs ?? []).filter((s: any) => !s.agent_id || !busyAgentIds.has(s.agent_id));
-
   const payload = JSON.stringify({ title, body: msgBody, url });
   const results = await Promise.allSettled(
-    targetSubs.map((row: any) => webpush.sendNotification(row.subscription, payload))
+    (subs ?? []).map((row: any) => webpush.sendNotification(row.subscription, payload))
   );
   // Las suscripciones que ya no sirven (410/404 — el navegador se
   // desinstaló, se borraron los datos, etc.) se limpian solas para no
