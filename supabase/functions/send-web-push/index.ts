@@ -49,15 +49,15 @@ Deno.serve(async (req) => {
   if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: CORS_HEADERS });
 
   // No le avisa (ni le suena ni le vibra el celular) a un agente que ya
-  // está en otra llamada — mismo criterio que get_ringing_calls_for_agent
-  // ya aplica tanto para el pool como para las dirigidas puntualmente
-  // (ver migraciones 0085/0091 de la-expancion). Antes esto se le
-  // mandaba igual, así que aunque ya no le sonara ni le apareciera en la
-  // lista, el aviso del sistema (con su propio sonido) le seguía
-  // llegando de todos modos.
+  // está REALMENTE hablando con otro cliente (llamada 'accepted') — mismo
+  // criterio que get_ringing_calls_for_agent (ver migración 0092 de
+  // la-expancion). OJO: usa is_agent_on_active_call, no is_agent_busy —
+  // esa otra cuenta como "ocupado" también una llamada apenas sonando
+  // sin contestar, lo que trababa este mismo aviso para la primera
+  // llamada que entraba (nunca estuvo realmente ocupado).
   const agentIds = [...new Set((subs ?? []).map((s: any) => s.agent_id).filter(Boolean))];
   const busyChecks = await Promise.all(
-    agentIds.map((id) => supabase.rpc('is_agent_busy', { p_agent_id: id }))
+    agentIds.map((id) => supabase.rpc('is_agent_on_active_call', { p_agent_id: id }))
   );
   const busyAgentIds = new Set(agentIds.filter((_, i) => busyChecks[i].data === true));
   const targetSubs = (subs ?? []).filter((s: any) => !s.agent_id || !busyAgentIds.has(s.agent_id));
