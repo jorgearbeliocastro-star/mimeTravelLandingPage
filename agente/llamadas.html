@@ -301,33 +301,39 @@
     function playRingBurst() {
       if (!audioCtx) return;
       const now = audioCtx.currentTime;
-      // Monedas rebotando en el piso: cada rebote pierde energía (más
-      // suave) Y pasa más seguido (los rebotes se juntan a medida que se
-      // frenan) — así suena a un puñado cayendo, no a clics parejos.
-      let t = 0;
-      let amp = 0.35;
-      let interval = 0.11;
-      const bounces = 13;
-      for (let i = 0; i < bounces; i++) {
-        const freq = 1600 + Math.random() * 2200; // metálico, agudo
+      // El clásico "cha-ching" de caja registradora: un golpe corto y
+      // seco ("cha") seguido de una campanita metálica que suena y se
+      // apaga sola ("ching") — el sonido universal de "entró plata".
+      const cha = audioCtx.createOscillator();
+      const chaGain = audioCtx.createGain();
+      cha.type = 'square';
+      cha.frequency.setValueAtTime(180, now);
+      chaGain.gain.setValueAtTime(0.0001, now);
+      chaGain.gain.exponentialRampToValueAtTime(0.3, now + 0.005);
+      chaGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
+      cha.connect(chaGain);
+      chaGain.connect(audioCtx.destination);
+      cha.start(now);
+      cha.stop(now + 0.07);
+
+      // Campana: fundamental + parciales inarmónicos (no múltiplos
+      // exactos) — así timbra a metal de verdad, no a un tono de sintetizador.
+      const bellStart = now + 0.06;
+      const baseFreq = 1400;
+      [1, 2.41, 3.88, 5.2].forEach((mult, idx) => {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, now + t);
-        // Un poco de caída de tono dentro del propio golpe — un "clink"
-        // metálico real no queda en un tono fijo, baja apenas al apagarse.
-        osc.frequency.exponentialRampToValueAtTime(freq * 0.55, now + t + 0.07);
-        gain.gain.setValueAtTime(0.0001, now + t);
-        gain.gain.exponentialRampToValueAtTime(amp, now + t + 0.004);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + t + 0.09);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(baseFreq * mult, bellStart);
+        const peak = 0.28 / (idx + 1);
+        gain.gain.setValueAtTime(0.0001, bellStart);
+        gain.gain.exponentialRampToValueAtTime(peak, bellStart + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, bellStart + 0.9 - idx * 0.1);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-        osc.start(now + t);
-        osc.stop(now + t + 0.1);
-        t += interval;
-        amp *= 0.82;
-        interval *= 0.85;
-      }
+        osc.start(bellStart);
+        osc.stop(bellStart + 1);
+      });
     }
     function startRingtone() {
       if (ringing) return;
