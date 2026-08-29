@@ -602,7 +602,15 @@
         // esto, aunque el aviso en vivo falle, el cliente lo puede
         // consultar por su cuenta (ver el sondeo agregado en llamar.html).
         supabaseClient.from('call_requests').update({ status: 'ended', updated_at: new Date().toISOString() }).eq('id', callId).then(() => {});
-        if (call) await call.hangup();
+        // Si call.hangup() tira un error (ej. al cerrar el canal), sin este
+        // try/catch nunca se llegaba a cerrar la pantalla — quedaba
+        // trabado en la vista de llamada aunque ya haya colgado. Pase lo
+        // que pase, la pantalla se cierra igual.
+        try {
+          if (call) await call.hangup();
+        } catch (e) {
+          // no bloqueante
+        }
         closeCallScreen();
       };
       document.getElementById('muteBtn').onclick = function () {
