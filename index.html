@@ -7807,14 +7807,7 @@
       laExpancion.rpc('get_preferred_agent_name_for_client', { p_token: clientToken })
         .then(({ data }) => {
           if (!data) return;
-          // Solo el primer nombre, y corto — un nombre completo largo
-          // ("Jorge Arbelio Castro") desbordaba el botón en el header,
-          // sobre todo en mobile. En vez de pelear con el navegador para
-          // que lo recorte bien (probado y no funcionó del todo, ver
-          // commits anteriores), directamente nunca se genera un texto
-          // largo: así el botón entra siempre, en cualquier pantalla.
-          const firstName = String(data).trim().split(/\s+/)[0].slice(0, 14);
-          needHelpBtn.textContent = (currentLang === 'en' ? 'Agent ' : 'Agente ') + firstName;
+          needHelpBtn.textContent = (currentLang === 'en' ? 'Agent ' : 'Agente ') + data;
         })
         .catch(() => {});
     })();
