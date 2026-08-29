@@ -323,25 +323,47 @@
       fallbackBox.classList.add('show');
     }
 
-    // Tono de "llamando": bird-whistling.mp3, el mismo sonido real que ya
-    // usa agente/llamadas.html — no un tono inventado. Suena desde que
-    // se marca hasta que contestan o hasta los 30s, cuando pasa a
-    // música de espera (ver abajo) porque ya asumimos que está en cola.
-    let ringbackOn = false;
+    // Tono de "llamando" — el clásico brr-brr de teléfono (440+480Hz,
+    // 2s de tono / 4s de silencio, cadencia estándar de EE.UU./Latam),
+    // sintetizado con Web Audio. Suena desde que se marca hasta que
+    // contestan o hasta los 30s, cuando pasa a música de espera (ver
+    // abajo) porque ya asumimos que está en cola, no solo "sonando".
+    let ringbackAudioCtx = null;
+    let ringbackGain = null;
     let ringbackTimer = null;
-    const ringbackAudio = document.getElementById('ringbackAudio');
+    let ringbackOn = false;
     function playRingbackBurst() {
-      ringbackAudio.currentTime = 0;
-      ringbackAudio.play().catch(() => {});
+      const now = ringbackAudioCtx.currentTime;
+      const dur = 2;
+      [440, 480].forEach((freq) => {
+        const osc = ringbackAudioCtx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const gain = ringbackAudioCtx.createGain();
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.linearRampToValueAtTime(0.22, now + 0.04);
+        gain.gain.setValueAtTime(0.22, now + dur - 0.06);
+        gain.gain.linearRampToValueAtTime(0.0001, now + dur);
+        osc.connect(gain);
+        gain.connect(ringbackGain);
+        osc.start(now);
+        osc.stop(now + dur + 0.05);
+      });
     }
-    ringbackAudio.addEventListener('ended', () => {
-      if (!ringbackOn) return;
-      ringbackTimer = setTimeout(playRingbackBurst, 500);
-    });
     function startRingbackTone() {
       if (ringbackOn) return;
       ringbackOn = true;
-      playRingbackBurst();
+      if (!ringbackAudioCtx) ringbackAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (ringbackAudioCtx.state === 'suspended') ringbackAudioCtx.resume().catch(() => {});
+      ringbackGain = ringbackGain || ringbackAudioCtx.createGain();
+      ringbackGain.gain.value = 0.5;
+      ringbackGain.connect(ringbackAudioCtx.destination);
+      const cycle = () => {
+        if (!ringbackOn) return;
+        playRingbackBurst();
+        ringbackTimer = setTimeout(cycle, 6000); // 2s tono + 4s silencio
+      };
+      cycle();
     }
     function stopRingbackTone() {
       ringbackOn = false;
@@ -349,8 +371,6 @@
         clearTimeout(ringbackTimer);
         ringbackTimer = null;
       }
-      ringbackAudio.pause();
-      ringbackAudio.currentTime = 0;
     }
 
     // Música de espera: piano suave en arpegio (Cmaj7 - Am7 - Fmaj7 -
