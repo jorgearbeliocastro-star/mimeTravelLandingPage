@@ -261,8 +261,19 @@
       const { data: profile } = await supabaseClient.from('profiles').select('full_name').eq('id', agentId).single();
       agentName = profile?.full_name || userData.user.email || '';
       startPresenceHeartbeat(supabaseClient);
-      loadRingingCalls();
-      pollTimer = setInterval(loadRingingCalls, 3000);
+      // Se llega acá con ?accept=<id>&token=<token> cuando en panel.html
+      // había una sola llamada sonando y se tocó la tarjeta — se atiende
+      // directo, sin pasar por la lista. Si por lo que sea ya no se puede
+      // (otro agente la tomó primero, etc.), acceptCall ya maneja el error
+      // y vuelve a mostrar la lista de siempre.
+      const params = new URLSearchParams(window.location.search);
+      const acceptId = params.get('accept');
+      if (acceptId) {
+        acceptCall(acceptId, params.get('token') || null);
+      } else {
+        loadRingingCalls();
+        pollTimer = setInterval(loadRingingCalls, 3000);
+      }
     })();
 
     // Marca de agua en vivo (nombre + hora, se actualiza cada segundo)
