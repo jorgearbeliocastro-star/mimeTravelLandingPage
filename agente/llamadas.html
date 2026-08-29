@@ -554,7 +554,14 @@
               pipBtn.title = 'Este navegador no soporta la ventana flotante.';
             }
           }
-          if (state === 'failed') statusBar.textContent = 'No se pudo conectar';
+          // Antes, si la conexión se caía sola (sin que el agente tocara
+          // "colgar" — red mala del cliente, etc.), la pantalla se quedaba
+          // trabada mostrando "No se pudo conectar" para siempre, sin
+          // volver nunca a la lista de llamadas.
+          if (state === 'failed') {
+            statusBar.textContent = 'No se pudo conectar';
+            setTimeout(closeCallScreen, 2000);
+          }
           if (state === 'ended') closeCallScreen();
         },
         onPhoto: showPassportPhoto,
