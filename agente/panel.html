@@ -569,7 +569,7 @@
       }
       const reg = await navigator.serviceWorker.register('sw.js');
       const existing = await reg.pushManager.getSubscription();
-      pushBtn.textContent = existing ? '🔔 Notificaciones activadas' : '🔔 Activar notificaciones de llamadas';
+      pushBtn.textContent = existing ? '🔔 Notificaciones activadas' : '🔔 Activar notificaciones';
     }
 
     pushBtn.addEventListener('click', async () => {
