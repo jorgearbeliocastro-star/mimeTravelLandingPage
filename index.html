@@ -1545,11 +1545,20 @@
       justify-content: flex-end;
       flex-basis: 100%;
     }
+    /* .btn-help hereda de .btn "display:inline-flex" + "justify-content:
+       center" — sobre eso, text-overflow:ellipsis NO funciona (limitación
+       real de flexbox) y el centrado recorta el texto PAREJO de los dos
+       lados, dejando algo ilegible tipo "gente Jorge Arbelio Cast" en vez
+       de mostrar el principio. Pasando a display:block + text-align:left
+       se arreglan las dos cosas: el "…" ahora sí aparece, y el recorte
+       (si hiciera falta) pasa a ser solo al final, legible. */
     .nav-actions .btn-help {
+      display: block;
       max-width: 42vw;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      text-align: left;
     }
 
     .menu-toggle {
