@@ -559,6 +559,12 @@
       document.getElementById('choiceScreen').style.display = 'none';
       statusBar.style.display = 'block';
       document.getElementById('videoArea').style.display = 'block';
+      // El botón de colgar tiene que estar disponible YA, mientras suena
+      // ("Llamando…") — antes solo aparecía recién cuando el agente
+      // atendía (adentro de startCall), así que si nadie contestaba
+      // todavía, el cliente no tenía forma de cancelar la llamada. El
+      // propio handler de hangupBtn ya soporta que `call` sea null.
+      controls.style.display = 'flex';
       main();
     }
     document.getElementById('choiceVideoBtn').addEventListener('click', () => startAfterChoice(true));
