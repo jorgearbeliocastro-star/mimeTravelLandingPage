@@ -592,6 +592,14 @@
         }
       };
       document.getElementById('hangupBtn').onclick = async () => {
+        // Respaldo real, guardado en la base — antes, colgar solo mandaba
+        // un aviso puntual por el canal de la llamada (WebRTC/Realtime).
+        // Si ese aviso se perdía (red mala, celular del cliente en
+        // segundo plano), la pantalla del cliente se quedaba trabada para
+        // siempre, sin ninguna forma de enterarse de que ya terminó. Con
+        // esto, aunque el aviso en vivo falle, el cliente lo puede
+        // consultar por su cuenta (ver el sondeo agregado en llamar.html).
+        supabaseClient.from('call_requests').update({ status: 'ended', updated_at: new Date().toISOString() }).eq('id', callId).then(() => {});
         if (call) await call.hangup();
         closeCallScreen();
       };
