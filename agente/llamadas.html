@@ -564,6 +564,11 @@
           // volver nunca a la lista de llamadas.
           if (state === 'failed') {
             statusBar.textContent = 'No se pudo conectar';
+            // Antes esto solo actualizaba la pantalla — la fila en la
+            // base se quedaba en 'accepted' para siempre, marcando al
+            // Agente como "ocupado" sin ninguna llamada real, bloqueando
+            // las llamadas nuevas del pool hasta el cron de respaldo.
+            supabaseClient.from('call_requests').update({ status: 'ended', updated_at: new Date().toISOString() }).eq('id', callId).then(() => {});
             setTimeout(closeCallScreen, 2000);
           }
           if (state === 'ended') closeCallScreen();
