@@ -690,6 +690,7 @@
       document.getElementById('shareScreenBtn').textContent = '🖥️ Compartir pantalla';
       if (document.pictureInPictureElement) document.exitPictureInPicture().catch(() => {});
       call = null;
+      activeCallId = null;
       if (endedPoll) {
         clearInterval(endedPoll);
         endedPoll = null;
