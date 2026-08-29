@@ -705,6 +705,10 @@
         clearInterval(endedPoll);
         endedPoll = null;
       }
+      if (callHeartbeatTimer) {
+        clearInterval(callHeartbeatTimer);
+        callHeartbeatTimer = null;
+      }
       pollTimer = setInterval(loadRingingCalls, 3000);
       loadRingingCalls();
     }
