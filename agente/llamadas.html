@@ -245,6 +245,31 @@
     let call = null;
     let pollTimer = null;
     let endedPoll = null;
+    let activeCallId = null; // la llamada 'accepted' en curso, si hay una — la usa el pagehide de más abajo
+
+    // Último recurso: si el celular del Agente mata la pestaña de golpe
+    // (segundo plano, se cierra el navegador) durante una llamada, ni
+    // "colgar" ni el 'failed' de WebRTC llegan a dispararse — la fila
+    // queda 'accepted' colgada, bloqueándolo como "ocupado" sin ninguna
+    // llamada real. `keepalive` hace que el pedido siga viajando aunque
+    // la página ya se haya ido.
+    window.addEventListener('pagehide', () => {
+      if (!activeCallId) return;
+      try {
+        fetch(SUPABASE_URL + '/rest/v1/call_requests?id=eq.' + activeCallId, {
+          method: 'PATCH',
+          keepalive: true,
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: 'Bearer ' + SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({ status: 'ended', updated_at: new Date().toISOString() }),
+        });
+      } catch (e) {
+        // no bloqueante — la página se está yendo de todos modos
+      }
+    });
 
     (async () => {
       const { data: aalData } = await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();
