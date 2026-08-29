@@ -1527,6 +1527,19 @@
       gap: 10px;
     }
 
+    /* El botón "¿Necesitás ayuda?" cambia su texto a "Agente [nombre
+       completo]" cuando el cliente ya tiene uno asignado (ver
+       personalizeNeedHelpBtn) — un nombre largo desbordaba el header
+       entero en mobile, empujando todo fuera del ancho de la pantalla.
+       Con esto se recorta con puntos suspensivos en vez de romper el
+       layout, sea cual sea el largo del nombre. */
+    .nav-actions .btn-help {
+      max-width: 38vw;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     .menu-toggle {
       display: block;
       z-index: 110;
