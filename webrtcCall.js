@@ -183,8 +183,36 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
 
     pc.onconnectionstatechange = () => {
       console.log(logTag, 'connectionState ->', pc.connectionState, '| iceConnectionState:', pc.iceConnectionState);
-      if (pc.connectionState === 'connected') onState('connected');
-      else if (pc.connectionState === 'failed') onState('failed');
+      if (pc.connectionState === 'connected') {
+        // Si venía de un corte breve y se recuperó sola, cancela el
+        // aviso de "falló" que estaba por dispararse — nunca llegó a
+        // cortarse la llamada de verdad.
+        if (reconnectTimer) {
+          clearTimeout(reconnectTimer);
+          reconnectTimer = null;
+        }
+        onState('connected');
+      } else if (pc.connectionState === 'failed') {
+        // Un corte de señal breve (cambio de torre, de wifi a datos,
+        // etc.) no tiene que cortar la llamada al toque, como pasa un
+        // teléfono real — se intenta reconectar (reinicio de ICE) y se
+        // da un margen antes de darla por perdida de verdad.
+        if (!reconnectTimer) {
+          try {
+            pc.restartIce();
+          } catch (e) {
+            // no bloqueante — algunos navegadores viejos no lo soportan
+          }
+          console.log(logTag, 'conexión caída, intentando reconectar...');
+          reconnectTimer = setTimeout(() => {
+            reconnectTimer = null;
+            if (pc.connectionState !== 'connected') {
+              console.log(logTag, 'no se pudo reconectar, se da la llamada por terminada');
+              onState('failed');
+            }
+          }, 15000);
+        }
+      }
     };
 
     // Diagnóstico: si ninguno de los candidatos generados es "relay" (TURN)
