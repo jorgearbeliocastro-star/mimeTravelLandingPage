@@ -298,12 +298,18 @@
         <span class="title">Cotizaciones</span>
         <span class="desc">Nuevas, propias y del equipo. Precio, cierre de venta y chat con el cliente.</span>
       </a>
-      <a class="nav-card" href="llamadas.html" id="callsNavCard">
+      <div class="nav-card" id="callsNavCard" role="button" tabindex="0">
         <span class="call-badge" id="callBadge" hidden>0</span>
         <span class="icon">📞</span>
         <span class="title">Llamadas entrantes</span>
         <span class="desc">Atendé por video o audio, pedí pasaporte, tarjeta o correo en vivo.</span>
-      </a>
+        <!-- Una fila por llamada esperando — solo la primera (la más
+             vieja) suena de verdad; el resto queda "en espera" con la
+             misma música de piano que escucha el cliente. Tocar
+             cualquiera entra directo a atenderla, sin pasar por la
+             lista. -->
+        <div class="calls-list" id="callsList" hidden></div>
+      </div>
       <a class="nav-card" href="pagos.html">
         <span class="icon">💵</span>
         <span class="title">Resumen de pagos</span>
