@@ -246,6 +246,7 @@
     let pollTimer = null;
     let endedPoll = null;
     let activeCallId = null; // la llamada 'accepted' en curso, si hay una — la usa el pagehide de más abajo
+    let callHeartbeatTimer = null; // mientras la llamada esté conectada de verdad, toca updated_at cada 1 min — así el cron de limpieza (ver 0089) nunca confunde una llamada larga en curso con una colgada
 
     // Último recurso: si el celular del Agente mata la pestaña de golpe
     // (segundo plano, se cierra el navegador) durante una llamada, ni
