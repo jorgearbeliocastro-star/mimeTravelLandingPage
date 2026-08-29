@@ -298,42 +298,47 @@
     let audioCtx = null;
     let ringing = false;
     let ringTimer = null;
-    function playRingBurst() {
-      if (!audioCtx) return;
-      const now = audioCtx.currentTime;
-      // El clásico "cha-ching" de caja registradora: un golpe corto y
-      // seco ("cha") seguido de una campanita metálica que suena y se
-      // apaga sola ("ching") — el sonido universal de "entró plata".
-      const cha = audioCtx.createOscillator();
-      const chaGain = audioCtx.createGain();
-      cha.type = 'square';
-      cha.frequency.setValueAtTime(180, now);
-      chaGain.gain.setValueAtTime(0.0001, now);
-      chaGain.gain.exponentialRampToValueAtTime(0.3, now + 0.005);
-      chaGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
-      cha.connect(chaGain);
-      chaGain.connect(audioCtx.destination);
-      cha.start(now);
-      cha.stop(now + 0.07);
-
-      // Campana: fundamental + parciales inarmónicos (no múltiplos
-      // exactos) — así timbra a metal de verdad, no a un tono de sintetizador.
-      const bellStart = now + 0.06;
-      const baseFreq = 1400;
-      [1, 2.41, 3.88, 5.2].forEach((mult, idx) => {
+    // Un solo golpe metálico — dos parciales inarmónicos (no múltiplos
+    // exactos) apagándose rápido, para que timbre a moneda de metal real
+    // y no a un clic seco ni a un tono de sintetizador.
+    function playCoinHit(startTime, amp) {
+      const freq = 1500 + Math.random() * 1800;
+      [1, 2.76].forEach((mult, idx) => {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(baseFreq * mult, bellStart);
-        const peak = 0.28 / (idx + 1);
-        gain.gain.setValueAtTime(0.0001, bellStart);
-        gain.gain.exponentialRampToValueAtTime(peak, bellStart + 0.01);
-        gain.gain.exponentialRampToValueAtTime(0.0001, bellStart + 0.9 - idx * 0.1);
+        osc.frequency.setValueAtTime(freq * mult, startTime);
+        const peak = amp / (idx + 1);
+        gain.gain.setValueAtTime(0.0001, startTime);
+        gain.gain.exponentialRampToValueAtTime(peak, startTime + 0.003);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.15);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-        osc.start(bellStart);
-        osc.stop(bellStart + 1);
+        osc.start(startTime);
+        osc.stop(startTime + 0.16);
       });
+    }
+    function playRingBurst() {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      // Un puñado de monedas cayendo sobre metal — varias "monedas" a la
+      // vez (no una sola rebotando), cada una con su propia cadencia de
+      // rebotes que se apagan y se juntan en el tiempo a medida que
+      // pierden energía. Superpuestas entre sí suena a puñado, no a una
+      // sola moneda.
+      const coins = 4;
+      for (let c = 0; c < coins; c++) {
+        let t = Math.random() * 0.08; // cada moneda cae en un instante levemente distinto
+        let amp = 0.22 + Math.random() * 0.1;
+        let interval = 0.09 + Math.random() * 0.04;
+        const bounces = 9;
+        for (let i = 0; i < bounces; i++) {
+          playCoinHit(now + t, amp);
+          t += interval;
+          amp *= 0.8;
+          interval *= 0.84;
+        }
+      }
     }
     function startRingtone() {
       if (ringing) return;
