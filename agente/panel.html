@@ -508,7 +508,12 @@
     async function pollRingingCalls() {
       if (!agentId) return;
       const { data, error } = await supabaseClient.rpc('get_ringing_calls_for_agent', { p_agent_id: agentId });
-      if (error) return; // no bloqueante — el detalle real se ve al entrar a llamadas.html
+      if (error) {
+        // Antes esto se tragaba el error sin avisar — el botón se veía
+        // igual que "no hay llamadas" aunque la consulta hubiera fallado.
+        console.error('[panel] get_ringing_calls_for_agent falló:', error);
+        return;
+      }
       const calls = data || [];
       const count = calls.length;
       const badge = document.getElementById('callBadge');
