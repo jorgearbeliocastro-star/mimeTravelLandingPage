@@ -5620,6 +5620,14 @@
             setupMonthPicker(input);
           } else {
             input.readOnly = false;
+            // Sacar el panel del selector de mes de MSC si este casillero
+            // lo tenía de una pestaña anterior (ver setupMonthPicker) —
+            // sin esto, quedaba abriéndose solo al tocar un campo de
+            // fecha normal (ej. "Fecha de ida" en Vuelos) que ya no tiene
+            // nada que ver con cruceros.
+            if (input._monthPickerPanel && input._monthPickerPanel.isConnected) {
+              input._monthPickerPanel.remove();
+            }
           }
         }
       }
