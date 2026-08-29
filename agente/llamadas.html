@@ -298,47 +298,27 @@
     let audioCtx = null;
     let ringing = false;
     let ringTimer = null;
-    // Un solo golpe metálico — dos parciales inarmónicos (no múltiplos
-    // exactos) apagándose rápido, para que timbre a moneda de metal real
-    // y no a un clic seco ni a un tono de sintetizador.
-    function playCoinHit(startTime, amp) {
-      const freq = 1500 + Math.random() * 1800;
-      [1, 2.76].forEach((mult, idx) => {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq * mult, startTime);
-        const peak = amp / (idx + 1);
-        gain.gain.setValueAtTime(0.0001, startTime);
-        gain.gain.exponentialRampToValueAtTime(peak, startTime + 0.003);
-        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.15);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(startTime);
-        osc.stop(startTime + 0.16);
-      });
-    }
     function playRingBurst() {
       if (!audioCtx) return;
       const now = audioCtx.currentTime;
-      // Un puñado de monedas cayendo sobre metal — varias "monedas" a la
-      // vez (no una sola rebotando), cada una con su propia cadencia de
-      // rebotes que se apagan y se juntan en el tiempo a medida que
-      // pierden energía. Superpuestas entre sí suena a puñado, no a una
-      // sola moneda.
-      const coins = 4;
-      for (let c = 0; c < coins; c++) {
-        let t = Math.random() * 0.08; // cada moneda cae en un instante levemente distinto
-        let amp = 0.22 + Math.random() * 0.1;
-        let interval = 0.09 + Math.random() * 0.04;
-        const bounces = 9;
-        for (let i = 0; i < bounces; i++) {
-          playCoinHit(now + t, amp);
-          t += interval;
-          amp *= 0.8;
-          interval *= 0.84;
-        }
-      }
+      [0, 0.45].forEach((offset) => {
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc1.frequency.value = 440;
+        osc2.frequency.value = 480;
+        gain.gain.setValueAtTime(0.0001, now + offset);
+        gain.gain.exponentialRampToValueAtTime(0.3, now + offset + 0.02);
+        gain.gain.setValueAtTime(0.3, now + offset + 0.35);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + 0.4);
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc1.start(now + offset);
+        osc2.start(now + offset);
+        osc1.stop(now + offset + 0.4);
+        osc2.stop(now + offset + 0.4);
+      });
     }
     function startRingtone() {
       if (ringing) return;
