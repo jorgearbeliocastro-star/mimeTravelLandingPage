@@ -517,6 +517,7 @@
     document.getElementById('photoCloseBtn').addEventListener('click', hidePassportPhoto);
 
     function openCallScreen(callId, clientToken) {
+      activeCallId = callId;
       document.getElementById('callScreen').classList.add('active');
       const statusBar = document.getElementById('statusBar');
       document.getElementById('clientInfoBox').textContent = '';
