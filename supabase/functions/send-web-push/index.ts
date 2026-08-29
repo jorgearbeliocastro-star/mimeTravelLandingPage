@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
   const expired: string[] = [];
   results.forEach((r, i) => {
     if (r.status === 'rejected' && (r.reason?.statusCode === 410 || r.reason?.statusCode === 404)) {
-      expired.push((targetSubs[i] as any).subscription.endpoint);
+      expired.push((subs![i] as any).subscription.endpoint);
     }
   });
   if (expired.length) {
