@@ -355,13 +355,6 @@
       // saber si el agente está conectado) tiene que salir de acá — antes
       // solo lo mandaba la app nativa.
       startPresenceHeartbeat(supabaseClient);
-      // Antes, si el agente se quedaba en esta pantalla de inicio, la única
-      // forma de enterarse de una llamada entrante era el push del
-      // navegador — si no lo veía o no estaba activado en ese dispositivo,
-      // no había ningún otro aviso acá. Este sondeo hace que la tarjeta de
-      // "Llamadas entrantes" avise por sí sola, sin depender del push.
-      pollRingingCalls();
-      setInterval(pollRingingCalls, 4000);
     })();
 
     // Mismo tono y misma cadencia (0.5s entre repeticiones) que
