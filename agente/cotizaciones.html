@@ -581,18 +581,7 @@
         // Aviso de "tiket vendido" a contacto@mimetravel.com — mismo
         // mecanismo de siempre (FormSubmit), para poder cuadrar ventas con
         // los correos de tiket que manda la agencia (ver reference_code).
-        // Si esta cotización no tenía correo propio (ej. un cliente que
-        // llamó directo, sin pasar por un formulario), se busca el que se
-        // le haya pedido en la llamada — ver client_contacts.
-        let clientEmail = quote.contact_email || '';
-        if (!clientEmail && quote.client_token) {
-          const { data: contact } = await supabaseClient
-            .from('client_contacts')
-            .select('email')
-            .eq('client_token', quote.client_token)
-            .maybeSingle();
-          clientEmail = contact?.email || '';
-        }
+        const clientEmail = quote.contact_email || '';
         sendSaleToFormSubmit({
           _subject: 'Tiket vendido — Mime Travel',
           agente: agentName,
