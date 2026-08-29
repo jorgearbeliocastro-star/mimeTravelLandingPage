@@ -292,28 +292,65 @@
     });
 
     // Tono de llamada propio, sintetizado (nada de archivo de audio
-    // externo) — sonido de "monedas cayendo": varios clics metálicos
-    // cortos con tono al azar, como una alcancía. Suena mientras esta
-    // pestaña esté abierta y haya al menos una llamada sin atender; la
+    // externo) — sonido de "monedas cayendo": un puñado de monedas
+    // rebotando sobre metal, superpuestas. Suena mientras esta pestaña
+    // esté abierta y haya al menos una llamada sin atender; la
     // notificación push del sistema (con el sonido genérico de Windows)
     // cubre el caso de la pestaña cerrada/en otra ventana.
-    // Grabación real (no sintetizada) de caja registradora — dominio
-    // público, Wikimedia Commons (https://commons.wikimedia.org/wiki/File:Cash_register.ogg).
-    // Va embebida en base64 en el <audio id="ringtoneAudio"> de más abajo,
-    // así no depende de ningún servidor externo ni de CORS.
+    let audioCtx = null;
     let ringing = false;
     let ringTimer = null;
+    // Un solo golpe metálico — dos parciales inarmónicos (no múltiplos
+    // exactos) apagándose rápido, para que timbre a moneda de metal real
+    // y no a un clic seco ni a un tono de sintetizador.
+    function playCoinHit(startTime, amp) {
+      const freq = 1500 + Math.random() * 1800;
+      [1, 2.76].forEach((mult, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq * mult, startTime);
+        const peak = amp / (idx + 1);
+        gain.gain.setValueAtTime(0.0001, startTime);
+        gain.gain.exponentialRampToValueAtTime(peak, startTime + 0.003);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.15);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(startTime);
+        osc.stop(startTime + 0.16);
+      });
+    }
     function playRingBurst() {
-      const audio = document.getElementById('ringtoneAudio');
-      audio.currentTime = 0;
-      audio.play().catch(() => {});
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      // Un puñado de monedas cayendo sobre metal — varias "monedas" a la
+      // vez (no una sola rebotando), cada una con su propia cadencia de
+      // rebotes que se apagan y se juntan en el tiempo a medida que
+      // pierden energía. Superpuestas entre sí suena a puñado, no a una
+      // sola moneda.
+      const coins = 4;
+      for (let c = 0; c < coins; c++) {
+        let t = Math.random() * 0.08; // cada moneda cae en un instante levemente distinto
+        let amp = 0.22 + Math.random() * 0.1;
+        let interval = 0.09 + Math.random() * 0.04;
+        const bounces = 9;
+        for (let i = 0; i < bounces; i++) {
+          playCoinHit(now + t, amp);
+          t += interval;
+          amp *= 0.8;
+          interval *= 0.84;
+        }
+      }
     }
     function startRingtone() {
       if (ringing) return;
       ringing = true;
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
       playRingBurst();
-      // Cada 2 segundos — pedido explícito: que suene más seguido, para
-      // no perderse una llamada por tenerlo bajo (el archivo dura ~2.2s).
+      // Cada 2 segundos en vez de la cadencia típica de teléfono (~4s) —
+      // pedido explícito: que suene más seguido, para no perderse una
+      // llamada por tenerlo bajo.
       ringTimer = setInterval(playRingBurst, 2000);
     }
     function stopRingtone() {
