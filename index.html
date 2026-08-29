@@ -4421,10 +4421,9 @@
     const PAYMENT_CONSENT_WEBHOOK_SECRET = '20836b3d0203b2f92af37facb2e6777a0b2ca736e2d07980';
     const PAYMENT_CONSENT_FUNCTIONS_URL = LA_EXPANCION_SUPABASE_URL + '/functions/v1/record-payment-consent';
     // Notificación push real del navegador, propia de la web (no la de la
-    // app, que está pausada) — mismo mecanismo que ya usa llamar.html para
-    // las llamadas, ahora también para cotizaciones nuevas: sin esto,
-    // ningún agente se enteraba de una cotización nueva a menos que
-    // tuviera la pestaña de Cotizaciones abierta.
+    // app, que está pausada) — sin esto, ningún agente se enteraba de una
+    // cotización nueva a menos que tuviera la pestaña de Cotizaciones
+    // abierta.
     const WEB_PUSH_WEBHOOK_SECRET = '3a61e1f14f2ff3350889bd67cf2250bebde907e17b6d733e';
     const WEB_PUSH_FUNCTIONS_URL = LA_EXPANCION_SUPABASE_URL + '/functions/v1/send-web-push';
     const laExpancion = window.supabase.createClient(LA_EXPANCION_SUPABASE_URL, LA_EXPANCION_SUPABASE_ANON_KEY);
