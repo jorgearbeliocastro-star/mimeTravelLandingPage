@@ -1572,8 +1572,14 @@
       align-items: flex-start;
     }
 
+    /* El header ahora puede ocupar 2 filas (logo arriba, botones abajo —
+       ver el flex-wrap agregado en @media max-width:1024px), así que es
+       más alto que antes. 130px alcanzaba para 1 fila; con 2 filas el
+       header ronda los ~130-150px de alto sin contar el header.scrolled
+       (más chico), así que este padding-top tiene que ser mayor para que
+       el título del Hero no quede tapado detrás del header fijo. */
     .hero-content {
-      padding-top: 130px;
+      padding-top: 195px;
       margin-top: 0;
     }
 
