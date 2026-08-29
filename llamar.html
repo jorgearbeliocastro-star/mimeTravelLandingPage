@@ -540,6 +540,7 @@
     // primero. `ended` evita que se ejecute dos veces.
     function handleCallEnded() {
       if (ended) return;
+      console.trace('[llamar] handleCallEnded: cerrando la llamada, callId=' + window.__callId + ' (ver el resto del trace para quién lo llamó)');
       ended = true;
       stopWaitingAudio();
       statusBar.textContent = 'Llamada finalizada';
