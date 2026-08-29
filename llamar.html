@@ -443,6 +443,7 @@
         if (!row) return;
         if (row.status === 'accepted' && !call) {
           clearInterval(poll);
+          stopHoldMusic();
           statusBar.textContent = 'Conectando…';
           // Se pide aparte (no viene en este mismo RPC) — no es
           // bloqueante, si tarda o falla la llamada igual arranca.
