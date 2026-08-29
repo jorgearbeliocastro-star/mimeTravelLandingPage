@@ -407,11 +407,14 @@
         return;
       }
       emptyMsg.style.display = 'none';
-      calls.forEach((c) => {
+      // Ordenadas por antigüedad (la #1 es la que llamó primero) — la
+      // lista se vuelve a armar entera en cada sondeo, así que apenas se
+      // atiende/rechaza una, las que quedan se renumeran solas.
+      calls.forEach((c, i) => {
         const card = document.createElement('div');
         card.className = 'call-card';
         card.innerHTML =
-          '<div><div class="info">Llamada entrante</div><div class="sub">Idioma: ' + escapeHtml(c.client_language || '—') + '</div></div>' +
+          '<div><div class="info">#' + (i + 1) + ' — Llamada entrante</div><div class="sub">Idioma: ' + escapeHtml(c.client_language || '—') + '</div></div>' +
           '<div class="call-actions"><button class="btn btn-accept">Atender</button><button class="btn btn-decline">Rechazar</button></div>';
         card.querySelector('.btn-accept').addEventListener('click', () => acceptCall(c.id, c.client_token));
         card.querySelector('.btn-decline').addEventListener('click', () => declineCall(c.id));
