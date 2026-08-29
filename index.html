@@ -1523,16 +1523,23 @@
       display: none;
     }
 
-    .nav-actions {
-      gap: 10px;
-    }
-
     /* El botón "¿Necesitás ayuda?" cambia su texto a "Agente [nombre
        completo]" cuando el cliente ya tiene uno asignado (ver
        personalizeNeedHelpBtn) — un nombre largo desbordaba el header
-       entero en mobile, empujando todo fuera del ancho de la pantalla.
-       Con esto se recorta con puntos suspensivos en vez de romper el
-       layout, sea cual sea el largo del nombre. */
+       entero en mobile, empujando el menú hamburguesa fuera de la
+       pantalla (no se veía cortado con "…", directamente desaparecía,
+       porque body tiene overflow-x:hidden). Con flex-wrap, si los dos
+       botones + el logo no entran en una sola fila, el que sobra baja a
+       una segunda línea en vez de desbordar — funciona sea cual sea el
+       largo del nombre, sin necesidad de recortar texto.
+       row-gap más chico que el gap horizontal, para que la segunda línea
+       (si aparece) no quede muy separada. */
+    .nav-actions {
+      gap: 10px;
+      flex-wrap: wrap;
+      row-gap: 8px;
+      justify-content: flex-end;
+    }
     .nav-actions .btn-help {
       max-width: 38vw;
       overflow: hidden;
