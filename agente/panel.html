@@ -489,13 +489,17 @@
         return;
       }
       list.hidden = false;
+      // Ordenadas por antigüedad (la #1 es la que llamó primero) — se
+      // vuelve a armar entera en cada sondeo (cada 4s), así que apenas se
+      // atiende una, las que quedan se renumeran solas.
       calls.forEach((c, i) => {
+        const num = i + 1;
         const item = document.createElement('button');
         item.type = 'button';
         item.className = 'call-item ' + (i === 0 ? 'call-ringing' : 'call-waiting');
         item.innerHTML =
           '<span><span class="call-item-icon">' + (i === 0 ? '📞' : '🎹') + '</span> ' +
-          (i === 0 ? 'Llamada entrante' : 'En espera #' + (i + 1)) +
+          '#' + num + ' — ' + (i === 0 ? 'Llamada entrante' : 'En espera') +
           '<div class="call-item-sub">' + (i === 0 ? 'Tocá para atender' : 'Escucha piano — tocá para atenderla antes') + '</div></span>';
         item.addEventListener('click', (e) => {
           e.stopPropagation();
