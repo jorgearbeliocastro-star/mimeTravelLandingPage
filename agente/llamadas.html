@@ -380,6 +380,13 @@
     }
 
     async function loadRingingCalls() {
+      // Regla dura, sin excepciones: si ya está en una llamada, no puede
+      // sonar nada más en esta pantalla — se revisa esto primero y
+      // directo, sin depender de que la lista venga vacía por otro lado.
+      if (activeCallId) {
+        stopRingtone();
+        return;
+      }
       const { data, error } = await supabaseClient.rpc('get_ringing_calls_for_agent', { p_agent_id: agentId });
       if (error) {
         // Antes esto se tragaba el error sin avisar — la pantalla se veía
