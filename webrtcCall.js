@@ -231,6 +231,7 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
         }
       })
       .on('broadcast', { event: 'hangup' }, () => {
+        console.log(logTag, 'recibido hangup por el canal', channelName);
         onState('ended');
         cleanup();
       })
