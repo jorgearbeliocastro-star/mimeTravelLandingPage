@@ -295,11 +295,62 @@
       fallbackBox.classList.add('show');
     }
 
+    // Tono de "llamando" — el clásico brr-brr de teléfono (440+480Hz,
+    // 2s de tono / 4s de silencio, cadencia estándar de EE.UU./Latam),
+    // sintetizado con Web Audio. Suena desde que se marca hasta que
+    // contestan o hasta los 15s, cuando pasa a música de espera (ver
+    // abajo) porque ya asumimos que está en cola, no solo "sonando".
+    let ringbackAudioCtx = null;
+    let ringbackGain = null;
+    let ringbackTimer = null;
+    let ringbackOn = false;
+    function playRingbackBurst() {
+      const now = ringbackAudioCtx.currentTime;
+      const dur = 2;
+      [440, 480].forEach((freq) => {
+        const osc = ringbackAudioCtx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const gain = ringbackAudioCtx.createGain();
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.linearRampToValueAtTime(0.22, now + 0.04);
+        gain.gain.setValueAtTime(0.22, now + dur - 0.06);
+        gain.gain.linearRampToValueAtTime(0.0001, now + dur);
+        osc.connect(gain);
+        gain.connect(ringbackGain);
+        osc.start(now);
+        osc.stop(now + dur + 0.05);
+      });
+    }
+    function startRingbackTone() {
+      if (ringbackOn) return;
+      ringbackOn = true;
+      if (!ringbackAudioCtx) ringbackAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (ringbackAudioCtx.state === 'suspended') ringbackAudioCtx.resume().catch(() => {});
+      ringbackGain = ringbackGain || ringbackAudioCtx.createGain();
+      ringbackGain.gain.value = 0.5;
+      ringbackGain.connect(ringbackAudioCtx.destination);
+      const cycle = () => {
+        if (!ringbackOn) return;
+        playRingbackBurst();
+        ringbackTimer = setTimeout(cycle, 6000); // 2s tono + 4s silencio
+      };
+      cycle();
+    }
+    function stopRingbackTone() {
+      ringbackOn = false;
+      if (ringbackTimer) {
+        clearTimeout(ringbackTimer);
+        ringbackTimer = null;
+      }
+    }
+
     // Música de espera: piano suave en arpegio (Cmaj7 - Am7 - Fmaj7 -
     // Gsus), sintetizada nota por nota con Web Audio — sin archivo de
     // audio externo, mismo criterio que ya usa agente/llamadas.html para
-    // su tono de "monedas". Suena desde que se llama hasta que atienden
-    // (o hasta que se corta por rechazo/nadie contestó/error).
+    // su tono de "monedas". Arranca a los 15s (ver queueMsgTimer más
+    // abajo), reemplazando el tono de llamando, para cuando ya asumimos
+    // que la espera va a ser larga.
     let holdAudioCtx = null;
     let holdMasterGain = null;
     let holdNoteTimer = null;
