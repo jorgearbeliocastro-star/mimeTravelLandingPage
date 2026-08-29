@@ -1,5 +1,5 @@
 // Service worker del panel de agente — solo se encarga de mostrar las
-// notificaciones push reales del navegador (llamadas entrantes) y de
+// notificaciones push reales del navegador (cotizaciones nuevas) y de
 // llevar al agente a la pantalla correspondiente al tocarlas. No cachea
 // nada de la página (no hace falta que el panel funcione sin conexión).
 
@@ -15,15 +15,15 @@ self.addEventListener('push', (event) => {
     body: data.body || '',
     icon: '../logo-v4.png',
     badge: '../logo-v4.png',
-    data: { url: data.url || 'llamadas.html' },
-    requireInteraction: true, // una llamada entrante no debe desaparecer sola en unos segundos
+    data: { url: data.url || 'cotizaciones.html' },
+    requireInteraction: true,
   };
   event.waitUntil(self.registration.showNotification(title, options));
 });
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const targetUrl = event.notification.data && event.notification.data.url ? event.notification.data.url : 'llamadas.html';
+  const targetUrl = event.notification.data && event.notification.data.url ? event.notification.data.url : 'cotizaciones.html';
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientsArr) => {
       // Si ya hay una pestaña del panel abierta, la enfoca y navega ahí en
