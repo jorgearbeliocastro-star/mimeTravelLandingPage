@@ -456,7 +456,7 @@
       const offsetX = (renderedW - cw) / 2;
       const offsetY = (renderedH - ch) / 2;
       const gw = cw * 0.78;
-      const gh = gw / 1.586; // proporción de una tarjeta/pasaporte estándar
+      const gh = gw / currentDocAspect;
       const gx = (cw - gw) / 2;
       const gy = (ch - gh) / 2;
       return {
