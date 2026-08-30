@@ -7059,9 +7059,13 @@
     // todavía no recibido — no lo bloquea del todo (los navegadores no
     // dejan poner un mensaje custom hace años), pero sí frena el cierre
     // accidental con la confirmación nativa.
+    // Sigue avisando hasta que se confirme la compra (no solo hasta que
+    // lleguen las fotos) — el agente puede tardar en verificar los datos
+    // antes de emitir el boleto, y el cliente no debería irse antes.
+    let quotePurchasedFlag = false;
     window.addEventListener('beforeunload', function (e) {
-      const anyPending = (docsDataUrls.passport && !docsReceivedByAgent.passport) || (docsDataUrls.card && !docsReceivedByAgent.card);
-      if (anyPending) {
+      const anyUploaded = docsDataUrls.passport || docsDataUrls.card;
+      if (anyUploaded && !quotePurchasedFlag) {
         e.preventDefault();
         e.returnValue = '';
       }
