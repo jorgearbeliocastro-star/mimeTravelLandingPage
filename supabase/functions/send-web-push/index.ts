@@ -45,8 +45,21 @@ Deno.serve(async (req) => {
   // sin agente asignado).
   let query = supabase.from('agent_push_subscriptions').select('subscription');
   if (body.agentId) query = query.eq('agent_id', body.agentId);
-  const { data: subs, error } = await query;
+  let { data: subs, error } = await query;
   if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: CORS_HEADERS });
+
+  // Respaldo: si había un agente puntual pero justo no tiene NINGUNA
+  // suscripción activa (teléfono reseteado, caché borrada, etc.), el
+  // aviso no se pierde en silencio — cae al pool general, igual que una
+  // cotización sin agente asignado. Sin esto, un cliente que ya tenía
+  // agente podía escribir y que nadie del equipo se enterara nunca.
+  let usedFallback = false;
+  if (body.agentId && (!subs || subs.length === 0)) {
+    const fallback = await supabase.from('agent_push_subscriptions').select('subscription');
+    if (fallback.error) return new Response(JSON.stringify({ error: fallback.error.message }), { status: 500, headers: CORS_HEADERS });
+    subs = fallback.data;
+    usedFallback = true;
+  }
 
   const payload = JSON.stringify({ title, body: msgBody, url });
   const results = await Promise.allSettled(
@@ -58,7 +71,7 @@ Deno.serve(async (req) => {
   const expired: string[] = [];
   results.forEach((r, i) => {
     if (r.status === 'rejected' && (r.reason?.statusCode === 410 || r.reason?.statusCode === 404)) {
-      expired.push((targetSubs[i] as any).subscription.endpoint);
+      expired.push((subs![i] as any).subscription.endpoint);
     }
   });
   if (expired.length) {
