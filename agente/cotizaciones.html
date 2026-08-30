@@ -435,6 +435,16 @@
       const list = document.getElementById('list');
       const emptyMsg = document.getElementById('emptyMsg');
       list.innerHTML = '';
+      // Corta los canales de documentos de cotizaciones que ya no están
+      // en esta lista (se vendieron, cambiaron de pestaña, etc.) — sin
+      // esto quedarían escuchando para siempre de fondo.
+      const stillNeeded = new Set(quotes.filter((q) => q.client_docs_ready).map((q) => q.id));
+      Object.keys(docsThumbChannels).forEach((id) => {
+        if (!stillNeeded.has(id)) {
+          supabaseClient.removeChannel(docsThumbChannels[id]);
+          delete docsThumbChannels[id];
+        }
+      });
       if (!quotes.length) {
         emptyMsg.style.display = 'block';
         return;
