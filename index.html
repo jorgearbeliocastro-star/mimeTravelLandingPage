@@ -4741,7 +4741,11 @@
     // agencia. Por código IATA, no por ciudad, para sacarlos también de
     // las sugerencias sueltas de worldAirportLabels (no solo de la lista
     // curada, ver AIRPORT_MATCH_EXCLUDE más abajo).
-    const AIRPORT_IATA_EXCLUDE = new Set(['TND']);
+    // OPF (Opa-Locka Executive) — aeropuerto ejecutivo/privado de Miami, no
+    // uno al que un cliente normal pueda volar comercialmente. El dataset
+    // lo trae marcado como si tuviera vuelos regulares, pero Miami en la
+    // práctica es un solo aeropuerto (MIA) para reservar un vuelo.
+    const AIRPORT_IATA_EXCLUDE = new Set(['TND', 'OPF']);
 
     let worldAirportsData = null;
     // "Campos de búsqueda" aparte de {city, iata}: junta municipio + cada
