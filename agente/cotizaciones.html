@@ -373,6 +373,11 @@
         // sueltas, esas ya se ven en "Nuevas"; no compradas/expiradas,
         // para no acumular ruido viejo).
         query = query.in('status', ['quoted', 'decided']);
+      } else if (currentTab === 'accepted') {
+        // Aceptadas por el cliente, mías, todavía sin cerrar la venta —
+        // antes esta pestaña no tenía filtro propio y mostraba lo mismo
+        // que "Mis cotizadas" (bug real, ya corregido).
+        query = query.eq('claimed_by_agent_id', agentId).eq('status', 'decided').eq('client_decision', 'accepted');
       } else {
         // Ya cotizadas por MÍ (tomadas), esperando o ya con decisión del
         // cliente — no incluye compradas/expiradas para no acumular ruido
