@@ -261,5 +261,9 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
       // muestre un documento a la cámara.
       if (channel) channel.send({ type: 'broadcast', event: 'doc-request', payload: { docType } });
     },
+    switchCamera,
+    toggleCamera() {
+      return switchCamera(currentFacingMode === 'environment' ? 'user' : 'environment');
+    },
   };
 }
