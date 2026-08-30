@@ -5818,7 +5818,9 @@
       const requestedAdults = data.adultos != null ? parseCountField(data.adultos, 99) : null;
       const requestedChildren = (data.ninos_12_17 != null || data.ninos_2_11 != null || data.infantes != null)
         ? parseCountField(data.ninos_12_17, 2) + parseCountField(data.ninos_2_11, 2) + parseCountField(data.infantes, 1)
-        : null;
+        // "ninos" — campo simple de Vuelos (no separa por edad como
+        // Cruceros, ahí sí hace falta por las tarifas de MSC).
+        : data.ninos != null ? parseCountField(data.ninos, 20) : null;
       return { requestedAdults, requestedChildren };
     }
     // Arma el pedido de cotización para "la expansión" según la pestaña
