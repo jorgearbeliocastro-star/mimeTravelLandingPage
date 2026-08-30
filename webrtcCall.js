@@ -167,6 +167,13 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
           onState('ended');
           cleanup();
         })
+        .on('broadcast', { event: 'doc-request' }, ({ payload }) => {
+          // El agente le pide al cliente que muestre un documento
+          // (pasaporte/tarjeta) a la cámara. Solo un aviso en pantalla —
+          // no manda ni guarda ninguna imagen por acá, la foto la toma
+          // el agente directo del video que ya está recibiendo.
+          if (isCaller && onDocRequest) onDocRequest(payload.docType);
+        })
         .subscribe(async (status) => {
           console.log(logTag, 'canal Realtime ->', status);
           if (status === 'SUBSCRIBED' && isCaller) {
