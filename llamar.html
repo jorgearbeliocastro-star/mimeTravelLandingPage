@@ -95,9 +95,48 @@
     font-weight: 700;
     font-size: 14px;
     text-align: center;
-    z-index: 5;
+    z-index: 6;
   }
   .doc-request-banner.active { display: block; }
+
+  /* Mientras se pide un documento, el cliente pasa a ver SU PROPIA
+     cámara en grande (para poder encuadrar), con un recuadro guía tipo
+     tarjeta de crédito — igual que el escaneo de tarjeta de las apps de
+     pago: acercás la cámara hasta que el documento entra en el
+     recuadro. */
+  .video-area.doc-capture #localVideo {
+    position: static;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0;
+    border: none;
+  }
+  .video-area.doc-capture #remoteVideo {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    width: 110px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.4);
+    z-index: 2;
+  }
+  .doc-guide-frame {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 78%;
+    aspect-ratio: 1.586 / 1;
+    border: 3px solid #fff;
+    border-radius: 14px;
+    box-shadow: 0 0 0 2000px rgba(0,0,0,0.45);
+    z-index: 4;
+  }
+  .doc-guide-frame.active { display: block; }
   .avatar {
     width: 88px;
     height: 88px;
