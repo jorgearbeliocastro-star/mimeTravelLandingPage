@@ -484,13 +484,11 @@
           alert('No se pudo enviar: ' + error.message);
           return;
         }
-        // Mismo aviso que ya recibe el cliente cuando el agente le escribe
-        // (hoy pausado mientras se prueba la web — ver PUSH_NOTIFICATIONS_DISABLED).
-        fetch('https://ihrfaprvzdafclquuhlh.supabase.co/functions/v1/send-request-notification', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': '9aa883ff6caef8d5b41e2c749cccaf121860629737147d12' },
-          body: JSON.stringify({ type: 'INSERT', table: 'agent_message', record: { quoteRequestId: quote.id } }),
-        }).catch(() => {});
+        // Antes acá avisaba al cliente por send-request-notification (push
+        // por Expo, de la app nativa) — se sacó: la app ya no existe, el
+        // cliente ahora es siempre un navegador, ese fetch no llegaba a
+        // nadie. El cliente ve el mensaje nuevo la próxima vez que el
+        // panel de cotización sondea la conversación.
         await loadChatMessages(thread, quote.id);
       });
     }
