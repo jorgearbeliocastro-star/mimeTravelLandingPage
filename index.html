@@ -7708,6 +7708,8 @@
               // no bloqueante — el cliente puede reintentar
             }
           });
+        } catch (e) {
+          console.error('[docs-upload] no se pudo armar la subida de documentos:', e);
         }
         return;
       }
