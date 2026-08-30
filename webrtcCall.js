@@ -256,7 +256,16 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
     localStream.removeTrack(oldTrack);
     oldTrack.stop();
     try {
-      const newStream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode } });
+      // Para documentos (cámara trasera) se pide la resolución más alta
+      // posible — sin esto el navegador suele arrancar en algo bajo tipo
+      // 640x480, que alcanza para verse en la llamada pero no para leer
+      // letra chica de un pasaporte o tarjeta. 'ideal' no falla si el
+      // teléfono no llega a esa resolución, simplemente da lo máximo que
+      // pueda.
+      const videoConstraint = facingMode === 'environment'
+        ? { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } }
+        : { facingMode };
+      const newStream = await navigator.mediaDevices.getUserMedia({ audio: false, video: videoConstraint });
       const newTrack = newStream.getVideoTracks()[0];
       const sender = pc.getSenders().find((s) => s.track && s.track.kind === 'video');
       if (sender) await sender.replaceTrack(newTrack);
