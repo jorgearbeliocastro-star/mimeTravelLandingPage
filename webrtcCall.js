@@ -35,6 +35,7 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
   let reconnectTimer = null;
   let muted = false;
   let videoOff = false;
+  let currentFacingMode = 'user';
 
   function cleanup() {
     if (cleanedUp) return;
