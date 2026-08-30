@@ -263,7 +263,7 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
       // teléfono no llega a esa resolución, simplemente da lo máximo que
       // pueda.
       const videoConstraint = facingMode === 'environment'
-        ? { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } }
+        ? { facingMode, width: { ideal: 3840 }, height: { ideal: 2160 } }
         : { facingMode };
       const newStream = await navigator.mediaDevices.getUserMedia({ audio: false, video: videoConstraint });
       const newTrack = newStream.getVideoTracks()[0];
