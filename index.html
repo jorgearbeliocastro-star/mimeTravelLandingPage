@@ -7670,7 +7670,7 @@
         // Ya decidido no hace falta repetir la info de vuelo (aerolínea,
         // horarios, condiciones) — eso era para ayudar a decidir; una vez
         // aceptada, lo único que importa acá es el estado del pago.
-        if (quote.client_decision === 'accepted') {
+        if (quote.client_decision === 'accepted') try {
           const clientToken = getOrCreateWebClientToken();
           setupDocsChannel(quote.id, clientToken);
           const block = document.createElement('div');
