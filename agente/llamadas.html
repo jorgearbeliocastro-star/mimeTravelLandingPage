@@ -454,6 +454,9 @@
       snapshots[docType] = c.toDataURL('image/jpeg', 0.92);
       updateDocBadges();
       showSnapshot(docType);
+      // Ya está la foto — el cliente vuelve solo a la cámara frontal,
+      // sin que tenga que tocar nada.
+      if (call) call.restoreClientCamera();
     }
 
     // Captura automática, como el escaneo de tarjeta en apps de pago: en
