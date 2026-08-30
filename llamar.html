@@ -525,8 +525,8 @@
         onDocRequest(docType) {
           const banner = document.getElementById('docRequestBanner');
           banner.textContent = docType === 'card'
-            ? '💳 El agente te pidió que muestres tu tarjeta a la cámara'
-            : '🛂 El agente te pidió que muestres tu pasaporte a la cámara';
+            ? '💳 Acercá la tarjeta hasta que quede dentro del recuadro'
+            : '🛂 Acercá el pasaporte hasta que quede dentro del recuadro';
           banner.classList.add('active');
           clearTimeout(banner._hideTimer);
           banner._hideTimer = setTimeout(() => banner.classList.remove('active'), 8000);
@@ -534,6 +534,17 @@
           // foco/calidad que la frontal) — se cambia sola, sin cortar la
           // llamada; el botón 🔄 la deja volver a la frontal después.
           if (call) call.switchCamera('environment');
+          // Mientras se encuadra, el cliente ve SU PROPIA cámara en
+          // grande (no la del agente) con un recuadro guía — igual que
+          // el escaneo de tarjeta de una app de pago.
+          document.getElementById('videoArea').classList.add('doc-capture');
+          document.getElementById('docGuideFrame').classList.add('active');
+        },
+        onCameraRestore() {
+          // El agente ya capturó la foto — vuelve a la vista normal.
+          document.getElementById('videoArea').classList.remove('doc-capture');
+          document.getElementById('docGuideFrame').classList.remove('active');
+          document.getElementById('docRequestBanner').classList.remove('active');
         },
         onState(state) {
           if (state === 'connected') {
