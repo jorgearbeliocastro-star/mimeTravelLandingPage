@@ -426,6 +426,15 @@
      abajo en el @media. */
   .hero-heading {
     margin-bottom: 150px;
+    /* El isotipo circular del header (180px) se sale a propósito de la
+       franja azul y cae sobre la foto del Hero (ver comentario en
+       `header .logo-img`) — con un título de 2 renglones no llegaba a
+       chocar, pero uno de 3 renglones como el actual empieza justo
+       debajo del logo y el primer renglón queda tapado. Este padding
+       corre el texto a la derecha del logo en vez de competir por el
+       mismo espacio. Solo en desktop/tablet: en mobile el logo ya se
+       achica y se resuelve con el padding-top del @media de abajo. */
+    padding-left: 210px;
   }
 
   .hero h1 {
