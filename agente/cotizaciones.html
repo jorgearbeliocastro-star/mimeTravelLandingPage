@@ -551,7 +551,12 @@
           // solo, sin que el agente tenga que tocar nada, y se muestra
           // como miniatura directo en la card. Viaja por Realtime, nunca
           // se guarda: si el cliente ya cerró la pestaña, no llega nada.
-          if (q.client_docs_ready) {
+          // OJO: también se muestra si ya hay algo en el caché aunque
+          // client_docs_ready haya vuelto a false — el cliente apaga esa
+          // bandera apenas el agente confirma que recibió las dos fotos,
+          // y sin esto la miniatura desaparecía de la card justo después
+          // de haber llegado.
+          if (q.client_docs_ready || docsThumbCache[q.id]) {
             const thumbs = document.createElement('div');
             thumbs.className = 'docs-thumbs';
             thumbs.id = 'docsThumbs-' + q.id;
