@@ -62,7 +62,10 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
     const logTag = '[call:' + (isCaller ? 'caller' : 'callee') + ']';
     console.log(logTag, 'iniciando, canal:', channelName);
     try {
-      localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video });
+      // 'user' = cámara frontal, para la conversación normal — se puede
+      // pasar a trasera ('environment') en vivo con switchCamera(), sin
+      // cortar la llamada, cuando hace falta mostrar un documento.
+      localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: video ? { facingMode: 'user' } : false });
     } catch (e) {
       console.log(logTag, 'getUserMedia falló:', e.name, e.message);
       onState('failed');
