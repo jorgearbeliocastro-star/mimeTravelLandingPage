@@ -203,6 +203,13 @@
         .eq('status', 'ringing')
         .order('created_at', { ascending: true })
         .limit(5);
+      // Si ya se aceptó una llamada mientras este pedido estaba en vuelo,
+      // esta respuesta llegó tarde y está desactualizada (sigue viendo la
+      // llamada como "ringing" porque se mandó ANTES de aceptarla) — sin
+      // este chequeo, volvía a prender el timbre encima de la llamada ya
+      // activa, y como el sondeo ya estaba parado, quedaba sonando en
+      // loop para siempre sobre el audio real de la llamada.
+      if (activeCallId) return;
       if (error) {
         console.error('[llamadas] error consultando llamadas:', error);
         return;
