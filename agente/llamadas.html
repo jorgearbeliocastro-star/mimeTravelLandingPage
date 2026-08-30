@@ -402,27 +402,58 @@
 
     // Captura de pasaporte/tarjeta: dibuja el cuadro ACTUAL del video
     // remoto (que ya está llegando por la llamada en curso) en un canvas
-    // propio de esta página. No es un canal de datos nuevo ni un archivo
-    // — es puro <canvas> en memoria del navegador, nunca se sube a
-    // Supabase ni a ningún otro lado, y se borra al cerrar la vista o al
-    // colgar (nunca se guarda información en este navegador ni en
-    // ningún lugar).
+    // propio de esta página. No es un archivo — es puro <canvas> en
+    // memoria del navegador del agente, nunca se sube a Supabase ni a
+    // ningún otro lado. Se guarda como dataURL en esta misma variable de
+    // JS solo mientras dura la llamada (para poder revisar ambas fotos
+    // sin perder la que ya se sacó), y se borra todo al cerrar la
+    // pantalla de llamada — nunca queda nada en el navegador ni en
+    // ningún lugar después de colgar.
+    const DOC_LABELS = { passport: 'Pasaporte', card: 'Tarjeta de pago' };
+    let snapshots = { passport: null, card: null };
+    let currentDocType = null;
     const snapshotOverlay = document.getElementById('snapshotOverlay');
+    const snapshotTitle = document.getElementById('snapshotTitle');
     const snapshotCanvas = document.getElementById('snapshotCanvas');
-    function clearSnapshot() {
-      snapshotOverlay.classList.remove('active');
-      const ctx = snapshotCanvas.getContext('2d');
-      ctx.clearRect(0, 0, snapshotCanvas.width, snapshotCanvas.height);
-      snapshotCanvas.width = 0;
-      snapshotCanvas.height = 0;
+
+    function updateDocBadges() {
+      document.getElementById('passportBtn').classList.toggle('captured', !!snapshots.passport);
+      document.getElementById('cardBtn').classList.toggle('captured', !!snapshots.card);
     }
-    function captureSnapshot() {
+
+    function clearAllSnapshots() {
+      snapshots = { passport: null, card: null };
+      updateDocBadges();
+    }
+
+    function closeSnapshotView() {
+      snapshotOverlay.classList.remove('active');
+      currentDocType = null;
+    }
+
+    function showSnapshot(docType) {
+      currentDocType = docType;
+      snapshotTitle.textContent = DOC_LABELS[docType];
+      const img = new Image();
+      img.onload = () => {
+        snapshotCanvas.width = img.width;
+        snapshotCanvas.height = img.height;
+        snapshotCanvas.getContext('2d').drawImage(img, 0, 0);
+      };
+      img.src = snapshots[docType];
+      snapshotOverlay.classList.add('active');
+    }
+
+    function captureSnapshot(docType) {
       const video = document.getElementById('remoteVideo');
       if (!video.videoWidth) return; // aún no hay video llegando
-      snapshotCanvas.width = video.videoWidth;
-      snapshotCanvas.height = video.videoHeight;
-      snapshotCanvas.getContext('2d').drawImage(video, 0, 0);
-      snapshotOverlay.classList.add('active');
+      const c = document.createElement('canvas');
+      c.width = video.videoWidth;
+      c.height = video.videoHeight;
+      c.getContext('2d').drawImage(video, 0, 0);
+      snapshots[docType] = c.toDataURL('image/jpeg', 0.92);
+      updateDocBadges();
+      showSnapshot(docType);
     }
 
     // Captura automática, como el escaneo de tarjeta en apps de pago: en
@@ -433,6 +464,7 @@
     // no está muy oscura (no está tapada), se dispara sola la captura.
     const scanStatus = document.getElementById('scanStatus');
     let scanRunning = false;
+    let scanDocType = null;
     let scanRAF = null;
     let scanTimeout = null;
     const SCAN_SAMPLE_W = 64, SCAN_SAMPLE_H = 48;
@@ -442,6 +474,7 @@
 
     function stopAutoCapture() {
       scanRunning = false;
+      scanDocType = null;
       if (scanRAF) cancelAnimationFrame(scanRAF);
       scanRAF = null;
       if (scanTimeout) clearTimeout(scanTimeout);
@@ -449,10 +482,14 @@
       scanStatus.classList.remove('active');
     }
 
-    function startAutoCapture() {
+    function startAutoCapture(docType) {
       const video = document.getElementById('remoteVideo');
       if (!video.videoWidth) return; // aún no hay video llegando
       scanRunning = true;
+      scanDocType = docType;
+      scanStatus.textContent = docType === 'card'
+        ? '💳 Sostené firme la tarjeta…'
+        : '🛂 Sostené firme el pasaporte…';
       scanStatus.classList.add('active');
 
       const sampleCanvas = document.createElement('canvas');
@@ -479,8 +516,9 @@
           if (avgDiff < SCAN_STILL_THRESHOLD && avgBright > SCAN_MIN_BRIGHTNESS) {
             if (stableSince === null) stableSince = performance.now();
             if (performance.now() - stableSince >= SCAN_HOLD_MS) {
+              const type = scanDocType;
               stopAutoCapture();
-              captureSnapshot();
+              captureSnapshot(type);
               return;
             }
           } else {
@@ -495,21 +533,43 @@
       // haya — mejor eso que dejar al agente esperando sin salida.
       scanTimeout = setTimeout(() => {
         if (scanRunning) {
+          const type = scanDocType;
           stopAutoCapture();
-          captureSnapshot();
+          captureSnapshot(type);
         }
       }, 6000);
     }
 
-    document.getElementById('captureBtn').addEventListener('click', function () {
-      if (scanRunning) { stopAutoCapture(); captureSnapshot(); return; } // segundo toque = captura ya
-      startAutoCapture();
+    function requestDoc(docType) {
+      if (scanRunning && scanDocType === docType) {
+        // segundo toque sobre el mismo documento = captura ya, no esperes más
+        const type = scanDocType;
+        stopAutoCapture();
+        captureSnapshot(type);
+        return;
+      }
+      if (call) call.requestDocument(docType); // avisa en pantalla del cliente qué mostrar
+      stopAutoCapture();
+      startAutoCapture(docType);
+    }
+
+    document.getElementById('passportBtn').addEventListener('click', function () {
+      if (snapshots.passport && !scanRunning) { showSnapshot('passport'); return; }
+      requestDoc('passport');
+    });
+    document.getElementById('cardBtn').addEventListener('click', function () {
+      if (snapshots.card && !scanRunning) { showSnapshot('card'); return; }
+      requestDoc('card');
     });
     document.getElementById('recaptureBtn').addEventListener('click', function () {
-      clearSnapshot();
-      startAutoCapture();
+      const type = currentDocType;
+      closeSnapshotView();
+      snapshots[type] = null;
+      updateDocBadges();
+      if (call) call.requestDocument(type);
+      startAutoCapture(type);
     });
-    document.getElementById('closeSnapshotBtn').addEventListener('click', clearSnapshot);
+    document.getElementById('closeSnapshotBtn').addEventListener('click', closeSnapshotView);
 
     document.getElementById('hangupBtn').addEventListener('click', async function () {
       this.disabled = true;
