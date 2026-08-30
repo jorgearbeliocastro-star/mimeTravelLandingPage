@@ -24,7 +24,7 @@ const CALL_ICE_SERVERS = [
  * `onState(state)` avisa cambios: 'connecting' | 'connected' | 'ended' | 'failed'.
  * Devuelve { hangup, toggleMute, toggleVideo }.
  */
-function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, remoteVideoEl, onState, onDocRequest, onCameraRestore, video = true }) {
+function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, remoteVideoEl, onState, onDocRequest, onDocPhoto, video = true }) {
   let pc = null;
   let channel = null;
   let localStream = null;
@@ -36,6 +36,33 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
   let muted = false;
   let videoOff = false;
   let currentFacingMode = 'user';
+  let dataChannel = null;
+  const incomingPhotoChunks = {};
+
+  // Canal de datos punto a punto (no pasa por Supabase para nada) para
+  // mandar la foto del documento ya recortada/encuadrada del lado del
+  // cliente directo a la pantalla del agente. Se manda en pedazos: los
+  // canales de datos de WebRTC no garantizan que un mensaje gigante viaje
+  // entero de una — con pedazos chicos funciona parejo en cualquier
+  // conexión.
+  function setupDataChannel(dc) {
+    dataChannel = dc;
+    dc.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.t !== 'photo-chunk') return;
+        const buf = incomingPhotoChunks[msg.id] || (incomingPhotoChunks[msg.id] = { docType: msg.docType, total: msg.total, parts: [] });
+        buf.parts[msg.index] = msg.data;
+        if (buf.parts.filter(Boolean).length === buf.total) {
+          const dataUrl = buf.parts.join('');
+          delete incomingPhotoChunks[msg.id];
+          if (onDocPhoto) onDocPhoto(buf.docType, dataUrl);
+        }
+      } catch (e) {
+        // no bloqueante
+      }
+    };
+  }
 
   function cleanup() {
     if (cleanedUp) return;
