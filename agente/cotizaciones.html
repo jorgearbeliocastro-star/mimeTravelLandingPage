@@ -152,6 +152,7 @@
     cursor: pointer;
   }
   .price-row button:disabled { opacity: 0.5; }
+  .price-row button.price-cancel { background: rgba(27,58,92,0.08); color: var(--primary); }
   .claim-btn {
     margin-top: 10px;
     border: 1.5px solid var(--primary);
@@ -250,11 +251,12 @@
     let agentName = '';
     let currentTab = 'new';
     let pollTimer = null;
-    // Mientras el formulario de "poner precio" está abierto en una card,
-    // el sondeo automático (cada 6s) no debe reconstruir la lista — antes
-    // lo hacía igual, y el formulario recién abierto desaparecía solo a
-    // los pocos segundos sin que el agente llegara a escribir el precio.
-    let priceFormOpenId = null;
+    // Mientras algún formulario de card está abierto (poner precio,
+    // confirmar venta), el sondeo automático (cada 6s) no debe reconstruir
+    // la lista — antes lo hacía igual, y el formulario recién abierto
+    // desaparecía solo a los pocos segundos sin que el agente llegara a
+    // terminar de escribir.
+    let cardFormOpenId = null;
 
     const FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ajax/contacto@mimetravel.com';
     function sendSaleToFormSubmit(data) {
@@ -307,7 +309,7 @@
     });
 
     async function loadQuotes() {
-      if (priceFormOpenId !== null) return; // no pisar el formulario de precio abierto
+      if (cardFormOpenId !== null) return; // no pisar un formulario de card abierto
       let query = supabaseClient.from('quote_requests').select('*').order('created_at', { ascending: false }).limit(30);
       if (currentTab === 'new') {
         // Nuevas sin tomar todavía — mismo criterio que "Cotizaciones
@@ -529,7 +531,7 @@
     // al agente sin ninguna forma de cotizar desde la web.
     function showPriceForm(card, quote) {
       if (card.querySelector('.price-row')) return; // ya está abierto
-      priceFormOpenId = quote.id;
+      cardFormOpenId = quote.id;
       const row = document.createElement('div');
       row.className = 'price-row';
       row.innerHTML =
@@ -540,7 +542,7 @@
       const input = row.querySelector('input');
       const btn = row.querySelector('button');
       row.querySelector('.price-cancel').addEventListener('click', () => {
-        priceFormOpenId = null;
+        cardFormOpenId = null;
         row.remove();
       });
       input.focus();
@@ -571,7 +573,7 @@
           btn.disabled = false;
           return;
         }
-        priceFormOpenId = null;
+        cardFormOpenId = null;
         loadQuotes();
       });
     }
@@ -582,14 +584,20 @@
     // (ver hasConsent más arriba) — acá solo falta la referencia.
     function showSellForm(card, quote) {
       if (card.querySelector('.price-row')) return;
+      cardFormOpenId = quote.id;
       const row = document.createElement('div');
       row.className = 'price-row';
       row.innerHTML =
         '<input type="text" placeholder="N.º de confirmación de la agencia">' +
-        '<button type="button">Confirmar venta</button>';
+        '<button type="button">Confirmar venta</button>' +
+        '<button type="button" class="price-cancel">Cancelar</button>';
       card.appendChild(row);
       const input = row.querySelector('input');
       const btn = row.querySelector('button');
+      row.querySelector('.price-cancel').addEventListener('click', () => {
+        cardFormOpenId = null;
+        row.remove();
+      });
       input.focus();
       btn.addEventListener('click', async () => {
         const reference = input.value.trim();
@@ -603,7 +611,7 @@
           .from('quote_requests')
           .update({
             status: 'purchased',
-            reference_code: reference,
+            agency_confirmation_code: reference,
             purchased_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           })
@@ -616,7 +624,8 @@
         }
         // Aviso de "tiket vendido" a contacto@mimetravel.com — mismo
         // mecanismo de siempre (FormSubmit), para poder cuadrar ventas con
-        // los correos de tiket que manda la agencia (ver reference_code).
+        // los correos de tiket que manda la agencia (ver
+        // agency_confirmation_code).
         const clientEmail = quote.contact_email || '';
         sendSaleToFormSubmit({
           _subject: 'Tiket vendido — Mime Travel',
@@ -628,6 +637,7 @@
           cliente_telefono: quote.contact_phone || '',
           ruta: (quote.origin ? quote.origin + ' → ' : '') + (quote.destination || ''),
         }).catch(() => {});
+        cardFormOpenId = null;
         loadQuotes();
       });
     }
