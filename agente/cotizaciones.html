@@ -774,6 +774,10 @@
             agency_confirmation_code: reference,
             purchased_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
+            // Recién ahora se apaga — mientras la venta seguía abierta, el
+            // agente podía volver a pedir los documentos las veces que
+            // hiciera falta (cambiar de pantalla, recargar, etc.).
+            client_docs_ready: false,
           })
           .eq('id', quote.id)
           .eq('status', 'decided'); // por las dudas de que algo haya cambiado justo antes
