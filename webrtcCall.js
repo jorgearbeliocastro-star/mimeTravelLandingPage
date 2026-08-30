@@ -130,6 +130,7 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
         cleanup();
       })
       .subscribe(async (status) => {
+        console.log(logTag, 'canal Realtime ->', status);
         if (status === 'SUBSCRIBED' && isCaller) {
           const offer = await pc.createOffer();
           await pc.setLocalDescription(offer);
@@ -140,6 +141,16 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
           const sendOffer = () => channel.send({ type: 'broadcast', event: 'offer', payload: { sdp: offer } });
           sendOffer();
           offerRetryTimer = setInterval(sendOffer, 1500);
+        }
+        // El canal de señalización (Supabase Realtime) es independiente
+        // de la conexión de audio/video en sí — una vez conectados, el
+        // audio/video sigue fluyendo directo aunque este canal se caiga.
+        // Pero si el canal se cierra solo (red, límite del lado del
+        // servidor) y hace falta renegociar más adelante (ej. reiniciar
+        // ICE), sin nada de esto se quedaría mudo para siempre — mejor
+        // dejar rastro y no asumir que nunca hace falta.
+        if ((status === 'CLOSED' || status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') && !cleanedUp) {
+          console.log(logTag, 'canal de señalización se cayó solo (', status, ') — la llamada en curso no debería verse afectada, pero avisando por si acaso');
         }
       });
   })();
