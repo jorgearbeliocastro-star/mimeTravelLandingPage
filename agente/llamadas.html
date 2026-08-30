@@ -366,8 +366,11 @@
         clearInterval(callHeartbeatTimer);
         callHeartbeatTimer = null;
       }
-      pollTimer = setInterval(loadRingingCalls, 3000);
-      loadRingingCalls();
+      // Al terminar una llamada (la cuelgue quien la cuelgue) volvemos a
+      // la pantalla principal del agente en vez de quedarnos en esta
+      // lista — así el agente ve de nuevo el panel completo, no solo
+      // llamadas.
+      window.location.href = 'panel.html';
     }
   </script>
 </body>
