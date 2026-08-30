@@ -495,7 +495,7 @@
       const video = document.getElementById('localVideo');
       const container = document.getElementById('videoArea');
       docScanRunning = true;
-      const SW = 80, SH = Math.round(SW / 1.586);
+      const SW = 80, SH = Math.round(SW / currentDocAspect);
       const sampleCanvas = document.createElement('canvas');
       sampleCanvas.width = SW;
       sampleCanvas.height = SH;
