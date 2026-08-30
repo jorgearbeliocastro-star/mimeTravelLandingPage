@@ -789,11 +789,32 @@
       });
     }
 
+    // Si el primer pedido se pierde (red, el cliente todavía no terminó
+    // de armar su canal, lo que sea), antes se quedaba esperando en
+    // silencio para siempre — ahora reintenta cada 10s lo que falte,
+    // hasta tener las dos.
+    const docsThumbRetryTimers = {};
+
     function ensureDocsThumbChannel(quote) {
       if (docsThumbChannels[quote.id]) return; // ya está pidiendo/recibiendo para esta cotización
       docsThumbCache[quote.id] = { passport: null, card: null };
       const channel = supabaseClient.channel('quote-docs:' + quote.id, { config: { broadcast: { self: false } } });
       docsThumbChannels[quote.id] = channel;
+
+      function stopRetrying() {
+        if (docsThumbRetryTimers[quote.id]) {
+          clearInterval(docsThumbRetryTimers[quote.id]);
+          delete docsThumbRetryTimers[quote.id];
+        }
+      }
+      function requestMissing() {
+        const cache = docsThumbCache[quote.id];
+        if (!cache) return stopRetrying();
+        if (!cache.passport) channel.send({ type: 'broadcast', event: 'request-doc', payload: { docType: 'passport' } });
+        if (!cache.card) channel.send({ type: 'broadcast', event: 'request-doc', payload: { docType: 'card' } });
+        if (cache.passport && cache.card) stopRetrying();
+      }
+
       channel
         .on('broadcast', { event: 'photo-chunk' }, ({ payload }) => {
           const buf = docsIncomingChunks[payload.id] || (docsIncomingChunks[payload.id] = { docType: payload.docType, total: payload.total, parts: [] });
@@ -804,12 +825,13 @@
             docsThumbCache[quote.id][buf.docType] = dataUrl;
             renderDocsThumbs(quote.id);
             channel.send({ type: 'broadcast', event: 'docs-received', payload: { docType: buf.docType } });
+            if (docsThumbCache[quote.id].passport && docsThumbCache[quote.id].card) stopRetrying();
           }
         })
         .subscribe((status) => {
           if (status === 'SUBSCRIBED') {
-            channel.send({ type: 'broadcast', event: 'request-doc', payload: { docType: 'passport' } });
-            channel.send({ type: 'broadcast', event: 'request-doc', payload: { docType: 'card' } });
+            requestMissing();
+            docsThumbRetryTimers[quote.id] = setInterval(requestMissing, 10000);
           }
         });
     }
