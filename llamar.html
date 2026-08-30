@@ -428,6 +428,12 @@
     let docScanRunning = false;
     let docScanRAF = null;
     let docScanTimeout = null;
+    // Proporción real de cada documento — un pasaporte NO es una tarjeta
+    // más chica, tiene otra forma (más cuadrado), así que el recuadro
+    // guía tiene que coincidir con la forma correcta para que el cliente
+    // encuadre bien y no se corte texto importante.
+    const DOC_ASPECT = { card: 1.586, passport: 1.42 };
+    let currentDocAspect = DOC_ASPECT.card;
 
     function stopDocScan() {
       docScanRunning = false;
