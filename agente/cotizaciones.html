@@ -342,6 +342,29 @@
       return escapeHtml(q.destination);
     }
 
+    // La fecha pedida faltaba de la card — se veía origen/destino/clase/
+    // pasajeros pero nunca CUÁNDO quiere viajar el cliente, algo que el
+    // Agente necesita para cotizar. search_mode dice con qué precisión la
+    // dio (fecha exacta / semana / mes nada más).
+    function fmtDates(q) {
+      const fmtDate = (d) => new Date(d + 'T00:00:00').toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' });
+      const fmtMonth = (d) => new Date(d + 'T00:00:00').toLocaleDateString('es', { month: 'long', year: 'numeric' });
+      const pick = (exact, week, month) => {
+        if (q.search_mode === 'exact_date' && exact) return fmtDate(exact);
+        if (q.search_mode === 'week' && week) return 'semana del ' + fmtDate(week);
+        if (q.search_mode === 'month' && month) return fmtMonth(month);
+        return '';
+      };
+      const start = pick(q.search_date, q.search_week_start, q.search_month);
+      if (!start) return '';
+      if (q.trip_type === 'roundtrip') {
+        const back = pick(q.return_date, q.return_week_start, q.return_month);
+        return back ? 'Ida: ' + start + ' — Vuelta: ' + back : 'Ida: ' + start;
+      }
+      if (q.end_date) return start + ' — hasta ' + fmtDate(q.end_date);
+      return start;
+    }
+
     function renderList(quotes) {
       const list = document.getElementById('list');
       const emptyMsg = document.getElementById('emptyMsg');
