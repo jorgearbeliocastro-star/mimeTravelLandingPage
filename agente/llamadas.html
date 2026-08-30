@@ -114,6 +114,17 @@
   .snapshot-overlay .btn { border: none; border-radius: 20px; padding: 10px 18px; font-weight: 700; font-size: 13px; cursor: pointer; }
   .btn-recapture { background: rgba(255,255,255,0.15); color: #fff; }
   .btn-close-snapshot { background: var(--coral); color: #fff; }
+
+  /* Aviso de "buscando/sosteniendo firme" mientras la captura automática
+     mide si el cuadro está quieto, igual que el escaneo de tarjeta de
+     las apps de pago. */
+  .scan-status {
+    display: none;
+    position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.55); color: #fff; padding: 8px 16px; border-radius: 20px;
+    font-size: 13px; font-weight: 600; z-index: 5; white-space: nowrap;
+  }
+  .scan-status.active { display: block; }
 </style>
 </head>
 <body>
