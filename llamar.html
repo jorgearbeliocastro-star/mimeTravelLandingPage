@@ -715,6 +715,7 @@
     document.getElementById('hangupBtn').addEventListener('click', async function () {
       ended = true;
       stopWaitingAudio();
+      stopDocScan();
       if (call) await call.hangup();
       try {
         await supabaseClient.rpc('client_end_call', { p_token: getClientToken(), p_id: window.__callId });
