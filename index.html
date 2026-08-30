@@ -4442,8 +4442,11 @@
     // WEBHOOK_SECRET de aviso — mismo criterio que usa la app misma.
     const LA_EXPANCION_SUPABASE_URL = 'https://ihrfaprvzdafclquuhlh.supabase.co';
     const LA_EXPANCION_SUPABASE_ANON_KEY = 'sb_publishable_lcWymV25nHd2_iOMjRwD4A_XOXvOdPK';
-    const LA_EXPANCION_WEBHOOK_SECRET = '9aa883ff6caef8d5b41e2c749cccaf121860629737147d12';
-    const LA_EXPANCION_FUNCTIONS_URL = LA_EXPANCION_SUPABASE_URL + '/functions/v1/send-request-notification';
+    // Antes acá también estaban LA_EXPANCION_WEBHOOK_SECRET/FUNCTIONS_URL,
+    // para avisar por send-request-notification (push por Expo) — se
+    // sacaron: esa función es para la app nativa que ya no existe, ningún
+    // agente tiene token de Expo, no llegaba a nadie. El aviso real es el
+    // de WEB_PUSH_FUNCTIONS_URL de abajo.
     // Función propia de esta web (no de la app) — deja constancia de la
     // autorización de cobro CON la IP real de quien la marcó (el RPC no
     // puede leer eso, solo una función que reciba la conexión HTTP en sí).
