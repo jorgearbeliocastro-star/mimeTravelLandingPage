@@ -480,6 +480,15 @@
         video: wantsVideo,
         localVideoEl: document.getElementById('localVideo'),
         remoteVideoEl: document.getElementById('remoteVideo'),
+        onDocRequest(docType) {
+          const banner = document.getElementById('docRequestBanner');
+          banner.textContent = docType === 'card'
+            ? '💳 El agente te pidió que muestres tu tarjeta a la cámara'
+            : '🛂 El agente te pidió que muestres tu pasaporte a la cámara';
+          banner.classList.add('active');
+          clearTimeout(banner._hideTimer);
+          banner._hideTimer = setTimeout(() => banner.classList.remove('active'), 8000);
+        },
         onState(state) {
           if (state === 'connected') {
             connectedOnce = true;
