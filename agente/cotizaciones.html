@@ -153,6 +153,44 @@
   }
   .price-row button:disabled { opacity: 0.5; }
   .price-row button.price-cancel { background: rgba(27,58,92,0.08); color: var(--primary); }
+  .docs-btn { margin-left: 8px; }
+
+  .docs-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background: rgba(13,27,42,0.94);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 16px;
+    color: #fff;
+  }
+  .docs-overlay.active { display: flex; }
+  .docs-overlay-title { font-weight: 700; font-size: 15px; }
+  .docs-overlay img {
+    display: none;
+    max-width: 100%;
+    max-height: 55vh;
+    border-radius: 10px;
+    background: #111;
+  }
+  .docs-overlay img.has-image { display: block; }
+  .docs-overlay-status { font-size: 13px; color: rgba(255,255,255,0.75); text-align: center; }
+  .docs-overlay-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .docs-overlay-actions button {
+    border: none;
+    border-radius: 20px;
+    padding: 10px 16px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+  }
+  .docs-close-btn { background: var(--coral) !important; }
   .claim-btn {
     margin-top: 10px;
     border: 1.5px solid var(--primary);
@@ -240,6 +278,20 @@
     <div id="list"></div>
     <div class="empty" id="emptyMsg">No hay nada acá.</div>
   </main>
+
+  <!-- Documentos del cliente (pasaporte/tarjeta): llegan en vivo por
+       Realtime mientras el cliente sigue conectado, nunca se guardan acá
+       ni en ningún lado — se borran al cerrar esta vista. -->
+  <div class="docs-overlay" id="docsOverlay">
+    <div class="docs-overlay-title" id="docsOverlayTitle"></div>
+    <img id="docsOverlayImg" alt="">
+    <div class="docs-overlay-status" id="docsOverlayStatus"></div>
+    <div class="docs-overlay-actions">
+      <button type="button" id="docsRequestPassportBtn">🛂 Pedir pasaporte</button>
+      <button type="button" id="docsRequestCardBtn">💳 Pedir tarjeta</button>
+      <button type="button" id="docsCloseBtn" class="docs-close-btn">Cerrar</button>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="presence.js"></script>
@@ -448,6 +500,17 @@
           if (!hasConsent) sellBtn.style.opacity = '0.5';
           sellBtn.addEventListener('click', () => showSellForm(card, q));
           card.appendChild(sellBtn);
+
+          // El cliente subió pasaporte/tarjeta y está esperando — viaja
+          // directo por Realtime, nunca se guarda; hay que pedirlo mientras
+          // el cliente sigue conectado del otro lado.
+          if (q.client_docs_ready) {
+            const docsBtn = document.createElement('button');
+            docsBtn.className = 'claim-btn docs-btn';
+            docsBtn.textContent = '📎 Ver documentos del cliente';
+            docsBtn.addEventListener('click', () => openClientDocs(q));
+            card.appendChild(docsBtn);
+          }
         }
 
         // Chat con el cliente — mismo mecanismo que ya usa la app
@@ -642,6 +705,67 @@
         loadQuotes();
       });
     }
+
+    // Documentos del cliente (pasaporte/tarjeta): llegan por Realtime
+    // mientras el cliente sigue conectado, en pedazos — se arman acá en
+    // memoria del navegador del agente y nunca se guardan en ningún lado.
+    // Se piden uno a la vez (como en las llamadas): tocar el botón le pide
+    // al cliente ESE documento puntual.
+    let docsOverlayChannel = null;
+    let docsOverlayQuoteId = null;
+    const docsIncomingChunks = {};
+
+    function openClientDocs(quote) {
+      cardFormOpenId = quote.id; // congela el sondeo mientras esto está abierto, igual que los otros formularios
+      docsOverlayQuoteId = quote.id;
+      document.getElementById('docsOverlayTitle').textContent = fmtRoute(quote) + ' · ' + (quote.contact_name || '');
+      document.getElementById('docsOverlayStatus').textContent = 'Pedile un documento al cliente.';
+      const img = document.getElementById('docsOverlayImg');
+      img.classList.remove('has-image');
+      img.src = '';
+      document.getElementById('docsOverlay').classList.add('active');
+
+      if (docsOverlayChannel) supabaseClient.removeChannel(docsOverlayChannel);
+      docsOverlayChannel = supabaseClient.channel('quote-docs:' + quote.id, { config: { broadcast: { self: false } } });
+      docsOverlayChannel
+        .on('broadcast', { event: 'photo-chunk' }, ({ payload }) => {
+          const buf = docsIncomingChunks[payload.id] || (docsIncomingChunks[payload.id] = { docType: payload.docType, total: payload.total, parts: [] });
+          buf.parts[payload.index] = payload.data;
+          if (buf.parts.filter(Boolean).length === buf.total) {
+            const dataUrl = buf.parts.join('');
+            delete docsIncomingChunks[payload.id];
+            img.src = dataUrl;
+            img.classList.add('has-image');
+            document.getElementById('docsOverlayStatus').textContent = (buf.docType === 'card' ? 'Tarjeta' : 'Pasaporte') + ' recibido.';
+            docsOverlayChannel.send({ type: 'broadcast', event: 'docs-received', payload: { docType: buf.docType } });
+          }
+        })
+        .subscribe();
+    }
+
+    function requestClientDoc(docType) {
+      if (!docsOverlayChannel) return;
+      document.getElementById('docsOverlayStatus').textContent = docType === 'card'
+        ? 'Esperando la tarjeta…'
+        : 'Esperando el pasaporte…';
+      docsOverlayChannel.send({ type: 'broadcast', event: 'request-doc', payload: { docType } });
+    }
+
+    function closeClientDocs() {
+      if (docsOverlayChannel) {
+        supabaseClient.removeChannel(docsOverlayChannel);
+        docsOverlayChannel = null;
+      }
+      docsOverlayQuoteId = null;
+      document.getElementById('docsOverlay').classList.remove('active');
+      document.getElementById('docsOverlayImg').src = '';
+      cardFormOpenId = null;
+      loadQuotes(); // recién ahora, para que la lista refleje que ya no está "esperando"
+    }
+
+    document.getElementById('docsRequestPassportBtn').addEventListener('click', () => requestClientDoc('passport'));
+    document.getElementById('docsRequestCardBtn').addEventListener('click', () => requestClientDoc('card'));
+    document.getElementById('docsCloseBtn').addEventListener('click', closeClientDocs);
   </script>
 </body>
 </html>

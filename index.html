@@ -2511,6 +2511,36 @@
     color: var(--primary);
   }
 
+  .docs-upload-block {
+    margin-top: 14px;
+    padding: 14px;
+    border-radius: 12px;
+    background: var(--arena);
+  }
+  .docs-upload-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .docs-upload-btn {
+    border: 1.5px solid var(--primary);
+    background: #fff;
+    color: var(--primary);
+    border-radius: 20px;
+    padding: 9px 16px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .docs-upload-btn.uploaded { background: var(--primary); color: #fff; }
+  .docs-upload-status {
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .docs-upload-status.waiting { color: var(--coral); }
+  .docs-upload-status.done { color: #2e7d32; }
+
   /* El chat viene cerrado por defecto — antes quedaba siempre desplegado
      abajo y le sacaba espacio a los precios/checkboxes de arriba, forzando
      a scrollear para llegar al botón de decisión. Ahora es un botón y el
@@ -6476,6 +6506,16 @@
     // interval aparte (ver más abajo) lo sigue descontando aunque el
     // cliente cierre el panel, mostrándolo junto al botón de reabrir.
     let lastKnownPriceExpiresAt = null;
+    // Subida de documentos (pasaporte/tarjeta) al aceptar una cotización —
+    // viajan directo al agente por un canal de Supabase Realtime (solo
+    // señal, no un archivo guardado), nunca se suben a Supabase Storage ni
+    // se guardan en ninguna tabla. Viven en memoria de ESTE navegador
+    // mientras el cliente sigue en la página, nada más — por eso el aviso
+    // de "no cierres esta pantalla".
+    let docsChannel = null;
+    let docsChannelQuoteId = null;
+    let docsDataUrls = { passport: null, card: null };
+    let docsReceivedByAgent = { passport: false, card: false };
     // Aviso de "ya tenés precio" para el cliente que se queda con la
     // pestaña abierta esperando — sin esto, no había sonido ni nada, solo
     // el texto cambiaba en silencio (el correo real es el respaldo si no
@@ -6923,6 +6963,105 @@
           });
       });
     }
+
+    // Achica una foto/archivo elegido del teléfono o la PC antes de
+    // mandarlo — todo pasa en memoria (un <img>/<canvas> temporal), el
+    // archivo elegido nunca se sube ni se guarda en ningún lado.
+    function downscaleImageFile(file, maxDim, quality) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          let width = img.naturalWidth, height = img.naturalHeight;
+          if (width > maxDim || height > maxDim) {
+            const scale = maxDim / Math.max(width, height);
+            width = Math.round(width * scale);
+            height = Math.round(height * scale);
+          }
+          const c = document.createElement('canvas');
+          c.width = width;
+          c.height = height;
+          c.getContext('2d').drawImage(img, 0, 0, width, height);
+          URL.revokeObjectURL(url);
+          resolve(c.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = (e) => {
+          URL.revokeObjectURL(url);
+          reject(e);
+        };
+        img.src = url;
+      });
+    }
+
+    // Manda una imagen ya lista en pedazos por un canal de Realtime — no
+    // hay ningún archivo ni tabla de por medio, es un broadcast en vivo:
+    // si no hay nadie escuchando en ESE momento, se pierde (a propósito,
+    // ver la conversación sobre por qué no se guarda nada).
+    function sendDocChunks(channel, docType, dataUrl) {
+      const CHUNK_SIZE = 12000;
+      const total = Math.ceil(dataUrl.length / CHUNK_SIZE);
+      const id = Date.now() + '-' + Math.random().toString(36).slice(2);
+      for (let i = 0; i < total; i++) {
+        channel.send({
+          type: 'broadcast',
+          event: 'photo-chunk',
+          payload: { id, docType, index: i, total, data: dataUrl.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE) },
+        });
+      }
+    }
+
+    // Un solo canal por cotización, armado una vez (no en cada poll) —
+    // queda escuchando pedidos del agente mientras el cliente sigue en
+    // esta página.
+    function setupDocsChannel(quoteId, clientToken) {
+      if (docsChannelQuoteId === quoteId && docsChannel) return;
+      if (docsChannel) laExpancion.removeChannel(docsChannel);
+      docsChannelQuoteId = quoteId;
+      docsChannel = laExpancion.channel('quote-docs:' + quoteId, { config: { broadcast: { self: false } } });
+      docsChannel
+        .on('broadcast', { event: 'request-doc' }, ({ payload }) => {
+          const dataUrl = docsDataUrls[payload.docType];
+          if (dataUrl) sendDocChunks(docsChannel, payload.docType, dataUrl);
+        })
+        .on('broadcast', { event: 'docs-received' }, ({ payload }) => {
+          if (payload && payload.docType) docsReceivedByAgent[payload.docType] = true;
+          const allReceived = (!docsDataUrls.passport || docsReceivedByAgent.passport) && (!docsDataUrls.card || docsReceivedByAgent.card);
+          if (allReceived) {
+            laExpancion.rpc('set_quote_docs_ready', { p_token: clientToken, p_id: quoteId, p_ready: false }).catch(() => {});
+          }
+          renderDocsUploadStatus();
+        })
+        .subscribe();
+    }
+
+    // Repinta solo el cartel de estado de documentos, sin tocar el resto
+    // de quoteStatusBar (evita reconstruir todo en cada cambio chico).
+    function renderDocsUploadStatus() {
+      const el = document.getElementById('docsUploadStatus');
+      if (!el) return;
+      const anyUploaded = docsDataUrls.passport || docsDataUrls.card;
+      const allReceived = (!docsDataUrls.passport || docsReceivedByAgent.passport) && (!docsDataUrls.card || docsReceivedByAgent.card);
+      if (!anyUploaded) {
+        el.textContent = '';
+        return;
+      }
+      el.textContent = allReceived
+        ? '✅ El agente ya recibió tus documentos — gracias, ya podés cerrar esta pantalla.'
+        : '⏳ No cierres esta pantalla ni cambies de página hasta que el agente reciba tus documentos.';
+      el.className = allReceived ? 'docs-upload-status done' : 'docs-upload-status waiting';
+    }
+
+    // Aviso fuerte si el cliente intenta salir con algo subido pero
+    // todavía no recibido — no lo bloquea del todo (los navegadores no
+    // dejan poner un mensaje custom hace años), pero sí frena el cierre
+    // accidental con la confirmación nativa.
+    window.addEventListener('beforeunload', function (e) {
+      const anyPending = (docsDataUrls.passport && !docsReceivedByAgent.passport) || (docsDataUrls.card && !docsReceivedByAgent.card);
+      if (anyPending) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
 
     function renderQuoteStatus(quote) {
       if (showingPassengerForm) return;
@@ -7530,12 +7669,46 @@
         quoteStatusBar.appendChild(p);
         // Ya decidido no hace falta repetir la info de vuelo (aerolínea,
         // horarios, condiciones) — eso era para ayudar a decidir; una vez
-        // aceptada, lo único que importa acá es el estado del pago. El
-        // aviso de "faltan tus datos" se quitó: además de que el chequeo
-        // miraba el campo viejo de un solo pasajero (quedaba desactualizado
-        // en cuanto se usaba el formulario nuevo de varios pasajeros),
-        // confundía al cliente repitiendo un paso que ya hizo justo debajo
-        // del mensaje de "ya aceptaste, te llega un link de pago".
+        // aceptada, lo único que importa acá es el estado del pago.
+        if (quote.client_decision === 'accepted') {
+          const clientToken = getOrCreateWebClientToken();
+          setupDocsChannel(quote.id, clientToken);
+          const block = document.createElement('div');
+          block.className = 'docs-upload-block';
+          block.innerHTML =
+            '<div class="docs-upload-buttons">' +
+            '<button type="button" class="docs-upload-btn' + (docsDataUrls.passport ? ' uploaded' : '') + '" id="docsUploadPassportBtn">' + (docsDataUrls.passport ? '✅ ' : '📁 ') + 'Pasaporte</button>' +
+            '<button type="button" class="docs-upload-btn' + (docsDataUrls.card ? ' uploaded' : '') + '" id="docsUploadCardBtn">' + (docsDataUrls.card ? '✅ ' : '📁 ') + 'Tarjeta de pago</button>' +
+            '</div>' +
+            '<div class="docs-upload-status" id="docsUploadStatus"></div>' +
+            '<input type="file" accept="image/*" id="docsFileInput" style="display:none;">';
+          quoteStatusBar.appendChild(block);
+          renderDocsUploadStatus();
+
+          let pendingDocType = null;
+          document.getElementById('docsUploadPassportBtn').addEventListener('click', () => {
+            pendingDocType = 'passport';
+            document.getElementById('docsFileInput').click();
+          });
+          document.getElementById('docsUploadCardBtn').addEventListener('click', () => {
+            pendingDocType = 'card';
+            document.getElementById('docsFileInput').click();
+          });
+          document.getElementById('docsFileInput').addEventListener('change', async function () {
+            const file = this.files && this.files[0];
+            this.value = '';
+            if (!file || !pendingDocType) return;
+            const docType = pendingDocType;
+            try {
+              docsDataUrls[docType] = await downscaleImageFile(file, 1800, 0.92);
+              docsReceivedByAgent[docType] = false;
+              laExpancion.rpc('set_quote_docs_ready', { p_token: clientToken, p_id: quote.id, p_ready: true }).catch(() => {});
+              renderQuoteStatus(quote);
+            } catch (e) {
+              // no bloqueante — el cliente puede reintentar
+            }
+          });
+        }
         return;
       }
       if (quote.status === 'expired') {
