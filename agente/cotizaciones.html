@@ -360,7 +360,29 @@
       }
       loadQuotes();
       pollTimer = setInterval(loadQuotes, 6000);
+      updateAcceptedBadge();
+      setInterval(updateAcceptedBadge, 6000);
     })();
+
+    // El número en la pestaña "Aceptadas" — existía el elemento en el
+    // HTML pero nada lo actualizaba nunca, se quedaba siempre en 0
+    // escondido. Cuenta aparte de la pestaña activa, para que se vea
+    // aunque el agente esté mirando otra.
+    async function updateAcceptedBadge() {
+      const { count, error } = await supabaseClient
+        .from('quote_requests')
+        .select('id', { count: 'exact', head: true })
+        .eq('claimed_by_agent_id', agentId)
+        .eq('status', 'decided')
+        .eq('client_decision', 'accepted');
+      const badge = document.getElementById('acceptedTabBadge');
+      if (error || !count) {
+        badge.hidden = true;
+        return;
+      }
+      badge.textContent = String(count);
+      badge.hidden = false;
+    }
 
     function selectTab(tabEl) {
       document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
