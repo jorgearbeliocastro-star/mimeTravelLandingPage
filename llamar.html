@@ -536,6 +536,9 @@
       const isOff = call.toggleVideo();
       this.classList.toggle('active', isOff);
     });
+    document.getElementById('flipCameraBtn').addEventListener('click', function () {
+      if (call) call.toggleCamera();
+    });
     document.getElementById('hangupBtn').addEventListener('click', async function () {
       ended = true;
       stopWaitingAudio();
