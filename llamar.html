@@ -374,6 +374,18 @@
           if (state === 'connected') {
             connectedOnce = true;
             statusBar.textContent = 'En llamada';
+            // Le avisa al navegador/Android que esto es una llamada en
+            // vivo, no un video — sin esto, el control automático de
+            // "medio reproduciéndose" trae play/pausa como si fuera
+            // YouTube, y un toque sin querer (o el sistema) podía
+            // pausarla.
+            if ('mediaSession' in navigator) {
+              navigator.mediaSession.metadata = new MediaMetadata({ title: 'Llamada en curso', artist: 'Mime Travel' });
+              navigator.mediaSession.playbackState = 'playing';
+              navigator.mediaSession.setActionHandler('pause', () => {});
+              navigator.mediaSession.setActionHandler('play', () => {});
+              navigator.mediaSession.setActionHandler('stop', () => {});
+            }
           }
           if (state === 'failed') {
             if (ended) return;
