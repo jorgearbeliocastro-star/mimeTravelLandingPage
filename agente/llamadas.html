@@ -149,7 +149,8 @@
     <div class="controls">
       <button class="btn-circle" id="muteBtn">🎤</button>
       <button class="btn-circle" id="videoBtn">📷</button>
-      <button class="btn-circle" id="captureBtn" title="Capturar pasaporte / tarjeta">🪪</button>
+      <button class="btn-circle doc-btn" id="passportBtn" title="Pedir pasaporte">🛂</button>
+      <button class="btn-circle doc-btn" id="cardBtn" title="Pedir tarjeta">💳</button>
       <button class="btn-circle btn-hangup" id="hangupBtn">⏹</button>
     </div>
   </div>
@@ -157,6 +158,7 @@
   <!-- Ver documento/tarjeta: dibuja el cuadro actual del video remoto en un
        canvas para poder acercarlo y leerlo, nada se sube ni se guarda. -->
   <div class="snapshot-overlay" id="snapshotOverlay">
+    <div class="snapshot-title" id="snapshotTitle"></div>
     <canvas id="snapshotCanvas"></canvas>
     <div class="snapshot-hint">Solo se ve en esta pantalla — no se guarda en ningún lado.</div>
     <div class="snapshot-actions">
