@@ -267,6 +267,17 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
         : { facingMode };
       const newStream = await navigator.mediaDevices.getUserMedia({ audio: false, video: videoConstraint });
       const newTrack = newStream.getVideoTracks()[0];
+      if (facingMode === 'environment') {
+        // Mejor enfoque de cerca (documento pegado a la cámara, no un
+        // paisaje lejano) — 'advanced' es solo una preferencia: si el
+        // teléfono no soporta elegir el modo de foco, esto no rompe
+        // nada, se ignora solo.
+        try {
+          await newTrack.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
+        } catch (e) {
+          // no soportado — sigue con el foco que traiga por defecto
+        }
+      }
       const sender = pc.getSenders().find((s) => s.track && s.track.kind === 'video');
       if (sender) await sender.replaceTrack(newTrack);
       localStream.addTrack(newTrack);
