@@ -295,10 +295,25 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
       // muestre un documento a la cámara.
       if (channel) channel.send({ type: 'broadcast', event: 'doc-request', payload: { docType } });
     },
-    restoreClientCamera() {
-      // Solo lo usa el agente (callee), apenas termina de capturar la
-      // foto — el cliente vuelve solo a la cámara frontal.
-      if (channel) channel.send({ type: 'broadcast', event: 'camera-restore', payload: {} });
+    sendDocPhoto(docType, dataUrl) {
+      // Solo lo usa el cliente (caller): manda la foto ya recortada por
+      // el canal de datos punto a punto (no por Supabase) directo a la
+      // pantalla del agente, en pedazos.
+      if (!dataChannel || dataChannel.readyState !== 'open') return false;
+      const CHUNK_SIZE = 12000;
+      const total = Math.ceil(dataUrl.length / CHUNK_SIZE);
+      const id = Date.now() + '-' + Math.random().toString(36).slice(2);
+      for (let i = 0; i < total; i++) {
+        dataChannel.send(JSON.stringify({
+          t: 'photo-chunk',
+          id,
+          docType,
+          index: i,
+          total,
+          data: dataUrl.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE),
+        }));
+      }
+      return true;
     },
     switchCamera,
     toggleCamera() {
