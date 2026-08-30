@@ -416,6 +416,136 @@
       stopHoldMusic();
     }
 
+    // Escaneo de documento (pasaporte/tarjeta), igual que el escaneo de
+    // tarjeta de cualquier app de pago: mientras la cámara trasera está
+    // encendida, se mide en vivo la zona de la imagen que cae DENTRO del
+    // recuadro guía — no el cuadro entero — y recién cuando esa zona se
+    // queda quieta Y tiene contenido (no es pared/mesa vacía) se dispara
+    // sola la captura. Nada de esto se guarda: la foto capturada se
+    // manda directo al agente por el canal de datos de la llamada
+    // (peer-to-peer, no pasa por Supabase) y acá no queda ni el recorte
+    // ni nada más.
+    let docScanRunning = false;
+    let docScanRAF = null;
+    let docScanTimeout = null;
+
+    function stopDocScan() {
+      docScanRunning = false;
+      if (docScanRAF) cancelAnimationFrame(docScanRAF);
+      docScanRAF = null;
+      if (docScanTimeout) clearTimeout(docScanTimeout);
+      docScanTimeout = null;
+    }
+
+    // Traduce dónde está el recuadro guía EN PANTALLA (CSS) a qué
+    // rectángulo de la imagen real de la cámara le corresponde — hace
+    // falta porque el video se muestra con object-fit:cover, que recorta
+    // y escala distinto según la proporción del teléfono.
+    function mapGuideFrameToVideoRect(video, container) {
+      const vw = video.videoWidth, vh = video.videoHeight;
+      const cw = container.clientWidth, ch = container.clientHeight;
+      if (!vw || !vh || !cw || !ch) return null;
+      const scale = Math.max(cw / vw, ch / vh);
+      const renderedW = vw * scale, renderedH = vh * scale;
+      const offsetX = (renderedW - cw) / 2;
+      const offsetY = (renderedH - ch) / 2;
+      const gw = cw * 0.78;
+      const gh = gw / 1.586; // proporción de una tarjeta/pasaporte estándar
+      const gx = (cw - gw) / 2;
+      const gy = (ch - gh) / 2;
+      return {
+        x: (gx + offsetX) / scale,
+        y: (gy + offsetY) / scale,
+        w: gw / scale,
+        h: gh / scale,
+      };
+    }
+
+    function captureAndSendDoc(docType, rect) {
+      const video = document.getElementById('localVideo');
+      // Un margen alrededor del recuadro, para no cortar el borde del
+      // documento si quedó justo al límite.
+      const pad = 0.08;
+      const x = Math.max(0, rect.x - rect.w * pad);
+      const y = Math.max(0, rect.y - rect.h * pad);
+      const w = Math.min(video.videoWidth - x, rect.w * (1 + pad * 2));
+      const h = Math.min(video.videoHeight - y, rect.h * (1 + pad * 2));
+      const c = document.createElement('canvas');
+      c.width = w;
+      c.height = h;
+      c.getContext('2d').drawImage(video, x, y, w, h, 0, 0, w, h);
+      const dataUrl = c.toDataURL('image/jpeg', 0.88);
+      if (call) call.sendDocPhoto(docType, dataUrl);
+      document.getElementById('videoArea').classList.remove('doc-capture');
+      document.getElementById('docGuideFrame').classList.remove('active');
+      document.getElementById('docRequestBanner').classList.remove('active');
+      if (call) call.switchCamera('user');
+    }
+
+    function startDocScan(docType) {
+      const video = document.getElementById('localVideo');
+      const container = document.getElementById('videoArea');
+      docScanRunning = true;
+      const SW = 80, SH = Math.round(SW / 1.586);
+      const sampleCanvas = document.createElement('canvas');
+      sampleCanvas.width = SW;
+      sampleCanvas.height = SH;
+      const sctx = sampleCanvas.getContext('2d', { willReadFrequently: true });
+      let prevData = null;
+      let stableSince = null;
+      const STILL_THRESHOLD = 6; // diferencia promedio por canal tolerada
+      const MIN_CONTRAST = 18; // hace falta detalle adentro del recuadro (texto/foto), no pared o mesa lisa
+      const MIN_BRIGHTNESS = 25;
+      const HOLD_MS = 700;
+
+      function tick() {
+        if (!docScanRunning) return;
+        const rect = mapGuideFrameToVideoRect(video, container);
+        if (!rect) {
+          docScanRAF = requestAnimationFrame(tick);
+          return;
+        }
+        sctx.drawImage(video, rect.x, rect.y, rect.w, rect.h, 0, 0, SW, SH);
+        const frame = sctx.getImageData(0, 0, SW, SH).data;
+        const n = frame.length / 4;
+        let brightSum = 0;
+        for (let i = 0; i < frame.length; i += 4) brightSum += frame[i];
+        const avgBright = brightSum / n;
+        let varSum = 0;
+        for (let i = 0; i < frame.length; i += 4) varSum += (frame[i] - avgBright) * (frame[i] - avgBright);
+        const contrast = Math.sqrt(varSum / n);
+        let stillEnough = false;
+        if (prevData) {
+          let diffSum = 0;
+          for (let i = 0; i < frame.length; i += 4) diffSum += Math.abs(frame[i] - prevData[i]);
+          stillEnough = diffSum / n < STILL_THRESHOLD;
+        }
+        if (stillEnough && contrast > MIN_CONTRAST && avgBright > MIN_BRIGHTNESS) {
+          if (stableSince === null) stableSince = performance.now();
+          if (performance.now() - stableSince >= HOLD_MS) {
+            stopDocScan();
+            captureAndSendDoc(docType, rect);
+            return;
+          }
+        } else {
+          stableSince = null;
+        }
+        prevData = frame;
+        docScanRAF = requestAnimationFrame(tick);
+      }
+      docScanRAF = requestAnimationFrame(tick);
+      // Si en 15s nunca logra un encuadre quieto y con contenido,
+      // captura igual lo que haya en el recuadro — mejor eso que dejar
+      // al cliente sin salida.
+      docScanTimeout = setTimeout(() => {
+        if (docScanRunning) {
+          const rect = mapGuideFrameToVideoRect(video, container);
+          stopDocScan();
+          if (rect) captureAndSendDoc(docType, rect);
+        }
+      }, 15000);
+    }
+
     async function main() {
       const clientToken = getClientToken();
       const id = crypto.randomUUID();
