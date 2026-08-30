@@ -250,6 +250,11 @@
     let agentName = '';
     let currentTab = 'new';
     let pollTimer = null;
+    // Mientras el formulario de "poner precio" está abierto en una card,
+    // el sondeo automático (cada 6s) no debe reconstruir la lista — antes
+    // lo hacía igual, y el formulario recién abierto desaparecía solo a
+    // los pocos segundos sin que el agente llegara a escribir el precio.
+    let priceFormOpenId = null;
 
     const FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ajax/contacto@mimetravel.com';
     function sendSaleToFormSubmit(data) {
