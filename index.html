@@ -7033,11 +7033,14 @@
           if (dataUrl) sendDocChunks(docsChannel, payload.docType, dataUrl);
         })
         .on('broadcast', { event: 'docs-received' }, ({ payload }) => {
+          // OJO: acá antes se apagaba el marcador "listo" apenas el agente
+          // la recibía una vez — eso hacía que si el agente cambiaba de
+          // pantalla y volvía, ya no hubiera forma de que la volviera a
+          // pedir. El marcador se queda prendido hasta que se cierra la
+          // venta (ver showSellForm del lado del agente) — mientras el
+          // cliente siga con la pestaña abierta, se puede volver a pedir
+          // las veces que haga falta, nunca se sube a ningún lado.
           if (payload && payload.docType) docsReceivedByAgent[payload.docType] = true;
-          const allReceived = (!docsDataUrls.passport || docsReceivedByAgent.passport) && (!docsDataUrls.card || docsReceivedByAgent.card);
-          if (allReceived) {
-            laExpancion.rpc('set_quote_docs_ready', { p_token: clientToken, p_id: quoteId, p_ready: false }).catch(() => {});
-          }
           renderDocsUploadStatus();
         })
         .subscribe();
