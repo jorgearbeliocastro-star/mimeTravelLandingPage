@@ -7665,12 +7665,23 @@
       if (quote.status === 'decided') {
         const p = document.createElement('p');
         p.className = 'quote-status-resolved';
-        p.textContent = quote.client_decision === 'accepted' ? t('quoteDecisionAccepted') : t('quoteDecisionDeclined');
+        // El botón de subir documentos necesita a un agente escuchando del
+        // otro lado en ESE momento (no queda nada guardado si no hay nadie
+        // conectado) — se usa el mismo "latido" que el agente ya manda
+        // mientras tiene la cotización abierta en pantalla (agent_viewing_at,
+        // pensado originalmente para otra cosa, mismo mecanismo). Si el
+        // latido tiene más de 20s, se asume que no hay nadie mirando ahora.
+        const AGENT_PRESENT_WINDOW_MS = 20000;
+        const viewingAtMs = quote.agent_viewing_at ? new Date(quote.agent_viewing_at).getTime() : 0;
+        const agentPresent = (Date.now() - viewingAtMs) < AGENT_PRESENT_WINDOW_MS;
+        p.textContent = quote.client_decision === 'accepted'
+          ? (agentPresent ? '✅ El agente está conectado — ya podés subir tus documentos.' : '🔄 Esperando a que se conecte el agente…')
+          : t('quoteDecisionDeclined');
         quoteStatusBar.appendChild(p);
         // Ya decidido no hace falta repetir la info de vuelo (aerolínea,
         // horarios, condiciones) — eso era para ayudar a decidir; una vez
         // aceptada, lo único que importa acá es el estado del pago.
-        if (quote.client_decision === 'accepted') {
+        if (quote.client_decision === 'accepted' && agentPresent) {
           const clientToken = getOrCreateWebClientToken();
           setupDocsChannel(quote.id, clientToken);
           const block = document.createElement('div');
