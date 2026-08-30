@@ -615,6 +615,7 @@
       if (ended) return;
       ended = true;
       stopWaitingAudio();
+      stopDocScan();
       statusBar.textContent = 'Llamada finalizada';
       controls.style.display = 'none';
       setTimeout(() => { window.location.href = 'index.html'; }, 1500);
