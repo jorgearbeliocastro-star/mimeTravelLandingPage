@@ -120,66 +120,78 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
       }
     };
 
-    channel = supabaseClient.channel(channelName, { config: { broadcast: { self: false } } });
-    channel
-      .on('broadcast', { event: 'offer' }, async ({ payload }) => {
-        if (isCaller) return;
-        await pc.setRemoteDescription(new RTCSessionDescription(payload.sdp));
-        await applyPendingCandidates();
-        const answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
-        channel.send({ type: 'broadcast', event: 'answer', payload: { sdp: answer } });
-      })
-      .on('broadcast', { event: 'answer' }, async ({ payload }) => {
-        if (!isCaller) return;
-        if (offerRetryTimer) {
-          clearInterval(offerRetryTimer);
-          offerRetryTimer = null;
-        }
-        await pc.setRemoteDescription(new RTCSessionDescription(payload.sdp));
-        await applyPendingCandidates();
-      })
-      .on('broadcast', { event: 'ice-candidate' }, async ({ payload }) => {
-        if (payload.from === (isCaller ? 'caller' : 'callee')) return;
-        if (!remoteDescSet) {
-          pendingCandidates.push(payload.candidate);
-          return;
-        }
-        try {
-          await pc.addIceCandidate(new RTCIceCandidate(payload.candidate));
-        } catch (e) {
-          // no bloqueante
-        }
-      })
-      .on('broadcast', { event: 'hangup' }, () => {
-        console.log(logTag, 'recibido hangup por el canal', channelName);
-        onState('ended');
-        cleanup();
-      })
-      .subscribe(async (status) => {
-        console.log(logTag, 'canal Realtime ->', status);
-        if (status === 'SUBSCRIBED' && isCaller) {
-          const offer = await pc.createOffer();
-          await pc.setLocalDescription(offer);
-          // El callee recién se suscribe a este canal cuando el agente
-          // atiende — los broadcasts de Realtime no quedan guardados para
-          // quien llega tarde, así que se reenvía la oferta hasta recibir
-          // 'answer'.
-          const sendOffer = () => channel.send({ type: 'broadcast', event: 'offer', payload: { sdp: offer } });
-          sendOffer();
-          offerRetryTimer = setInterval(sendOffer, 1500);
-        }
-        // El canal de señalización (Supabase Realtime) es independiente
-        // de la conexión de audio/video en sí — una vez conectados, el
-        // audio/video sigue fluyendo directo aunque este canal se caiga.
-        // Pero si el canal se cierra solo (red, límite del lado del
-        // servidor) y hace falta renegociar más adelante (ej. reiniciar
-        // ICE), sin nada de esto se quedaría mudo para siempre — mejor
-        // dejar rastro y no asumir que nunca hace falta.
-        if ((status === 'CLOSED' || status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') && !cleanedUp) {
-          console.log(logTag, 'canal de señalización se cayó solo (', status, ') — la llamada en curso no debería verse afectada, pero avisando por si acaso');
-        }
-      });
+    // El canal de señalización (Supabase Realtime) es independiente de la
+    // conexión de audio/video en sí — una vez conectados, el audio/video
+    // sigue fluyendo directo aunque este canal se caiga. PERO si hace
+    // falta renegociar más adelante (ej. el reinicio de ICE de arriba) y
+    // el canal está muerto, ese intento se pierde en silencio. Por eso
+    // esto se puede volver a armar solo si Realtime lo cierra por su
+    // cuenta (red, límite del servidor) — no se asume que nunca hace
+    // falta después de la conexión inicial.
+    let resubscribeTimer = null;
+    function setupChannel() {
+      if (channel) supabaseClient.removeChannel(channel);
+      channel = supabaseClient.channel(channelName, { config: { broadcast: { self: false } } });
+      channel
+        .on('broadcast', { event: 'offer' }, async ({ payload }) => {
+          if (isCaller) return;
+          await pc.setRemoteDescription(new RTCSessionDescription(payload.sdp));
+          await applyPendingCandidates();
+          const answer = await pc.createAnswer();
+          await pc.setLocalDescription(answer);
+          channel.send({ type: 'broadcast', event: 'answer', payload: { sdp: answer } });
+        })
+        .on('broadcast', { event: 'answer' }, async ({ payload }) => {
+          if (!isCaller) return;
+          if (offerRetryTimer) {
+            clearInterval(offerRetryTimer);
+            offerRetryTimer = null;
+          }
+          await pc.setRemoteDescription(new RTCSessionDescription(payload.sdp));
+          await applyPendingCandidates();
+        })
+        .on('broadcast', { event: 'ice-candidate' }, async ({ payload }) => {
+          if (payload.from === (isCaller ? 'caller' : 'callee')) return;
+          if (!remoteDescSet) {
+            pendingCandidates.push(payload.candidate);
+            return;
+          }
+          try {
+            await pc.addIceCandidate(new RTCIceCandidate(payload.candidate));
+          } catch (e) {
+            // no bloqueante
+          }
+        })
+        .on('broadcast', { event: 'hangup' }, () => {
+          console.log(logTag, 'recibido hangup por el canal', channelName);
+          onState('ended');
+          cleanup();
+        })
+        .subscribe(async (status) => {
+          console.log(logTag, 'canal Realtime ->', status);
+          if (status === 'SUBSCRIBED' && isCaller) {
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            // El callee recién se suscribe a este canal cuando el agente
+            // atiende — los broadcasts de Realtime no quedan guardados
+            // para quien llega tarde, así que se reenvía la oferta hasta
+            // recibir 'answer'.
+            const sendOffer = () => channel.send({ type: 'broadcast', event: 'offer', payload: { sdp: offer } });
+            sendOffer();
+            offerRetryTimer = setInterval(sendOffer, 1500);
+          }
+          if ((status === 'CLOSED' || status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') && !cleanedUp) {
+            console.log(logTag, 'canal de señalización se cayó solo (', status, '), reconectando...');
+            if (!resubscribeTimer) {
+              resubscribeTimer = setTimeout(() => {
+                resubscribeTimer = null;
+                if (!cleanedUp) setupChannel();
+              }, 1000);
+            }
+          }
+        });
+    }
+    setupChannel();
   })();
 
   return {
