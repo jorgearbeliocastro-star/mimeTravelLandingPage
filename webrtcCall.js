@@ -84,8 +84,33 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
 
     pc.onconnectionstatechange = () => {
       console.log(logTag, 'connectionState ->', pc.connectionState);
-      if (pc.connectionState === 'connected') onState('connected');
-      else if (pc.connectionState === 'failed') onState('failed');
+      if (pc.connectionState === 'connected') {
+        if (reconnectTimer) {
+          clearTimeout(reconnectTimer);
+          reconnectTimer = null;
+        }
+        onState('connected');
+      } else if (pc.connectionState === 'failed') {
+        if (reconnectTimer || cleanedUp) return;
+        // Reconexión real: el que llamó manda una oferta nueva con
+        // iceRestart, que el otro lado contesta con una respuesta nueva
+        // (los mismos manejadores de 'offer'/'answer' de más abajo ya
+        // saben procesar esto) — no alcanza con solo pedirle al
+        // navegador que reinicie ICE sin mandar nada por el canal, eso
+        // no reconecta nada de verdad.
+        if (isCaller) {
+          pc.createOffer({ iceRestart: true }).then((offer) => {
+            if (cleanedUp) return;
+            return pc.setLocalDescription(offer).then(() => {
+              channel.send({ type: 'broadcast', event: 'offer', payload: { sdp: offer } });
+            });
+          }).catch((e) => console.log(logTag, 'no se pudo reintentar la oferta:', e.message));
+        }
+        reconnectTimer = setTimeout(() => {
+          reconnectTimer = null;
+          if (pc.connectionState !== 'connected') onState('failed');
+        }, 12000);
+      }
     };
 
     pc.onicecandidate = (event) => {
