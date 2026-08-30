@@ -6545,25 +6545,38 @@
     // status bar hasta que se cancela o se manda el formulario.
     let showingPassengerForm = false;
 
-    // Mismo webhook que usa notifyLaExpancion() más arriba — avisa al
-    // Agente por push apenas el cliente acepta o rechaza desde acá.
-    function notifyQuoteDecisionWeb(quoteRequestId) {
-      fetch(LA_EXPANCION_FUNCTIONS_URL, {
+    // Push real del navegador — avisa al Agente apenas el cliente acepta o
+    // rechaza desde acá. No sabemos aparte a qué Agente quedó asignada esta
+    // cotización sin una consulta extra, así que suena a todo el equipo
+    // (agentId null); es un evento puntual, no algo tan frecuente como para
+    // que moleste.
+    function notifyQuoteDecisionWeb(quoteRequestId, accepted) {
+      fetch(WEB_PUSH_FUNCTIONS_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': LA_EXPANCION_WEBHOOK_SECRET },
-        body: JSON.stringify({ type: 'DECISION', table: 'quote_decision', record: { quoteRequestId } }),
+        headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': WEB_PUSH_WEBHOOK_SECRET },
+        body: JSON.stringify({
+          agentId: null,
+          title: accepted ? 'Cliente aceptó la cotización' : 'Cliente rechazó la cotización',
+          body: 'Tocá para ver los detalles.',
+          url: '/agente/cotizaciones.html',
+        }),
       }).catch(() => {});
     }
 
     // Sin esto, un mensaje del cliente por el chat de la web nunca le avisa
     // a nadie — el Agente solo lo ve si tiene ESA conversación puntual
-    // abierta en la app. Mismo patrón que la app usa para agent_message,
-    // ahora también del lado del cliente.
+    // abierta. Mismo criterio que notifyQuoteDecisionWeb: suena a todo el
+    // equipo, no se conoce el Agente asignado sin una consulta extra.
     function notifyClientMessageWeb(quoteRequestId) {
-      fetch(LA_EXPANCION_FUNCTIONS_URL, {
+      fetch(WEB_PUSH_FUNCTIONS_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': LA_EXPANCION_WEBHOOK_SECRET },
-        body: JSON.stringify({ type: 'INSERT', table: 'client_message', record: { quoteRequestId } }),
+        headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': WEB_PUSH_WEBHOOK_SECRET },
+        body: JSON.stringify({
+          agentId: null,
+          title: 'Tenés un mensaje nuevo',
+          body: 'El cliente te escribió sobre su cotización.',
+          url: '/agente/cotizaciones.html',
+        }),
       }).catch(() => {});
     }
 
