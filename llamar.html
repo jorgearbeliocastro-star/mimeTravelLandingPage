@@ -181,19 +181,28 @@
     const fallbackBox = document.getElementById('fallbackBox');
     let call = null;
     let ended = false;
+    let connectedOnce = false;
 
     function showFallback() {
       controls.style.display = 'none';
       fallbackBox.classList.add('show');
     }
 
-    // Último recurso: si el celular mata la pestaña de golpe (segundo
-    // plano, se cierra el navegador) la fila queda 'ringing'/'accepted'
-    // colgada — `pagehide` es el evento que más confiablemente todavía
-    // dispara en ese momento; con `keepalive` el pedido sigue viajando
-    // aunque la página ya se haya ido.
+    // Último recurso: si el celular mata la pestaña de golpe ANTES de que
+    // atiendan (segundo plano, se cierra el navegador) mientras todavía
+    // está sonando, la fila queda 'ringing' colgada — `pagehide` es el
+    // evento que más confiablemente todavía dispara en ese momento; con
+    // `keepalive` el pedido sigue viajando aunque la página ya se haya
+    // ido.
+    //
+    // OJO: nunca colgar así una vez que la llamada YA CONECTÓ
+    // (connectedOnce) — la pantalla del celular se bloquea sola a los
+    // ~30s de no tocarla (confirmado con la base: dos llamadas de prueba
+    // duraron 29-31s exactos) y ESO también dispara `pagehide`, cortando
+    // una llamada que el cliente seguía escuchando con la pantalla
+    // apagada. Antes esto colgaba la llamada activa por error.
     window.addEventListener('pagehide', () => {
-      if (ended || !window.__callId) return;
+      if (ended || !window.__callId || connectedOnce) return;
       try {
         fetch(SUPABASE_URL + '/rest/v1/rpc/client_end_call', {
           method: 'POST',
@@ -352,6 +361,7 @@
         remoteVideoEl: document.getElementById('remoteVideo'),
         onState(state) {
           if (state === 'connected') {
+            connectedOnce = true;
             statusBar.textContent = 'En llamada';
           }
           if (state === 'failed') {
