@@ -307,6 +307,7 @@
     });
 
     async function loadQuotes() {
+      if (priceFormOpenId !== null) return; // no pisar el formulario de precio abierto
       let query = supabaseClient.from('quote_requests').select('*').order('created_at', { ascending: false }).limit(30);
       if (currentTab === 'new') {
         // Nuevas sin tomar todavía — mismo criterio que "Cotizaciones
