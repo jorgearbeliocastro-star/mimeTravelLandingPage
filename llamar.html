@@ -453,6 +453,7 @@
     // encuadre bien y no se corte texto importante.
     const DOC_ASPECT = { card: 1.586, passport: 1.42 };
     let currentDocAspect = DOC_ASPECT.card;
+    let currentRequestedDocType = null;
 
     function stopDocScan() {
       docScanRunning = false;
