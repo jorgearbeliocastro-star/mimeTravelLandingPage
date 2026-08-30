@@ -7567,7 +7567,7 @@
       laExpancion.rpc('decide_quote_request_with_tier', { p_token: clientToken, p_id: activeQuoteId, p_accept: accept, p_tier: 'basic' })
         .then(({ error }) => {
           if (error) throw error;
-          notifyQuoteDecisionWeb(activeQuoteId);
+          notifyQuoteDecisionWeb(activeQuoteId, accept);
           return pollQuote();
         })
         .catch(() => {
