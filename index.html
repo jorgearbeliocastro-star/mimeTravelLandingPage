@@ -5188,10 +5188,9 @@
           // El Agente cotizaba a ciegas sin saber cuántos viajan — se agrega
           // esto para que lo sepa ANTES de poner precio, no recién cuando el
           // cliente acepta (ahí ya se piden los datos completos de cada
-          // pasajero, ver buildPassengerBlockHTML). Solo "Adultos" en
-          // vuelos (a diferencia de cruceros, no hace falta la edad exacta
-          // de los niños para cotizar un vuelo).
-          { label: 'Adultos', name: 'adultos', type: 'select', default: '1', options: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10+'] }
+          // pasajero, ver buildPassengerBlockHTML).
+          { label: 'Adultos', name: 'adultos', type: 'select', default: '1', options: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10+'] },
+          { label: 'Niños', name: 'ninos', type: 'select', default: '0', options: ['0', '1', '2', '3', '4', '5', '6+'] }
         ]
       },
       cruceros: {
