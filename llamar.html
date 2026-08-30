@@ -266,6 +266,17 @@
         clearTimeout(ringbackTimer);
         ringbackTimer = null;
       }
+      // Cerrar el AudioContext de verdad, no solo dejar de programar
+      // tonos — si queda abierto (aunque esté inactivo), el navegador lo
+      // sigue tratando como "hay audio acá" y Android le muestra un
+      // control de reproducción de fondo que no tiene nada que ver con
+      // la llamada real — y que el sistema puede pausar solo,
+      // interfiriendo con la conexión ya conectada.
+      if (ringbackAudioCtx) {
+        ringbackAudioCtx.close().catch(() => {});
+        ringbackAudioCtx = null;
+        ringbackGain = null;
+      }
     }
 
     async function main() {
