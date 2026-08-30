@@ -247,13 +247,19 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
     if (!localStream || !pc || cleanedUp) return;
     const oldTrack = localStream.getVideoTracks()[0];
     if (!oldTrack) return; // llamada de solo audio, no hay cámara que cambiar
+    // Importante: la cámara vieja hay que soltarla ANTES de pedir la
+    // nueva, no después. Muchos teléfonos (sobre todo gama media/baja)
+    // solo dejan tener un stream de cámara abierto a la vez — si se pide
+    // el stream nuevo mientras el viejo todavía está activo, falla en
+    // silencio (NotReadableError) y la cámara nunca cambia, sin ningún
+    // aviso visible.
+    localStream.removeTrack(oldTrack);
+    oldTrack.stop();
     try {
       const newStream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode } });
       const newTrack = newStream.getVideoTracks()[0];
       const sender = pc.getSenders().find((s) => s.track && s.track.kind === 'video');
       if (sender) await sender.replaceTrack(newTrack);
-      localStream.removeTrack(oldTrack);
-      oldTrack.stop();
       localStream.addTrack(newTrack);
       if (localVideoEl) {
         localVideoEl.srcObject = localStream;
@@ -262,6 +268,10 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
       currentFacingMode = facingMode;
     } catch (e) {
       console.log('[call] no se pudo cambiar de cámara:', e.message);
+      // Si falla, el remitente se queda sin track de video (la cámara
+      // vieja ya se soltó) — mejor eso que quedarse mudo del todo, pero
+      // hay que poder reintentar: si el que llama vuelve a tocar 🔄 o el
+      // agente vuelve a pedir el documento, se prueba de nuevo.
     }
   }
 
