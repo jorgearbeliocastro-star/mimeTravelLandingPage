@@ -7703,11 +7703,6 @@
               docsDataUrls[docType] = await downscaleImageFile(file, 1800, 0.92);
               docsReceivedByAgent[docType] = false;
               laExpancion.rpc('set_quote_docs_ready', { p_token: clientToken, p_id: quote.id, p_ready: true }).catch(() => {});
-              // La manda YA, sin esperar a que el agente la pida — si subió
-              // primero el pasaporte y la tarjeta recién un rato después, el
-              // agente solo pide una vez al ver la primera; sin este envío
-              // proactivo, la segunda nunca llegaba.
-              if (docsChannel) sendDocChunks(docsChannel, docType, docsDataUrls[docType]);
               renderQuoteStatus(quote);
             } catch (e) {
               // no bloqueante — el cliente puede reintentar
