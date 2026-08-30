@@ -682,6 +682,7 @@
         localVideoEl: document.getElementById('localVideo'),
         remoteVideoEl: document.getElementById('remoteVideo'),
         onDocRequest(docType) {
+          currentRequestedDocType = docType;
           const banner = document.getElementById('docRequestBanner');
           banner.textContent = docType === 'card'
             ? '💳 Acercá la tarjeta hasta que quede dentro del recuadro'
