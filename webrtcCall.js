@@ -266,6 +266,11 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
       // muestre un documento a la cámara.
       if (channel) channel.send({ type: 'broadcast', event: 'doc-request', payload: { docType } });
     },
+    restoreClientCamera() {
+      // Solo lo usa el agente (callee), apenas termina de capturar la
+      // foto — el cliente vuelve solo a la cámara frontal.
+      if (channel) channel.send({ type: 'broadcast', event: 'camera-restore', payload: {} });
+    },
     switchCamera,
     toggleCamera() {
       return switchCamera(currentFacingMode === 'environment' ? 'user' : 'environment');
