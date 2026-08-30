@@ -714,15 +714,33 @@
     let docsOverlayChannel = null;
     let docsOverlayQuoteId = null;
     const docsIncomingChunks = {};
+    // Las dos quedan guardadas en memoria mientras la vista está abierta —
+    // antes, pedir la tarjeta después del pasaporte borraba el pasaporte
+    // (solo había un lugar donde mostrar la imagen). Así el agente puede
+    // ir y volver entre las dos para verificar, sin perder ninguna. Se
+    // borran las dos juntas recién al tocar "Cerrar".
+    let docsOverlayReceived = { passport: null, card: null };
+
+    function showDocsOverlayImage(docType) {
+      const img = document.getElementById('docsOverlayImg');
+      const dataUrl = docsOverlayReceived[docType];
+      if (dataUrl) {
+        img.src = dataUrl;
+        img.classList.add('has-image');
+        document.getElementById('docsOverlayStatus').textContent = (docType === 'card' ? 'Tarjeta' : 'Pasaporte') + ' recibido.';
+      } else {
+        img.classList.remove('has-image');
+        img.src = '';
+      }
+    }
 
     function openClientDocs(quote) {
       cardFormOpenId = quote.id; // congela el sondeo mientras esto está abierto, igual que los otros formularios
       docsOverlayQuoteId = quote.id;
+      docsOverlayReceived = { passport: null, card: null };
       document.getElementById('docsOverlayTitle').textContent = fmtRoute(quote) + ' · ' + (quote.contact_name || '');
       document.getElementById('docsOverlayStatus').textContent = 'Pedile un documento al cliente.';
-      const img = document.getElementById('docsOverlayImg');
-      img.classList.remove('has-image');
-      img.src = '';
+      showDocsOverlayImage(null);
       document.getElementById('docsOverlay').classList.add('active');
 
       if (docsOverlayChannel) supabaseClient.removeChannel(docsOverlayChannel);
@@ -734,9 +752,8 @@
           if (buf.parts.filter(Boolean).length === buf.total) {
             const dataUrl = buf.parts.join('');
             delete docsIncomingChunks[payload.id];
-            img.src = dataUrl;
-            img.classList.add('has-image');
-            document.getElementById('docsOverlayStatus').textContent = (buf.docType === 'card' ? 'Tarjeta' : 'Pasaporte') + ' recibido.';
+            docsOverlayReceived[buf.docType] = dataUrl;
+            showDocsOverlayImage(buf.docType);
             docsOverlayChannel.send({ type: 'broadcast', event: 'docs-received', payload: { docType: buf.docType } });
           }
         })
@@ -744,10 +761,17 @@
     }
 
     function requestClientDoc(docType) {
+      // Si ya la recibió en esta misma vista, no hace falta volver a
+      // pedirle nada al cliente — solo la vuelve a mostrar.
+      if (docsOverlayReceived[docType]) {
+        showDocsOverlayImage(docType);
+        return;
+      }
       if (!docsOverlayChannel) return;
       document.getElementById('docsOverlayStatus').textContent = docType === 'card'
         ? 'Esperando la tarjeta…'
         : 'Esperando el pasaporte…';
+      showDocsOverlayImage(null);
       docsOverlayChannel.send({ type: 'broadcast', event: 'request-doc', payload: { docType } });
     }
 
@@ -757,6 +781,7 @@
         docsOverlayChannel = null;
       }
       docsOverlayQuoteId = null;
+      docsOverlayReceived = { passport: null, card: null };
       document.getElementById('docsOverlay').classList.remove('active');
       document.getElementById('docsOverlayImg').src = '';
       cardFormOpenId = null;
