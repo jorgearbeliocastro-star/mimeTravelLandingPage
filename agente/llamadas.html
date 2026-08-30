@@ -197,12 +197,6 @@
     }
 
     async function loadRingingCalls() {
-      const { data, error } = await supabaseClient
-        .from('call_requests')
-        .select('id, client_token, status')
-        .eq('status', 'ringing')
-        .order('created_at', { ascending: true })
-        .limit(5);
       // Si ya se aceptó una llamada mientras este pedido estaba en vuelo,
       // esta respuesta llegó tarde y está desactualizada (sigue viendo la
       // llamada como "ringing" porque se mandó ANTES de aceptarla) — sin
@@ -210,6 +204,21 @@
       // activa, y como el sondeo ya estaba parado, quedaba sonando en
       // loop para siempre sobre el audio real de la llamada.
       if (activeCallId) return;
+      // Ocupado de verdad (contestó una, en cualquier pestaña) — no le
+      // suena ni le muestra ninguna otra hasta que se desocupe. Otro
+      // agente libre la sigue viendo igual (es un pool compartido).
+      const { data: busy } = await supabaseClient.rpc('is_agent_on_active_call', { p_agent_id: agentId });
+      if (busy) {
+        renderList([]);
+        stopRingtone();
+        return;
+      }
+      const { data, error } = await supabaseClient
+        .from('call_requests')
+        .select('id, client_token, status')
+        .eq('status', 'ringing')
+        .order('created_at', { ascending: true })
+        .limit(5);
       if (error) {
         console.error('[llamadas] error consultando llamadas:', error);
         return;

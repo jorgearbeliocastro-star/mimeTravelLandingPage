@@ -324,6 +324,17 @@
     // Aviso simple de "hay una llamada esperando" en esta pantalla de
     // inicio — sin depender de tener llamadas.html abierta.
     async function pollRingingCalls() {
+      // Ocupado de verdad (contestó una llamada, aunque sea en otra
+      // pestaña) — no le avisa acá tampoco. Otro agente libre la sigue
+      // viendo igual (es un pool compartido).
+      const { data: busy } = await supabaseClient.rpc('is_agent_on_active_call', { p_agent_id: agentId });
+      const badge = document.getElementById('callBadge');
+      const card = document.getElementById('callsNavCard');
+      if (busy) {
+        badge.hidden = true;
+        card.classList.remove('ringing');
+        return;
+      }
       const { count, error } = await supabaseClient
         .from('call_requests')
         .select('id', { count: 'exact', head: true })
@@ -332,8 +343,6 @@
         console.error('[panel] error consultando llamadas:', error);
         return;
       }
-      const badge = document.getElementById('callBadge');
-      const card = document.getElementById('callsNavCard');
       if (count > 0) {
         badge.textContent = String(count);
         badge.hidden = false;
