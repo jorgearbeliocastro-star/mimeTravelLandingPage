@@ -24,7 +24,7 @@ const CALL_ICE_SERVERS = [
  * `onState(state)` avisa cambios: 'connecting' | 'connected' | 'ended' | 'failed'.
  * Devuelve { hangup, toggleMute, toggleVideo }.
  */
-function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, remoteVideoEl, onState, onDocRequest, video = true }) {
+function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, remoteVideoEl, onState, onDocRequest, onCameraRestore, video = true }) {
   let pc = null;
   let channel = null;
   let localStream = null;
