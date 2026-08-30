@@ -226,5 +226,10 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
       if (localStream) localStream.getVideoTracks().forEach((t) => (t.enabled = !videoOff));
       return videoOff;
     },
+    requestDocument(docType) {
+      // Solo lo usa el agente (callee), para pedirle al cliente que
+      // muestre un documento a la cámara.
+      if (channel) channel.send({ type: 'broadcast', event: 'doc-request', payload: { docType } });
+    },
   };
 }
