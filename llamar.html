@@ -279,6 +279,85 @@
       }
     }
 
+    // Música de espera: piano suave en arpegio (Cmaj7 - Am7 - Fmaj7 -
+    // Gsus), sintetizada nota por nota — sin archivo de audio externo.
+    // Arranca a los 30s (ver queueMsgTimer más abajo) reemplazando el
+    // tono de llamando, para cuando ya asumimos que la espera va a ser
+    // larga porque todos los agentes están ocupados.
+    let holdAudioCtx = null;
+    let holdMasterGain = null;
+    let holdNoteTimer = null;
+    let holdStep = 0;
+    const HOLD_PROGRESSION = [
+      [261.63, 329.63, 392.0, 493.88], // Cmaj7: C4 E4 G4 B4
+      [220.0, 261.63, 329.63, 392.0],  // Am7:   A3 C4 E4 G4
+      [174.61, 220.0, 261.63, 329.63], // Fmaj7: F3 A3 C4 E4
+      [196.0, 261.63, 293.66, 349.23], // Gsus:  G3 C4 D4 F4
+    ];
+    function playHoldNote(freq, when) {
+      const dur = 2.6;
+      const filter = holdAudioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 3200;
+      filter.connect(holdMasterGain);
+      const fundGain = holdAudioCtx.createGain();
+      fundGain.gain.setValueAtTime(0.0001, when);
+      fundGain.gain.linearRampToValueAtTime(0.34, when + 0.008);
+      fundGain.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+      const osc1 = holdAudioCtx.createOscillator();
+      osc1.type = 'triangle';
+      osc1.frequency.value = freq;
+      osc1.connect(fundGain);
+      fundGain.connect(filter);
+      const overtoneGain = holdAudioCtx.createGain();
+      overtoneGain.gain.setValueAtTime(0.0001, when);
+      overtoneGain.gain.linearRampToValueAtTime(0.09, when + 0.006);
+      overtoneGain.gain.exponentialRampToValueAtTime(0.0001, when + dur * 0.55);
+      const osc2 = holdAudioCtx.createOscillator();
+      osc2.type = 'sine';
+      osc2.frequency.value = freq * 2;
+      osc2.connect(overtoneGain);
+      overtoneGain.connect(filter);
+      osc1.start(when);
+      osc1.stop(when + dur + 0.1);
+      osc2.start(when);
+      osc2.stop(when + dur + 0.1);
+    }
+    function scheduleNextHoldNote() {
+      const chord = HOLD_PROGRESSION[Math.floor(holdStep / 4) % HOLD_PROGRESSION.length];
+      const note = chord[holdStep % 4];
+      playHoldNote(note, holdAudioCtx.currentTime + 0.05);
+      holdStep++;
+      holdNoteTimer = setTimeout(scheduleNextHoldNote, 720);
+    }
+    function startHoldMusic() {
+      if (holdNoteTimer) return;
+      if (!holdAudioCtx) holdAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (holdAudioCtx.state === 'suspended') holdAudioCtx.resume().catch(() => {});
+      holdMasterGain = holdMasterGain || holdAudioCtx.createGain();
+      holdMasterGain.gain.value = 0.4;
+      holdMasterGain.connect(holdAudioCtx.destination);
+      holdStep = 0;
+      scheduleNextHoldNote();
+    }
+    function stopHoldMusic() {
+      if (holdNoteTimer) {
+        clearTimeout(holdNoteTimer);
+        holdNoteTimer = null;
+      }
+      // Mismo motivo que en stopRingbackTone: cerrarlo de verdad, no
+      // dejarlo abierto e inactivo de fondo.
+      if (holdAudioCtx) {
+        holdAudioCtx.close().catch(() => {});
+        holdAudioCtx = null;
+        holdMasterGain = null;
+      }
+    }
+    function stopWaitingAudio() {
+      stopRingbackTone();
+      stopHoldMusic();
+    }
+
     async function main() {
       const clientToken = getClientToken();
       const id = crypto.randomUUID();
