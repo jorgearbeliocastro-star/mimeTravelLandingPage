@@ -181,7 +181,10 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
         .on('broadcast', { event: 'camera-restore' }, () => {
           // El agente ya capturó la foto — el cliente vuelve solo a la
           // cámara frontal, sin que tenga que tocar nada.
-          if (isCaller) switchCamera('user');
+          if (isCaller) {
+            switchCamera('user');
+            if (onCameraRestore) onCameraRestore();
+          }
         })
         .subscribe(async (status) => {
           console.log(logTag, 'canal Realtime ->', status);
