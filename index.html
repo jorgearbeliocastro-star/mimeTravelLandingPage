@@ -6997,12 +6997,18 @@
     // hay ningún archivo ni tabla de por medio, es un broadcast en vivo:
     // si no hay nadie escuchando en ESE momento, se pierde (a propósito,
     // ver la conversación sobre por qué no se guarda nada).
-    function sendDocChunks(channel, docType, dataUrl) {
+    // Mandarlos todos de una, sin pausa, hacía que el canal perdiera
+    // pedazos con fotos grandes (más de ~100 mensajes de golpe) — nunca
+    // llegaba a armarse la foto completa del otro lado. Se manda de a
+    // tandas chicas, con una pausa entre cada una.
+    async function sendDocChunks(channel, docType, dataUrl) {
       const CHUNK_SIZE = 12000;
+      const BATCH_SIZE = 5;
+      const BATCH_PAUSE_MS = 120;
       const total = Math.ceil(dataUrl.length / CHUNK_SIZE);
       const id = Date.now() + '-' + Math.random().toString(36).slice(2);
       for (let i = 0; i < total; i++) {
-        channel.send({
+        await channel.send({
           type: 'broadcast',
           event: 'photo-chunk',
           payload: { id, docType, index: i, total, data: dataUrl.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE) },
