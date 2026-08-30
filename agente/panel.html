@@ -317,7 +317,32 @@
       // saber si el agente está conectado) tiene que salir de acá — antes
       // solo lo mandaba la app nativa.
       startPresenceHeartbeat(supabaseClient);
+      pollRingingCalls();
+      setInterval(pollRingingCalls, 4000);
     })();
+
+    // Aviso simple de "hay una llamada esperando" en esta pantalla de
+    // inicio — sin depender de tener llamadas.html abierta.
+    async function pollRingingCalls() {
+      const { data, error } = await supabaseClient
+        .from('call_requests')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'ringing');
+      if (error) {
+        console.error('[panel] error consultando llamadas:', error);
+        return;
+      }
+      const count = data === null ? 0 : data.length;
+      const badge = document.getElementById('callBadge');
+      const card = document.getElementById('callsNavCard');
+      if (count > 0) {
+        badge.hidden = false;
+        card.classList.add('ringing');
+      } else {
+        badge.hidden = true;
+        card.classList.remove('ringing');
+      }
+    }
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       await supabaseClient.auth.signOut();
