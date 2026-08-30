@@ -488,7 +488,8 @@
       const callScreen = document.getElementById('callScreen');
       if (!callScreen.classList.contains('active')) return; // ya se cerró
       callScreen.classList.remove('active');
-      stopAutoCapture();
+      awaitingDocType = null;
+      scanStatus.classList.remove('active');
       closeSnapshotView();
       clearAllSnapshots();
       // Antes esto solo escondía la pantalla — la conexión de WebRTC
