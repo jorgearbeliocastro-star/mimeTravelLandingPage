@@ -7728,7 +7728,10 @@
             if (!file || !pendingDocType) return;
             const docType = pendingDocType;
             try {
-              docsDataUrls[docType] = await downscaleImageFile(file, 1800, 0.92);
+              // Más chica que antes (1800/0.92) — sigue alcanzando para leer
+              // los datos, pero son muchos menos pedazos para mandar por el
+              // canal en vivo, así llega más rápido y más entero.
+              docsDataUrls[docType] = await downscaleImageFile(file, 1300, 0.78);
               docsReceivedByAgent[docType] = false;
               laExpancion.rpc('set_quote_docs_ready', { p_token: clientToken, p_id: quote.id, p_ready: true }).catch(() => {});
               renderQuoteStatus(quote);
