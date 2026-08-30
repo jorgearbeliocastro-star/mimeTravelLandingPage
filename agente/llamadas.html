@@ -375,6 +375,35 @@
       if (!call) return;
       call.toggleVideo();
     });
+
+    // Captura de pasaporte/tarjeta: dibuja el cuadro ACTUAL del video
+    // remoto (que ya está llegando por la llamada en curso) en un canvas
+    // propio de esta página. No es un canal de datos nuevo ni un archivo
+    // — es puro <canvas> en memoria del navegador, nunca se sube a
+    // Supabase ni a ningún otro lado, y se borra al cerrar la vista o al
+    // colgar (nunca se guarda información en este navegador ni en
+    // ningún lugar).
+    const snapshotOverlay = document.getElementById('snapshotOverlay');
+    const snapshotCanvas = document.getElementById('snapshotCanvas');
+    function clearSnapshot() {
+      snapshotOverlay.classList.remove('active');
+      const ctx = snapshotCanvas.getContext('2d');
+      ctx.clearRect(0, 0, snapshotCanvas.width, snapshotCanvas.height);
+      snapshotCanvas.width = 0;
+      snapshotCanvas.height = 0;
+    }
+    function captureSnapshot() {
+      const video = document.getElementById('remoteVideo');
+      if (!video.videoWidth) return; // aún no hay video llegando
+      snapshotCanvas.width = video.videoWidth;
+      snapshotCanvas.height = video.videoHeight;
+      snapshotCanvas.getContext('2d').drawImage(video, 0, 0);
+      snapshotOverlay.classList.add('active');
+    }
+    document.getElementById('captureBtn').addEventListener('click', captureSnapshot);
+    document.getElementById('recaptureBtn').addEventListener('click', captureSnapshot);
+    document.getElementById('closeSnapshotBtn').addEventListener('click', clearSnapshot);
+
     document.getElementById('hangupBtn').addEventListener('click', async function () {
       this.disabled = true;
       try {
