@@ -4486,15 +4486,16 @@
     // Avisa a la Edge Function que hay un pedido nuevo para notificar al
     // Agente (push). No bloqueante: si falla, el pedido ya quedó guardado igual.
     function notifyLaExpancion(record) {
-      fetch(LA_EXPANCION_FUNCTIONS_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': LA_EXPANCION_WEBHOOK_SECRET },
-        body: JSON.stringify({ type: 'INSERT', table: 'quote_requests', record }),
-      }).catch(() => {});
       // Aviso real del navegador — si el cliente ya tiene un agente
-      // asignado le suena solo a él, si no, a todo el pool. No bloqueante:
-      // si falla, la cotización ya quedó guardada igual, solo no sonó
-      // ningún aviso.
+      // asignado le suena solo a él (y si ese agente no tiene suscripción
+      // activa, send-web-push cae solo al pool general), si no, directo a
+      // todo el pool. No bloqueante: si falla, la cotización ya quedó
+      // guardada igual, solo no sonó ningún aviso.
+      //
+      // Antes esto TAMBIÉN mandaba a send-request-notification (push por
+      // Expo, para la app nativa) — se sacó: la app ya no existe, ningún
+      // agente tiene token de Expo, ese fetch no llegaba a nadie y solo
+      // sumaba un viaje de red de más antes del aviso real.
       fetch(WEB_PUSH_FUNCTIONS_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': WEB_PUSH_WEBHOOK_SECRET },
