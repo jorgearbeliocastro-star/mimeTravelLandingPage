@@ -4561,24 +4561,24 @@
       });
       if (error) throw error;
 
-      // La fila recién insertada es la más nueva de este client_token — el
-      // propio RPC ya ordena por created_at desc, así que es la primera.
-      // Se busca ANTES de avisar para poder mandar el id en la notificación
-      // — sin eso, tocar el aviso en el teléfono no lleva a ningún pedido
-      // puntual, solo abre la app "a ciegas".
-      const { data: myQuotes, error: fetchError } = await laExpancion.rpc('get_quote_requests_by_token', { p_token: clientToken });
-      const inserted = !fetchError && myQuotes && myQuotes.length ? myQuotes[0] : null;
-
+      // El aviso sale YA, apenas se confirma el guardado — antes esperaba
+      // una consulta extra (buscar el id de la fila recién creada) de por
+      // medio, un paso que las llamadas no tienen y que sumaba demora y un
+      // punto más donde algo podía trabarse. El push real (send-web-push)
+      // no necesita el id de la cotización para nada, así que no hace
+      // falta esperarlo.
       notifyLaExpancion({
         origin: payload.origin,
         destination: payload.destination,
         claimedByAgentId: preferredAgentId,
-        quoteRequestId: inserted ? inserted.id : null,
       });
 
-      // Si por lo que sea no se pudo recuperar el id (nunca debería pasar,
-      // el insert de arriba ya tuvo éxito), no se rompe el flujo: el pedido
-      // ya quedó guardado, simplemente no se abre el panel de chat.
+      // El id sí hace falta para abrir el panel de chat acá mismo en la
+      // web — se busca aparte, sin bloquear el aviso de arriba. Si por lo
+      // que sea falla, no se rompe el flujo: el pedido ya quedó guardado,
+      // simplemente no se abre el panel de chat.
+      const { data: myQuotes, error: fetchError } = await laExpancion.rpc('get_quote_requests_by_token', { p_token: clientToken });
+      const inserted = !fetchError && myQuotes && myQuotes.length ? myQuotes[0] : null;
       return inserted ? inserted.id : null;
     }
 
