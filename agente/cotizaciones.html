@@ -171,14 +171,27 @@
   .docs-overlay.active { display: flex; }
   .docs-overlay-title { font-weight: 700; font-size: 15px; }
   .docs-overlay img {
-    display: none;
+    display: block;
     max-width: 100%;
-    max-height: 55vh;
+    max-height: 70vh;
     border-radius: 10px;
     background: #111;
   }
-  .docs-overlay img.has-image { display: block; }
-  .docs-overlay-status { font-size: 13px; color: rgba(255,255,255,0.75); text-align: center; }
+  .docs-thumbs {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    font-size: 12.5px;
+    color: rgba(26,26,26,0.55);
+  }
+  .docs-thumbs img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1.5px solid rgba(27,58,92,0.15);
+    cursor: pointer;
+  }
   .docs-overlay-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
   .docs-overlay-actions button {
     border: none;
