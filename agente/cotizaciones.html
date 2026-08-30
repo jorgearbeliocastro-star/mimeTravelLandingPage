@@ -537,6 +537,7 @@
             thumbs.textContent = 'Buscando documentos del cliente…';
             card.appendChild(thumbs);
             ensureDocsThumbChannel(q);
+            renderDocsThumbs(q.id); // por si ya se habían recibido antes de este repintado
           }
         }
 
