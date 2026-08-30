@@ -324,7 +324,7 @@
     // Aviso simple de "hay una llamada esperando" en esta pantalla de
     // inicio — sin depender de tener llamadas.html abierta.
     async function pollRingingCalls() {
-      const { data, error } = await supabaseClient
+      const { count, error } = await supabaseClient
         .from('call_requests')
         .select('id', { count: 'exact', head: true })
         .eq('status', 'ringing');
@@ -332,7 +332,6 @@
         console.error('[panel] error consultando llamadas:', error);
         return;
       }
-      const count = data === null ? 0 : data.length;
       const badge = document.getElementById('callBadge');
       const card = document.getElementById('callsNavCard');
       if (count > 0) {
