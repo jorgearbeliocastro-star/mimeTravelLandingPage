@@ -136,6 +136,32 @@
     transform: translateY(-3px);
     box-shadow: 0 8px 22px rgba(27,58,92,0.15);
   }
+  .nav-card.ringing {
+    border-color: #c0392b;
+    animation: ringing-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes ringing-pulse {
+    0%, 100% { box-shadow: 0 3px 14px rgba(27,58,92,0.08); }
+    50% { box-shadow: 0 3px 20px rgba(192,57,43,0.35); }
+  }
+  .call-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #c0392b;
+    color: #fff;
+    font-size: 12.5px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  }
+  .call-badge[hidden] { display: none; }
   .nav-card .icon {
     font-size: 26px;
     width: 44px;
