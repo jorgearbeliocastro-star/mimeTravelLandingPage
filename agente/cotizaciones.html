@@ -711,72 +711,85 @@
       });
     }
 
-    // Documentos del cliente (pasaporte/tarjeta): quedan en un bucket
-    // privado de Storage (protegido por RLS — solo agent/super_admin
-    // pueden leerlo) hasta que el agente los ve acá. Al cerrar la vista se
-    // borran del bucket para siempre, no quedan guardados.
+    // Documentos del cliente (pasaporte/tarjeta): llegan por Realtime
+    // mientras el cliente sigue conectado, en pedazos — se arman acá en
+    // memoria del navegador del agente y nunca se guardan en ningún lado.
+    // Se piden uno a la vez (como en las llamadas): tocar el botón le pide
+    // al cliente ESE documento puntual.
+    let docsOverlayChannel = null;
     let docsOverlayQuoteId = null;
-    let docsOverlayReceived = { passport: null, card: null }; // object URLs locales
+    const docsIncomingChunks = {};
+    // Las dos quedan guardadas en memoria mientras la vista está abierta —
+    // antes, pedir la tarjeta después del pasaporte borraba el pasaporte
+    // (solo había un lugar donde mostrar la imagen). Así el agente puede
+    // ir y volver entre las dos para verificar, sin perder ninguna. Se
+    // borran las dos juntas recién al tocar "Cerrar".
+    let docsOverlayReceived = { passport: null, card: null };
 
     function showDocsOverlayImage(docType) {
       const img = document.getElementById('docsOverlayImg');
-      const url = docsOverlayReceived[docType];
-      if (url) {
-        img.src = url;
+      const dataUrl = docsOverlayReceived[docType];
+      if (dataUrl) {
+        img.src = dataUrl;
         img.classList.add('has-image');
-        document.getElementById('docsOverlayStatus').textContent = (docType === 'card' ? 'Tarjeta' : 'Pasaporte') + '.';
+        document.getElementById('docsOverlayStatus').textContent = (docType === 'card' ? 'Tarjeta' : 'Pasaporte') + ' recibido.';
       } else {
         img.classList.remove('has-image');
         img.src = '';
       }
     }
 
-    async function fetchClientDoc(quoteId, docType) {
-      const { data, error } = await supabaseClient.storage.from('quote-docs').download(quoteId + '/' + docType + '.jpg');
-      if (error || !data) return null;
-      return URL.createObjectURL(data);
-    }
-
-    async function openClientDocs(quote) {
+    function openClientDocs(quote) {
       cardFormOpenId = quote.id; // congela el sondeo mientras esto está abierto, igual que los otros formularios
       docsOverlayQuoteId = quote.id;
       docsOverlayReceived = { passport: null, card: null };
       document.getElementById('docsOverlayTitle').textContent = fmtRoute(quote) + ' · ' + (quote.contact_name || '');
-      document.getElementById('docsOverlayStatus').textContent = 'Buscando documentos…';
+      document.getElementById('docsOverlayStatus').textContent = 'Pedile un documento al cliente.';
       showDocsOverlayImage(null);
       document.getElementById('docsOverlay').classList.add('active');
 
-      const [passportUrl, cardUrl] = await Promise.all([
-        fetchClientDoc(quote.id, 'passport'),
-        fetchClientDoc(quote.id, 'card'),
-      ]);
-      docsOverlayReceived.passport = passportUrl;
-      docsOverlayReceived.card = cardUrl;
-      document.getElementById('docsRequestPassportBtn').style.display = passportUrl ? '' : 'none';
-      document.getElementById('docsRequestCardBtn').style.display = cardUrl ? '' : 'none';
-      if (passportUrl) showDocsOverlayImage('passport');
-      else if (cardUrl) showDocsOverlayImage('card');
-      else document.getElementById('docsOverlayStatus').textContent = 'No hay documentos para mostrar todavía.';
+      if (docsOverlayChannel) supabaseClient.removeChannel(docsOverlayChannel);
+      docsOverlayChannel = supabaseClient.channel('quote-docs:' + quote.id, { config: { broadcast: { self: false } } });
+      docsOverlayChannel
+        .on('broadcast', { event: 'photo-chunk' }, ({ payload }) => {
+          const buf = docsIncomingChunks[payload.id] || (docsIncomingChunks[payload.id] = { docType: payload.docType, total: payload.total, parts: [] });
+          buf.parts[payload.index] = payload.data;
+          if (buf.parts.filter(Boolean).length === buf.total) {
+            const dataUrl = buf.parts.join('');
+            delete docsIncomingChunks[payload.id];
+            docsOverlayReceived[buf.docType] = dataUrl;
+            showDocsOverlayImage(buf.docType);
+            docsOverlayChannel.send({ type: 'broadcast', event: 'docs-received', payload: { docType: buf.docType } });
+          }
+        })
+        .subscribe();
     }
 
     function requestClientDoc(docType) {
-      showDocsOverlayImage(docType);
+      // Si ya la recibió en esta misma vista, no hace falta volver a
+      // pedirle nada al cliente — solo la vuelve a mostrar.
+      if (docsOverlayReceived[docType]) {
+        showDocsOverlayImage(docType);
+        return;
+      }
+      if (!docsOverlayChannel) return;
+      document.getElementById('docsOverlayStatus').textContent = docType === 'card'
+        ? 'Esperando la tarjeta…'
+        : 'Esperando el pasaporte…';
+      showDocsOverlayImage(null);
+      docsOverlayChannel.send({ type: 'broadcast', event: 'request-doc', payload: { docType } });
     }
 
     function closeClientDocs() {
-      const quoteId = docsOverlayQuoteId;
-      Object.values(docsOverlayReceived).forEach((url) => { if (url) URL.revokeObjectURL(url); });
-      docsOverlayReceived = { passport: null, card: null };
+      if (docsOverlayChannel) {
+        supabaseClient.removeChannel(docsOverlayChannel);
+        docsOverlayChannel = null;
+      }
       docsOverlayQuoteId = null;
+      docsOverlayReceived = { passport: null, card: null };
       document.getElementById('docsOverlay').classList.remove('active');
       document.getElementById('docsOverlayImg').src = '';
       cardFormOpenId = null;
-      if (quoteId) {
-        // Se borra apenas el agente termina de verlo — nunca queda
-        // guardado más de lo que dura esta revisión.
-        supabaseClient.storage.from('quote-docs').remove([quoteId + '/passport.jpg', quoteId + '/card.jpg']).catch(() => {});
-        supabaseClient.from('quote_requests').update({ client_docs_ready: false }).eq('id', quoteId).then(() => {});
-      }
       loadQuotes(); // recién ahora, para que la lista refleje que ya no está "esperando"
     }
 

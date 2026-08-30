@@ -7670,7 +7670,7 @@
         // Ya decidido no hace falta repetir la info de vuelo (aerolínea,
         // horarios, condiciones) — eso era para ayudar a decidir; una vez
         // aceptada, lo único que importa acá es el estado del pago.
-        if (quote.client_decision === 'accepted') try {
+        if (quote.client_decision === 'accepted') {
           const clientToken = getOrCreateWebClientToken();
           setupDocsChannel(quote.id, clientToken);
           const block = document.createElement('div');
@@ -7708,8 +7708,6 @@
               // no bloqueante — el cliente puede reintentar
             }
           });
-        } catch (e) {
-          console.error('[docs-upload] no se pudo armar la subida de documentos:', e);
         }
         return;
       }
