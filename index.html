@@ -7045,10 +7045,14 @@
         el.textContent = '';
         return;
       }
+      // Ojo: aunque ya lleguen las fotos, NO se invita a cerrar acá — el
+      // agente recién termina cuando confirma la venta (emite el boleto),
+      // ahí el estado pasa a "purchased" y el mensaje de compra confirmada
+      // (más abajo, quoteStatusPurchased) ya avisa que puede cerrar.
       el.textContent = allReceived
-        ? '✅ El agente ya recibió tus documentos — gracias, ya podés cerrar esta pantalla.'
+        ? '✅ El agente ya recibió tus documentos — seguí esperando, te avisamos apenas se confirme la compra.'
         : '⏳ No cierres esta pantalla ni cambies de página hasta que el agente reciba tus documentos.';
-      el.className = allReceived ? 'docs-upload-status done' : 'docs-upload-status waiting';
+      el.className = 'docs-upload-status waiting';
     }
 
     // Aviso fuerte si el cliente intenta salir con algo subido pero
