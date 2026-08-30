@@ -4485,7 +4485,7 @@
           agentId: record.claimedByAgentId || null,
           title: 'Cotización nueva',
           body: (record.origin ? record.origin + ' → ' : '') + (record.destination || 'Consulta general'),
-          url: 'cotizaciones.html',
+          url: '/agente/cotizaciones.html',
         }),
       }).catch(() => {});
     }
