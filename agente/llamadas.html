@@ -85,6 +85,35 @@
     background: rgba(255,255,255,0.15); color: #fff; font-size: 20px; cursor: pointer;
   }
   .btn-hangup { background: #c0392b; }
+
+  /* Captura de documento/tarjeta: es solo un dibujo del cuadro actual del
+     video remoto en un <canvas>, nunca se sube ni se guarda en ningún
+     lado — se borra sola al cerrar o al colgar. */
+  .snapshot-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background: rgba(0,0,0,0.92);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    gap: 14px;
+  }
+  .snapshot-overlay.active { display: flex; }
+  .snapshot-overlay canvas {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 10px;
+    background: #111;
+    touch-action: pinch-zoom;
+  }
+  .snapshot-overlay .snapshot-hint { color: rgba(255,255,255,0.6); font-size: 13px; text-align: center; }
+  .snapshot-overlay .snapshot-actions { display: flex; gap: 10px; }
+  .snapshot-overlay .btn { border: none; border-radius: 20px; padding: 10px 18px; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .btn-recapture { background: rgba(255,255,255,0.15); color: #fff; }
+  .btn-close-snapshot { background: var(--coral); color: #fff; }
 </style>
 </head>
 <body>
