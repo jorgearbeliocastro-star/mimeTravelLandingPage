@@ -723,88 +723,67 @@
     // Documentos del cliente (pasaporte/tarjeta): llegan por Realtime
     // mientras el cliente sigue conectado, en pedazos — se arman acá en
     // memoria del navegador del agente y nunca se guardan en ningún lado.
-    // Se piden uno a la vez (como en las llamadas): tocar el botón le pide
-    // al cliente ESE documento puntual.
-    let docsOverlayChannel = null;
-    let docsOverlayQuoteId = null;
+    // Se piden los dos SOLOS apenas la card se muestra (sin que el agente
+    // tenga que tocar nada) y se ven como miniatura directo en la card.
+    const docsThumbCache = {}; // quoteId -> { passport: dataUrl|null, card: dataUrl|null }
+    const docsThumbChannels = {}; // quoteId -> canal (uno por cotización, para no repetir el pedido)
     const docsIncomingChunks = {};
-    // Las dos quedan guardadas en memoria mientras la vista está abierta —
-    // antes, pedir la tarjeta después del pasaporte borraba el pasaporte
-    // (solo había un lugar donde mostrar la imagen). Así el agente puede
-    // ir y volver entre las dos para verificar, sin perder ninguna. Se
-    // borran las dos juntas recién al tocar "Cerrar".
-    let docsOverlayReceived = { passport: null, card: null };
 
-    function showDocsOverlayImage(docType) {
-      const img = document.getElementById('docsOverlayImg');
-      const dataUrl = docsOverlayReceived[docType];
-      if (dataUrl) {
-        img.src = dataUrl;
-        img.classList.add('has-image');
-        document.getElementById('docsOverlayStatus').textContent = (docType === 'card' ? 'Tarjeta' : 'Pasaporte') + ' recibido.';
-      } else {
-        img.classList.remove('has-image');
-        img.src = '';
+    function renderDocsThumbs(quoteId) {
+      const el = document.getElementById('docsThumbs-' + quoteId);
+      if (!el) return; // la card ya no está en pantalla
+      const cache = docsThumbCache[quoteId] || {};
+      if (!cache.passport && !cache.card) {
+        el.textContent = 'Buscando documentos del cliente…';
+        return;
       }
+      el.innerHTML = '';
+      ['passport', 'card'].forEach((docType) => {
+        if (!cache[docType]) return;
+        const img = document.createElement('img');
+        img.src = cache[docType];
+        img.alt = docType === 'card' ? 'Tarjeta' : 'Pasaporte';
+        img.title = 'Tocá para ver en grande';
+        img.addEventListener('click', () => openDocViewer(cache[docType], img.alt));
+        el.appendChild(img);
+      });
     }
 
-    function openClientDocs(quote) {
-      cardFormOpenId = quote.id; // congela el sondeo mientras esto está abierto, igual que los otros formularios
-      docsOverlayQuoteId = quote.id;
-      docsOverlayReceived = { passport: null, card: null };
-      document.getElementById('docsOverlayTitle').textContent = fmtRoute(quote) + ' · ' + (quote.contact_name || '');
-      document.getElementById('docsOverlayStatus').textContent = 'Pedile un documento al cliente.';
-      showDocsOverlayImage(null);
-      document.getElementById('docsOverlay').classList.add('active');
-
-      if (docsOverlayChannel) supabaseClient.removeChannel(docsOverlayChannel);
-      docsOverlayChannel = supabaseClient.channel('quote-docs:' + quote.id, { config: { broadcast: { self: false } } });
-      docsOverlayChannel
+    function ensureDocsThumbChannel(quote) {
+      if (docsThumbChannels[quote.id]) return; // ya está pidiendo/recibiendo para esta cotización
+      docsThumbCache[quote.id] = { passport: null, card: null };
+      const channel = supabaseClient.channel('quote-docs:' + quote.id, { config: { broadcast: { self: false } } });
+      docsThumbChannels[quote.id] = channel;
+      channel
         .on('broadcast', { event: 'photo-chunk' }, ({ payload }) => {
           const buf = docsIncomingChunks[payload.id] || (docsIncomingChunks[payload.id] = { docType: payload.docType, total: payload.total, parts: [] });
           buf.parts[payload.index] = payload.data;
           if (buf.parts.filter(Boolean).length === buf.total) {
             const dataUrl = buf.parts.join('');
             delete docsIncomingChunks[payload.id];
-            docsOverlayReceived[buf.docType] = dataUrl;
-            showDocsOverlayImage(buf.docType);
-            docsOverlayChannel.send({ type: 'broadcast', event: 'docs-received', payload: { docType: buf.docType } });
+            docsThumbCache[quote.id][buf.docType] = dataUrl;
+            renderDocsThumbs(quote.id);
+            channel.send({ type: 'broadcast', event: 'docs-received', payload: { docType: buf.docType } });
           }
         })
-        .subscribe();
+        .subscribe((status) => {
+          if (status === 'SUBSCRIBED') {
+            channel.send({ type: 'broadcast', event: 'request-doc', payload: { docType: 'passport' } });
+            channel.send({ type: 'broadcast', event: 'request-doc', payload: { docType: 'card' } });
+          }
+        });
     }
 
-    function requestClientDoc(docType) {
-      // Si ya la recibió en esta misma vista, no hace falta volver a
-      // pedirle nada al cliente — solo la vuelve a mostrar.
-      if (docsOverlayReceived[docType]) {
-        showDocsOverlayImage(docType);
-        return;
-      }
-      if (!docsOverlayChannel) return;
-      document.getElementById('docsOverlayStatus').textContent = docType === 'card'
-        ? 'Esperando la tarjeta…'
-        : 'Esperando el pasaporte…';
-      showDocsOverlayImage(null);
-      docsOverlayChannel.send({ type: 'broadcast', event: 'request-doc', payload: { docType } });
+    function openDocViewer(dataUrl, label) {
+      document.getElementById('docsOverlayTitle').textContent = label;
+      document.getElementById('docsOverlayImg').src = dataUrl;
+      document.getElementById('docsOverlay').classList.add('active');
     }
 
-    function closeClientDocs() {
-      if (docsOverlayChannel) {
-        supabaseClient.removeChannel(docsOverlayChannel);
-        docsOverlayChannel = null;
-      }
-      docsOverlayQuoteId = null;
-      docsOverlayReceived = { passport: null, card: null };
+    document.getElementById('docsCloseBtn').addEventListener('click', () => {
       document.getElementById('docsOverlay').classList.remove('active');
       document.getElementById('docsOverlayImg').src = '';
-      cardFormOpenId = null;
-      loadQuotes(); // recién ahora, para que la lista refleje que ya no está "esperando"
-    }
-
-    document.getElementById('docsRequestPassportBtn').addEventListener('click', () => requestClientDoc('passport'));
-    document.getElementById('docsRequestCardBtn').addEventListener('click', () => requestClientDoc('card'));
-    document.getElementById('docsCloseBtn').addEventListener('click', closeClientDocs);
+    });
   </script>
 </body>
 </html>
