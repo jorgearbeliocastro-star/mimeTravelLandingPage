@@ -374,6 +374,16 @@
         return;
       }
       startRingbackTone();
+      // 30s era muy poco — un Agente libre pero de verdad ocupado con
+      // otra cosa unos segundos ya caía en "todos ocupados" sin que
+      // fuera cierto. 30s es más parecido a cuánto suena una llamada
+      // normal antes de asumir que nadie va a atender.
+      const queueMsgTimer = setTimeout(() => {
+        if (ended || statusBar.textContent !== 'Llamando…') return;
+        statusBar.textContent = 'Todos los agentes están ocupados — tu llamada quedó en espera.';
+        stopRingbackTone();
+        startHoldMusic();
+      }, 30000);
       // Notificación push real del navegador — le llega a todos los
       // agentes suscriptos desde agente/panel.html.
       fetch(WEB_PUSH_FUNCTIONS_URL, {
