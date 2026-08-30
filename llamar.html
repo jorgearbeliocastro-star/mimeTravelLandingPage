@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Mime Travel — Llamar a un agente</title>
+<style>
+  :root {
+    --primary: #1B3A5C;
+    --coral: #FF7A59;
+    --dark: #1A1A1A;
+    --light: #FAFAFA;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: var(--font-body);
+    background: #0d1b2a;
+    color: #fff;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+  .status-bar {
+    text-align: center;
+    padding: 18px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .choice-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .choice-btn {
+    width: 220px;
+    padding: 14px;
+    margin-bottom: 12px;
+    border-radius: 24px;
+    border: none;
+    background: var(--coral);
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  #choiceAudioBtn { background: rgba(255,255,255,0.15); }
+  .video-area {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    background: #000;
+  }
+  #remoteVideo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #111;
+  }
+  #localVideo {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    width: 110px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.4);
+    background: #222;
+  }
+  .placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+  }
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 24px;
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
+  .btn-circle {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  .btn-circle.active { background: var(--coral); }
+  .btn-hangup { background: #c0392b; }
+  .fallback {
+    text-align: center;
+    padding: 0 24px 24px;
+  }
+  .fallback a {
+    color: var(--coral);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .fallback { display: none; }
+  .fallback.show { display: block; }
+</style>
+</head>
+<body>
+  <div class="choice-screen" id="choiceScreen">
+    <div class="avatar" style="margin-bottom: 20px;">📞</div>
+    <p style="margin-bottom: 20px; text-align: center; padding: 0 24px;">¿Cómo preferís hacer la llamada?</p>
+    <button type="button" class="choice-btn" id="choiceVideoBtn">📹 Con video</button>
+    <button type="button" class="choice-btn" id="choiceAudioBtn">🎤 Solo audio</button>
+  </div>
+
+  <div class="status-bar" id="statusBar" style="display:none;">Llamando…</div>
+
+  <div class="video-area" id="videoArea" style="display:none;">
+    <video id="remoteVideo" autoplay playsinline></video>
+    <div class="placeholder" id="placeholder">
+      <div class="avatar">📞</div>
+    </div>
+    <video id="localVideo" autoplay playsinline muted></video>
+  </div>
+
+  <div class="fallback" id="fallbackBox">
+    <p>No se pudo conectar la llamada.</p>
+    <a href="index.html?chat=1">Escribinos por el chat</a>
+  </div>
+
+  <div class="controls" id="controls" style="display:none;">
+    <button class="btn-circle" id="muteBtn">🎤</button>
+    <button class="btn-circle" id="videoBtn">📷</button>
+    <button class="btn-circle btn-hangup" id="hangupBtn">⏹</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="webrtcCall.js"></script>
+  <script>
+    const SUPABASE_URL = 'https://ihrfaprvzdafclquuhlh.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_lcWymV25nHd2_iOMjRwD4A_XOXvOdPK';
+    const WEB_PUSH_WEBHOOK_SECRET = '3a61e1f14f2ff3350889bd67cf2250bebde907e17b6d733e';
+    const WEB_PUSH_FUNCTIONS_URL = SUPABASE_URL + '/functions/v1/send-web-push';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Mismo token que usa el resto de la web pública para identificar este
+    // navegador como "cliente sin cuenta" (ver getOrCreateWebClientToken en
+    // index.html).
+    function getClientToken() {
+      const KEY = 'la-expancion.client-token';
+      let token = localStorage.getItem(KEY);
+      if (!token) {
+        token = crypto.randomUUID();
+        localStorage.setItem(KEY, token);
+      }
+      return token;
+    }
+
+    const statusBar = document.getElementById('statusBar');
+    const placeholder = document.getElementById('placeholder');
+    const controls = document.getElementById('controls');
+    const fallbackBox = document.getElementById('fallbackBox');
+    let call = null;
+    let ended = false;
+
+    function showFallback() {
+      controls.style.display = 'none';
+      fallbackBox.classList.add('show');
+    }
+
+    // Último recurso: si el celular mata la pestaña de golpe (segundo
+    // plano, se cierra el navegador) la fila queda 'ringing'/'accepted'
+    // colgada — `pagehide` es el evento que más confiablemente todavía
+    // dispara en ese momento; con `keepalive` el pedido sigue viajando
+    // aunque la página ya se haya ido.
+    window.addEventListener('pagehide', () => {
+      if (ended || !window.__callId) return;
+      try {
+        fetch(SUPABASE_URL + '/rest/v1/rpc/client_end_call', {
+          method: 'POST',
+          keepalive: true,
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: 'Bearer ' + SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({ p_token: getClientToken(), p_id: window.__callId }),
+        });
+      } catch (e) {
+        // no bloqueante — la página se está yendo de todos modos
+      }
+    });
+
+    // Tono de "llamando" — el clásico brr-brr de teléfono (440+480Hz, 2s
+    // de tono / 4s de silencio), sintetizado con Web Audio. Es el que
+    // escucha el CLIENTE — el sonido del pájaro es del agente
+    // (agente/llamadas.html), no se comparte acá.
+    let ringbackAudioCtx = null;
+    let ringbackGain = null;
+    let ringbackTimer = null;
+    let ringbackOn = false;
+    function playRingbackBurst() {
+      const now = ringbackAudioCtx.currentTime;
+      const dur = 2;
+      [440, 480].forEach((freq) => {
+        const osc = ringbackAudioCtx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const gain = ringbackAudioCtx.createGain();
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.linearRampToValueAtTime(0.22, now + 0.04);
+        gain.gain.setValueAtTime(0.22, now + dur - 0.06);
+        gain.gain.linearRampToValueAtTime(0.0001, now + dur);
+        osc.connect(gain);
+        gain.connect(ringbackGain);
+        osc.start(now);
+        osc.stop(now + dur + 0.05);
+      });
+    }
+    function startRingbackTone() {
+      if (ringbackOn) return;
+      ringbackOn = true;
+      if (!ringbackAudioCtx) ringbackAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (ringbackAudioCtx.state === 'suspended') ringbackAudioCtx.resume().catch(() => {});
+      ringbackGain = ringbackGain || ringbackAudioCtx.createGain();
+      ringbackGain.gain.value = 0.5;
+      ringbackGain.connect(ringbackAudioCtx.destination);
+      const cycle = () => {
+        if (!ringbackOn) return;
+        playRingbackBurst();
+        ringbackTimer = setTimeout(cycle, 6000);
+      };
+      cycle();
+    }
+    function stopRingbackTone() {
+      ringbackOn = false;
+      if (ringbackTimer) {
+        clearTimeout(ringbackTimer);
+        ringbackTimer = null;
+      }
+    }
+
+    async function main() {
+      const clientToken = getClientToken();
+      const id = crypto.randomUUID();
+      window.__callId = id;
+
+      const { error } = await supabaseClient.from('call_requests').insert({ id, client_token: clientToken });
+      if (error) {
+        statusBar.textContent = 'No se pudo iniciar la llamada.';
+        showFallback();
+        return;
+      }
+      startRingbackTone();
+      // Notificación push real del navegador — le llega a todos los
+      // agentes suscriptos desde agente/panel.html.
+      fetch(WEB_PUSH_FUNCTIONS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': WEB_PUSH_WEBHOOK_SECRET },
+        body: JSON.stringify({
+          title: 'Llamada entrante',
+          body: 'Un cliente te está llamando — tocá para atender.',
+          url: 'agente/llamadas.html',
+        }),
+      }).catch(() => {});
+
+      // Sondea el estado de la llamada (aceptada/rechazada/sin respuesta)
+      // hasta que alguien conteste.
+      const poll = setInterval(async () => {
+        if (ended) return clearInterval(poll);
+        const { data } = await supabaseClient.rpc('get_call_request_by_token', { p_token: clientToken, p_id: id });
+        const row = (data || [])[0];
+        if (!row) return;
+        if (row.status === 'accepted' && !call) {
+          clearInterval(poll);
+          stopRingbackTone();
+          statusBar.textContent = 'Conectando…';
+          startCall();
+        } else if (row.status === 'declined' || row.status === 'missed') {
+          clearInterval(poll);
+          if (ended) return;
+          ended = true;
+          stopRingbackTone();
+          statusBar.textContent = row.status === 'declined' ? 'Llamada rechazada' : 'Nadie contestó';
+          showFallback();
+          setTimeout(() => { window.location.href = 'index.html'; }, 4000);
+        }
+      }, 2000);
+    }
+
+    // Se dispara tanto por el aviso en vivo (WebRTC/onState) como por el
+    // sondeo de respaldo de más abajo — `ended` evita que se ejecute dos
+    // veces.
+    function handleCallEnded() {
+      if (ended) return;
+      ended = true;
+      stopRingbackTone();
+      statusBar.textContent = 'Llamada finalizada';
+      controls.style.display = 'none';
+      setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+    }
+
+    function startCall() {
+      placeholder.style.display = 'none';
+      controls.style.display = 'flex';
+      if (!wantsVideo) {
+        document.getElementById('localVideo').style.display = 'none';
+        document.getElementById('videoBtn').style.display = 'none';
+      }
+      // Respaldo: el aviso de "colgar" viaja por el canal en vivo — si se
+      // pierde (red mala, celular en segundo plano), este sondeo agarra
+      // el "colgó el agente" directo de la base igual.
+      const endedPoll = setInterval(async () => {
+        if (ended) return clearInterval(endedPoll);
+        try {
+          const { data } = await supabaseClient.rpc('get_call_request_by_token', { p_token: getClientToken(), p_id: window.__callId });
+          const row = (data || [])[0];
+          if (row && row.status === 'ended') {
+            clearInterval(endedPoll);
+            handleCallEnded();
+          }
+        } catch (e) {
+          // no bloqueante — se reintenta en el próximo ciclo
+        }
+      }, 4000);
+
+      call = startWebRTCCall({
+        supabaseClient,
+        channelName: 'call:' + window.__callId,
+        isCaller: true,
+        video: wantsVideo,
+        localVideoEl: document.getElementById('localVideo'),
+        remoteVideoEl: document.getElementById('remoteVideo'),
+        onState(state) {
+          if (state === 'connected') {
+            statusBar.textContent = 'En llamada';
+          }
+          if (state === 'failed') {
+            if (ended) return;
+            ended = true;
+            stopRingbackTone();
+            supabaseClient.rpc('client_end_call', { p_token: getClientToken(), p_id: window.__callId }).catch(() => {});
+            statusBar.textContent = 'No se pudo conectar';
+            showFallback();
+            setTimeout(() => { window.location.href = 'index.html'; }, 4000);
+          }
+          if (state === 'ended') handleCallEnded();
+        },
+      });
+    }
+
+    document.getElementById('muteBtn').addEventListener('click', function () {
+      if (!call) return;
+      const isMuted = call.toggleMute();
+      this.classList.toggle('active', isMuted);
+    });
+    document.getElementById('videoBtn').addEventListener('click', function () {
+      if (!call) return;
+      const isOff = call.toggleVideo();
+      this.classList.toggle('active', isOff);
+    });
+    document.getElementById('hangupBtn').addEventListener('click', async function () {
+      ended = true;
+      stopRingbackTone();
+      if (call) await call.hangup();
+      try {
+        await supabaseClient.rpc('client_end_call', { p_token: getClientToken(), p_id: window.__callId });
+      } catch (e) {}
+      window.location.href = 'index.html';
+    });
+
+    let wantsVideo = true;
+    function startAfterChoice(withVideo) {
+      wantsVideo = withVideo;
+      document.getElementById('choiceScreen').style.display = 'none';
+      statusBar.style.display = 'block';
+      document.getElementById('videoArea').style.display = 'block';
+      controls.style.display = 'flex';
+      main();
+    }
+    document.getElementById('choiceVideoBtn').addEventListener('click', () => startAfterChoice(true));
+    document.getElementById('choiceAudioBtn').addEventListener('click', () => startAfterChoice(false));
+  </script>
+</body>
+</html>
