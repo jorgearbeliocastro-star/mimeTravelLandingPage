@@ -15,7 +15,7 @@ self.addEventListener('push', (event) => {
     body: data.body || '',
     icon: '../logo-v4.png',
     badge: '../logo-v4.png',
-    data: { url: data.url || 'cotizaciones.html' },
+    data: { url: data.url || '/agente/cotizaciones.html' },
     requireInteraction: true,
   };
   event.waitUntil(self.registration.showNotification(title, options));
@@ -23,7 +23,7 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const targetUrl = event.notification.data && event.notification.data.url ? event.notification.data.url : 'cotizaciones.html';
+  const targetUrl = event.notification.data && event.notification.data.url ? event.notification.data.url : '/agente/cotizaciones.html';
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientsArr) => {
       // Si ya hay una pestaña del panel abierta, la enfoca y navega ahí en
