@@ -7,14 +7,15 @@
 // sólido y probado con una sola llamada por vez.
 //
 // STUN público de Google + TURN de respaldo (cuenta gratis de Metered,
-// 500MB/mes) para cuando la conexión directa falla.
+// app "mimetravelcalls", 20GB/mes) para cuando la conexión directa
+// falla. Cuenta nueva creada el 2026-08-30, cupo entero sin usar.
 const CALL_ICE_SERVERS = [
   { urls: 'stun:stun.l.google.com:19302' },
   { urls: 'stun:stun.relay.metered.ca:80' },
-  { urls: 'turn:global.relay.metered.ca:80', username: 'd52c18b58fb01659f875bef8', credential: 'he+xWqvqeYDZphdD' },
-  { urls: 'turn:global.relay.metered.ca:80?transport=tcp', username: 'd52c18b58fb01659f875bef8', credential: 'he+xWqvqeYDZphdD' },
-  { urls: 'turn:global.relay.metered.ca:443', username: 'd52c18b58fb01659f875bef8', credential: 'he+xWqvqeYDZphdD' },
-  { urls: 'turns:global.relay.metered.ca:443?transport=tcp', username: 'd52c18b58fb01659f875bef8', credential: 'he+xWqvqeYDZphdD' },
+  { urls: 'turn:standard.relay.metered.ca:80', username: '5ee51ca3eef00d733a73a7c3', credential: '2tte+jfOjgEWG+E+' },
+  { urls: 'turn:standard.relay.metered.ca:80?transport=tcp', username: '5ee51ca3eef00d733a73a7c3', credential: '2tte+jfOjgEWG+E+' },
+  { urls: 'turn:standard.relay.metered.ca:443', username: '5ee51ca3eef00d733a73a7c3', credential: '2tte+jfOjgEWG+E+' },
+  { urls: 'turns:standard.relay.metered.ca:443?transport=tcp', username: '5ee51ca3eef00d733a73a7c3', credential: '2tte+jfOjgEWG+E+' },
 ];
 
 /**
