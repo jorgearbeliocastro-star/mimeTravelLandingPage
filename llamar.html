@@ -381,7 +381,7 @@
       const queueMsgTimer = setTimeout(() => {
         if (ended || statusBar.textContent !== 'Llamando…') return;
         statusBar.textContent = 'Todos los agentes están ocupados — tu llamada quedó en espera.';
-        stopRingbackTone();
+        stopWaitingAudio();
         startHoldMusic();
       }, 30000);
       // Notificación push real del navegador — le llega a todos los
@@ -405,14 +405,14 @@
         if (!row) return;
         if (row.status === 'accepted' && !call) {
           clearInterval(poll);
-          stopRingbackTone();
+          stopWaitingAudio();
           statusBar.textContent = 'Conectando…';
           startCall();
         } else if (row.status === 'declined' || row.status === 'missed') {
           clearInterval(poll);
           if (ended) return;
           ended = true;
-          stopRingbackTone();
+          stopWaitingAudio();
           statusBar.textContent = row.status === 'declined' ? 'Llamada rechazada' : 'Nadie contestó';
           showFallback();
           setTimeout(() => { window.location.href = 'index.html'; }, 4000);
@@ -426,7 +426,7 @@
     function handleCallEnded() {
       if (ended) return;
       ended = true;
-      stopRingbackTone();
+      stopWaitingAudio();
       statusBar.textContent = 'Llamada finalizada';
       controls.style.display = 'none';
       setTimeout(() => { window.location.href = 'index.html'; }, 1500);
@@ -483,7 +483,7 @@
           if (state === 'failed') {
             if (ended) return;
             ended = true;
-            stopRingbackTone();
+            stopWaitingAudio();
             supabaseClient.rpc('client_end_call', { p_token: getClientToken(), p_id: window.__callId }).catch(() => {});
             statusBar.textContent = 'No se pudo conectar';
             showFallback();
@@ -506,7 +506,7 @@
     });
     document.getElementById('hangupBtn').addEventListener('click', async function () {
       ended = true;
-      stopRingbackTone();
+      stopWaitingAudio();
       if (call) await call.hangup();
       try {
         await supabaseClient.rpc('client_end_call', { p_token: getClientToken(), p_id: window.__callId });
