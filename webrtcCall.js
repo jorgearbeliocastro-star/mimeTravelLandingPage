@@ -205,6 +205,32 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
     setupChannel();
   })();
 
+  // Cambia de cámara EN VIVO (sin cortar ni reconectar la llamada):
+  // pide un track nuevo con la cámara pedida y lo reemplaza en la
+  // conexión ya activa (pc.getSenders / replaceTrack), en vez de volver
+  // a armar todo desde cero.
+  async function switchCamera(facingMode) {
+    if (!localStream || !pc || cleanedUp) return;
+    const oldTrack = localStream.getVideoTracks()[0];
+    if (!oldTrack) return; // llamada de solo audio, no hay cámara que cambiar
+    try {
+      const newStream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode } });
+      const newTrack = newStream.getVideoTracks()[0];
+      const sender = pc.getSenders().find((s) => s.track && s.track.kind === 'video');
+      if (sender) await sender.replaceTrack(newTrack);
+      localStream.removeTrack(oldTrack);
+      oldTrack.stop();
+      localStream.addTrack(newTrack);
+      if (localVideoEl) {
+        localVideoEl.srcObject = localStream;
+        localVideoEl.play().catch(() => {});
+      }
+      currentFacingMode = facingMode;
+    } catch (e) {
+      console.log('[call] no se pudo cambiar de cámara:', e.message);
+    }
+  }
+
   return {
     async hangup() {
       // Espera a que el aviso de "colgar" realmente salga por el canal
