@@ -7747,6 +7747,28 @@
       quoteReopenCountdown.textContent = minutes + ':' + String(seconds).padStart(2, '0');
     }, 1000);
 
+    // Antes de dejar entrar a llamar.html, chequea que el dispositivo
+    // realmente tenga cámara/micrófono — muchas PC de escritorio no tienen
+    // ninguno de los dos, y sin esto el cliente entraba a la pantalla de
+    // llamada y se quedaba trabado sin entender por qué no conecta.
+    document.getElementById('callAgentBtn').addEventListener('click', function (e) {
+      e.preventDefault();
+      navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+        .then((stream) => {
+          stream.getTracks().forEach((t) => t.stop());
+          window.location.href = 'llamar.html';
+        })
+        .catch((err) => {
+          if (err && (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError')) {
+            window.alert(t('callNoDeviceMsg'));
+          } else if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) {
+            window.alert(t('callPermissionDeniedMsg'));
+          } else {
+            window.alert(t('callNoDeviceMsg'));
+          }
+        });
+    });
+
     // ===== "Necesito ayuda" (botón fijo, siempre visible) =====
     // La app solo existe para Android — para un cliente de iPhone, este
     // botón CUMPLE EL ROL de la app: entrar al chat con su agente (o con el
