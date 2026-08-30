@@ -2,6 +2,12 @@
 // notificaciones push reales del navegador (cotizaciones nuevas) y de
 // llevar al agente a la pantalla correspondiente al tocarlas. No cachea
 // nada de la página (no hace falta que el panel funcione sin conexión).
+//
+// skipWaiting + clients.claim: sin esto, una versión nueva de este archivo
+// se queda "esperando" hasta que se cierren TODAS las pestañas del panel
+// — puede tardar días en activarse sola. Así se activa apenas se detecta.
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
 
 self.addEventListener('push', (event) => {
   let data = {};
