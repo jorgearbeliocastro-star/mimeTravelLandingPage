@@ -399,9 +399,11 @@
             q.passengers.map((p) => escapeHtml(p.fullName || (p.firstName + ' ' + p.lastName) || 'Sin nombre')).join(', ') +
             '</div>';
         }
+        const datesHtml = fmtDates(q);
         card.innerHTML =
           '<div class="route">' + fmtRoute(q) + '</div>' +
           '<div class="meta">' + escapeHtml(q.category || '') + ' · ' + escapeHtml(q.contact_name || 'Sin nombre') + (q.contact_phone ? ' · ' + escapeHtml(q.contact_phone) : '') + (q.contact_email ? ' · ' + escapeHtml(q.contact_email) : '') + '</div>' +
+          (datesHtml ? '<div class="meta">' + escapeHtml(datesHtml) + '</div>' : '') +
           (partyHtml ? '<div class="meta">' + escapeHtml(partyHtml) + '</div>' : '') +
           (q.notes ? '<div class="notes">' + escapeHtml(q.notes) + '</div>' : '') +
           passengersHtml +
