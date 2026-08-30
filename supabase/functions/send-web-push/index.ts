@@ -78,7 +78,7 @@ Deno.serve(async (req) => {
     await supabase.from('agent_push_subscriptions').delete().in('subscription->>endpoint', expired);
   }
 
-  return new Response(JSON.stringify({ sent: results.filter((r) => r.status === 'fulfilled').length }), {
+  return new Response(JSON.stringify({ sent: results.filter((r) => r.status === 'fulfilled').length, usedFallback }), {
     headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
   });
 });
