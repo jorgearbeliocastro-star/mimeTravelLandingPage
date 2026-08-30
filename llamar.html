@@ -374,10 +374,10 @@
         return;
       }
       startRingbackTone();
-      // 30s era muy poco — un Agente libre pero de verdad ocupado con
-      // otra cosa unos segundos ya caía en "todos ocupados" sin que
-      // fuera cierto. 30s es más parecido a cuánto suena una llamada
-      // normal antes de asumir que nadie va a atender.
+      // Si nadie contestó a los 30s (parecido a cuánto suena una llamada
+      // normal antes de asumir que nadie va a atender), probablemente
+      // todos los Agentes están ocupados — pasa a música de espera en
+      // vez de seguir sonando como si nada.
       const queueMsgTimer = setTimeout(() => {
         if (ended || statusBar.textContent !== 'Llamando…') return;
         statusBar.textContent = 'Todos los agentes están ocupados — tu llamada quedó en espera.';
