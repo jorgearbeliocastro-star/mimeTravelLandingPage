@@ -480,7 +480,10 @@
       c.width = w;
       c.height = h;
       c.getContext('2d').drawImage(video, x, y, w, h, 0, 0, w, h);
-      const dataUrl = c.toDataURL('image/jpeg', 0.88);
+      // Calidad alta: acá lo que importa es poder leer bien la letra
+      // chica (números, MRZ del pasaporte), no el tamaño del archivo —
+      // es una foto sola, de paso, nunca se guarda.
+      const dataUrl = c.toDataURL('image/jpeg', 0.94);
       if (call) call.sendDocPhoto(docType, dataUrl);
       document.getElementById('videoArea').classList.remove('doc-capture');
       document.getElementById('docGuideFrame').classList.remove('active');
