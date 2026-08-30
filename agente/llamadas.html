@@ -400,21 +400,24 @@
       call.toggleVideo();
     });
 
-    // Captura de pasaporte/tarjeta: dibuja el cuadro ACTUAL del video
-    // remoto (que ya está llegando por la llamada en curso) en un canvas
-    // propio de esta página. No es un archivo — es puro <canvas> en
-    // memoria del navegador del agente, nunca se sube a Supabase ni a
-    // ningún otro lado. Se guarda como dataURL en esta misma variable de
-    // JS solo mientras dura la llamada (para poder revisar ambas fotos
-    // sin perder la que ya se sacó), y se borra todo al cerrar la
-    // pantalla de llamada — nunca queda nada en el navegador ni en
-    // ningún lugar después de colgar.
+    // Captura de pasaporte/tarjeta: el ENCUADRE y la detección de "está
+    // quieto y listo" pasan del lado del cliente (que es quien mueve la
+    // cámara y ve el recuadro guía en su pantalla, como el escaneo de
+    // tarjeta de cualquier app de pago). Acá solo se pide el documento y
+    // se espera la foto ya recortada, que llega directo por el canal de
+    // datos de la llamada (peer-to-peer, no pasa por Supabase). No es un
+    // archivo — es un dataURL que vive en esta variable de JS solo
+    // mientras dura la llamada, y se borra todo al cerrar la pantalla —
+    // nunca queda nada en el navegador ni en ningún lugar después de
+    // colgar.
     const DOC_LABELS = { passport: 'Pasaporte', card: 'Tarjeta de pago' };
     let snapshots = { passport: null, card: null };
     let currentDocType = null;
+    let awaitingDocType = null;
     const snapshotOverlay = document.getElementById('snapshotOverlay');
     const snapshotTitle = document.getElementById('snapshotTitle');
     const snapshotCanvas = document.getElementById('snapshotCanvas');
+    const scanStatus = document.getElementById('scanStatus');
 
     function updateDocBadges() {
       document.getElementById('passportBtn').classList.toggle('captured', !!snapshots.passport);
@@ -444,124 +447,21 @@
       snapshotOverlay.classList.add('active');
     }
 
-    function captureSnapshot(docType) {
-      const video = document.getElementById('remoteVideo');
-      if (!video.videoWidth) return; // aún no hay video llegando
-      const c = document.createElement('canvas');
-      c.width = video.videoWidth;
-      c.height = video.videoHeight;
-      c.getContext('2d').drawImage(video, 0, 0);
-      snapshots[docType] = c.toDataURL('image/jpeg', 0.92);
-      updateDocBadges();
-      showSnapshot(docType);
-      // Ya está la foto — el cliente vuelve solo a la cámara frontal,
-      // sin que tenga que tocar nada.
-      if (call) call.restoreClientCamera();
-    }
-
-    // Captura automática, como el escaneo de tarjeta en apps de pago: en
-    // vez de que el agente adivine el instante justo, se mide cuadro a
-    // cuadro (en un canvas chiquito, solo para comparar, nunca se
-    // guarda) qué tan distinto es un cuadro del anterior. Cuando la
-    // imagen se queda quieta (el cliente sostiene firme el documento) y
-    // no está muy oscura (no está tapada), se dispara sola la captura.
-    const scanStatus = document.getElementById('scanStatus');
-    let scanRunning = false;
-    let scanDocType = null;
-    let scanRAF = null;
-    let scanTimeout = null;
-    const SCAN_SAMPLE_W = 64, SCAN_SAMPLE_H = 48;
-    const SCAN_STILL_THRESHOLD = 6; // diferencia promedio por canal tolerada
-    const SCAN_MIN_BRIGHTNESS = 25; // evita disparar sobre un cuadro negro/tapado
-    const SCAN_HOLD_MS = 900; // cuánto tiempo tiene que quedarse quieto
-
-    function stopAutoCapture() {
-      scanRunning = false;
-      scanDocType = null;
-      if (scanRAF) cancelAnimationFrame(scanRAF);
-      scanRAF = null;
-      if (scanTimeout) clearTimeout(scanTimeout);
-      scanTimeout = null;
-      scanStatus.classList.remove('active');
-    }
-
-    function startAutoCapture(docType) {
-      const video = document.getElementById('remoteVideo');
-      if (!video.videoWidth) return; // aún no hay video llegando
-      scanRunning = true;
-      scanDocType = docType;
-      scanStatus.textContent = docType === 'card'
-        ? '💳 Sostené firme la tarjeta…'
-        : '🛂 Sostené firme el pasaporte…';
-      scanStatus.classList.add('active');
-
-      const sampleCanvas = document.createElement('canvas');
-      sampleCanvas.width = SCAN_SAMPLE_W;
-      sampleCanvas.height = SCAN_SAMPLE_H;
-      const sctx = sampleCanvas.getContext('2d', { willReadFrequently: true });
-      let prevData = null;
-      let stableSince = null;
-
-      function tick() {
-        if (!scanRunning) return;
-        sctx.drawImage(video, 0, 0, SCAN_SAMPLE_W, SCAN_SAMPLE_H);
-        const frame = sctx.getImageData(0, 0, SCAN_SAMPLE_W, SCAN_SAMPLE_H).data;
-        if (prevData) {
-          let diffSum = 0;
-          let brightSum = 0;
-          for (let i = 0; i < frame.length; i += 4) {
-            diffSum += Math.abs(frame[i] - prevData[i]);
-            brightSum += frame[i];
-          }
-          const pixelCount = frame.length / 4;
-          const avgDiff = diffSum / pixelCount;
-          const avgBright = brightSum / pixelCount;
-          if (avgDiff < SCAN_STILL_THRESHOLD && avgBright > SCAN_MIN_BRIGHTNESS) {
-            if (stableSince === null) stableSince = performance.now();
-            if (performance.now() - stableSince >= SCAN_HOLD_MS) {
-              const type = scanDocType;
-              stopAutoCapture();
-              captureSnapshot(type);
-              return;
-            }
-          } else {
-            stableSince = null;
-          }
-        }
-        prevData = frame;
-        scanRAF = requestAnimationFrame(tick);
-      }
-      scanRAF = requestAnimationFrame(tick);
-      // Si en 6s nunca se queda lo bastante quieto, captura igual lo que
-      // haya — mejor eso que dejar al agente esperando sin salida.
-      scanTimeout = setTimeout(() => {
-        if (scanRunning) {
-          const type = scanDocType;
-          stopAutoCapture();
-          captureSnapshot(type);
-        }
-      }, 6000);
-    }
-
     function requestDoc(docType) {
-      if (scanRunning && scanDocType === docType) {
-        // segundo toque sobre el mismo documento = captura ya, no esperes más
-        const type = scanDocType;
-        stopAutoCapture();
-        captureSnapshot(type);
-        return;
-      }
-      if (call) call.requestDocument(docType); // avisa en pantalla del cliente qué mostrar
-      stopAutoCapture();
-      startAutoCapture(docType);
+      awaitingDocType = docType;
+      scanStatus.textContent = docType === 'card'
+        ? '💳 Esperando que el cliente encuadre la tarjeta…'
+        : '🛂 Esperando que el cliente encuadre el pasaporte…';
+      scanStatus.classList.add('active');
+      if (call) call.requestDocument(docType); // el cliente hace el resto: cámara, encuadre y captura
     }
 
     document.getElementById('passportBtn').addEventListener('click', function () {
-      if (snapshots.passport && !scanRunning) { showSnapshot('passport'); return; }
+      if (snapshots.passport && awaitingDocType !== 'passport') { showSnapshot('passport'); return; }
       requestDoc('passport');
     });
     document.getElementById('cardBtn').addEventListener('click', function () {
-      if (snapshots.card && !scanRunning) { showSnapshot('card'); return; }
+      if (snapshots.card && awaitingDocType !== 'card') { showSnapshot('card'); return; }
       requestDoc('card');
     });
     document.getElementById('recaptureBtn').addEventListener('click', function () {
@@ -569,8 +469,7 @@
       closeSnapshotView();
       snapshots[type] = null;
       updateDocBadges();
-      if (call) call.requestDocument(type);
-      startAutoCapture(type);
+      requestDoc(type);
     });
     document.getElementById('closeSnapshotBtn').addEventListener('click', closeSnapshotView);
 
