@@ -487,6 +487,14 @@
       };
     }
 
+    function exitDocCaptureMode() {
+      document.getElementById('videoArea').classList.remove('doc-capture');
+      document.getElementById('docGuideFrame').classList.remove('active');
+      document.getElementById('docRequestBanner').classList.remove('active');
+      currentRequestedDocType = null;
+      if (call) call.switchCamera('user');
+    }
+
     function captureAndSendDoc(docType, rect) {
       const video = document.getElementById('localVideo');
       // Un margen alrededor del recuadro, para no cortar el borde del
@@ -505,10 +513,39 @@
       // es una foto sola, de paso, nunca se guarda.
       const dataUrl = c.toDataURL('image/jpeg', 0.94);
       if (call) call.sendDocPhoto(docType, dataUrl);
-      document.getElementById('videoArea').classList.remove('doc-capture');
-      document.getElementById('docGuideFrame').classList.remove('active');
-      document.getElementById('docRequestBanner').classList.remove('active');
-      if (call) call.switchCamera('user');
+      exitDocCaptureMode();
+    }
+
+    // Achica una foto ya existente en el teléfono (de la galería) a un
+    // tamaño manejable antes de mandarla — algunas fotos de cámara
+    // pesan varios MB, y acá interesa que viaje rápido por el canal de
+    // la llamada, no el archivo original. Todo pasa en memoria del
+    // navegador (un <img>/<canvas> temporal) — el archivo elegido nunca
+    // se sube ni se guarda en ningún lado, ni siquiera acá.
+    function downscaleImageFile(file, maxDim, quality) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          let width = img.naturalWidth, height = img.naturalHeight;
+          if (width > maxDim || height > maxDim) {
+            const scale = maxDim / Math.max(width, height);
+            width = Math.round(width * scale);
+            height = Math.round(height * scale);
+          }
+          const c = document.createElement('canvas');
+          c.width = width;
+          c.height = height;
+          c.getContext('2d').drawImage(img, 0, 0, width, height);
+          URL.revokeObjectURL(url);
+          resolve(c.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = (e) => {
+          URL.revokeObjectURL(url);
+          reject(e);
+        };
+        img.src = url;
+      });
     }
 
     function startDocScan(docType) {
