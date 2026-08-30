@@ -354,6 +354,13 @@
         isCaller: false,
         localVideoEl: document.getElementById('localVideo'),
         remoteVideoEl: document.getElementById('remoteVideo'),
+        onDocPhoto(docType, dataUrl) {
+          awaitingDocType = null;
+          scanStatus.classList.remove('active');
+          snapshots[docType] = dataUrl;
+          updateDocBadges();
+          showSnapshot(docType);
+        },
         onState(state) {
           if (state === 'connected') {
             statusBar.textContent = 'En llamada';
