@@ -204,21 +204,11 @@
       // activa, y como el sondeo ya estaba parado, quedaba sonando en
       // loop para siempre sobre el audio real de la llamada.
       if (activeCallId) return;
-      // Ocupado de verdad (contestó una, en cualquier pestaña) — no le
-      // suena ni le muestra ninguna otra hasta que se desocupe. Otro
-      // agente libre la sigue viendo igual (es un pool compartido).
-      const { data: busy } = await supabaseClient.rpc('is_agent_on_active_call', { p_agent_id: agentId });
-      if (busy) {
-        renderList([]);
-        stopRingtone();
-        return;
-      }
-      const { data, error } = await supabaseClient
-        .from('call_requests')
-        .select('id, client_token, status')
-        .eq('status', 'ringing')
-        .order('created_at', { ascending: true })
-        .limit(5);
+      // Ocupado (contestó una, en cualquier pestaña) y filtro de idioma
+      // ya resueltos del lado del servidor en un solo paso — ver
+      // get_ringing_calls_for_agent. Otro agente libre que hable el
+      // idioma la sigue viendo igual (es un pool compartido).
+      const { data, error } = await supabaseClient.rpc('get_ringing_calls_for_agent', { p_agent_id: agentId });
       if (error) {
         console.error('[llamadas] error consultando llamadas:', error);
         return;

@@ -284,7 +284,11 @@
       const id = crypto.randomUUID();
       window.__callId = id;
 
-      const { error } = await supabaseClient.from('call_requests').insert({ id, client_token: clientToken });
+      const { error } = await supabaseClient.from('call_requests').insert({
+        id,
+        client_token: clientToken,
+        client_language: (navigator.language || 'es').split('-')[0],
+      });
       if (error) {
         statusBar.textContent = 'No se pudo iniciar la llamada.';
         showFallback();
