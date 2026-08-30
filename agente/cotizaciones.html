@@ -506,15 +506,17 @@
           sellBtn.addEventListener('click', () => showSellForm(card, q));
           card.appendChild(sellBtn);
 
-          // El cliente subió pasaporte/tarjeta y está esperando — viaja
-          // directo por Realtime, nunca se guarda; hay que pedirlo mientras
-          // el cliente sigue conectado del otro lado.
+          // El cliente subió pasaporte/tarjeta y está esperando — se pide
+          // solo, sin que el agente tenga que tocar nada, y se muestra
+          // como miniatura directo en la card. Viaja por Realtime, nunca
+          // se guarda: si el cliente ya cerró la pestaña, no llega nada.
           if (q.client_docs_ready) {
-            const docsBtn = document.createElement('button');
-            docsBtn.className = 'claim-btn docs-btn';
-            docsBtn.textContent = '📎 Ver documentos del cliente';
-            docsBtn.addEventListener('click', () => openClientDocs(q));
-            card.appendChild(docsBtn);
+            const thumbs = document.createElement('div');
+            thumbs.className = 'docs-thumbs';
+            thumbs.id = 'docsThumbs-' + q.id;
+            thumbs.textContent = 'Buscando documentos del cliente…';
+            card.appendChild(thumbs);
+            ensureDocsThumbChannel(q);
           }
         }
 
