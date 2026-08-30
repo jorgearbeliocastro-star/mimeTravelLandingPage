@@ -412,8 +412,91 @@
       snapshotCanvas.getContext('2d').drawImage(video, 0, 0);
       snapshotOverlay.classList.add('active');
     }
-    document.getElementById('captureBtn').addEventListener('click', captureSnapshot);
-    document.getElementById('recaptureBtn').addEventListener('click', captureSnapshot);
+
+    // Captura automática, como el escaneo de tarjeta en apps de pago: en
+    // vez de que el agente adivine el instante justo, se mide cuadro a
+    // cuadro (en un canvas chiquito, solo para comparar, nunca se
+    // guarda) qué tan distinto es un cuadro del anterior. Cuando la
+    // imagen se queda quieta (el cliente sostiene firme el documento) y
+    // no está muy oscura (no está tapada), se dispara sola la captura.
+    const scanStatus = document.getElementById('scanStatus');
+    let scanRunning = false;
+    let scanRAF = null;
+    let scanTimeout = null;
+    const SCAN_SAMPLE_W = 64, SCAN_SAMPLE_H = 48;
+    const SCAN_STILL_THRESHOLD = 6; // diferencia promedio por canal tolerada
+    const SCAN_MIN_BRIGHTNESS = 25; // evita disparar sobre un cuadro negro/tapado
+    const SCAN_HOLD_MS = 900; // cuánto tiempo tiene que quedarse quieto
+
+    function stopAutoCapture() {
+      scanRunning = false;
+      if (scanRAF) cancelAnimationFrame(scanRAF);
+      scanRAF = null;
+      if (scanTimeout) clearTimeout(scanTimeout);
+      scanTimeout = null;
+      scanStatus.classList.remove('active');
+    }
+
+    function startAutoCapture() {
+      const video = document.getElementById('remoteVideo');
+      if (!video.videoWidth) return; // aún no hay video llegando
+      scanRunning = true;
+      scanStatus.classList.add('active');
+
+      const sampleCanvas = document.createElement('canvas');
+      sampleCanvas.width = SCAN_SAMPLE_W;
+      sampleCanvas.height = SCAN_SAMPLE_H;
+      const sctx = sampleCanvas.getContext('2d', { willReadFrequently: true });
+      let prevData = null;
+      let stableSince = null;
+
+      function tick() {
+        if (!scanRunning) return;
+        sctx.drawImage(video, 0, 0, SCAN_SAMPLE_W, SCAN_SAMPLE_H);
+        const frame = sctx.getImageData(0, 0, SCAN_SAMPLE_W, SCAN_SAMPLE_H).data;
+        if (prevData) {
+          let diffSum = 0;
+          let brightSum = 0;
+          for (let i = 0; i < frame.length; i += 4) {
+            diffSum += Math.abs(frame[i] - prevData[i]);
+            brightSum += frame[i];
+          }
+          const pixelCount = frame.length / 4;
+          const avgDiff = diffSum / pixelCount;
+          const avgBright = brightSum / pixelCount;
+          if (avgDiff < SCAN_STILL_THRESHOLD && avgBright > SCAN_MIN_BRIGHTNESS) {
+            if (stableSince === null) stableSince = performance.now();
+            if (performance.now() - stableSince >= SCAN_HOLD_MS) {
+              stopAutoCapture();
+              captureSnapshot();
+              return;
+            }
+          } else {
+            stableSince = null;
+          }
+        }
+        prevData = frame;
+        scanRAF = requestAnimationFrame(tick);
+      }
+      scanRAF = requestAnimationFrame(tick);
+      // Si en 6s nunca se queda lo bastante quieto, captura igual lo que
+      // haya — mejor eso que dejar al agente esperando sin salida.
+      scanTimeout = setTimeout(() => {
+        if (scanRunning) {
+          stopAutoCapture();
+          captureSnapshot();
+        }
+      }, 6000);
+    }
+
+    document.getElementById('captureBtn').addEventListener('click', function () {
+      if (scanRunning) { stopAutoCapture(); captureSnapshot(); return; } // segundo toque = captura ya
+      startAutoCapture();
+    });
+    document.getElementById('recaptureBtn').addEventListener('click', function () {
+      clearSnapshot();
+      startAutoCapture();
+    });
     document.getElementById('closeSnapshotBtn').addEventListener('click', clearSnapshot);
 
     document.getElementById('hangupBtn').addEventListener('click', async function () {
