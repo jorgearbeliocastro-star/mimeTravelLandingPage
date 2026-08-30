@@ -7911,24 +7911,26 @@
               passenger_nationality: null,
             }).then(({ error }) => {
               if (error) throw error;
+              // El aviso sale YA, apenas se confirma el guardado — no
+              // espera a buscar el id de la fila (eso solo hace falta
+              // para abrir el panel de chat acá, no para el push).
+              notifyLaExpancion({
+                origin: null,
+                destination: 'Consulta general',
+                claimedByAgentId: preferredAgentId || null,
+              });
               return preferredAgentId;
             });
           });
         })
-        // OJO: mismo motivo que en createLaExpancionQuoteRequest() — nunca
-        // encadenar .select() sobre el insert de arriba (RLS lo rompe). El
-        // id se recupera aparte, con el mismo RPC de siempre.
+        // OJO: nunca encadenar .select() sobre el insert de arriba (RLS lo
+        // rompe). El id se recupera aparte, con el mismo RPC de siempre —
+        // sin bloquear el aviso de arriba.
         .then((preferredAgentId) =>
           laExpancion.rpc('get_quote_requests_by_token', { p_token: clientToken }).then(({ data: myQuotes, error }) => {
             if (error) throw error;
             const inserted = (myQuotes || [])[0];
             if (!inserted) throw new Error('insert sin resultado');
-            notifyLaExpancion({
-              origin: null,
-              destination: 'Consulta general',
-              claimedByAgentId: preferredAgentId || null,
-              quoteRequestId: inserted.id,
-            });
             return { quoteId: inserted.id, preferredAgentId };
           })
         )
