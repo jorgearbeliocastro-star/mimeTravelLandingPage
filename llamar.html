@@ -488,6 +488,10 @@
           banner.classList.add('active');
           clearTimeout(banner._hideTimer);
           banner._hideTimer = setTimeout(() => banner.classList.remove('active'), 8000);
+          // Un documento se lee mejor con la cámara trasera (mejor
+          // foco/calidad que la frontal) — se cambia sola, sin cortar la
+          // llamada; el botón 🔄 la deja volver a la frontal después.
+          if (call) call.switchCamera('environment');
         },
         onState(state) {
           if (state === 'connected') {
