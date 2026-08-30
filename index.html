@@ -7738,6 +7738,7 @@
         return;
       }
       if (quote.status === 'purchased') {
+        quotePurchasedFlag = true;
         const p = document.createElement('p');
         p.className = 'quote-status-resolved';
         p.textContent = t('quoteStatusPurchased');
