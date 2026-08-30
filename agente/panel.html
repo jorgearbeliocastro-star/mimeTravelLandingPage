@@ -335,6 +335,7 @@
       const badge = document.getElementById('callBadge');
       const card = document.getElementById('callsNavCard');
       if (count > 0) {
+        badge.textContent = String(count);
         badge.hidden = false;
         card.classList.add('ringing');
       } else {
