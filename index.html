@@ -7880,6 +7880,10 @@
       // pollQuote) — si no, abrir un panel nuevo justo con el mismo estado
       // que se cacheó la última vez se saltearía el render de verdad.
       lastRenderedQuoteJSON = null;
+      // Y la marca de "documento ya subido" — sin esto, si antes se probó
+      // subiendo fotos en OTRA cotización en esta misma pestaña, la nueva
+      // aparecía marcada como ya subida sin haber subido nada.
+      docsUploadedFlag = { passport: false, card: false };
       renderQuoteStatus({ status: 'pending' });
       quoteChatMessages.innerHTML = '';
       // El chat arranca cerrado (solo un botón) salvo en modo "consulta"
