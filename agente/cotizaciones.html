@@ -762,7 +762,16 @@
       cardFormOpenId = quote.id;
       const row = document.createElement('div');
       row.className = 'price-form';
+      const stopsBlock = quote.category === 'flight'
+        ? '<label class="price-form-label">¿El vuelo es directo o con escala(s)?</label>' +
+          '<div class="price-form-stops-choice">' +
+          '<label><input type="radio" name="pf-stops-choice" class="pf-stops-direct" checked> Directo</label>' +
+          '<label><input type="radio" name="pf-stops-choice" class="pf-stops-has"> Con escala(s)</label>' +
+          '</div>' +
+          '<input type="text" class="pf-stops-detail" placeholder="Dónde son las escalas (ej. Madrid, Bogotá)" style="display:none;">'
+        : '';
       row.innerHTML =
+        stopsBlock +
         '<label class="price-form-label">Precio base y seguro de viaje (USD)</label>' +
         '<div class="price-form-row">' +
         '<input type="number" inputmode="decimal" class="pf-base" placeholder="Precio" min="1" step="0.01">' +
