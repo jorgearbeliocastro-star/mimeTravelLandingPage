@@ -6993,6 +6993,18 @@
       });
     }
 
+    // Si el agente pedía pasaporte Y tarjeta casi juntos (lo normal, las
+    // pide las dos apenas ve que están listas), antes se mandaban las dos
+    // fotos EN PARALELO por el mismo canal — los pedazos de una se
+    // mezclaban con los de la otra y ninguna llegaba entera. Una cola
+    // simple: nunca hay más de un envío en curso a la vez.
+    let docSendQueue = Promise.resolve();
+    function queueDocSend(channel, docType, dataUrl) {
+      docSendQueue = docSendQueue
+        .then(() => sendDocChunks(channel, docType, dataUrl))
+        .catch(() => {});
+    }
+
     // Manda una imagen ya lista en pedazos por un canal de Realtime — no
     // hay ningún archivo ni tabla de por medio, es un broadcast en vivo:
     // si no hay nadie escuchando en ESE momento, se pierde (a propósito,
