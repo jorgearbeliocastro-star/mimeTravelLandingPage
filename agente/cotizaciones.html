@@ -811,20 +811,14 @@
         }
         if (!confirm('¿Confirmás que la venta ya está cerrada con la agencia, con la referencia "' + reference + '"?')) return;
         btn.disabled = true;
-        const { error } = await supabaseClient
-          .from('quote_requests')
-          .update({
-            status: 'purchased',
-            agency_confirmation_code: reference,
-            purchased_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            // Recién ahora se apaga — mientras la venta seguía abierta, el
-            // agente podía volver a pedir los documentos las veces que
-            // hiciera falta (cambiar de pantalla, recargar, etc.).
-            client_docs_ready: false,
-          })
-          .eq('id', quote.id)
-          .eq('status', 'decided'); // por las dudas de que algo haya cambiado justo antes
+        // Marca la cotización Y guarda el resumen de pago (sin datos de
+        // tarjeta) en el mismo paso — antes esto último nunca pasaba, por
+        // eso las ventas no aparecían en el resumen de pagos.
+        const { error } = await supabaseClient.rpc('confirm_quote_sale', {
+          p_quote_id: quote.id,
+          p_agency_confirmation_code: reference,
+          p_amount_usd: quote.quoted_price_basic_usd ?? quote.quoted_price_usd,
+        });
         if (error) {
           alert('No se pudo confirmar: ' + error.message);
           btn.disabled = false;
