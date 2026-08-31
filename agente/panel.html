@@ -319,6 +319,13 @@
       startPresenceHeartbeat(supabaseClient);
       pollRingingCalls();
       setInterval(pollRingingCalls, 4000);
+      // Apenas llega un push con esta pantalla ya abierta, el service
+      // worker avisa acá — el número se actualiza al toque.
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.addEventListener('message', (event) => {
+          if (event.data && event.data.type === 'push-received') pollRingingCalls();
+        });
+      }
     })();
 
     // Aviso simple de "hay una llamada esperando" en esta pantalla de
