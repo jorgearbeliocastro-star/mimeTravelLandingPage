@@ -7035,7 +7035,7 @@
       docsChannel
         .on('broadcast', { event: 'request-doc' }, ({ payload }) => {
           const dataUrl = docsDataUrls[payload.docType];
-          if (dataUrl) sendDocChunks(docsChannel, payload.docType, dataUrl);
+          if (dataUrl) queueDocSend(docsChannel, payload.docType, dataUrl);
         })
         .on('broadcast', { event: 'docs-received' }, ({ payload }) => {
           // OJO: acá antes se apagaba el marcador "listo" apenas el agente
