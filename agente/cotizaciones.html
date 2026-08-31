@@ -830,6 +830,7 @@
           btn.disabled = false;
           return;
         }
+        if (openWorkingQuoteId === quote.id) openWorkingQuoteId = null;
         // Aviso de "tiket vendido" a contacto@mimetravel.com — mismo
         // mecanismo de siempre (FormSubmit), para poder cuadrar ventas con
         // los correos de tiket que manda la agencia (ver
