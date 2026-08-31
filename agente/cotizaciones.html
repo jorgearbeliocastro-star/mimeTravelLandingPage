@@ -180,7 +180,12 @@
   }
   .price-form textarea { resize: vertical; }
   .price-form-row { display: flex; gap: 8px; }
-  .price-form-row input { flex: 1; min-width: 0; }
+  .price-form-row > input { flex: 1; min-width: 0; }
+  .price-form-seat { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .price-form-seat input[type="number"] { width: 100%; }
+  .price-form-seat input[type="number"]:disabled { background: rgba(0,0,0,0.05); color: rgba(26,26,26,0.4); }
+  .price-form-seat-off { display: flex; align-items: center; gap: 4px; font-size: 10.5px; color: rgba(26,26,26,0.55); cursor: pointer; }
+  .price-form-seat-off input { margin: 0; }
   .price-form-actions { display: flex; gap: 8px; margin-top: 6px; }
   .price-form-actions button {
     border: none;
@@ -763,17 +768,17 @@
         '<input type="number" inputmode="decimal" class="pf-base" placeholder="Precio" min="1" step="0.01">' +
         '<input type="number" inputmode="decimal" class="pf-insurance" placeholder="Seguro (opc.)" min="0" step="0.01">' +
         '</div>' +
-        '<label class="price-form-label">Maletas facturadas — precio por cada una (opcional)</label>' +
+        '<label class="price-form-label">Maletas facturadas — precio por cada una ("No disponible" la quita de la oferta)</label>' +
         '<div class="price-form-row">' +
-        '<input type="number" inputmode="decimal" class="pf-bag1" placeholder="1ra" min="0" step="0.01">' +
-        '<input type="number" inputmode="decimal" class="pf-bag2" placeholder="2da" min="0" step="0.01">' +
-        '<input type="number" inputmode="decimal" class="pf-bag3" placeholder="3ra" min="0" step="0.01">' +
+        '<div class="price-form-seat"><input type="number" inputmode="decimal" class="pf-bag1" placeholder="1ra" min="0" step="0.01"><label class="price-form-seat-off"><input type="checkbox" class="pf-bag1-off"> No disponible</label></div>' +
+        '<div class="price-form-seat"><input type="number" inputmode="decimal" class="pf-bag2" placeholder="2da" min="0" step="0.01"><label class="price-form-seat-off"><input type="checkbox" class="pf-bag2-off"> No disponible</label></div>' +
+        '<div class="price-form-seat"><input type="number" inputmode="decimal" class="pf-bag3" placeholder="3ra" min="0" step="0.01"><label class="price-form-seat-off"><input type="checkbox" class="pf-bag3-off"> No disponible</label></div>' +
         '</div>' +
-        '<label class="price-form-label">Asientos — precio por tipo (el que quede vacío va incluido)</label>' +
+        '<label class="price-form-label">Asientos — precio por tipo (vacío = incluido; "No disponible" lo quita de la oferta)</label>' +
         '<div class="price-form-row">' +
-        '<input type="number" inputmode="decimal" class="pf-seat-aisle" placeholder="Pasillo" min="0" step="0.01">' +
-        '<input type="number" inputmode="decimal" class="pf-seat-middle" placeholder="Centro" min="0" step="0.01">' +
-        '<input type="number" inputmode="decimal" class="pf-seat-window" placeholder="Ventanilla" min="0" step="0.01">' +
+        '<div class="price-form-seat"><input type="number" inputmode="decimal" class="pf-seat-aisle" placeholder="Pasillo" min="0" step="0.01"><label class="price-form-seat-off"><input type="checkbox" class="pf-seat-aisle-off"> No disponible</label></div>' +
+        '<div class="price-form-seat"><input type="number" inputmode="decimal" class="pf-seat-middle" placeholder="Centro" min="0" step="0.01"><label class="price-form-seat-off"><input type="checkbox" class="pf-seat-middle-off"> No disponible</label></div>' +
+        '<div class="price-form-seat"><input type="number" inputmode="decimal" class="pf-seat-window" placeholder="Ventanilla" min="0" step="0.01"><label class="price-form-seat-off"><input type="checkbox" class="pf-seat-window-off"> No disponible</label></div>' +
         '</div>' +
         '<label class="price-form-label">Qué incluye este precio (opcional, lo ve el cliente)</label>' +
         '<textarea class="pf-notes" rows="2" placeholder="Ej. Vuelo directo, 1 maleta de mano, sin maleta facturada"></textarea>' +
@@ -787,6 +792,17 @@
       row.querySelector('.price-cancel').addEventListener('click', () => {
         cardFormOpenId = null;
         row.remove();
+      });
+      // Cada checkbox "No disponible" apaga y vacía su input de precio al
+      // lado — así queda claro que ese tipo/maleta se sacó de la oferta,
+      // no que el agente simplemente no llenó el campo todavía.
+      ['.pf-bag1', '.pf-bag2', '.pf-bag3', '.pf-seat-aisle', '.pf-seat-middle', '.pf-seat-window'].forEach((sel) => {
+        const input = row.querySelector(sel);
+        const off = row.querySelector(sel + '-off');
+        off.addEventListener('change', () => {
+          input.disabled = off.checked;
+          if (off.checked) input.value = '';
+        });
       });
       baseInput.focus();
       btn.addEventListener('click', async () => {
@@ -816,6 +832,13 @@
         if (aislePrice != null) seatPrices.aisle = aislePrice;
         if (middlePrice != null) seatPrices.middle = middlePrice;
         if (windowPrice != null) seatPrices.window = windowPrice;
+        // Tipos de asiento que SÍ se ofrecen — se le saca al cliente el que
+        // el agente marcó "No disponible" (ej. no hay pasillo en ese vuelo).
+        // Si no se apagó ninguno, se manda null (comportamiento de siempre:
+        // los tres disponibles) — si se apagó alguno, se manda la lista
+        // (puede quedar vacía si se apagaron los tres).
+        const anySeatOff = ['aisle', 'middle', 'window'].some((t) => row.querySelector('.pf-seat-' + t + '-off').checked);
+        const seatTypes = ['aisle', 'middle', 'window'].filter((t) => !row.querySelector('.pf-seat-' + t + '-off').checked);
         const notes = row.querySelector('.pf-notes').value.trim();
 
         btn.disabled = true;
@@ -830,6 +853,7 @@
           p_extra_bag_prices: bagPrices.length ? bagPrices : null,
           p_seat_type_prices: Object.keys(seatPrices).length ? seatPrices : null,
           p_agent_notes: notes || null,
+          p_seat_type: anySeatOff ? seatTypes.join(',') : null,
         });
         if (error) {
           alert('No se pudo enviar: ' + error.message);
