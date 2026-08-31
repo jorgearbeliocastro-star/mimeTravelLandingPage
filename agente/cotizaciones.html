@@ -903,6 +903,7 @@
           p_seat_type: anySeatOff ? seatTypes.join(',') : null,
           p_carry_on_price: carryOnPrice,
           p_personal_item_price: personalItemPrice,
+          p_stops: stopsValue,
         });
         if (error) {
           alert('No se pudo enviar: ' + error.message);
