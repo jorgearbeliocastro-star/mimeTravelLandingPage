@@ -436,6 +436,14 @@
       }
       const { data, error } = await query;
       if (error) return;
+      // No repintar si no cambió nada de verdad desde el último sondeo —
+      // antes reconstruía TODA la lista cada 6s aunque fuera exactamente
+      // igual, lo que destruía y volvía a crear las miniaturas de
+      // documentos todo el tiempo (se veía como que parpadeaban).
+      const dataJSON = JSON.stringify(data || []);
+      if (dataJSON === lastLoadedQuotesJSON && currentTab === lastLoadedTab) return;
+      lastLoadedQuotesJSON = dataJSON;
+      lastLoadedTab = currentTab;
       renderList(data || []);
     }
 
