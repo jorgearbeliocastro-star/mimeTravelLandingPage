@@ -307,13 +307,15 @@
         agentId = userData.user.id;
         const { data: profile } = await supabaseClient.from('profiles').select('full_name, role').eq('id', userData.user.id).single();
         document.getElementById('whoami').textContent = profile?.full_name || userData.user.email;
-        // Deja claro con qué tipo de cuenta se entró — la pantalla es la
-        // misma para las dos, solo cambia lo que se ve adentro (ej. la
-        // pestaña "Todas (equipo)" en cotizaciones, solo para el dueño).
+        // Deja claro con qué tipo de cuenta se entró. Las pantallas de
+        // agente (cotizaciones/llamadas/pagos) son EXACTAMENTE iguales
+        // para las dos — lo único que cambia es esta tarjeta extra acá,
+        // que lleva a dueno.html (separado del uso normal como agente).
         const roleBadge = document.getElementById('roleBadge');
         if (profile?.role === 'super_admin') {
           roleBadge.textContent = 'Dueño';
           roleBadge.classList.add('owner');
+          document.getElementById('duenoNavCard').hidden = false;
         } else {
           roleBadge.textContent = 'Agente';
         }
