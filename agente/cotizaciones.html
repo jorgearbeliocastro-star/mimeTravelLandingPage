@@ -843,7 +843,11 @@
 
     function ensureDocsThumbChannel(quote) {
       if (docsThumbChannels[quote.id]) return; // ya está pidiendo/recibiendo para esta cotización
-      docsThumbCache[quote.id] = { passport: null, card: null };
+      // No pisar lo que ya se recibió antes, si por lo que sea el canal
+      // se armó de nuevo (ej. se limpió y se volvió a crear) — sin esto,
+      // la miniatura ya recibida se borraba sola y volvía a aparecer
+      // recién cuando se recibía de nuevo.
+      if (!docsThumbCache[quote.id]) docsThumbCache[quote.id] = { passport: null, card: null };
       const channel = supabaseClient.channel('quote-docs:' + quote.id, { config: { broadcast: { self: false } } });
       docsThumbChannels[quote.id] = channel;
 
