@@ -7729,12 +7729,23 @@
         if (quote.client_decision === 'accepted' && agentPresent) {
           const clientToken = getOrCreateWebClientToken();
           setupDocsChannel(quote.id, clientToken);
+          // Tres estados por botón: 📁 sin subir, ⏳ subida pero todavía
+          // no confirmada por el agente (ACÁ se bloquean los dos botones
+          // — no dejar arrancar la segunda foto hasta que la primera
+          // llegue de verdad, mandar las dos a la vez rompía el envío),
+          // ✅ ya confirmada.
+          const anyPending = (docsDataUrls.passport && !docsReceivedByAgent.passport) || (docsDataUrls.card && !docsReceivedByAgent.card);
+          function docBtnLabel(docType, label) {
+            if (docsDataUrls[docType] && docsReceivedByAgent[docType]) return '✅ ' + label;
+            if (docsDataUrls[docType]) return '⏳ ' + label;
+            return '📁 ' + label;
+          }
           const block = document.createElement('div');
           block.className = 'docs-upload-block';
           block.innerHTML =
             '<div class="docs-upload-buttons">' +
-            '<button type="button" class="docs-upload-btn' + (docsDataUrls.passport ? ' uploaded' : '') + '" id="docsUploadPassportBtn">' + (docsDataUrls.passport ? '✅ ' : '📁 ') + 'Pasaporte</button>' +
-            '<button type="button" class="docs-upload-btn' + (docsDataUrls.card ? ' uploaded' : '') + '" id="docsUploadCardBtn">' + (docsDataUrls.card ? '✅ ' : '📁 ') + 'Tarjeta de pago</button>' +
+            '<button type="button" class="docs-upload-btn' + (docsDataUrls.passport ? ' uploaded' : '') + '" id="docsUploadPassportBtn"' + (anyPending ? ' disabled' : '') + '>' + docBtnLabel('passport', 'Pasaporte') + '</button>' +
+            '<button type="button" class="docs-upload-btn' + (docsDataUrls.card ? ' uploaded' : '') + '" id="docsUploadCardBtn"' + (anyPending ? ' disabled' : '') + '>' + docBtnLabel('card', 'Tarjeta de pago') + '</button>' +
             '</div>' +
             '<div class="docs-upload-status" id="docsUploadStatus"></div>' +
             '<input type="file" accept="image/*" id="docsFileInput" style="display:none;">';
@@ -7755,36 +7766,29 @@
             this.value = '';
             if (!file || !pendingDocType) return;
             const docType = pendingDocType;
+            const statusEl = document.getElementById('docsUploadStatus');
             try {
               // Más chica que antes (1800/0.92) — sigue alcanzando para leer
               // los datos, pero son muchos menos pedazos para mandar por el
               // canal en vivo, así llega más rápido y más entero.
               docsDataUrls[docType] = await downscaleImageFile(file, 1300, 0.78);
               docsReceivedByAgent[docType] = false;
-              const { data: readyData, error: readyError } = await laExpancion.rpc('set_quote_docs_ready', { p_token: clientToken, p_id: quote.id, p_ready: true });
-              console.log('[docs-upload] set_quote_docs_ready ->', { clientToken, quoteId: quote.id, readyData, readyError });
-              const statusEl = document.getElementById('docsUploadStatus');
+              const { error: readyError } = await laExpancion.rpc('set_quote_docs_ready', { p_token: clientToken, p_id: quote.id, p_ready: true });
               if (readyError) {
                 console.error('[docs-upload] set_quote_docs_ready falló:', readyError);
                 if (statusEl) {
                   statusEl.textContent = '⚠️ No se pudo avisar al agente: ' + (readyError.message || 'error desconocido');
                   statusEl.className = 'docs-upload-status waiting';
                 }
-              } else if (statusEl) {
-                // Diagnóstico temporal — para comparar contra la base y
-                // encontrar por qué a veces no queda guardado. A propósito
-                // NO se repinta el resto (renderQuoteStatus) para que este
-                // texto no se borre solo.
-                statusEl.textContent = '🔧 (diagnóstico) token=' + clientToken.slice(0, 8) + '… id=' + quote.id.slice(0, 8) + '…';
-                statusEl.className = 'docs-upload-status waiting';
                 return;
               }
+              // Repinta ya (bloquea el otro botón) — no espera al próximo
+              // sondeo, así el "cargando" se ve al toque.
               renderQuoteStatus(quote);
             } catch (e) {
               // Visible en pantalla, no solo en la consola — para no
               // depender de que el cliente sepa abrir las herramientas de
               // desarrollador.
-              const statusEl = document.getElementById('docsUploadStatus');
               if (statusEl) {
                 statusEl.textContent = '⚠️ No se pudo subir la foto: ' + (e && e.message ? e.message : String(e));
                 statusEl.className = 'docs-upload-status waiting';
