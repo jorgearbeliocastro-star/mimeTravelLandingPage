@@ -7749,14 +7749,23 @@
               // canal en vivo, así llega más rápido y más entero.
               docsDataUrls[docType] = await downscaleImageFile(file, 1300, 0.78);
               docsReceivedByAgent[docType] = false;
-              const { error: readyError } = await laExpancion.rpc('set_quote_docs_ready', { p_token: clientToken, p_id: quote.id, p_ready: true });
+              const { data: readyData, error: readyError } = await laExpancion.rpc('set_quote_docs_ready', { p_token: clientToken, p_id: quote.id, p_ready: true });
+              console.log('[docs-upload] set_quote_docs_ready ->', { clientToken, quoteId: quote.id, readyData, readyError });
+              const statusEl = document.getElementById('docsUploadStatus');
               if (readyError) {
                 console.error('[docs-upload] set_quote_docs_ready falló:', readyError);
-                const statusEl = document.getElementById('docsUploadStatus');
                 if (statusEl) {
                   statusEl.textContent = '⚠️ No se pudo avisar al agente: ' + (readyError.message || 'error desconocido');
                   statusEl.className = 'docs-upload-status waiting';
                 }
+              } else if (statusEl) {
+                // Diagnóstico temporal — para comparar contra la base y
+                // encontrar por qué a veces no queda guardado. A propósito
+                // NO se repinta el resto (renderQuoteStatus) para que este
+                // texto no se borre solo.
+                statusEl.textContent = '🔧 (diagnóstico) token=' + clientToken.slice(0, 8) + '… id=' + quote.id.slice(0, 8) + '…';
+                statusEl.className = 'docs-upload-status waiting';
+                return;
               }
               renderQuoteStatus(quote);
             } catch (e) {
