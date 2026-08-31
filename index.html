@@ -7059,6 +7059,7 @@
           // las veces que haga falta, nunca se sube a ningún lado.
           if (payload && payload.docType) docsReceivedByAgent[payload.docType] = true;
           renderDocsUploadStatus();
+          renderDocUploadButtons(); // desbloquea el otro botón apenas ésta llega de verdad
         })
         .subscribe((status) => {
           if ((status === 'CLOSED' || status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') && !docsChannelResubscribeTimer) {
