@@ -4446,6 +4446,25 @@
       header.classList.toggle('scrolled', window.scrollY > 40);
     });
 
+    // Acceso oculto para agentes: mantener presionado el logo 5s manda a
+    // agente/login.html — no hay ningún link visible a esa página en el
+    // sitio público a propósito.
+    (function () {
+      const logoLink = document.getElementById('headerLogoLink');
+      if (!logoLink) return;
+      let holdTimer = null;
+      const startHold = (e) => {
+        e.preventDefault();
+        holdTimer = setTimeout(() => { window.location.href = 'agente/login.html'; }, 5000);
+      };
+      const cancelHold = () => { clearTimeout(holdTimer); };
+      logoLink.addEventListener('mousedown', startHold);
+      logoLink.addEventListener('touchstart', startHold, { passive: false });
+      ['mouseup', 'mouseleave', 'touchend', 'touchcancel'].forEach((evt) => {
+        logoLink.addEventListener(evt, cancelHold);
+      });
+    })();
+
     // Mobile menu toggle
     const menuToggle = document.getElementById('menuToggle');
     const mainNav = document.getElementById('mainNav');
