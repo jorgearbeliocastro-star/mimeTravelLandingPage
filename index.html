@@ -3400,6 +3400,7 @@
       quoteFlightAirlineLabel: 'Aerolínea',
       quoteFlightScheduleLabel: 'Horarios',
       quoteFlightStopsLabel: 'Escalas',
+      quoteFlightDirectLabel: 'Vuelo directo',
       quoteFlightFareLabel: 'Condiciones de la tarifa',
       quoteInsuranceCheckboxLabel: 'Agregar seguro de viaje (+USD {amount})',
       quoteCarryOnCheckboxLabel: 'Agregar equipaje de mano (+USD {amount})',
@@ -3674,6 +3675,7 @@
       quoteFlightAirlineLabel: 'Airline',
       quoteFlightScheduleLabel: 'Schedule',
       quoteFlightStopsLabel: 'Stops',
+      quoteFlightDirectLabel: 'Direct flight',
       quoteFlightFareLabel: 'Fare conditions',
       quoteInsuranceCheckboxLabel: 'Add travel insurance (+USD {amount})',
       quoteCarryOnCheckboxLabel: 'Add carry-on bag (+USD {amount})',
@@ -3943,6 +3945,7 @@
       quoteFlightAirlineLabel: 'Compagnia aerea',
       quoteFlightScheduleLabel: 'Orari',
       quoteFlightStopsLabel: 'Scali',
+      quoteFlightDirectLabel: 'Volo diretto',
       quoteFlightFareLabel: 'Condizioni della tariffa',
       quoteInsuranceCheckboxLabel: 'Aggiungi assicurazione di viaggio (+USD {amount})',
       quoteCarryOnCheckboxLabel: 'Aggiungi bagaglio a mano (+USD {amount})',
@@ -4212,6 +4215,7 @@
       quoteFlightAirlineLabel: 'Companhia aérea',
       quoteFlightScheduleLabel: 'Horários',
       quoteFlightStopsLabel: 'Escalas',
+      quoteFlightDirectLabel: 'Voo direto',
       quoteFlightFareLabel: 'Condições da tarifa',
       quoteInsuranceCheckboxLabel: 'Adicionar seguro de viagem (+USD {amount})',
       quoteCarryOnCheckboxLabel: 'Adicionar bagagem de mão (+USD {amount})',
@@ -7739,7 +7743,7 @@
           const lines = [];
           if (quote.quoted_airline) lines.push(t('quoteFlightAirlineLabel') + ': ' + quote.quoted_airline);
           if (quote.quoted_schedule) lines.push(t('quoteFlightScheduleLabel') + ': ' + quote.quoted_schedule);
-          if (quote.quoted_stops) lines.push(t('quoteFlightStopsLabel') + ': ' + quote.quoted_stops);
+          if (quote.quoted_stops) lines.push(quote.quoted_stops === 'Directo' ? t('quoteFlightDirectLabel') : t('quoteFlightStopsLabel') + ': ' + quote.quoted_stops);
           if (quote.quoted_fare_conditions) lines.push(t('quoteFlightFareLabel') + ': ' + quote.quoted_fare_conditions);
           flightInfo.textContent = lines.join(' · ');
           quoteStatusBar.appendChild(flightInfo);
