@@ -7021,7 +7021,12 @@
 
     // Un solo canal por cotización, armado una vez (no en cada poll) —
     // queda escuchando pedidos del agente mientras el cliente sigue en
-    // esta página.
+    // esta página. Se reconecta solo si Realtime lo corta por su cuenta
+    // (pestaña en segundo plano un rato largo, red, límite del servidor)
+    // — antes no lo hacía, y si pasaba bastante tiempo entre que el
+    // cliente subía la foto y el agente la pedía, el canal ya estaba
+    // muerto y el pedido nunca llegaba a nadie.
+    let docsChannelResubscribeTimer = null;
     function setupDocsChannel(quoteId, clientToken) {
       if (docsChannelQuoteId === quoteId && docsChannel) return;
       if (docsChannel) laExpancion.removeChannel(docsChannel);
@@ -7043,7 +7048,15 @@
           if (payload && payload.docType) docsReceivedByAgent[payload.docType] = true;
           renderDocsUploadStatus();
         })
-        .subscribe();
+        .subscribe((status) => {
+          if ((status === 'CLOSED' || status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') && !docsChannelResubscribeTimer) {
+            docsChannelResubscribeTimer = setTimeout(() => {
+              docsChannelResubscribeTimer = null;
+              docsChannel = null; // fuerza a que setupDocsChannel arme uno nuevo, no reuse el muerto
+              setupDocsChannel(quoteId, clientToken);
+            }, 1000);
+          }
+        });
     }
 
     // Repinta solo el cartel de estado de documentos, sin tocar el resto
@@ -7736,7 +7749,8 @@
               // canal en vivo, así llega más rápido y más entero.
               docsDataUrls[docType] = await downscaleImageFile(file, 1300, 0.78);
               docsReceivedByAgent[docType] = false;
-              laExpancion.rpc('set_quote_docs_ready', { p_token: clientToken, p_id: quote.id, p_ready: true }).catch(() => {});
+              const { error: readyError } = await laExpancion.rpc('set_quote_docs_ready', { p_token: clientToken, p_id: quote.id, p_ready: true });
+              if (readyError) console.error('[docs-upload] set_quote_docs_ready falló:', readyError);
               renderQuoteStatus(quote);
             } catch (e) {
               // no bloqueante — el cliente puede reintentar
