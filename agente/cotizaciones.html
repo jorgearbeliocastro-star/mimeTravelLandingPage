@@ -758,10 +758,11 @@
       const row = document.createElement('div');
       row.className = 'price-form';
       row.innerHTML =
-        '<label class="price-form-label">Precio base (USD)</label>' +
-        '<input type="number" inputmode="decimal" class="pf-base" placeholder="Precio en USD" min="1" step="0.01">' +
-        '<label class="price-form-label">Seguro de viaje (USD, opcional)</label>' +
-        '<input type="number" inputmode="decimal" class="pf-insurance" placeholder="Ej. 25" min="0" step="0.01">' +
+        '<label class="price-form-label">Precio base y seguro de viaje (USD)</label>' +
+        '<div class="price-form-row">' +
+        '<input type="number" inputmode="decimal" class="pf-base" placeholder="Precio" min="1" step="0.01">' +
+        '<input type="number" inputmode="decimal" class="pf-insurance" placeholder="Seguro (opc.)" min="0" step="0.01">' +
+        '</div>' +
         '<label class="price-form-label">Maletas facturadas — precio por cada una (opcional)</label>' +
         '<div class="price-form-row">' +
         '<input type="number" inputmode="decimal" class="pf-bag1" placeholder="1ra" min="0" step="0.01">' +
