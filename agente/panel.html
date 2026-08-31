@@ -429,6 +429,28 @@
     });
 
     refreshPushButton();
+
+    // Mientras está "no disponible", send-web-push lo salta — no le
+    // llegan avisos de cotizaciones nuevas ni llamadas hasta que se
+    // marque disponible de nuevo (ver send-web-push, filtra por
+    // profiles.is_available).
+    function renderAvailability(isAvailable) {
+      document.getElementById('availabilityTitle').textContent = isAvailable ? '🟢 Disponible' : '🔴 No disponible';
+      document.getElementById('availabilityBtn').textContent = isAvailable ? 'Marcarme como no disponible' : 'Marcarme como disponible';
+      document.getElementById('availabilityCard').style.opacity = isAvailable ? '1' : '0.7';
+    }
+    document.getElementById('availabilityBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('availabilityBtn');
+      const nowUnavailable = document.getElementById('availabilityTitle').textContent.includes('🟢');
+      btn.disabled = true;
+      const { error } = await supabaseClient.from('profiles').update({ is_available: !nowUnavailable }).eq('id', agentId);
+      btn.disabled = false;
+      if (error) {
+        alert('No se pudo cambiar: ' + error.message);
+        return;
+      }
+      renderAvailability(!nowUnavailable);
+    });
   </script>
 </body>
 </html>
