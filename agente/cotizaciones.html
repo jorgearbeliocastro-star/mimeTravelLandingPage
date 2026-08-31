@@ -845,6 +845,7 @@
           cliente_email: clientEmail || '(sin correo registrado)',
           cliente_telefono: quote.contact_phone || '',
           ruta: (quote.origin ? quote.origin + ' → ' : '') + (quote.destination || ''),
+          precio_usd: 'USD ' + (quote.quoted_price_basic_usd ?? quote.quoted_price_usd ?? '(sin precio registrado)'),
         }).catch(() => {});
         cardFormOpenId = null;
         loadQuotes();
