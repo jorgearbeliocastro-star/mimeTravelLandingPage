@@ -7071,6 +7071,27 @@
         });
     }
 
+    // Repinta solo los botones de subida (estado + bloqueo), sin tocar el
+    // resto de quoteStatusBar — se llama tanto al armar el bloque como
+    // cuando llega la confirmación del agente por el canal.
+    function renderDocUploadButtons() {
+      const passportBtn = document.getElementById('docsUploadPassportBtn');
+      const cardBtn = document.getElementById('docsUploadCardBtn');
+      if (!passportBtn || !cardBtn) return;
+      const anyPending = (docsDataUrls.passport && !docsReceivedByAgent.passport) || (docsDataUrls.card && !docsReceivedByAgent.card);
+      const label = (docType, text) => {
+        if (docsDataUrls[docType] && docsReceivedByAgent[docType]) return '✅ ' + text;
+        if (docsDataUrls[docType]) return '⏳ ' + text;
+        return '📁 ' + text;
+      };
+      passportBtn.textContent = label('passport', 'Pasaporte');
+      passportBtn.disabled = anyPending;
+      passportBtn.classList.toggle('uploaded', !!docsDataUrls.passport);
+      cardBtn.textContent = label('card', 'Tarjeta de pago');
+      cardBtn.disabled = anyPending;
+      cardBtn.classList.toggle('uploaded', !!docsDataUrls.card);
+    }
+
     // Repinta solo el cartel de estado de documentos, sin tocar el resto
     // de quoteStatusBar (evita reconstruir todo en cada cambio chico).
     function renderDocsUploadStatus() {
