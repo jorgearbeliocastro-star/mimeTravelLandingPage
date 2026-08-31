@@ -24,7 +24,17 @@ self.addEventListener('push', (event) => {
     data: { url: data.url || '/agente/cotizaciones.html' },
     requireInteraction: true,
   };
-  event.waitUntil(self.registration.showNotification(title, options));
+  event.waitUntil(
+    Promise.all([
+      self.registration.showNotification(title, options),
+      // Si el panel ya está abierto en alguna pestaña, le avisa directo
+      // (sin esto, el número de la pestaña recién se actualizaba en el
+      // próximo sondeo automático, hasta unos segundos después).
+      self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientsArr) => {
+        clientsArr.forEach((client) => client.postMessage({ type: 'push-received' }));
+      }),
+    ])
+  );
 });
 
 self.addEventListener('notificationclick', (event) => {
