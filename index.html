@@ -7750,10 +7750,24 @@
               docsDataUrls[docType] = await downscaleImageFile(file, 1300, 0.78);
               docsReceivedByAgent[docType] = false;
               const { error: readyError } = await laExpancion.rpc('set_quote_docs_ready', { p_token: clientToken, p_id: quote.id, p_ready: true });
-              if (readyError) console.error('[docs-upload] set_quote_docs_ready falló:', readyError);
+              if (readyError) {
+                console.error('[docs-upload] set_quote_docs_ready falló:', readyError);
+                const statusEl = document.getElementById('docsUploadStatus');
+                if (statusEl) {
+                  statusEl.textContent = '⚠️ No se pudo avisar al agente: ' + (readyError.message || 'error desconocido');
+                  statusEl.className = 'docs-upload-status waiting';
+                }
+              }
               renderQuoteStatus(quote);
             } catch (e) {
-              // no bloqueante — el cliente puede reintentar
+              // Visible en pantalla, no solo en la consola — para no
+              // depender de que el cliente sepa abrir las herramientas de
+              // desarrollador.
+              const statusEl = document.getElementById('docsUploadStatus');
+              if (statusEl) {
+                statusEl.textContent = '⚠️ No se pudo subir la foto: ' + (e && e.message ? e.message : String(e));
+                statusEl.className = 'docs-upload-status waiting';
+              }
             }
           });
         }
