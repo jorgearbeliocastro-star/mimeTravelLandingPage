@@ -6578,10 +6578,11 @@
     // todos los pasajeros del pedido (igual que quoted_price_basic_usd), no
     // por persona — por eso es un simple sí/no, no una cantidad.
     let selectedWantsInsurance = false;
-    // Equipaje de mano/carry-on ya no se cobran aparte — si se pasan del
-    // límite de la aerolínea se pasan a maleta facturada igual. Lo único
-    // agregable es una maleta extra, y cada una cuesta distinto según su
-    // posición (1ra, 2da...).
+    // Equipaje de mano (carry-on, el que va arriba) y equipaje personal
+    // (cartera/mochila chica) — igual que el seguro: sí/no, precio fijo
+    // que carga el Agente si esa tarifa no los trae incluidos gratis.
+    let selectedWantsCarryOn = false;
+    let selectedWantsPersonalItem = false;
     let selectedExtraBagQty = 0;
     // Tipo de asiento elegido (uno solo, como cualquier selección real de
     // asiento) — '' = todavía no eligió.
