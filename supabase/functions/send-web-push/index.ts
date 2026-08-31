@@ -41,21 +41,25 @@ Deno.serve(async (req) => {
   if (!body) return new Response('bad request', { status: 400, headers: CORS_HEADERS });
 
   const { title, body: msgBody, url } = body;
-  // Sin agentId = avisa a TODOS los agentes suscriptos (cotización general,
-  // sin agente asignado).
-  let query = supabase.from('agent_push_subscriptions').select('subscription');
+  // Sin agentId = avisa a TODOS los agentes DISPONIBLES suscriptos
+  // (cotización general, sin agente asignado). El join con profiles y el
+  // filtro is_available es lo que hace que un agente "apagado" (ver
+  // agente/panel.html) deje de recibir avisos push hasta que se prenda
+  // de nuevo.
+  let query = supabase.from('agent_push_subscriptions').select('subscription, profiles!inner(is_available)').eq('profiles.is_available', true);
   if (body.agentId) query = query.eq('agent_id', body.agentId);
   let { data: subs, error } = await query;
   if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: CORS_HEADERS });
 
   // Respaldo: si había un agente puntual pero justo no tiene NINGUNA
-  // suscripción activa (teléfono reseteado, caché borrada, etc.), el
-  // aviso no se pierde en silencio — cae al pool general, igual que una
-  // cotización sin agente asignado. Sin esto, un cliente que ya tenía
-  // agente podía escribir y que nadie del equipo se enterara nunca.
+  // suscripción activa (teléfono reseteado, caché borrada, etc.) O ESTÁ
+  // APAGADO, el aviso no se pierde en silencio — cae al pool general de
+  // agentes disponibles, igual que una cotización sin agente asignado.
+  // Sin esto, un cliente que ya tenía agente podía escribir y que nadie
+  // del equipo se enterara nunca.
   let usedFallback = false;
   if (body.agentId && (!subs || subs.length === 0)) {
-    const fallback = await supabase.from('agent_push_subscriptions').select('subscription');
+    const fallback = await supabase.from('agent_push_subscriptions').select('subscription, profiles!inner(is_available)').eq('profiles.is_available', true);
     if (fallback.error) return new Response(JSON.stringify({ error: fallback.error.message }), { status: 500, headers: CORS_HEADERS });
     subs = fallback.data;
     usedFallback = true;
