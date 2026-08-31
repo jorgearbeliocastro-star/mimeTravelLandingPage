@@ -7318,6 +7318,8 @@
           const seatPrice = selectedChosenSeatType && seatTypePrices[selectedChosenSeatType] != null ? Number(seatTypePrices[selectedChosenSeatType]) : 0;
           const add =
             (insuranceOffered && selectedWantsInsurance ? Number(quote.quoted_insurance_price_usd) : 0) +
+            (carryOnOffered && selectedWantsCarryOn ? Number(quote.quoted_carry_on_price_usd) : 0) +
+            (personalItemOffered && selectedWantsPersonalItem ? Number(quote.quoted_personal_item_price_usd) : 0) +
             sumExtraBagPrice(quote.quoted_extra_bag_prices, selectedExtraBagQty) +
             (refundableOffered && selectedWantsRefundable ? Number(quote.quoted_refundable_price_usd) : 0) +
             seatPrice +
