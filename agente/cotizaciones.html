@@ -525,6 +525,10 @@
     function openQuoteToWork(quoteId) {
       openWorkingQuoteId = quoteId;
       sendAgentViewingHeartbeat(); // no esperar los 8s para el primer latido
+      // Fuerza el repintado aunque los datos de la base no hayan cambiado
+      // (lo único que cambió es cuál está "abierta", que es local) — si
+      // no, el chequeo de "no repintar si no cambió nada" se lo salteaba.
+      lastLoadedQuotesJSON = null;
       loadQuotes();
     }
 
