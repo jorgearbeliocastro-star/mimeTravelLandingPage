@@ -608,6 +608,20 @@
             (hasConsent ? ' — consentimiento de cobro confirmado' : ' — SIN consentimiento de cobro todavía');
           card.appendChild(info);
 
+          // El agente tiene que abrir ESTA cotización puntual para que el
+          // cliente vea "agente conectado" y se le desbloquee la subida
+          // de documentos — antes se mandaba el latido para TODAS las
+          // aceptadas visibles en la lista a la vez, así que con más de
+          // un cliente aceptado al mismo tiempo se desbloqueaba para
+          // todos aunque el agente solo estuviera mirando uno.
+          const isOpenForWork = openWorkingQuoteId === q.id;
+          const openBtn = document.createElement('button');
+          openBtn.className = 'claim-btn';
+          openBtn.textContent = isOpenForWork ? '📂 Abierta — conectado con el cliente' : '📂 Abrir cotización';
+          if (isOpenForWork) openBtn.disabled = true;
+          openBtn.addEventListener('click', () => openQuoteToWork(q.id));
+          card.appendChild(openBtn);
+
           // Regla que quedó definida: sin el consentimiento (fecha + IP)
           // guardado, no se puede cerrar la venta — sin eso no hay
           // respaldo si el cliente después dice que no reconoce el cargo.
