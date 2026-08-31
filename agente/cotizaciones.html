@@ -764,21 +764,14 @@
           return;
         }
         btn.disabled = true;
-        // Vence en 1 hora, mismo criterio que ya usa el resto del sistema
-        // (ver quoteCountdownInterval en index.html).
-        const priceExpiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
-        const { error } = await supabaseClient
-          .from('quote_requests')
-          .update({
-            status: 'quoted',
-            claimed_by_agent_id: agentId,
-            quoted_price_usd: price,
-            quoted_price_basic_usd: price,
-            price_expires_at: priceExpiresAt,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', quote.id)
-          .eq('status', 'pending'); // por si otro agente ya la tomó justo antes
+        // No deja tomar una cotización si hay otra más vieja esperando —
+        // fuerza el orden de llegada del lado de la base, no solo del
+        // orden en que se muestran (eso un agente lo podía ignorar).
+        const { error } = await supabaseClient.rpc('claim_and_price_quote', {
+          p_agent_id: agentId,
+          p_quote_id: quote.id,
+          p_price: price,
+        });
         if (error) {
           alert('No se pudo enviar: ' + error.message);
           btn.disabled = false;
