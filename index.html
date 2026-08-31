@@ -7465,13 +7465,15 @@
         // asiento), como si fueran cosas distintas cuando en realidad son
         // el mismo tipo de decisión ("¿querés esto de más?"). Ahora van
         // todos juntos bajo un mismo título, como ya tenía Tipo de Asiento.
-        if (insuranceOffered || extraBagOffered || refundableOffered) {
+        if (insuranceOffered || carryOnOffered || personalItemOffered || extraBagOffered || refundableOffered) {
           const extrasLabel = document.createElement('div');
           extrasLabel.className = 'quote-status-seat-type-label';
           extrasLabel.textContent = t('quoteExtrasLabel');
           quoteStatusBar.appendChild(extrasLabel);
         }
         renderAddonCheckbox(insuranceOffered, selectedWantsInsurance, quote.quoted_insurance_price_usd, 'quoteInsuranceCheckboxLabel', 'quoteInsuranceCheckbox', (v) => { selectedWantsInsurance = v; });
+        renderAddonCheckbox(carryOnOffered, selectedWantsCarryOn, quote.quoted_carry_on_price_usd, 'quoteCarryOnCheckboxLabel', 'quoteCarryOnCheckbox', (v) => { selectedWantsCarryOn = v; });
+        renderAddonCheckbox(personalItemOffered, selectedWantsPersonalItem, quote.quoted_personal_item_price_usd, 'quotePersonalItemCheckboxLabel', 'quotePersonalItemCheckbox', (v) => { selectedWantsPersonalItem = v; });
         // Un camarote de crucero permite como máximo 3 pasajeros extra
         // (2 base + 3 extra = 5 en total — tope real de MSC, confirmado
         // contra su propio buscador) — vuelos no tienen ese límite acá.
