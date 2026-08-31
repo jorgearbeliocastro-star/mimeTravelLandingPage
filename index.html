@@ -7755,23 +7755,19 @@
           // no confirmada por el agente (ACÁ se bloquean los dos botones
           // — no dejar arrancar la segunda foto hasta que la primera
           // llegue de verdad, mandar las dos a la vez rompía el envío),
-          // ✅ ya confirmada.
-          const anyPending = (docsDataUrls.passport && !docsReceivedByAgent.passport) || (docsDataUrls.card && !docsReceivedByAgent.card);
-          function docBtnLabel(docType, label) {
-            if (docsDataUrls[docType] && docsReceivedByAgent[docType]) return '✅ ' + label;
-            if (docsDataUrls[docType]) return '⏳ ' + label;
-            return '📁 ' + label;
-          }
+          // ✅ ya confirmada. Los botones se arman vacíos, renderDocUploadButtons()
+          // de abajo les pone el texto/bloqueo real.
           const block = document.createElement('div');
           block.className = 'docs-upload-block';
           block.innerHTML =
             '<div class="docs-upload-buttons">' +
-            '<button type="button" class="docs-upload-btn' + (docsDataUrls.passport ? ' uploaded' : '') + '" id="docsUploadPassportBtn"' + (anyPending ? ' disabled' : '') + '>' + docBtnLabel('passport', 'Pasaporte') + '</button>' +
-            '<button type="button" class="docs-upload-btn' + (docsDataUrls.card ? ' uploaded' : '') + '" id="docsUploadCardBtn"' + (anyPending ? ' disabled' : '') + '>' + docBtnLabel('card', 'Tarjeta de pago') + '</button>' +
+            '<button type="button" class="docs-upload-btn" id="docsUploadPassportBtn"></button>' +
+            '<button type="button" class="docs-upload-btn" id="docsUploadCardBtn"></button>' +
             '</div>' +
             '<div class="docs-upload-status" id="docsUploadStatus"></div>' +
             '<input type="file" accept="image/*" id="docsFileInput" style="display:none;">';
           quoteStatusBar.appendChild(block);
+          renderDocUploadButtons();
           renderDocsUploadStatus();
 
           let pendingDocType = null;
