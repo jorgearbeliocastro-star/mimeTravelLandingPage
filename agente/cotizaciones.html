@@ -821,6 +821,19 @@
           if (off.checked) input.value = '';
         });
       });
+      // El renglón para escribir dónde son las escalas solo aparece si el
+      // agente marca "Con escala(s)" — pueden ser varias, va como texto
+      // libre (ej. "Madrid, Bogotá") para no limitar a una sola.
+      const stopsHasRadio = row.querySelector('.pf-stops-has');
+      const stopsDetailInput = row.querySelector('.pf-stops-detail');
+      if (stopsHasRadio && stopsDetailInput) {
+        row.querySelectorAll('input[name="pf-stops-choice"]').forEach((radio) => {
+          radio.addEventListener('change', () => {
+            stopsDetailInput.style.display = stopsHasRadio.checked ? '' : 'none';
+            if (!stopsHasRadio.checked) stopsDetailInput.value = '';
+          });
+        });
+      }
       baseInput.focus();
       btn.addEventListener('click', async () => {
         const price = Number(baseInput.value);
