@@ -313,8 +313,9 @@
       const { data: userData } = await supabaseClient.auth.getUser();
       if (userData?.user) {
         agentId = userData.user.id;
-        const { data: profile } = await supabaseClient.from('profiles').select('full_name, role').eq('id', userData.user.id).single();
+        const { data: profile } = await supabaseClient.from('profiles').select('full_name, role, is_available').eq('id', userData.user.id).single();
         document.getElementById('whoami').textContent = profile?.full_name || userData.user.email;
+        renderAvailability(profile?.is_available !== false);
         // Deja claro con qué tipo de cuenta se entró. Las pantallas de
         // agente (cotizaciones/llamadas/pagos) son EXACTAMENTE iguales
         // para las dos — lo único que cambia es esta tarjeta extra acá,
