@@ -557,7 +557,7 @@
         return;
       }
       emptyMsg.style.display = 'none';
-      quotes.forEach((q) => {
+      quotes.forEach((q, i) => {
         const card = document.createElement('div');
         card.className = 'quote-card';
         let badgeHtml = '';
