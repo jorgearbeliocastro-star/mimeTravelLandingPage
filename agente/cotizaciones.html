@@ -845,6 +845,21 @@
           const v = Number(row.querySelector(el).value);
           return v > 0 ? v : null;
         };
+        // "Directo" o el detalle de dónde son las escalas — solo aplica a
+        // vuelos, el resto de categorías no tiene este bloque en el form.
+        let stopsValue = null;
+        if (stopsHasRadio) {
+          if (stopsHasRadio.checked) {
+            const detail = stopsDetailInput.value.trim();
+            if (!detail) {
+              alert('Escribí dónde son las escalas.');
+              return;
+            }
+            stopsValue = detail;
+          } else {
+            stopsValue = 'Directo';
+          }
+        }
         const insurancePrice = numOrNull('.pf-insurance');
         const carryOnPrice = numOrNull('.pf-carryon');
         const personalItemPrice = numOrNull('.pf-personal');
