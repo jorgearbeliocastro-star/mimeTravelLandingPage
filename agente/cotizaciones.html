@@ -502,31 +502,36 @@
       return start;
     }
 
-    // "Latido" de presencia — mientras el agente tiene una cotización
-    // aceptada visible en pantalla, el cliente lo ve como "agente
-    // conectado" y ahí recién se desbloquea el botón de subir documentos
-    // (sin esto, no hay forma de saber si hay alguien del otro lado para
-    // recibir la foto). Reusa agent_viewing_at, una columna que ya
-    // existía para otra cosa (prioridad de emparejo de tiquets Centrav) —
-    // mismo mecanismo, no hace falta una columna nueva.
-    let visibleAcceptedQuoteIds = [];
+    // "Latido" de presencia — SOLO mientras el agente abrió explícitamente
+    // ESA cotización puntual (botón "Abrir cotización"), el cliente lo ve
+    // como "agente conectado" y ahí recién se desbloquea el botón de
+    // subir documentos. Antes se mandaba para TODAS las aceptadas
+    // visibles en la lista a la vez — con más de un cliente aceptado al
+    // mismo tiempo, eso desbloqueaba la subida para todos aunque el
+    // agente solo estuviera mirando uno. Reusa agent_viewing_at, una
+    // columna que ya existía para otra cosa (prioridad de emparejo de
+    // tiquets Centrav) — mismo mecanismo, no hace falta una columna
+    // nueva. Una sola cotización abierta a la vez.
+    let openWorkingQuoteId = null;
     function sendAgentViewingHeartbeat() {
-      if (!visibleAcceptedQuoteIds.length) return;
+      if (!openWorkingQuoteId) return;
       supabaseClient.from('quote_requests')
         .update({ agent_viewing_at: new Date().toISOString() })
-        .in('id', visibleAcceptedQuoteIds)
+        .eq('id', openWorkingQuoteId)
         .then(() => {});
     }
     setInterval(sendAgentViewingHeartbeat, 8000);
+
+    function openQuoteToWork(quoteId) {
+      openWorkingQuoteId = quoteId;
+      sendAgentViewingHeartbeat(); // no esperar los 8s para el primer latido
+      loadQuotes();
+    }
 
     function renderList(quotes) {
       const list = document.getElementById('list');
       const emptyMsg = document.getElementById('emptyMsg');
       list.innerHTML = '';
-      visibleAcceptedQuoteIds = quotes
-        .filter((q) => q.status === 'decided' && q.client_decision === 'accepted')
-        .map((q) => q.id);
-      sendAgentViewingHeartbeat(); // no esperar los 8s para el primer latido
       // Corta los canales de documentos de cotizaciones que ya no están
       // en esta lista (se vendieron, cambiaron de pestaña, etc.) — sin
       // esto quedarían escuchando para siempre de fondo.
