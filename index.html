@@ -7203,6 +7203,8 @@
         // solo precio, un botón).
         const hasTwoTiers = quote.quoted_price_full_usd != null;
         const insuranceOffered = quote.quoted_insurance_price_usd != null;
+        const carryOnOffered = quote.quoted_carry_on_price_usd != null;
+        const personalItemOffered = quote.quoted_personal_item_price_usd != null;
         const extraBagOffered = !!(quote.quoted_extra_bag_prices && quote.quoted_extra_bag_prices.length);
         const refundableOffered = quote.quoted_refundable_price_usd != null;
         const customAddonsOffered = !!(quote.quoted_custom_addons && quote.quoted_custom_addons.length);
