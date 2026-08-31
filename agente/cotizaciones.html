@@ -168,6 +168,32 @@
   .price-row button.price-cancel { background: rgba(27,58,92,0.08); color: var(--primary); }
   .docs-btn { margin-left: 8px; }
 
+  .price-form { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .price-form-label { font-size: 11.5px; font-weight: 700; color: rgba(26,26,26,0.55); margin-top: 6px; }
+  .price-form input, .price-form textarea {
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1.5px solid rgba(27,58,92,0.15);
+    font-size: 14px;
+    font-family: inherit;
+    width: 100%;
+  }
+  .price-form textarea { resize: vertical; }
+  .price-form-row { display: flex; gap: 8px; }
+  .price-form-row input { flex: 1; min-width: 0; }
+  .price-form-actions { display: flex; gap: 8px; margin-top: 6px; }
+  .price-form-actions button {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .price-form-actions .pf-submit { background: var(--coral); color: #fff; }
+  .price-form-actions .pf-submit:disabled { opacity: 0.5; }
+  .price-form-actions .price-cancel { background: rgba(27,58,92,0.08); color: var(--primary); }
+
   .docs-overlay {
     display: none;
     position: fixed;
@@ -727,28 +753,70 @@
     // se suma después con más calma, esto es la base mínima para no dejar
     // al agente sin ninguna forma de cotizar desde la web.
     function showPriceForm(card, quote) {
-      if (card.querySelector('.price-row')) return; // ya está abierto
+      if (card.querySelector('.price-form')) return; // ya está abierto
       cardFormOpenId = quote.id;
       const row = document.createElement('div');
-      row.className = 'price-row';
+      row.className = 'price-form';
       row.innerHTML =
-        '<input type="number" inputmode="decimal" placeholder="Precio en USD" min="1" step="0.01">' +
-        '<button type="button">Enviar</button>' +
-        '<button type="button" class="price-cancel">Cancelar</button>';
+        '<label class="price-form-label">Precio base (USD)</label>' +
+        '<input type="number" inputmode="decimal" class="pf-base" placeholder="Precio en USD" min="1" step="0.01">' +
+        '<label class="price-form-label">Seguro de viaje (USD, opcional)</label>' +
+        '<input type="number" inputmode="decimal" class="pf-insurance" placeholder="Ej. 25" min="0" step="0.01">' +
+        '<label class="price-form-label">Maletas facturadas — precio por cada una (opcional)</label>' +
+        '<div class="price-form-row">' +
+        '<input type="number" inputmode="decimal" class="pf-bag1" placeholder="1ra" min="0" step="0.01">' +
+        '<input type="number" inputmode="decimal" class="pf-bag2" placeholder="2da" min="0" step="0.01">' +
+        '<input type="number" inputmode="decimal" class="pf-bag3" placeholder="3ra" min="0" step="0.01">' +
+        '</div>' +
+        '<label class="price-form-label">Asientos — precio por tipo (el que quede vacío va incluido)</label>' +
+        '<div class="price-form-row">' +
+        '<input type="number" inputmode="decimal" class="pf-seat-aisle" placeholder="Pasillo" min="0" step="0.01">' +
+        '<input type="number" inputmode="decimal" class="pf-seat-middle" placeholder="Centro" min="0" step="0.01">' +
+        '<input type="number" inputmode="decimal" class="pf-seat-window" placeholder="Ventanilla" min="0" step="0.01">' +
+        '</div>' +
+        '<label class="price-form-label">Qué incluye este precio (opcional, lo ve el cliente)</label>' +
+        '<textarea class="pf-notes" rows="2" placeholder="Ej. Vuelo directo, 1 maleta de mano, sin maleta facturada"></textarea>' +
+        '<div class="price-form-actions">' +
+        '<button type="button" class="pf-submit">Enviar</button>' +
+        '<button type="button" class="price-cancel">Cancelar</button>' +
+        '</div>';
       card.appendChild(row);
-      const input = row.querySelector('input');
-      const btn = row.querySelector('button');
+      const baseInput = row.querySelector('.pf-base');
+      const btn = row.querySelector('.pf-submit');
       row.querySelector('.price-cancel').addEventListener('click', () => {
         cardFormOpenId = null;
         row.remove();
       });
-      input.focus();
+      baseInput.focus();
       btn.addEventListener('click', async () => {
-        const price = Number(input.value);
+        const price = Number(baseInput.value);
         if (!price || price <= 0) {
-          alert('Poné un precio válido.');
+          alert('Poné un precio base válido.');
           return;
         }
+        const numOrNull = (el) => {
+          const v = Number(row.querySelector(el).value);
+          return v > 0 ? v : null;
+        };
+        const insurancePrice = numOrNull('.pf-insurance');
+        // Array en orden (1ra, 2da, 3ra) — no deja huecos: si la 2da está
+        // vacía pero la 3ra tiene precio, la 3ra no cuenta (no hay forma
+        // de "saltear" una posición con este esquema).
+        const bagPrices = [];
+        for (const sel of ['.pf-bag1', '.pf-bag2', '.pf-bag3']) {
+          const v = numOrNull(sel);
+          if (v == null) break;
+          bagPrices.push(v);
+        }
+        const seatPrices = {};
+        const aislePrice = numOrNull('.pf-seat-aisle');
+        const middlePrice = numOrNull('.pf-seat-middle');
+        const windowPrice = numOrNull('.pf-seat-window');
+        if (aislePrice != null) seatPrices.aisle = aislePrice;
+        if (middlePrice != null) seatPrices.middle = middlePrice;
+        if (windowPrice != null) seatPrices.window = windowPrice;
+        const notes = row.querySelector('.pf-notes').value.trim();
+
         btn.disabled = true;
         // No deja tomar una cotización si hay otra más vieja esperando —
         // fuerza el orden de llegada del lado de la base, no solo del
@@ -757,6 +825,10 @@
           p_agent_id: agentId,
           p_quote_id: quote.id,
           p_price: price,
+          p_insurance_price: insurancePrice,
+          p_extra_bag_prices: bagPrices.length ? bagPrices : null,
+          p_seat_type_prices: Object.keys(seatPrices).length ? seatPrices : null,
+          p_agent_notes: notes || null,
         });
         if (error) {
           alert('No se pudo enviar: ' + error.message);
