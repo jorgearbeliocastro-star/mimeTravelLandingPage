@@ -327,6 +327,8 @@
     let agentId = null;
     let agentName = '';
     let currentTab = 'new';
+    let lastLoadedQuotesJSON = null;
+    let lastLoadedTab = null;
     let pollTimer = null;
     // Mientras algún formulario de card está abierto (poner precio,
     // confirmar venta), el sondeo automático (cada 6s) no debe reconstruir
