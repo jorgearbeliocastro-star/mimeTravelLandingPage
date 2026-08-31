@@ -423,11 +423,6 @@
         // Nuevas sin tomar todavía — mismo criterio que "Cotizaciones
         // nuevas" en la app: solo pending, sin agente asignado.
         query = query.eq('status', 'pending');
-      } else if (currentTab === 'all') {
-        // Solo Dueño — todo el equipo, cotizadas/decididas (no pendientes
-        // sueltas, esas ya se ven en "Nuevas"; no compradas/expiradas,
-        // para no acumular ruido viejo).
-        query = query.in('status', ['quoted', 'decided']);
       } else if (currentTab === 'accepted') {
         // Aceptadas por el cliente, mías, todavía sin cerrar la venta —
         // antes esta pestaña no tenía filtro propio y mostraba lo mismo
