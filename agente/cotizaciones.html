@@ -422,8 +422,13 @@
 
     async function loadQuotes() {
       if (cardFormOpenId !== null) return; // no pisar un formulario de card abierto
-      let query = supabaseClient.from('quote_requests').select('*').order('created_at', { ascending: false }).limit(30);
+      let query = supabaseClient.from('quote_requests').select('*').limit(30);
       if (currentTab === 'new') {
+        // La más vieja primero (orden de llegada) — la numeración de
+        // abajo (#1, #2...) depende de este orden, mismo criterio que ya
+        // se usa en las llamadas: la que entró primero se atiende
+        // primero.
+        query = query.order('created_at', { ascending: true });
         // Nuevas sin tomar todavía — mismo criterio que "Cotizaciones
         // nuevas" en la app: solo pending, sin agente asignado.
         query = query.eq('status', 'pending');
