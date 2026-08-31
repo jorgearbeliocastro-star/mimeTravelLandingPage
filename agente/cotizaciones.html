@@ -768,6 +768,11 @@
         '<input type="number" inputmode="decimal" class="pf-base" placeholder="Precio" min="1" step="0.01">' +
         '<input type="number" inputmode="decimal" class="pf-insurance" placeholder="Seguro (opc.)" min="0" step="0.01">' +
         '</div>' +
+        '<label class="price-form-label">Equipaje de mano y equipaje personal (USD, opcional — si la tarifa no los trae gratis)</label>' +
+        '<div class="price-form-row">' +
+        '<input type="number" inputmode="decimal" class="pf-carryon" placeholder="Equip. de mano" min="0" step="0.01">' +
+        '<input type="number" inputmode="decimal" class="pf-personal" placeholder="Equip. personal" min="0" step="0.01">' +
+        '</div>' +
         '<label class="price-form-label">Maletas facturadas — precio por cada una ("No disponible" la quita de la oferta)</label>' +
         '<div class="price-form-row">' +
         '<div class="price-form-seat"><input type="number" inputmode="decimal" class="pf-bag1" placeholder="1ra" min="0" step="0.01"><label class="price-form-seat-off"><input type="checkbox" class="pf-bag1-off"> No disponible</label></div>' +
@@ -816,6 +821,8 @@
           return v > 0 ? v : null;
         };
         const insurancePrice = numOrNull('.pf-insurance');
+        const carryOnPrice = numOrNull('.pf-carryon');
+        const personalItemPrice = numOrNull('.pf-personal');
         // Array en orden (1ra, 2da, 3ra) — no deja huecos: si la 2da está
         // vacía pero la 3ra tiene precio, la 3ra no cuenta (no hay forma
         // de "saltear" una posición con este esquema).
@@ -854,6 +861,8 @@
           p_seat_type_prices: Object.keys(seatPrices).length ? seatPrices : null,
           p_agent_notes: notes || null,
           p_seat_type: anySeatOff ? seatTypes.join(',') : null,
+          p_carry_on_price: carryOnPrice,
+          p_personal_item_price: personalItemPrice,
         });
         if (error) {
           alert('No se pudo enviar: ' + error.message);
