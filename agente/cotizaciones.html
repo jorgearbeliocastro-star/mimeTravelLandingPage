@@ -359,20 +359,11 @@
       }
       agentId = userData.user.id;
       startPresenceHeartbeat(supabaseClient);
-      // El Dueño (super_admin) además puede ver TODAS las cotizaciones del
-      // equipo, no solo las propias — mismo criterio que ya tiene la app
-      // ("Todas las cotizaciones" vs "Cotizaciones nuevas"). Un Agente
-      // normal no ve esa pestaña.
+      // Esta pantalla se ve exactamente igual para cualquier Agente, sea
+      // Dueño o no — la vista de "todo el equipo" se mudó a
+      // agente/dueno.html, separada del uso normal como agente.
       const { data: profile } = await supabaseClient.from('profiles').select('role, full_name').eq('id', agentId).single();
       agentName = profile?.full_name || userData.user.email || '';
-      if (profile?.role === 'super_admin') {
-        const allTab = document.createElement('div');
-        allTab.className = 'tab';
-        allTab.dataset.tab = 'all';
-        allTab.textContent = 'Todas (equipo)';
-        allTab.addEventListener('click', () => selectTab(allTab));
-        document.querySelector('.tabs').appendChild(allTab);
-      }
       loadQuotes();
       pollTimer = setInterval(loadQuotes, 6000);
       updateAcceptedBadge();
