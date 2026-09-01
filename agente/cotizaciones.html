@@ -364,12 +364,13 @@
     <a class="back" href="panel.html">← Panel</a>
   </header>
   <main>
-    <div class="tabs">
+    <div class="tabs" id="tabsRow">
       <div class="tab active" data-tab="new">Nuevas</div>
       <div class="tab" data-tab="mine">Mis cotizadas</div>
       <div class="tab" data-tab="accepted">Aceptadas <span class="tab-badge" id="acceptedTabBadge" hidden>0</span></div>
       <div class="tab" data-tab="sold">Vendidas</div>
     </div>
+    <h2 id="chatViewTitle" hidden style="font-family:var(--font-display);color:var(--primary);font-size:18px;margin:0 0 12px;">💬 Mensajes sin responder</h2>
     <!-- Cartel de diagnóstico temporal — bien visible, arriba de todo, se
          actualiza cada 6s con lo que encontró de verdad la última vez que
          miró si había mensajes sin responder. Si esto no aparece o no
