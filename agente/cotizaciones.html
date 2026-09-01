@@ -457,13 +457,11 @@
       }
     })();
 
-    // El aviso de "mensaje nuevo" del botón de Chat (ver renderList) solo
-    // se ve en la cotización si está en la pestaña que estás mirando ahora
-    // mismo — si el cliente escribió en una ya vendida y estás en
-    // "Nuevas", no había forma de saber que había algo esperando en otra
-    // pestaña. Esto revisa las 4 pestañas juntas, sin importar cuál esté
-    // activa, y prende un 💬 en la que corresponda.
-    async function updateChatTabBadges() {
+    // IDs de cotizaciones con un mensaje del cliente sin responder — se
+    // pide una sola vez acá y lo usan tanto el número de la pestaña "💬
+    // Chat" como esa misma pestaña al abrirla (ver loadQuotes).
+    let pendingChatQuoteIds = [];
+    async function getPendingChatQuoteIds() {
       const { data: msgs, error } = await supabaseClient
         .from('quote_request_messages')
         .select('quote_request_id, sender, created_at')
@@ -471,46 +469,35 @@
         .limit(100);
       if (error) {
         console.error('[cotizaciones] error consultando chats:', error);
-        return;
+        return [];
       }
       const lastSenderByQuote = {};
       (msgs || []).forEach((m) => {
         if (!(m.quote_request_id in lastSenderByQuote)) lastSenderByQuote[m.quote_request_id] = m.sender;
       });
       const pendingIds = Object.keys(lastSenderByQuote).filter((id) => lastSenderByQuote[id] === 'client');
-      const tabs = ['new', 'mine', 'accepted', 'sold'];
-      const setBadge = (tab, count) => {
-        const el = document.getElementById('chatTabBadge-' + tab);
-        el.textContent = String(count);
-        el.hidden = count === 0;
-      };
-      if (!pendingIds.length) {
-        tabs.forEach((tab) => setBadge(tab, 0));
-        return;
-      }
+      if (!pendingIds.length) return [];
+      // Mías o todavía sin agente asignado — no tiene sentido avisar de un
+      // chat de una cotización de otro agente.
       const { data: quotes, error: quotesError } = await supabaseClient
         .from('quote_requests')
-        .select('id, status, client_decision, claimed_by_agent_id')
-        .in('id', pendingIds);
+        .select('id, claimed_by_agent_id')
+        .in('id', pendingIds)
+        .or('claimed_by_agent_id.eq.' + agentId + ',claimed_by_agent_id.is.null');
       if (quotesError) {
-        console.error('[cotizaciones] error clasificando chats:', quotesError);
-        return;
+        console.error('[cotizaciones] error filtrando chats:', quotesError);
+        return [];
       }
-      // Cuántas cotizaciones con mensaje sin responder caen en CADA pestaña
-      // — una misma cotización puede contar para más de una (ej. "Mis
-      // cotizadas" y "Aceptadas" no son excluyentes entre sí).
-      const pendingCountByTab = { new: 0, mine: 0, accepted: 0, sold: 0 };
-      (quotes || []).forEach((q) => {
-        if (q.status === 'pending') {
-          pendingCountByTab.new++;
-          return;
-        }
-        if (q.claimed_by_agent_id !== agentId) return; // de otro agente, no me toca avisar acá
-        if (q.status === 'purchased') pendingCountByTab.sold++;
-        if (q.status === 'quoted' || q.status === 'decided') pendingCountByTab.mine++;
-        if (q.status === 'decided' && q.client_decision === 'accepted') pendingCountByTab.accepted++;
-      });
-      tabs.forEach((tab) => setBadge(tab, pendingCountByTab[tab]));
+      return (quotes || []).map((q) => q.id);
+    }
+    // Un solo botón "💬 Chat" con el número de conversaciones esperando
+    // respuesta — antes ese número aparecía repartido en las 4 pestañas de
+    // estado, que no era donde el agente esperaba encontrarlo.
+    async function updateChatTabBadge() {
+      pendingChatQuoteIds = await getPendingChatQuoteIds();
+      const badge = document.getElementById('chatTabBadge');
+      badge.textContent = String(pendingChatQuoteIds.length);
+      badge.hidden = pendingChatQuoteIds.length === 0;
     }
 
     // El número en la pestaña "Aceptadas" — existía el elemento en el
