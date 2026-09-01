@@ -453,22 +453,23 @@
       return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
     }
 
-    const pushBtn = document.getElementById('pushBtn');
+    const pushCard = document.getElementById('pushCard');
+    const pushCardTitle = document.getElementById('pushCardTitle');
     const pushMsg = document.getElementById('pushMsg');
 
     async function refreshPushButton() {
       if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-        pushBtn.disabled = true;
+        pushCard.disabled = true;
         pushMsg.textContent = 'Este navegador no soporta notificaciones push.';
         return;
       }
       const reg = await navigator.serviceWorker.register('sw.js');
       const existing = await reg.pushManager.getSubscription();
-      pushBtn.textContent = existing ? '🔔 Notificaciones activadas' : '🔔 Activar notificaciones';
+      pushCardTitle.textContent = existing ? 'Activadas ✅' : 'Notificaciones';
     }
 
-    pushBtn.addEventListener('click', async () => {
-      pushBtn.disabled = true;
+    pushCard.addEventListener('click', async () => {
+      pushCard.disabled = true;
       try {
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') {
@@ -489,11 +490,11 @@
           .insert({ agent_id: userData.user.id, subscription: sub.toJSON() });
         if (error) throw error;
         pushMsg.textContent = 'Notificaciones activadas en este dispositivo.';
-        pushBtn.textContent = '🔔 Notificaciones activadas';
+        pushCardTitle.textContent = 'Activadas ✅';
       } catch (err) {
         pushMsg.textContent = 'Error: ' + (err && err.message ? err.message : String(err));
       } finally {
-        pushBtn.disabled = false;
+        pushCard.disabled = false;
       }
     });
 
@@ -504,16 +505,16 @@
     // marque disponible de nuevo (ver send-web-push, filtra por
     // profiles.is_available).
     function renderAvailability(isAvailable) {
-      document.getElementById('availabilityTitle').textContent = isAvailable ? '🟢 Disponible' : '🔴 No disponible';
-      document.getElementById('availabilityBtn').textContent = isAvailable ? 'Marcarme como no disponible' : 'Marcarme como disponible';
+      document.getElementById('availabilityIcon').textContent = isAvailable ? '🟢' : '🔴';
+      document.getElementById('availabilityTitle').textContent = isAvailable ? 'Disponible' : 'No disponible';
       document.getElementById('availabilityCard').style.opacity = isAvailable ? '1' : '0.7';
     }
-    document.getElementById('availabilityBtn').addEventListener('click', async () => {
-      const btn = document.getElementById('availabilityBtn');
-      const nowUnavailable = document.getElementById('availabilityTitle').textContent.includes('🟢');
-      btn.disabled = true;
+    document.getElementById('availabilityCard').addEventListener('click', async () => {
+      const card = document.getElementById('availabilityCard');
+      const nowUnavailable = document.getElementById('availabilityIcon').textContent === '🟢';
+      card.disabled = true;
       const { error } = await supabaseClient.from('profiles').update({ is_available: !nowUnavailable }).eq('id', agentId);
-      btn.disabled = false;
+      card.disabled = false;
       if (error) {
         alert('No se pudo cambiar: ' + error.message);
         return;
