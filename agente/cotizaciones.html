@@ -500,6 +500,92 @@
         .replace(/'/g, '&#39;');
     }
 
+    // ---------- Restricciones migratorias (mismo criterio que index.html) ----------
+    // El cliente ya ve este mismo aviso y tiene que marcar "leí y entiendo"
+    // antes de poder mandar sus datos — acá se repite para que el Agente
+    // también lo vea y pueda preguntarle directamente, no para bloquear
+    // nada de este lado. Última revisión: 2026-08-31.
+    const US_AIRPORT_CODES = new Set(['JFK','LGA','EWR','MIA','FLL','MCO','TPA','ATL','ORD','MDW','LAX','SFO','SAN','SEA','DFW','IAH','DEN','PHX','LAS','BOS','PHL','IAD','DCA','BWI','CLT','MSP','DTW','STL','MCI','AUS','SAT','SLC','PDX','SJU','HNL','OGG','ANC','RDU','PIT','CLE','CVG','IND','MSY','JAX','MEM','OMA','OKC','ABQ','TUS','ELP','HOU','DAL','SJC','OAK','SNA','ONT','BUR']);
+    const CUBA_AIRPORT_CODES = new Set(['HAV','VRA','SNU','HOG','CFG','CMW','SCU','CYO','MZO']);
+    const NORTH_KOREA_AIRPORT_CODES = new Set(['FNJ']);
+    const US_ENTRY_BAN_FULL = new Set(['AF','BF','MM','TD','CG','GQ','ER','HT','IR','LA','LY','ML','NE','SL','SO','SS','SD','SY','YE','PS']);
+    const US_ENTRY_BAN_PARTIAL = new Set(['AO','AG','BJ','BI','CI','DM','GA','GM','MW','MR','NG','SN','TZ','TG','TO','TM','ZM','ZW']);
+    const TRAVEL_WARNING_TEXT = {
+      cuba: '⚠️ Turismo convencional a Cuba desde EE. UU.: prohibido por ley federal. El pasajero declaró viajar bajo una categoría de Licencia General de la OFAC (ver abajo cuál).',
+      nk: '🚫 Pasaporte de EE. UU. hacia/vía Corea del Norte: prohibido salvo validación especial del Departamento de Estado.',
+      banFull: '🚫 Veto migratorio (travel ban): esta nacionalidad tiene suspendida la emisión de visas para entrar a EE. UU.',
+      banPartial: '⚠️ Restricción de visa: esta nacionalidad enfrenta suspensiones parciales/auditorías extremas para ciertas visas de EE. UU.',
+      venezuela: '⚠️ Venezuela: entrada suspendida para funcionarios del gobierno y familiares directos; ciudadanos particulares con restricciones de visado.',
+    };
+    function extractIataCode(label) {
+      const m = /\(([A-Z]{3})\)\s*$/.exec(label || '');
+      return m ? m[1] : null;
+    }
+    function getTravelWarningsForPassenger(q, passenger) {
+      if (!q || q.category !== 'flight') return [];
+      const originIata = extractIataCode(q.origin);
+      const destIata = extractIataCode(q.destination);
+      const originIsUS = originIata && US_AIRPORT_CODES.has(originIata);
+      const destIsUS = destIata && US_AIRPORT_CODES.has(destIata);
+      const originIsCuba = originIata && CUBA_AIRPORT_CODES.has(originIata);
+      const destIsCuba = destIata && CUBA_AIRPORT_CODES.has(destIata);
+      const destIsNK = destIata && NORTH_KOREA_AIRPORT_CODES.has(destIata);
+      const warnings = [];
+      if ((originIsUS && destIsCuba) || (originIsCuba && destIsUS)) warnings.push(TRAVEL_WARNING_TEXT.cuba);
+      if (destIsNK && passenger.passportIssuingCountry === 'US') warnings.push(TRAVEL_WARNING_TEXT.nk);
+      if (destIsUS) {
+        if (US_ENTRY_BAN_FULL.has(passenger.nationality)) warnings.push(TRAVEL_WARNING_TEXT.banFull);
+        else if (US_ENTRY_BAN_PARTIAL.has(passenger.nationality)) warnings.push(TRAVEL_WARNING_TEXT.banPartial);
+        else if (passenger.nationality === 'VE') warnings.push(TRAVEL_WARNING_TEXT.venezuela);
+      }
+      return warnings;
+    }
+    // Nombres de país (ISO → español) solo para MOSTRAR — los pasajeros
+    // guardan el código ISO, no el nombre (ver buildCountrySelectHTML en
+    // index.html). Se pide una sola vez y se cachea.
+    let countryNamesEs = null;
+    let countryNamesPromise = null;
+    function loadCountryNamesEs() {
+      if (countryNamesEs) return Promise.resolve(countryNamesEs);
+      if (countryNamesPromise) return countryNamesPromise;
+      countryNamesPromise = fetch('https://raw.githubusercontent.com/umpirsky/country-list/master/data/es/country.json')
+        .then((r) => r.json())
+        .then((json) => { countryNamesEs = json; return json; })
+        .catch(() => { countryNamesEs = {}; return countryNamesEs; });
+      return countryNamesPromise;
+    }
+    function countryLabel(iso) {
+      if (!iso) return '';
+      return (countryNamesEs && countryNamesEs[iso]) || iso;
+    }
+    // Arma el bloque de avisos para TODOS los pasajeros de la cotización —
+    // uno por pasajero que tenga alguno, con su nombre y si ya marcó que
+    // leyó el aviso del lado del cliente.
+    function buildRestrictionWarningsHtml(q) {
+      if (!Array.isArray(q.passengers) || !q.passengers.length) return '';
+      const blocks = q.passengers.map((p) => {
+        const warnings = getTravelWarningsForPassenger(q, p);
+        if (!warnings.length) return '';
+        const name = escapeHtml(p.fullName || 'Pasajero');
+        const ackText = p.travelWarningsAcknowledged
+          ? '✅ El cliente marcó que leyó el aviso.'
+          : '⏳ El cliente todavía no marcó que leyó el aviso.';
+        const cubaCategoryText = p.cubaOfacCategory
+          ? '<div class="restriction-cuba-category">Categoría OFAC declarada: ' + escapeHtml(p.cubaOfacCategory) + '</div>'
+          : '';
+        return (
+          '<div class="restriction-block">' +
+          '<div class="restriction-passenger-name">' + name + ' — ' + escapeHtml(countryLabel(p.nationality)) + '</div>' +
+          warnings.map((w) => '<div class="restriction-text">' + escapeHtml(w) + '</div>').join('') +
+          cubaCategoryText +
+          '<div class="restriction-ack">' + ackText + '</div>' +
+          '</div>'
+        );
+      }).join('');
+      if (!blocks) return '';
+      return '<div class="restriction-warnings">' + blocks + '</div>';
+    }
+
     function fmtRoute(q) {
       if (q.origin) return escapeHtml(q.origin) + ' → ' + escapeHtml(q.destination);
       return escapeHtml(q.destination);
