@@ -6943,12 +6943,7 @@
           agentId: null,
           title: 'Tenés un mensaje nuevo',
           body: 'El cliente te escribió sobre su cotización.',
-          // Antes mandaba siempre a /agente/cotizaciones.html a secas — el
-          // agente tocaba la notificación y caía en la pestaña "Nuevas" de
-          // siempre, sin ninguna pista de dónde estaba la conversación.
-          // Con esto abre directo en la pestaña Chat y esa conversación ya
-          // abierta (ver el manejo de ?chat= en cotizaciones.html).
-          url: '/agente/cotizaciones.html?chat=' + quoteRequestId,
+          url: '/agente/cotizaciones.html',
         }),
       }).catch(() => {});
     }
