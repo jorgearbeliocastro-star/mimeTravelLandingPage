@@ -931,6 +931,18 @@
       card.appendChild(thread);
       await loadChatMessages(thread, quote.id);
 
+      // La lista general deja de sondear mientras este chat está abierto
+      // (openChatQuoteId, ver loadQuotes) — así que el chat en sí se
+      // refresca solo, para poder seguir la conversación en vivo sin tener
+      // que cerrar y volver a abrir para ver si el cliente contestó.
+      const chatPollTimer = setInterval(() => {
+        if (openChatQuoteId !== quote.id || !document.body.contains(thread)) {
+          clearInterval(chatPollTimer);
+          return;
+        }
+        loadChatMessages(thread, quote.id);
+      }, 5000);
+
       thread.querySelector('.chat-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const input = thread.querySelector('input');
