@@ -4927,6 +4927,84 @@
       return countryNamesPromises[lang];
     }
 
+    // ---------- Restricciones migratorias (aviso, no bloquea) ----------
+    // Basado en la base de datos de restricciones que dio el dueño de la
+    // agencia (Cuba/OFAC, Corea del Norte, veto migratorio de EE. UU. y
+    // restricciones parciales) — esto es información legal que cambia con
+    // el tiempo (órdenes ejecutivas), así que el texto se muestra tal cual
+    // se recibió, en español siempre, sin traducir (para no arriesgar una
+    // mala traducción de un texto legal). Última revisión: 2026-08-31.
+    // Solo aplica a vuelos — es donde tenemos origen/destino como
+    // aeropuerto real; el resto de categorías no pasa por control de
+    // migración de la misma forma.
+    // Lista curada de aeropuertos que esta agencia realmente cotiza — no
+    // hace falta la totalidad del país, alcanza con los que se usan acá.
+    const US_AIRPORT_CODES = new Set(['JFK','LGA','EWR','MIA','FLL','MCO','TPA','ATL','ORD','MDW','LAX','SFO','SAN','SEA','DFW','IAH','DEN','PHX','LAS','BOS','PHL','IAD','DCA','BWI','CLT','MSP','DTW','STL','MCI','AUS','SAT','SLC','PDX','SJU','HNL','OGG','ANC','RDU','PIT','CLE','CVG','IND','MSY','JAX','MEM','OMA','OKC','ABQ','TUS','ELP','HOU','DAL','SJC','OAK','SNA','ONT','BUR']);
+    const CUBA_AIRPORT_CODES = new Set(['HAV','VRA','SNU','HOG','CFG','CMW','SCU','CYO','MZO']);
+    const NORTH_KOREA_AIRPORT_CODES = new Set(['FNJ']);
+    // Nacionalidades por código ISO — se compara contra el valor del
+    // <select> de Nacionalidad del pasajero (ver buildPassengerBlockHTML),
+    // que guarda el ISO, no el nombre traducido.
+    const US_ENTRY_BAN_FULL = new Set(['AF','BF','MM','TD','CG','GQ','ER','HT','IR','LA','LY','ML','NE','SL','SO','SS','SD','SY','YE','PS']);
+    const US_ENTRY_BAN_PARTIAL = new Set(['AO','AG','BJ','BI','CI','DM','GA','GM','MW','MR','NG','SN','TZ','TG','TO','TM','ZM','ZW']);
+    const TRAVEL_WARNING_TEXT = {
+      cuba: '⚠️ ATENCIÓN: El turismo convencional a Cuba desde EE. UU. está estrictamente prohibido por leyes federales. Para continuar, el pasajero debe declarar obligatoriamente que viaja bajo una de las 12 categorías de Licencia General de la OFAC. Es requisito guardar comprobantes de gastos por 5 años.',
+      nk: '🚫 RESTRICCIÓN CRÍTICA: Los pasaportes estadounidenses NO son válidos para viajar a o a través de Corea del Norte. El viaje está prohibido a menos que cuente con una validación especial y expresa del Departamento de Estado de EE. UU.',
+      banFull: '🚫 VETO MIGRATORIO (TRAVEL BAN): Los ciudadanos de este país tienen suspendida por completo la emisión de visas de inmigrante y no inmigrante (turismo/negocios) para ingresar a EE. UU. Revisá si el pasajero califica para una exención humanitaria oficial antes de emitir boletos.',
+      banPartial: '⚠️ RESTRICCIÓN DE VISA: Los ciudadanos de este país enfrentan suspensiones parciales o auditorías extremas en la emisión de ciertas visas de no inmigrante (como turismo B1/B2 o estudiantes). Asegurate de que el pasajero cuente con una visa física vigente y aprobada antes de confirmar el viaje.',
+      venezuela: '⚠️ CONTROL DE FUNCIONARIOS: La entrada a EE. UU. está suspendida para funcionarios del gobierno venezolano y sus familiares directos. Para ciudadanos particulares, se aplican estrictas restricciones de visado y verificación de antecedentes.',
+    };
+    // Las 12 categorías de Licencia General de la OFAC para viajar a Cuba
+    // (31 CFR 515.560) — el cliente tiene que declarar bajo cuál viaja.
+    const CUBA_OFAC_CATEGORIES = [
+      'Visitas familiares',
+      'Negocios oficiales del gobierno de EE. UU., gobiernos extranjeros y organizaciones intergubernamentales',
+      'Actividad periodística',
+      'Investigación profesional y reuniones profesionales',
+      'Actividades educativas',
+      'Actividades religiosas',
+      'Presentaciones públicas, clínicas, talleres, competencias deportivas y exhibiciones',
+      'Apoyo al pueblo cubano',
+      'Proyectos humanitarios',
+      'Actividades de fundaciones privadas o institutos de investigación/educación',
+      'Exportación, importación o transmisión de información o materiales informativos',
+      'Ciertas transacciones de exportación autorizadas',
+    ];
+    function extractIataCode(label) {
+      const m = /\(([A-Z]{3})\)\s*$/.exec(label || '');
+      return m ? m[1] : null;
+    }
+    // Devuelve la lista de avisos que aplican para ESTE pasajero en ESTA
+    // cotización — puede haber más de uno (ej. Cuba + veto migratorio no
+    // se solapan en la práctica, pero la función no asume que no puedan).
+    function getTravelWarningsForPassenger(quote, passenger) {
+      if (!quote || quote.category !== 'flight') return [];
+      const originIata = extractIataCode(quote.origin);
+      const destIata = extractIataCode(quote.destination);
+      const originIsUS = originIata && US_AIRPORT_CODES.has(originIata);
+      const destIsUS = destIata && US_AIRPORT_CODES.has(destIata);
+      const originIsCuba = originIata && CUBA_AIRPORT_CODES.has(originIata);
+      const destIsCuba = destIata && CUBA_AIRPORT_CODES.has(destIata);
+      const destIsNK = destIata && NORTH_KOREA_AIRPORT_CODES.has(destIata);
+      const warnings = [];
+      if ((originIsUS && destIsCuba) || (originIsCuba && destIsUS)) {
+        warnings.push({ key: 'cuba', text: TRAVEL_WARNING_TEXT.cuba, needsCubaCategory: true });
+      }
+      if (destIsNK && passenger.passportIssuingCountry === 'US') {
+        warnings.push({ key: 'nk', text: TRAVEL_WARNING_TEXT.nk });
+      }
+      if (destIsUS) {
+        if (US_ENTRY_BAN_FULL.has(passenger.nationality)) {
+          warnings.push({ key: 'banFull', text: TRAVEL_WARNING_TEXT.banFull });
+        } else if (US_ENTRY_BAN_PARTIAL.has(passenger.nationality)) {
+          warnings.push({ key: 'banPartial', text: TRAVEL_WARNING_TEXT.banPartial });
+        } else if (passenger.nationality === 'VE') {
+          warnings.push({ key: 'venezuela', text: TRAVEL_WARNING_TEXT.venezuela });
+        }
+      }
+      return warnings;
+    }
+
     // Si lo escrito coincide con el nombre de CUALQUIER país del mundo (no
     // solo los curados), trae todos sus aeropuertos reales — "Ciudad
     // (CÓDIGO)" igual que worldAirportLabels.
