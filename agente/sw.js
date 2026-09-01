@@ -39,7 +39,7 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const targetUrl = event.notification.data && event.notification.data.url ? event.notification.data.url : '/agente/cotizaciones.html';
+  const targetUrl = event.notification.data && event.notification.data.url ? event.notification.data.url : '/agente/panel.html';
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientsArr) => {
       // Si ya hay una pestaña del panel abierta, la enfoca y navega ahí en
