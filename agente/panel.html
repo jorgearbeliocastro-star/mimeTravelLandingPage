@@ -129,6 +129,11 @@
     text-decoration: none;
     cursor: pointer;
     color: var(--dark);
+    /* Ahora también se usa en <button> (disponibilidad, notificaciones),
+       no solo en <a> — sin esto el navegador le mete su propia fuente y
+       ancho de borde por defecto y desentona con el resto de los cuadros. */
+    font-family: var(--font-body);
+    width: 100%;
     box-shadow: 0 3px 14px rgba(27,58,92,0.08);
     border: 1px solid rgba(27,58,92,0.06);
     display: flex;
