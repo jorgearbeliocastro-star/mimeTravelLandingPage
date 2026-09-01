@@ -499,15 +499,36 @@
       if (currentTab !== 'new') query = query.order('created_at', { ascending: false });
       const { data, error } = await query;
       if (error) return;
+      // Último mensaje de CADA cotización visible — si es del cliente,
+      // significa "está esperando respuesta" y el botón de Chat se resalta
+      // (ver renderList). Una sola consulta para toda la lista, no una por
+      // card. Se pidió porque una venta ya cerrada ("Vendidas") no tenía
+      // ningún aviso de que el cliente había escrito por el chat.
+      const quoteIds = (data || []).map((q) => q.id);
+      const pendingChatMap = {};
+      if (quoteIds.length) {
+        const { data: msgs } = await supabaseClient
+          .from('quote_request_messages')
+          .select('quote_request_id, sender, created_at')
+          .in('quote_request_id', quoteIds)
+          .order('created_at', { ascending: false });
+        (msgs || []).forEach((m) => {
+          if (!(m.quote_request_id in pendingChatMap)) pendingChatMap[m.quote_request_id] = m.sender === 'client';
+        });
+      }
       // No repintar si no cambió nada de verdad desde el último sondeo —
       // antes reconstruía TODA la lista cada 6s aunque fuera exactamente
       // igual, lo que destruía y volvía a crear las miniaturas de
-      // documentos todo el tiempo (se veía como que parpadeaban).
+      // documentos todo el tiempo (se veía como que parpadeaban). Un
+      // mensaje nuevo de chat no cambia ninguna columna de quote_requests,
+      // así que hace falta comparar pendingChatMap aparte.
       const dataJSON = JSON.stringify(data || []);
-      if (dataJSON === lastLoadedQuotesJSON && currentTab === lastLoadedTab) return;
+      const chatJSON = JSON.stringify(pendingChatMap);
+      if (dataJSON === lastLoadedQuotesJSON && chatJSON === lastLoadedChatJSON && currentTab === lastLoadedTab) return;
       lastLoadedQuotesJSON = dataJSON;
+      lastLoadedChatJSON = chatJSON;
       lastLoadedTab = currentTab;
-      renderList(data || []);
+      renderList(data || [], pendingChatMap);
     }
 
     // Estos datos los llena CUALQUIER visitante anónimo desde los
