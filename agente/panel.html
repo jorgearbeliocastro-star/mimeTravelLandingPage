@@ -328,6 +328,40 @@
       }
     })();
 
+    // Mismo criterio que pollRingingCalls, pero para el botón "💬 Chat" —
+    // cuántas cotizaciones (mías o sin agente asignado) tienen un mensaje
+    // del cliente sin responder, sin importar en qué estado estén. Todo
+    // envuelto en try/catch para que un error acá nunca deje al resto de
+    // la pantalla (llamadas, disponibilidad) sin actualizarse.
+    async function pollPendingChats() {
+      try {
+        const badge = document.getElementById('chatBadge');
+        const { data: msgs, error } = await supabaseClient
+          .from('quote_request_messages')
+          .select('quote_request_id, sender, created_at')
+          .order('created_at', { ascending: false })
+          .limit(100);
+        if (error) { console.error('[panel] error consultando chats:', error); return; }
+        const lastSenderByQuote = {};
+        (msgs || []).forEach((m) => {
+          if (!(m.quote_request_id in lastSenderByQuote)) lastSenderByQuote[m.quote_request_id] = m.sender;
+        });
+        const pendingIds = Object.keys(lastSenderByQuote).filter((id) => lastSenderByQuote[id] === 'client');
+        if (!pendingIds.length) { badge.hidden = true; return; }
+        const { data: mine, error: mineError } = await supabaseClient
+          .from('quote_requests')
+          .select('id')
+          .in('id', pendingIds)
+          .or('claimed_by_agent_id.eq.' + agentId + ',claimed_by_agent_id.is.null');
+        if (mineError) { console.error('[panel] error filtrando chats:', mineError); return; }
+        const count = (mine || []).length;
+        badge.textContent = String(count);
+        badge.hidden = count === 0;
+      } catch (e) {
+        console.error('[panel] excepción en pollPendingChats:', e);
+      }
+    }
+
     // Aviso simple de "hay una llamada esperando" en esta pantalla de
     // inicio — sin depender de tener llamadas.html abierta.
     async function pollRingingCalls() {
