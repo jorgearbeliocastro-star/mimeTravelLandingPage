@@ -5424,7 +5424,13 @@
           // varias veces.
           worldMatches = input.dataset.airportCode === 'false' ? worldCityLabels(q) : worldAirportLabels(q);
         }
-        matches = [...new Set([...cityMatches, ...countryCityMatches, ...worldMatches])].slice(0, 8);
+        matches = [...new Set([...cityMatches, ...countryCityMatches, ...worldMatches])];
+        // Red de seguridad para Vuelos: cualquier sugerencia que no traga
+        // código IATA entre paréntesis se descarta acá, sin importar de
+        // dónde haya salido — un origen/destino de vuelo sin código rompe
+        // el aviso de Cuba y los vetos migratorios (ver extractIataCode).
+        if (geoMode === 'airport') matches = matches.filter(m => /\([A-Z]{3}\)\s*$/.test(m));
+        matches = matches.slice(0, 8);
       }
 
       input.addEventListener('input', function () {
