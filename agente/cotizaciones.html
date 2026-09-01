@@ -704,6 +704,7 @@
           (partyHtml ? '<div class="meta">' + escapeHtml(partyHtml) + '</div>' : '') +
           (q.notes ? '<div class="notes">' + escapeHtml(q.notes) + '</div>' : '') +
           passengersHtml +
+          buildRestrictionWarningsHtml(q) +
           badgeHtml;
         list.appendChild(card);
 
