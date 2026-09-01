@@ -85,12 +85,15 @@
     padding: 20px 16px 60px;
   }
   .tabs {
-    display: flex;
+    display: grid;
+    /* 4 columnas fijas — con 5 pestañas quedan 4 arriba y la 5ta abajo
+       (en vez de apretar las 5 en una sola fila, que en el celular hacía
+       que "Chat" quedara cortada fuera de la pantalla). */
+    grid-template-columns: repeat(4, 1fr);
     gap: 8px;
     margin-bottom: 16px;
   }
   .tab {
-    flex: 1;
     text-align: center;
     padding: 9px;
     border-radius: 20px;
