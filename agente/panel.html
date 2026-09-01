@@ -306,6 +306,7 @@
       // saber si el agente está conectado) tiene que salir de acá — antes
       // solo lo mandaba la app nativa.
       startPresenceHeartbeat(supabaseClient);
+      startAvailabilityAutoLogout(supabaseClient);
       pollRingingCalls();
       setInterval(pollRingingCalls, 4000);
       pollPendingChats();
