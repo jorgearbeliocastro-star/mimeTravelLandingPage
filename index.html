@@ -7245,11 +7245,11 @@
         const cubaWrap = document.createElement('div');
         cubaWrap.className = 'quote-pax-warnings';
         cubaWrap.innerHTML =
-          '<div class="quote-pax-warning">' + TRAVEL_WARNING_TEXT.cuba + '</div>' +
+          '<div class="quote-pax-warning">' + travelWarningText('cuba') + '</div>' +
           '<label class="quote-pax-label">' + t('quotePaxCubaCategoryLabel') + '</label>' +
           '<select class="quote-pax-input" id="cubaOfacCategorySelect" required>' +
           '<option value="">' + t('selectPlaceholder') + '</option>' +
-          CUBA_OFAC_CATEGORIES.map((c) => '<option value="' + c.replace(/"/g, '&quot;') + '">' + c + '</option>').join('') +
+          cubaOfacCategories().map((c) => '<option value="' + c.replace(/"/g, '&quot;') + '">' + c + '</option>').join('') +
           '</select>';
         form.appendChild(cubaWrap);
       }
