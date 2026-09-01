@@ -478,8 +478,13 @@
       });
       const pendingIds = Object.keys(lastSenderByQuote).filter((id) => lastSenderByQuote[id] === 'client');
       const tabs = ['new', 'mine', 'accepted', 'sold'];
+      const setBadge = (tab, count) => {
+        const el = document.getElementById('chatTabBadge-' + tab);
+        el.textContent = String(count);
+        el.hidden = count === 0;
+      };
       if (!pendingIds.length) {
-        tabs.forEach((tab) => { document.getElementById('chatTabBadge-' + tab).hidden = true; });
+        tabs.forEach((tab) => setBadge(tab, 0));
         return;
       }
       const { data: quotes, error: quotesError } = await supabaseClient
@@ -490,18 +495,21 @@
         console.error('[cotizaciones] error clasificando chats:', quotesError);
         return;
       }
-      const pendingTabs = new Set();
+      // Cuántas cotizaciones con mensaje sin responder caen en CADA pestaña
+      // — una misma cotización puede contar para más de una (ej. "Mis
+      // cotizadas" y "Aceptadas" no son excluyentes entre sí).
+      const pendingCountByTab = { new: 0, mine: 0, accepted: 0, sold: 0 };
       (quotes || []).forEach((q) => {
         if (q.status === 'pending') {
-          pendingTabs.add('new');
+          pendingCountByTab.new++;
           return;
         }
         if (q.claimed_by_agent_id !== agentId) return; // de otro agente, no me toca avisar acá
-        if (q.status === 'purchased') pendingTabs.add('sold');
-        if (q.status === 'quoted' || q.status === 'decided') pendingTabs.add('mine');
-        if (q.status === 'decided' && q.client_decision === 'accepted') pendingTabs.add('accepted');
+        if (q.status === 'purchased') pendingCountByTab.sold++;
+        if (q.status === 'quoted' || q.status === 'decided') pendingCountByTab.mine++;
+        if (q.status === 'decided' && q.client_decision === 'accepted') pendingCountByTab.accepted++;
       });
-      tabs.forEach((tab) => { document.getElementById('chatTabBadge-' + tab).hidden = !pendingTabs.has(tab); });
+      tabs.forEach((tab) => setBadge(tab, pendingCountByTab[tab]));
     }
 
     // El número en la pestaña "Aceptadas" — existía el elemento en el
