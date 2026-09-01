@@ -4982,29 +4982,103 @@
     // que guarda el ISO, no el nombre traducido.
     const US_ENTRY_BAN_FULL = new Set(['AF','BF','MM','TD','CG','GQ','ER','HT','IR','LA','LY','ML','NE','SL','SO','SS','SD','SY','YE','PS']);
     const US_ENTRY_BAN_PARTIAL = new Set(['AO','AG','BJ','BI','CI','DM','GA','GM','MW','MR','NG','SN','TZ','TG','TO','TM','ZM','ZW']);
-    const TRAVEL_WARNING_TEXT = {
-      cuba: '⚠️ ATENCIÓN: El turismo convencional a Cuba desde EE. UU. está estrictamente prohibido por leyes federales. Para continuar, el pasajero debe declarar obligatoriamente que viaja bajo una de las 12 categorías de Licencia General de la OFAC. Es requisito guardar comprobantes de gastos por 5 años.',
-      nk: '🚫 RESTRICCIÓN CRÍTICA: Los pasaportes estadounidenses NO son válidos para viajar a o a través de Corea del Norte. El viaje está prohibido a menos que cuente con una validación especial y expresa del Departamento de Estado de EE. UU.',
-      banFull: '🚫 VETO MIGRATORIO (TRAVEL BAN): Los ciudadanos de este país tienen suspendida por completo la emisión de visas de inmigrante y no inmigrante (turismo/negocios) para ingresar a EE. UU. Revisá si el pasajero califica para una exención humanitaria oficial antes de emitir boletos.',
-      banPartial: '⚠️ RESTRICCIÓN DE VISA: Los ciudadanos de este país enfrentan suspensiones parciales o auditorías extremas en la emisión de ciertas visas de no inmigrante (como turismo B1/B2 o estudiantes). Asegurate de que el pasajero cuente con una visa física vigente y aprobada antes de confirmar el viaje.',
-      venezuela: '⚠️ CONTROL DE FUNCIONARIOS: La entrada a EE. UU. está suspendida para funcionarios del gobierno venezolano y sus familiares directos. Para ciudadanos particulares, se aplican estrictas restricciones de visado y verificación de antecedentes.',
+    const TRAVEL_WARNING_TEXT_BY_LANG = {
+      es: {
+        cuba: '⚠️ ATENCIÓN: El turismo convencional a Cuba desde EE. UU. está estrictamente prohibido por leyes federales. Para continuar, el pasajero debe declarar obligatoriamente que viaja bajo una de las 12 categorías de Licencia General de la OFAC. Es requisito guardar comprobantes de gastos por 5 años.',
+        nk: '🚫 RESTRICCIÓN CRÍTICA: Los pasaportes estadounidenses NO son válidos para viajar a o a través de Corea del Norte. El viaje está prohibido a menos que cuente con una validación especial y expresa del Departamento de Estado de EE. UU.',
+        banFull: '🚫 VETO MIGRATORIO (TRAVEL BAN): Los ciudadanos de este país tienen suspendida por completo la emisión de visas de inmigrante y no inmigrante (turismo/negocios) para ingresar a EE. UU. Revisá si el pasajero califica para una exención humanitaria oficial antes de emitir boletos.',
+        banPartial: '⚠️ RESTRICCIÓN DE VISA: Los ciudadanos de este país enfrentan suspensiones parciales o auditorías extremas en la emisión de ciertas visas de no inmigrante (como turismo B1/B2 o estudiantes). Asegurate de que el pasajero cuente con una visa física vigente y aprobada antes de confirmar el viaje.',
+        venezuela: '⚠️ CONTROL DE FUNCIONARIOS: La entrada a EE. UU. está suspendida para funcionarios del gobierno venezolano y sus familiares directos. Para ciudadanos particulares, se aplican estrictas restricciones de visado y verificación de antecedentes.',
+      },
+      en: {
+        cuba: '⚠️ WARNING: Conventional tourism to Cuba from the U.S. is strictly prohibited by federal law. To continue, the passenger must declare that they are traveling under one of the 12 OFAC General License categories. Proof of expenses must be kept for 5 years.',
+        nk: '🚫 CRITICAL RESTRICTION: U.S. passports are NOT valid for travel to or through North Korea. Travel is prohibited unless you have special, explicit validation from the U.S. State Department.',
+        banFull: '🚫 TRAVEL BAN: Citizens of this country have immigrant and non-immigrant (tourism/business) visa issuance fully suspended for entry to the U.S. Check whether the passenger qualifies for an official humanitarian exemption before issuing tickets.',
+        banPartial: '⚠️ VISA RESTRICTION: Citizens of this country face partial suspensions or extreme vetting for certain non-immigrant visas (such as B1/B2 tourism or student visas). Make sure the passenger has a valid, approved physical visa before confirming travel.',
+        venezuela: '⚠️ OFFICIAL CONTROLS: Entry to the U.S. is suspended for Venezuelan government officials and their immediate family. Individual citizens face strict visa restrictions and background checks.',
+      },
+      it: {
+        cuba: "⚠️ ATTENZIONE: Il turismo convenzionale a Cuba dagli Stati Uniti è severamente vietato dalla legge federale. Per continuare, il passeggero deve dichiarare di viaggiare secondo una delle 12 categorie di Licenza Generale OFAC. È obbligatorio conservare le prove delle spese per 5 anni.",
+        nk: '🚫 RESTRIZIONE CRITICA: I passaporti statunitensi NON sono validi per viaggiare verso o attraverso la Corea del Nord. Il viaggio è vietato salvo una convalida speciale ed esplicita del Dipartimento di Stato degli Stati Uniti.',
+        banFull: "🚫 DIVIETO DI VIAGGIO: I cittadini di questo paese hanno l'emissione di visti per immigrati e non immigrati (turismo/affari) completamente sospesa per l'ingresso negli Stati Uniti. Verifica se il passeggero ha diritto a un'esenzione umanitaria ufficiale prima di emettere i biglietti.",
+        banPartial: '⚠️ RESTRIZIONE VISTO: I cittadini di questo paese affrontano sospensioni parziali o controlli estremi per alcuni visti non immigranti (come turismo B1/B2 o studenti). Assicurati che il passeggero abbia un visto fisico valido e approvato prima di confermare il viaggio.',
+        venezuela: "⚠️ CONTROLLI UFFICIALI: L'ingresso negli Stati Uniti è sospeso per i funzionari del governo venezuelano e i loro familiari diretti. I cittadini privati sono soggetti a rigide restrizioni sui visti e controlli dei precedenti.",
+      },
+      pt: {
+        cuba: '⚠️ ATENÇÃO: O turismo convencional para Cuba a partir dos EUA é estritamente proibido por lei federal. Para continuar, o passageiro deve declarar que viaja sob uma das 12 categorias de Licença Geral da OFAC. É obrigatório guardar comprovantes de despesas por 5 anos.',
+        nk: '🚫 RESTRIÇÃO CRÍTICA: Passaportes dos EUA NÃO são válidos para viajar para ou através da Coreia do Norte. A viagem é proibida, exceto com validação especial e expressa do Departamento de Estado dos EUA.',
+        banFull: '🚫 PROIBIÇÃO DE VIAGEM: Cidadãos deste país têm a emissão de vistos de imigrante e não imigrante (turismo/negócios) totalmente suspensa para entrar nos EUA. Verifique se o passageiro se qualifica para uma isenção humanitária oficial antes de emitir passagens.',
+        banPartial: '⚠️ RESTRIÇÃO DE VISTO: Cidadãos deste país enfrentam suspensões parciais ou verificações extremas para certos vistos de não imigrante (como turismo B1/B2 ou estudantes). Certifique-se de que o passageiro tenha um visto físico válido e aprovado antes de confirmar a viagem.',
+        venezuela: '⚠️ CONTROLES OFICIAIS: A entrada nos EUA está suspensa para funcionários do governo venezuelano e seus familiares diretos. Cidadãos particulares enfrentam restrições rigorosas de visto e verificação de antecedentes.',
+      },
     };
+    function travelWarningText(key) {
+      const dict = TRAVEL_WARNING_TEXT_BY_LANG[currentLang] || TRAVEL_WARNING_TEXT_BY_LANG.es;
+      return dict[key] || TRAVEL_WARNING_TEXT_BY_LANG.es[key];
+    }
     // Las 12 categorías de Licencia General de la OFAC para viajar a Cuba
     // (31 CFR 515.560) — el cliente tiene que declarar bajo cuál viaja.
-    const CUBA_OFAC_CATEGORIES = [
-      'Visitas familiares',
-      'Negocios oficiales del gobierno de EE. UU., gobiernos extranjeros y organizaciones intergubernamentales',
-      'Actividad periodística',
-      'Investigación profesional y reuniones profesionales',
-      'Actividades educativas',
-      'Actividades religiosas',
-      'Presentaciones públicas, clínicas, talleres, competencias deportivas y exhibiciones',
-      'Apoyo al pueblo cubano',
-      'Proyectos humanitarios',
-      'Actividades de fundaciones privadas o institutos de investigación/educación',
-      'Exportación, importación o transmisión de información o materiales informativos',
-      'Ciertas transacciones de exportación autorizadas',
-    ];
+    const CUBA_OFAC_CATEGORIES_BY_LANG = {
+      es: [
+        'Visitas familiares',
+        'Negocios oficiales del gobierno de EE. UU., gobiernos extranjeros y organizaciones intergubernamentales',
+        'Actividad periodística',
+        'Investigación profesional y reuniones profesionales',
+        'Actividades educativas',
+        'Actividades religiosas',
+        'Presentaciones públicas, clínicas, talleres, competencias deportivas y exhibiciones',
+        'Apoyo al pueblo cubano',
+        'Proyectos humanitarios',
+        'Actividades de fundaciones privadas o institutos de investigación/educación',
+        'Exportación, importación o transmisión de información o materiales informativos',
+        'Ciertas transacciones de exportación autorizadas',
+      ],
+      en: [
+        'Family visits',
+        'Official business of the U.S. government, foreign governments, and international organizations',
+        'Journalistic activity',
+        'Professional research and professional meetings',
+        'Educational activities',
+        'Religious activities',
+        'Public performances, clinics, workshops, athletic competitions, and exhibitions',
+        'Support for the Cuban people',
+        'Humanitarian projects',
+        'Activities of private foundations or research/educational institutes',
+        'Exportation, importation, or transmission of information or informational materials',
+        'Certain authorized export transactions',
+      ],
+      it: [
+        'Visite familiari',
+        'Attività ufficiali del governo statunitense, governi stranieri e organizzazioni intergovernative',
+        'Attività giornalistica',
+        'Ricerca professionale e riunioni professionali',
+        'Attività educative',
+        'Attività religiose',
+        'Spettacoli pubblici, cliniche, workshop, competizioni sportive ed esposizioni',
+        'Sostegno al popolo cubano',
+        'Progetti umanitari',
+        'Attività di fondazioni private o istituti di ricerca/istruzione',
+        'Esportazione, importazione o trasmissione di informazioni o materiali informativi',
+        'Determinate transazioni di esportazione autorizzate',
+      ],
+      pt: [
+        'Visitas familiares',
+        'Negócios oficiais do governo dos EUA, governos estrangeiros e organizações intergovernamentais',
+        'Atividade jornalística',
+        'Pesquisa profissional e reuniões profissionais',
+        'Atividades educacionais',
+        'Atividades religiosas',
+        'Apresentações públicas, clínicas, workshops, competições esportivas e exposições',
+        'Apoio ao povo cubano',
+        'Projetos humanitários',
+        'Atividades de fundações privadas ou institutos de pesquisa/educação',
+        'Exportação, importação ou transmissão de informações ou materiais informativos',
+        'Certas transações de exportação autorizadas',
+      ],
+    };
+    function cubaOfacCategories() {
+      return CUBA_OFAC_CATEGORIES_BY_LANG[currentLang] || CUBA_OFAC_CATEGORIES_BY_LANG.es;
+    }
     function extractIataCode(label) {
       const m = /\(([A-Z]{3})\)\s*$/.exec(label || '');
       return m ? m[1] : null;
