@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
+<!-- Esta pantalla cambia todo el tiempo (mensajes de chat, cotizaciones
+     nuevas) — a diferencia del sitio público, acá NO queremos que el
+     navegador (ni Cloudflare) se quede con una copia vieja guardada.
+     Todo el día de hoy se perdió tiempo con exactamente ese problema. -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Mime Travel — Cotizaciones</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
