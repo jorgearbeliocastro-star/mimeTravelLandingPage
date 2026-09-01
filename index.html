@@ -5397,8 +5397,16 @@
         const geoMode = input.dataset.geoMode || 'city';
         let worldMatches;
         if (geoMode === 'airport') {
-          cityMatches = cityMatches.filter(cityHasAirport);
-          countryCityMatches = countryCityMatches.filter(cityHasAirport);
+          // A diferencia de los otros modos, acá NO se suman cityMatches/
+          // countryCityMatches (la lista curada de ciudades turísticas,
+          // sin código) — un vuelo necesita aeropuerto real con su código
+          // IATA, y esas entradas sin código (ej. "Miami" a secas, además
+          // de "Miami (MIA)") generaban una sugerencia ambigua: si se
+          // clickeaba la de sin código, el origen/destino quedaba guardado
+          // sin IATA y rompía todo lo que depende de él (aviso de Cuba,
+          // vetos migratorios, etc. — ver tripNeedsCubaCategory).
+          cityMatches = [];
+          countryCityMatches = [];
           // Busca por CUALQUIER país del mundo, no solo los ~90 curados —
           // ej. "papua" trae los aeropuertos reales de Papúa Nueva Guinea
           // aunque ese país no esté en COUNTRY_CITIES.
