@@ -467,51 +467,6 @@
       }
     })();
 
-    // Cartel de diagnóstico temporal (ver #chatDiag arriba) —
-    // corre solo, aparte de todo lo demás, con su propio try/catch para
-    // que un error acá nunca tumbe el resto de la página.
-    async function runChatDiag() {
-      const el = document.getElementById('chatDiag');
-      if (!el) return;
-      try {
-        const stamp = new Date().toLocaleTimeString('es');
-        const { data: msgs, error } = await supabaseClient
-          .from('quote_request_messages')
-          .select('quote_request_id, sender, created_at')
-          .order('created_at', { ascending: false })
-          .limit(100);
-        if (error) {
-          el.textContent = stamp + ' — ERROR leyendo mensajes: ' + error.message;
-          return;
-        }
-        const lastSenderByQuote = {};
-        (msgs || []).forEach((m) => {
-          if (!(m.quote_request_id in lastSenderByQuote)) lastSenderByQuote[m.quote_request_id] = m.sender;
-        });
-        const pendingIds = Object.keys(lastSenderByQuote).filter((id) => lastSenderByQuote[id] === 'client');
-        if (!pendingIds.length) {
-          el.textContent = stamp + ' — agentId=' + agentId + '\n' + (msgs || []).length + ' mensajes revisados, 0 esperando respuesta.';
-          return;
-        }
-        const { data: quotes, error: quotesError } = await supabaseClient
-          .from('quote_requests')
-          .select('id, status, contact_name, claimed_by_agent_id')
-          .in('id', pendingIds);
-        if (quotesError) {
-          el.textContent = stamp + ' — ERROR leyendo cotizaciones: ' + quotesError.message;
-          return;
-        }
-        const lines = (quotes || []).map((q) =>
-          '· ' + (q.contact_name || 'sin nombre') + ' — ' + q.status +
-          (q.claimed_by_agent_id === agentId ? ' — MÍA' : q.claimed_by_agent_id ? ' — de otro agente' : ' — sin asignar')
-        );
-        el.textContent = stamp + ' — agentId=' + agentId + '\n' +
-          pendingIds.length + ' cotización(es) con mensaje sin responder:\n' + lines.join('\n');
-      } catch (e) {
-        el.textContent = 'EXCEPCIÓN: ' + (e && e.message ? e.message : String(e));
-      }
-    }
-
     // El número en la pestaña "Aceptadas" — existía el elemento en el
     // HTML pero nada lo actualizaba nunca, se quedaba siempre en 0
     // escondido. Cuenta aparte de la pestaña activa, para que se vea
