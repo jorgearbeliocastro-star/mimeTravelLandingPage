@@ -6934,10 +6934,10 @@
         // El vencimiento del pasaporte siempre es a futuro.
         buildDateSelectsHTML('expiry', index, nowYear, nowYear + 15) +
         '<label class="quote-pax-label">' + t('quotePaxNationality') + '</label>' +
-        '<input type="text" class="quote-pax-input" name="nationality-' + index + '" required>' +
+        buildCountrySelectHTML('nationality', index, true) +
         genderField +
         '<label class="quote-pax-label">' + t('quotePaxIssuingCountry') + '</label>' +
-        '<input type="text" class="quote-pax-input" name="passportIssuingCountry-' + index + '" required>' +
+        buildCountrySelectHTML('passportIssuingCountry', index, true) +
         '</div>'
       );
     }
