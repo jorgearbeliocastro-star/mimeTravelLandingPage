@@ -589,20 +589,22 @@
         const ackText = p.travelWarningsAcknowledged
           ? '✅ El cliente marcó que leyó el aviso.'
           : '⏳ El cliente todavía no marcó que leyó el aviso.';
-        const cubaCategoryText = p.cubaOfacCategory
-          ? '<div class="restriction-cuba-category">Categoría OFAC declarada: ' + escapeHtml(p.cubaOfacCategory) + '</div>'
-          : '';
         return (
           '<div class="restriction-block">' +
           '<div class="restriction-passenger-name">' + name + ' — ' + escapeHtml(countryLabel(p.nationality)) + '</div>' +
           warnings.map((w) => '<div class="restriction-text">' + escapeHtml(w) + '</div>').join('') +
-          cubaCategoryText +
           '<div class="restriction-ack">' + ackText + '</div>' +
           '</div>'
         );
       }).join('');
       if (!blocks) return '';
-      return '<div class="restriction-warnings">' + blocks + '</div>';
+      // travel_reason es del viaje entero (categoría OFAC declarada para
+      // pasar por Cuba), no de un pasajero puntual — va una sola vez, no
+      // adentro de cada bloque.
+      const travelReasonHtml = q.travel_reason
+        ? '<div class="restriction-cuba-category">Categoría OFAC declarada: ' + escapeHtml(q.travel_reason) + '</div>'
+        : '';
+      return '<div class="restriction-warnings">' + blocks + travelReasonHtml + '</div>';
     }
 
     function fmtRoute(q) {

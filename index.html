@@ -5038,6 +5038,21 @@
       return warnings;
     }
 
+    // A diferencia de getTravelWarningsForPassenger (por pasajero), esto es
+    // una propiedad del VIAJE en sí (origen/destino), no de quién viaja —
+    // por eso la categoría OFAC se pide una sola vez para todo el
+    // formulario, no repetida por cada pasajero.
+    function tripNeedsCubaCategory(quote) {
+      if (!quote || quote.category !== 'flight') return false;
+      const originIata = extractIataCode(quote.origin);
+      const destIata = extractIataCode(quote.destination);
+      const originIsUS = originIata && US_AIRPORT_CODES.has(originIata);
+      const destIsUS = destIata && US_AIRPORT_CODES.has(destIata);
+      const originIsCuba = originIata && CUBA_AIRPORT_CODES.has(originIata);
+      const destIsCuba = destIata && CUBA_AIRPORT_CODES.has(destIata);
+      return (originIsUS && destIsCuba) || (originIsCuba && destIsUS);
+    }
+
     // Si lo escrito coincide con el nombre de CUALQUIER país del mundo (no
     // solo los curados), trae todos sus aeropuertos reales — "Ciudad
     // (CÓDIGO)" igual que worldAirportLabels.
@@ -7028,11 +7043,12 @@
           emergencyContactPhone: val('emergencyContactPhone') || null,
         };
       }
-      // travelWarningsAcknowledged/cubaOfacCategory: solo existen si el
-      // bloque de avisos migratorios se llegó a mostrar para este pasajero
-      // (ver renderPassengerWarnings) — si nunca apareció, quedan null.
+      // travelWarningsAcknowledged: solo existe si el bloque de avisos
+      // migratorios se llegó a mostrar para este pasajero (ver
+      // renderPassengerWarnings) — si nunca apareció, queda null. La
+      // categoría OFAC de Cuba es del viaje entero, no por pasajero — va
+      // aparte, en travel_reason (ver el submit del formulario).
       const warningAck = block.querySelector('[data-pax-warning-ack]');
-      const cubaCategory = block.querySelector('[data-pax-cuba-category]');
       return {
         fullName: val('fullName'),
         document: val('document'),
@@ -7042,7 +7058,6 @@
         gender: val('gender'),
         passportIssuingCountry: val('passportIssuingCountry'),
         travelWarningsAcknowledged: warningAck ? warningAck.checked : null,
-        cubaOfacCategory: cubaCategory ? (cubaCategory.value || null) : null,
       };
     }
 
@@ -7071,16 +7086,8 @@
         container.innerHTML = '';
         return;
       }
-      const needsCubaCategory = warnings.some((w) => w.needsCubaCategory);
       container.innerHTML =
         warnings.map((w) => '<div class="quote-pax-warning">' + w.text + '</div>').join('') +
-        (needsCubaCategory
-          ? '<label class="quote-pax-label">' + t('quotePaxCubaCategoryLabel') + '</label>' +
-            '<select class="quote-pax-input" data-pax-cuba-category required>' +
-            '<option value="">' + t('selectPlaceholder') + '</option>' +
-            CUBA_OFAC_CATEGORIES.map((c) => '<option value="' + c.replace(/"/g, '&quot;') + '">' + c + '</option>').join('') +
-            '</select>'
-          : '') +
         '<label class="quote-pax-warning-ack">' +
         '<input type="checkbox" data-pax-warning-ack required> ' +
         '<span>' + t('quotePaxWarningAck') + '</span>' +
@@ -7154,6 +7161,23 @@
         if (blockEl) renderPassengerWarnings(blockEl);
       });
 
+      // Categoría de Licencia General de la OFAC — una sola para todo el
+      // viaje (es del origen/destino, no de cada pasajero — ver
+      // tripNeedsCubaCategory), obligatoria para poder mandar el pedido
+      // cuando el viaje pasa por Cuba desde/hacia EE. UU.
+      if (tripNeedsCubaCategory({ origin: activeQuoteOrigin, destination: activeQuoteDestination, category: activeQuoteCategory })) {
+        const cubaWrap = document.createElement('div');
+        cubaWrap.className = 'quote-pax-warnings';
+        cubaWrap.innerHTML =
+          '<div class="quote-pax-warning">' + TRAVEL_WARNING_TEXT.cuba + '</div>' +
+          '<label class="quote-pax-label">' + t('quotePaxCubaCategoryLabel') + '</label>' +
+          '<select class="quote-pax-input" id="cubaOfacCategorySelect" required>' +
+          '<option value="">' + t('selectPlaceholder') + '</option>' +
+          CUBA_OFAC_CATEGORIES.map((c) => '<option value="' + c.replace(/"/g, '&quot;') + '">' + c + '</option>').join('') +
+          '</select>';
+        form.appendChild(cubaWrap);
+      }
+
       // Consentimiento de cobro — solo al aceptar de verdad (mode='accept'),
       // no al "solo enviar mis datos". El agente cobra por teléfono/video,
       // no hay un link de pago seguro de por medio (ver payment_consent_at):
@@ -7224,8 +7248,9 @@
               }).catch(() => {});
             })
           : Promise.resolve();
+        const cubaCategorySelect = document.getElementById('cubaOfacCategorySelect');
         decideStep
-          .then(() => laExpancion.rpc('submit_quote_passengers', { p_token: clientToken, p_id: activeQuoteId, p_passengers: passengers }))
+          .then(() => laExpancion.rpc('submit_quote_passengers', { p_token: clientToken, p_id: activeQuoteId, p_passengers: passengers, p_travel_reason: cubaCategorySelect ? (cubaCategorySelect.value || null) : null }))
           .then(({ error }) => {
             if (error) throw error;
             showingPassengerForm = false;
