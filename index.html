@@ -8152,10 +8152,29 @@
           const lines = [];
           if (quote.quoted_airline) lines.push(t('quoteFlightAirlineLabel') + ': ' + quote.quoted_airline);
           if (quote.quoted_schedule) lines.push(t('quoteFlightScheduleLabel') + ': ' + quote.quoted_schedule);
-          if (quote.quoted_stops) lines.push(quote.quoted_stops === 'Directo' ? t('quoteFlightDirectLabel') : t('quoteFlightStopsLabel') + ': ' + quote.quoted_stops);
+          if (quote.quoted_stops && quote.quoted_stops === 'Directo') lines.push(t('quoteFlightDirectLabel'));
           if (quote.quoted_fare_conditions) lines.push(t('quoteFlightFareLabel') + ': ' + quote.quoted_fare_conditions);
           flightInfo.textContent = lines.join(' · ');
           quoteStatusBar.appendChild(flightInfo);
+          // Itinerario con cada escala en su propio renglón (país — cuánto
+          // dura la espera), en vez de metido en la misma línea que
+          // aerolínea/horarios — así se entiende de un vistazo dónde se va
+          // a demorar y cuánto, no solo que "hay escalas".
+          if (quote.quoted_stops && quote.quoted_stops !== 'Directo') {
+            const itinerary = document.createElement('div');
+            itinerary.className = 'quote-status-notes';
+            const stopsList = document.createElement('ul');
+            stopsList.style.margin = '4px 0 0';
+            stopsList.style.paddingLeft = '18px';
+            quote.quoted_stops.split(',').map((s) => s.trim()).filter(Boolean).forEach((stop) => {
+              const li = document.createElement('li');
+              li.textContent = stop;
+              stopsList.appendChild(li);
+            });
+            itinerary.innerHTML = '<strong>' + t('quoteFlightStopsLabel') + ':</strong>';
+            itinerary.appendChild(stopsList);
+            quoteStatusBar.appendChild(itinerary);
+          }
         }
         // Notas del agente (ej. condiciones de la tarifa) — con etiqueta y
         // borde lateral a propósito, para que no se confunda con un campo
