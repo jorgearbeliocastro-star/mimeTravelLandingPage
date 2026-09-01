@@ -6622,6 +6622,11 @@
 
     let activeQuoteId = null;
     let activeQuoteRouteLabel = '';
+    // Origen/destino sueltos (además del texto combinado de arriba) — hace
+    // falta el par por separado para chequear restricciones migratorias
+    // (ver getTravelWarningsForPassenger), no alcanza con el string ya unido.
+    let activeQuoteOrigin = null;
+    let activeQuoteDestination = null;
     // Categoría del pedido activo (flight/cruise/...) — la necesita
     // renderPassengerForm para saber qué formulario de datos mostrar.
     let activeQuoteCategory = null;
