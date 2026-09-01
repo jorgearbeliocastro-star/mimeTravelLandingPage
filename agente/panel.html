@@ -1312,7 +1312,10 @@
           '<div class="pf-stops-countries"></div>' +
           '</div>' +
           '<label class="price-form-label">Horario de salida y llegada</label>' +
-          '<input type="text" class="pf-schedule" placeholder="Ej. Sale 8:00am, llega 2:30pm">'
+          '<div class="price-form-row">' +
+          '<input type="time" class="pf-schedule-departure" aria-label="Hora de salida">' +
+          '<input type="time" class="pf-schedule-arrival" aria-label="Hora de llegada">' +
+          '</div>'
         : '';
       row.innerHTML =
         stopsBlock +
