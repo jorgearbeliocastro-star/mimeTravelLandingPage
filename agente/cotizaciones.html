@@ -806,6 +806,11 @@
       pendingChatMap = pendingChatMap || {};
       const list = document.getElementById('list');
       const emptyMsg = document.getElementById('emptyMsg');
+      // Si hay un chat abierto, se saca su nodo ANTES de vaciar la lista
+      // (no se destruye) — así sobrevive al repintado con los mensajes,
+      // el scroll y lo que el agente tenga tipeado sin mandar todavía. Se
+      // vuelve a insertar en su card nueva más abajo.
+      const preservedThread = openChatQuoteId ? list.querySelector('.chat-thread') : null;
       list.innerHTML = '';
       // Corta los canales de documentos de cotizaciones que ya no están
       // en esta lista (se vendieron, cambiaron de pestaña, etc.) — sin
