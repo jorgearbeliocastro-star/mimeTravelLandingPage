@@ -5151,12 +5151,16 @@
         warnings.push({ key: 'nk', text: travelWarningText('nk') });
       }
       if (destIsUS) {
+        // Estos tres SÍ dependen de la nacionalidad puntual del pasajero
+        // (a diferencia de cuba/nk arriba, que no cambian según quién
+        // viaja) — por eso van en el idioma de ESE país, no en el idioma
+        // en que esté navegando el sitio (ver travelWarningTextForNationality).
         if (US_ENTRY_BAN_FULL.has(passenger.nationality)) {
-          warnings.push({ key: 'banFull', text: travelWarningText('banFull') });
+          warnings.push({ key: 'banFull', text: travelWarningTextForNationality('banFull', passenger.nationality) });
         } else if (US_ENTRY_BAN_PARTIAL.has(passenger.nationality)) {
-          warnings.push({ key: 'banPartial', text: travelWarningText('banPartial') });
+          warnings.push({ key: 'banPartial', text: travelWarningTextForNationality('banPartial', passenger.nationality) });
         } else if (passenger.nationality === 'VE') {
-          warnings.push({ key: 'venezuela', text: travelWarningText('venezuela') });
+          warnings.push({ key: 'venezuela', text: travelWarningTextForNationality('venezuela', passenger.nationality) });
         }
       }
       return warnings;
