@@ -406,10 +406,6 @@
     let agentId = null;
     let agentName = '';
     let currentTab = 'new';
-    // Viene del botón "💬 Chat" del panel principal — muestra solo las
-    // cotizaciones con mensaje sin responder, ignorando las 4 pestañas de
-    // estado de acá arriba (ver loadQuotes).
-    const chatViewMode = new URLSearchParams(window.location.search).get('view') === 'chat';
     let lastLoadedQuotesJSON = null;
     let lastLoadedTab = null;
     // Aparte de lastLoadedQuotesJSON — un mensaje nuevo de chat NO cambia
