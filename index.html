@@ -6792,6 +6792,30 @@
       );
     }
 
+    // Desplegable de países (ISO → nombre traducido) para Nacionalidad y
+    // País emisor del pasaporte — antes eran <input type="text"> libres
+    // (se veían cosas tipo "vjdjdd" cargadas por error) y además hacía
+    // falta un valor exacto y comparable para las restricciones
+    // migratorias (ver getTravelWarningsForPassenger). El valor de cada
+    // <option> es el código ISO, no el nombre — así funciona igual sin
+    // importar en qué idioma esté mirando la página el cliente.
+    // countryNamesData[currentLang] tiene que estar ya cargado antes de
+    // llamar esto (ver renderPassengerForm) — si por algo no cargó,
+    // igual se arma vacío en vez de romper el formulario entero.
+    function buildCountrySelectHTML(name, index) {
+      const names = countryNamesData[currentLang] || countryNamesData.es || {};
+      const options = Object.keys(names)
+        .sort((a, b) => names[a].localeCompare(names[b]))
+        .map((iso) => '<option value="' + iso + '">' + names[iso] + '</option>')
+        .join('');
+      return (
+        '<select class="quote-pax-input" name="' + name + '-' + index + '" required>' +
+        '<option value="">' + t('selectPlaceholder') + '</option>' +
+        options +
+        '</select>'
+      );
+    }
+
     function buildPassengerBlockHTML(index) {
       const nowYear = new Date().getFullYear();
       const header = index > 0
