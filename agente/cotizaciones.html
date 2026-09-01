@@ -811,6 +811,7 @@
       // el scroll y lo que el agente tenga tipeado sin mandar todavía. Se
       // vuelve a insertar en su card nueva más abajo.
       const preservedThread = openChatQuoteId ? list.querySelector('.chat-thread') : null;
+      if (preservedThread) preservedThread.remove(); // lo saca del árbol ANTES de vaciar, si no innerHTML='' lo borra igual
       list.innerHTML = '';
       // Corta los canales de documentos de cotizaciones que ya no están
       // en esta lista (se vendieron, cambiaron de pestaña, etc.) — sin
