@@ -5145,7 +5145,7 @@
       const destIsNK = destIata && NORTH_KOREA_AIRPORT_CODES.has(destIata);
       const warnings = [];
       if ((originIsUS && destIsCuba) || (originIsCuba && destIsUS)) {
-        warnings.push({ key: 'cuba', text: travelWarningText('cuba'), needsCubaCategory: true });
+        warnings.push({ key: 'cuba', text: travelWarningText('cuba') });
       }
       if (destIsNK && passenger.passportIssuingCountry === 'US') {
         warnings.push({ key: 'nk', text: travelWarningText('nk') });
