@@ -7215,7 +7215,7 @@
         return;
       }
       container.innerHTML =
-        warnings.map((w) => '<div class="quote-pax-warning">' + w.text + '</div>').join('') +
+        warnings.map((w) => '<div class="quote-pax-warning" dir="auto">' + w.text + '</div>').join('') +
         '<label class="quote-pax-warning-ack">' +
         '<input type="checkbox" data-pax-warning-ack required> ' +
         '<span>' + t('quotePaxWarningAck') + '</span>' +
