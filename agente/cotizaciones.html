@@ -440,6 +440,8 @@
       pollTimer = setInterval(loadQuotes, 6000);
       updateAcceptedBadge();
       setInterval(updateAcceptedBadge, 6000);
+      updateChatTabBadges();
+      setInterval(updateChatTabBadges, 6000);
       // Apenas llega un push (aunque esta pestaña ya esté abierta), el
       // service worker avisa acá — así el número se actualiza al toque,
       // no recién en el próximo sondeo de 6s.
@@ -447,11 +449,60 @@
         navigator.serviceWorker.addEventListener('message', (event) => {
           if (event.data && event.data.type === 'push-received') {
             updateAcceptedBadge();
+            updateChatTabBadges();
             loadQuotes();
           }
         });
       }
     })();
+
+    // El aviso de "mensaje nuevo" del botón de Chat (ver renderList) solo
+    // se ve en la cotización si está en la pestaña que estás mirando ahora
+    // mismo — si el cliente escribió en una ya vendida y estás en
+    // "Nuevas", no había forma de saber que había algo esperando en otra
+    // pestaña. Esto revisa las 4 pestañas juntas, sin importar cuál esté
+    // activa, y prende un 💬 en la que corresponda.
+    async function updateChatTabBadges() {
+      const { data: msgs, error } = await supabaseClient
+        .from('quote_request_messages')
+        .select('quote_request_id, sender, created_at')
+        .order('created_at', { ascending: false })
+        .limit(100);
+      if (error) {
+        console.error('[cotizaciones] error consultando chats:', error);
+        return;
+      }
+      const lastSenderByQuote = {};
+      (msgs || []).forEach((m) => {
+        if (!(m.quote_request_id in lastSenderByQuote)) lastSenderByQuote[m.quote_request_id] = m.sender;
+      });
+      const pendingIds = Object.keys(lastSenderByQuote).filter((id) => lastSenderByQuote[id] === 'client');
+      const tabs = ['new', 'mine', 'accepted', 'sold'];
+      if (!pendingIds.length) {
+        tabs.forEach((tab) => { document.getElementById('chatTabBadge-' + tab).hidden = true; });
+        return;
+      }
+      const { data: quotes, error: quotesError } = await supabaseClient
+        .from('quote_requests')
+        .select('id, status, client_decision, claimed_by_agent_id')
+        .in('id', pendingIds);
+      if (quotesError) {
+        console.error('[cotizaciones] error clasificando chats:', quotesError);
+        return;
+      }
+      const pendingTabs = new Set();
+      (quotes || []).forEach((q) => {
+        if (q.status === 'pending') {
+          pendingTabs.add('new');
+          return;
+        }
+        if (q.claimed_by_agent_id !== agentId) return; // de otro agente, no me toca avisar acá
+        if (q.status === 'purchased') pendingTabs.add('sold');
+        if (q.status === 'quoted' || q.status === 'decided') pendingTabs.add('mine');
+        if (q.status === 'decided' && q.client_decision === 'accepted') pendingTabs.add('accepted');
+      });
+      tabs.forEach((tab) => { document.getElementById('chatTabBadge-' + tab).hidden = !pendingTabs.has(tab); });
+    }
 
     // El número en la pestaña "Aceptadas" — existía el elemento en el
     // HTML pero nada lo actualizaba nunca, se quedaba siempre en 0
