@@ -1467,8 +1467,19 @@
         const anySeatOff = ['aisle', 'middle', 'window'].some((t) => row.querySelector('.pf-seat-' + t + '-off').checked);
         const seatTypes = ['aisle', 'middle', 'window'].filter((t) => !row.querySelector('.pf-seat-' + t + '-off').checked);
         const notes = row.querySelector('.pf-notes').value.trim();
-        const scheduleInput = row.querySelector('.pf-schedule');
-        const scheduleValue = scheduleInput ? scheduleInput.value.trim() || null : null;
+        // Convierte "HH:MM" (24h, lo que da un <input type="time">) a "h:mmam/pm"
+        // para mostrarle al cliente, ej. "13:00" -> "1:00pm".
+        const formatTime12h = (value) => {
+          const [h, m] = value.split(':').map(Number);
+          const period = h >= 12 ? 'pm' : 'am';
+          const hour12 = h % 12 === 0 ? 12 : h % 12;
+          return hour12 + ':' + String(m).padStart(2, '0') + period;
+        };
+        const departureInput = row.querySelector('.pf-schedule-departure');
+        const arrivalInput = row.querySelector('.pf-schedule-arrival');
+        const departureValue = departureInput && departureInput.value ? formatTime12h(departureInput.value) : null;
+        const arrivalValue = arrivalInput && arrivalInput.value ? formatTime12h(arrivalInput.value) : null;
+        const scheduleValue = departureValue && arrivalValue ? (departureValue + ' ... ' + arrivalValue) : null;
 
         btn.disabled = true;
         // No deja tomar una cotización si hay otra más vieja esperando —
