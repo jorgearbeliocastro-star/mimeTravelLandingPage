@@ -430,6 +430,7 @@
       }
       agentId = userData.user.id;
       startPresenceHeartbeat(supabaseClient);
+      startAvailabilityAutoLogout(supabaseClient);
       // Esta pantalla se ve exactamente igual para cualquier Agente, sea
       // Dueño o no — la vista de "todo el equipo" se mudó a
       // agente/dueno.html, separada del uso normal como agente.
