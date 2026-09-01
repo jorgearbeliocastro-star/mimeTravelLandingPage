@@ -263,15 +263,15 @@
     <button id="logoutBtn">Salir</button>
   </header>
   <main>
-    <div class="push-card" id="availabilityCard">
-      <div class="push-copy">
-        <div class="title" id="availabilityTitle">🟢 Disponible</div>
-        <div class="sub">Mientras estés disponible, te llegan los avisos de cotizaciones y llamadas nuevas.</div>
-      </div>
-      <button id="availabilityBtn">Marcarme como no disponible</button>
-    </div>
-
     <div class="nav-grid">
+      <button class="nav-card" id="availabilityCard">
+        <span class="icon" id="availabilityIcon">🟢</span>
+        <span class="title" id="availabilityTitle">Disponible</span>
+      </button>
+      <button class="nav-card" id="pushCard">
+        <span class="icon">🔔</span>
+        <span class="title">Notificaciones</span>
+      </button>
       <a class="nav-card" href="cotizaciones.html" id="cotizacionesNavCard">
         <span class="call-badge" id="chatBadge" hidden>0</span>
         <span class="icon">📋</span>
@@ -294,14 +294,6 @@
         <span class="title">Dueño</span>
         <span class="desc">Crear agentes, ver el equipo y todas las cotizaciones.</span>
       </a>
-    </div>
-
-    <div class="push-card">
-      <div class="push-copy">
-        <div class="title">Notificaciones</div>
-        <div class="sub">Activalas en este dispositivo para enterarte de cotizaciones nuevas.</div>
-      </div>
-      <button id="pushBtn">🔔 Activar notificaciones</button>
     </div>
     <p id="pushMsg"></p>
 
