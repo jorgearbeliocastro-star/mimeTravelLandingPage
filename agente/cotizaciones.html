@@ -407,6 +407,13 @@
     // desaparecía solo a los pocos segundos sin que el agente llegara a
     // terminar de escribir.
     let cardFormOpenId = null;
+    // Mismo criterio que cardFormOpenId, pero para el chat: si el agente
+    // tiene una conversación abierta, el sondeo automático no puede
+    // reconstruir la lista — antes SÍ lo hacía en cuanto el agente
+    // contestaba (esa respuesta cambia quién mandó el último mensaje, así
+    // que el chequeo de "algo cambió" se disparaba igual), y el chat
+    // abierto desaparecía solo justo después de responder.
+    let openChatQuoteId = null;
 
     const FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ajax/contacto@mimetravel.com';
     function sendSaleToFormSubmit(data) {
