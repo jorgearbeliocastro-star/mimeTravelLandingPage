@@ -2,8 +2,12 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
+<!-- Esta pantalla cambia todo el tiempo (mensajes de chat, cotizaciones
+     nuevas, llamadas) — a diferencia del sitio público, acá NO queremos
+     que el navegador (ni Cloudflare) se quede con una copia vieja
+     guardada. -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -218,6 +222,265 @@
     text-align: center;
     line-height: 1.5;
   }
+
+  /* ---------- Cotizaciones (antes en su propia página, cotizaciones.html) ---------- */
+  .quotes-section { max-width: 560px; margin: 32px auto 0; }
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .tab {
+    text-align: center;
+    padding: 9px;
+    border-radius: 20px;
+    background: #fff;
+    border: 1px solid rgba(27,58,92,0.12);
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    color: rgba(26,26,26,0.55);
+    transition: background 0.15s, color 0.15s;
+  }
+  .tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .tab-badge {
+    display: inline-block;
+    min-width: 16px;
+    padding: 0 5px;
+    margin-left: 3px;
+    border-radius: 999px;
+    background: var(--coral);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 16px;
+  }
+  .tab-badge[hidden] { display: none; }
+  .empty { text-align: center; color: rgba(26,26,26,0.5); font-size: 14px; margin-top: 40px; }
+  .quote-card {
+    background: #fff;
+    border: 1px solid rgba(27,58,92,0.06);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 3px 14px rgba(27,58,92,0.08);
+  }
+  .quote-card .route { font-family: var(--font-display); font-weight: 700; font-size: 16px; color: var(--primary); }
+  .quote-card .meta { font-size: 12px; color: rgba(26,26,26,0.55); margin-top: 3px; }
+  .quote-card .notes { font-size: 13px; margin-top: 8px; white-space: pre-wrap; }
+  .restriction-warnings { margin-top: 8px; display: flex; flex-direction: column; gap: 8px; }
+  .restriction-block {
+    background: #fff3cd;
+    border: 1.5px solid #e6b800;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #5c4400;
+  }
+  .restriction-passenger-name { font-weight: 700; margin-bottom: 3px; }
+  .restriction-text { margin-top: 2px; }
+  .restriction-cuba-category { margin-top: 4px; font-style: italic; }
+  .restriction-ack { margin-top: 4px; font-weight: 600; }
+  .quote-card .badge {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: #eee;
+    margin-top: 8px;
+  }
+  .badge.mine { background: rgba(95,191,179,0.2); color: #2c7a6f; }
+  .badge.quoted { background: #fff3cd; color: #856404; }
+  .badge.decided-accepted { background: rgba(95,191,179,0.2); color: #2c7a6f; }
+  .badge.decided-declined { background: #f8d7da; color: #c0392b; }
+  .price-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .price-row input {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1.5px solid rgba(27,58,92,0.15);
+    font-size: 14px;
+    font-family: inherit;
+  }
+  .price-row button {
+    border: none;
+    background: var(--coral);
+    color: #fff;
+    border-radius: 8px;
+    padding: 0 18px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .price-row button:disabled { opacity: 0.5; }
+  .price-row button.price-cancel { background: rgba(27,58,92,0.08); color: var(--primary); }
+  .docs-btn { margin-left: 8px; }
+
+  .price-form { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .price-form-label { font-size: 11.5px; font-weight: 700; color: rgba(26,26,26,0.55); margin-top: 6px; }
+  .price-form input, .price-form textarea {
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1.5px solid rgba(27,58,92,0.15);
+    font-size: 14px;
+    font-family: inherit;
+    width: 100%;
+  }
+  .price-form textarea { resize: vertical; }
+  .price-form-row { display: flex; gap: 8px; }
+  .price-form-row > input { flex: 1; min-width: 0; }
+  .price-form-seat { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .price-form-seat input[type="number"] { width: 100%; }
+  .price-form-seat input[type="number"]:disabled { background: rgba(0,0,0,0.05); color: rgba(26,26,26,0.4); }
+  .price-form-seat-off { display: flex; align-items: center; gap: 4px; font-size: 10.5px; color: rgba(26,26,26,0.55); cursor: pointer; }
+  .price-form-seat-off input { margin: 0; }
+  .price-form-stops-choice { display: flex; gap: 14px; margin-bottom: 6px; }
+  .price-form-stops-choice label { display: flex; align-items: center; gap: 5px; font-size: 13px; cursor: pointer; }
+  .price-form-stops-choice input { margin: 0; }
+  .price-form-actions { display: flex; gap: 8px; margin-top: 6px; }
+  .price-form-actions button {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .price-form-actions .pf-submit { background: var(--coral); color: #fff; }
+  .price-form-actions .pf-submit:disabled { opacity: 0.5; }
+  .price-form-actions .price-cancel { background: rgba(27,58,92,0.08); color: var(--primary); }
+
+  .docs-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background: rgba(13,27,42,0.94);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 16px;
+    color: #fff;
+  }
+  .docs-overlay.active { display: flex; }
+  .docs-overlay-title { font-weight: 700; font-size: 15px; }
+  .docs-overlay img {
+    display: block;
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 10px;
+    background: #111;
+  }
+  .docs-thumbs {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    font-size: 12.5px;
+    color: rgba(26,26,26,0.55);
+  }
+  .docs-thumbs img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1.5px solid rgba(27,58,92,0.15);
+    cursor: pointer;
+  }
+  .docs-overlay-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .docs-overlay-actions button {
+    border: none;
+    border-radius: 20px;
+    padding: 10px 16px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+  }
+  .docs-close-btn { background: var(--coral) !important; }
+  .claim-btn {
+    margin-top: 10px;
+    border: 1.5px solid var(--primary);
+    background: #fff;
+    color: var(--primary);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .already-quoted { font-size: 13px; margin-top: 8px; color: rgba(26,26,26,0.7); }
+  .chat-toggle-btn {
+    margin-top: 8px;
+    margin-left: 8px;
+    border: 1.5px solid rgba(27,58,92,0.15);
+    background: #fff;
+    color: rgba(26,26,26,0.7);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .chat-toggle-btn.pending {
+    border-color: #c0392b;
+    background: #fdecea;
+    color: #c0392b;
+    animation: chatPendingPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes chatPendingPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.35); }
+    50% { box-shadow: 0 0 0 5px rgba(192,57,43,0); }
+  }
+  .chat-thread {
+    margin-top: 12px;
+    border-top: 1px solid rgba(27,58,92,0.08);
+    padding-top: 12px;
+  }
+  .chat-messages {
+    max-height: 240px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .chat-bubble {
+    max-width: 82%;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .chat-bubble.client { align-self: flex-start; background: var(--arena); }
+  .chat-bubble.agent { align-self: flex-end; background: var(--primary); color: #fff; }
+  .chat-form { display: flex; gap: 6px; }
+  .chat-form input {
+    flex: 1;
+    padding: 9px 12px;
+    border-radius: 16px;
+    border: 1.5px solid rgba(27,58,92,0.15);
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .chat-form button {
+    border: none;
+    background: var(--coral);
+    color: #fff;
+    border-radius: 16px;
+    padding: 0 14px;
+    font-weight: 700;
+    font-size: 12.5px;
+    cursor: pointer;
+  }
 </style>
 </head>
 <body>
@@ -241,11 +504,6 @@
         <span class="icon" id="pushCardIcon">🔔</span>
         <span class="title" id="pushCardTitle">Notificaciones</span>
       </button>
-      <a class="nav-card" href="cotizaciones.html" id="cotizacionesNavCard">
-        <span class="icon">📋</span>
-        <span class="title">Cotizaciones</span>
-        <span class="desc">Nuevas y propias. Precio, cierre de venta y chat con el cliente.</span>
-      </a>
       <a class="nav-card" href="llamadas.html" id="callsNavCard">
         <span class="call-badge" id="callBadge" hidden>0</span>
         <span class="icon">📞</span>
@@ -265,8 +523,32 @@
     </div>
     <p id="pushMsg"></p>
 
+    <!-- Cotizaciones — antes era una página aparte (cotizaciones.html),
+         ahora vive directo acá. -->
+    <div class="quotes-section">
+      <div class="tabs">
+        <div class="tab active" data-tab="new">Nuevas</div>
+        <div class="tab" data-tab="mine">Cotizadas</div>
+        <div class="tab" data-tab="accepted">Aceptadas <span class="tab-badge" id="acceptedTabBadge" hidden>0</span></div>
+        <div class="tab" data-tab="sold">Vendidas</div>
+      </div>
+      <div id="list"></div>
+      <div class="empty" id="emptyMsg">No hay nada acá.</div>
+    </div>
+
     <p class="note">Falta todavía: en cotizaciones — extras/camarotes/asientos (solo hay precio simple por ahora).</p>
   </main>
+
+  <!-- Documentos del cliente (pasaporte/tarjeta): llegan en vivo por
+       Realtime mientras el cliente sigue conectado, nunca se guardan acá
+       ni en ningún lado — se borran al cerrar esta vista. -->
+  <div class="docs-overlay" id="docsOverlay">
+    <div class="docs-overlay-title" id="docsOverlayTitle"></div>
+    <img id="docsOverlayImg" alt="">
+    <div class="docs-overlay-actions">
+      <button type="button" id="docsCloseBtn" class="docs-close-btn">Cerrar</button>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="presence.js"></script>
@@ -276,6 +558,38 @@
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let agentId = null;
+    let agentName = '';
+    let currentTab = 'new';
+    let lastLoadedQuotesJSON = null;
+    let lastLoadedTab = null;
+    // Aparte de lastLoadedQuotesJSON — un mensaje nuevo de chat NO cambia
+    // ninguna columna de quote_requests, así que sin esto el aviso de
+    // "mensaje nuevo" en el botón de Chat nunca aparecía (el repintado se
+    // saltaba por completo, ver loadQuotes).
+    let lastLoadedChatJSON = null;
+    let pollTimer = null;
+    // Mientras algún formulario de card está abierto (poner precio,
+    // confirmar venta), el sondeo automático (cada 6s) no debe reconstruir
+    // la lista — antes lo hacía igual, y el formulario recién abierto
+    // desaparecía solo a los pocos segundos sin que el agente llegara a
+    // terminar de escribir.
+    let cardFormOpenId = null;
+    // Mismo criterio que cardFormOpenId, pero para el chat: si el agente
+    // tiene una conversación abierta, el sondeo automático no puede
+    // reconstruir la lista — antes SÍ lo hacía en cuanto el agente
+    // contestaba (esa respuesta cambia quién mandó el último mensaje, así
+    // que el chequeo de "algo cambió" se disparaba igual), y el chat
+    // abierto desaparecía solo justo después de responder.
+    let openChatQuoteId = null;
+
+    const FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ajax/contacto@mimetravel.com';
+    function sendSaleToFormSubmit(data) {
+      return fetch(FORMSUBMIT_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(data),
+      });
+    }
 
     // Guardia de sesión: sin login + segundo factor verificado (aal2), no
     // se puede ver nada de este panel — vuelve directo al login.
@@ -286,23 +600,26 @@
         return;
       }
       const { data: userData } = await supabaseClient.auth.getUser();
-      if (userData?.user) {
-        agentId = userData.user.id;
-        const { data: profile } = await supabaseClient.from('profiles').select('full_name, role, is_available').eq('id', userData.user.id).single();
-        document.getElementById('whoami').textContent = profile?.full_name || userData.user.email;
-        renderAvailability(profile?.is_available !== false);
-        // Deja claro con qué tipo de cuenta se entró. Las pantallas de
-        // agente (cotizaciones/llamadas/pagos) son EXACTAMENTE iguales
-        // para las dos — lo único que cambia es esta tarjeta extra acá,
-        // que lleva a dueno.html (separado del uso normal como agente).
-        const roleBadge = document.getElementById('roleBadge');
-        if (profile?.role === 'super_admin') {
-          roleBadge.textContent = 'Dueño';
-          roleBadge.classList.add('owner');
-          document.getElementById('duenoNavCard').hidden = false;
-        } else {
-          roleBadge.textContent = 'Agente';
-        }
+      if (!userData?.user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      agentId = userData.user.id;
+      const { data: profile } = await supabaseClient.from('profiles').select('full_name, role, is_available').eq('id', agentId).single();
+      agentName = profile?.full_name || userData.user.email || '';
+      document.getElementById('whoami').textContent = agentName;
+      renderAvailability(profile?.is_available !== false);
+      // Deja claro con qué tipo de cuenta se entró. Las pantallas de
+      // agente (llamadas/pagos) son EXACTAMENTE iguales para las dos — lo
+      // único que cambia es esta tarjeta extra acá, que lleva a
+      // dueno.html (separado del uso normal como agente).
+      const roleBadge = document.getElementById('roleBadge');
+      if (profile?.role === 'super_admin') {
+        roleBadge.textContent = 'Dueño';
+        roleBadge.classList.add('owner');
+        document.getElementById('duenoNavCard').hidden = false;
+      } else {
+        roleBadge.textContent = 'Agente';
       }
       // Ahora que la app queda de lado, el "latido" de presencia (para
       // saber si el agente está conectado) tiene que salir de acá — antes
@@ -311,11 +628,25 @@
       startAvailabilityAutoLogout(supabaseClient);
       pollRingingCalls();
       setInterval(pollRingingCalls, 4000);
-      // Apenas llega un push con esta pantalla ya abierta, el service
-      // worker avisa acá — el número se actualiza al toque.
+      // Se pide ANTES del primer loadQuotes() — si no, la primera tanda de
+      // cards muestra el código ISO en vez del nombre del país (ver
+      // countryLabel) hasta el próximo cambio real de datos, porque
+      // loadQuotes se salta el repintado si nada cambió.
+      await loadCountryNamesEs();
+      loadQuotes();
+      pollTimer = setInterval(loadQuotes, 6000);
+      updateAcceptedBadge();
+      setInterval(updateAcceptedBadge, 6000);
+      // Apenas llega un push (aunque esta pestaña ya esté abierta), el
+      // service worker avisa acá — así el número se actualiza al toque,
+      // no recién en el próximo sondeo.
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.addEventListener('message', (event) => {
-          if (event.data && event.data.type === 'push-received') pollRingingCalls();
+          if (event.data && event.data.type === 'push-received') {
+            pollRingingCalls();
+            updateAcceptedBadge();
+            loadQuotes();
+          }
         });
       }
     })();
@@ -427,6 +758,845 @@
         return;
       }
       renderAvailability(!nowUnavailable);
+    });
+
+    // ---------- Cotizaciones (antes en cotizaciones.html) ----------
+
+    // El número en la pestaña "Aceptadas" — existía el elemento en el
+    // HTML pero nada lo actualizaba nunca, se quedaba siempre en 0
+    // escondido. Cuenta aparte de la pestaña activa, para que se vea
+    // aunque el agente esté mirando otra.
+    async function updateAcceptedBadge() {
+      const { count, error } = await supabaseClient
+        .from('quote_requests')
+        .select('id', { count: 'exact', head: true })
+        .eq('claimed_by_agent_id', agentId)
+        .eq('status', 'decided')
+        .eq('client_decision', 'accepted');
+      const badge = document.getElementById('acceptedTabBadge');
+      if (error || !count) {
+        badge.hidden = true;
+        return;
+      }
+      badge.textContent = String(count);
+      badge.hidden = false;
+    }
+
+    function selectTab(tabEl) {
+      document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
+      tabEl.classList.add('active');
+      currentTab = tabEl.dataset.tab;
+      // Cambiar de pestaña reconstruye la lista igual (se van las cards de
+      // la pestaña vieja) — si quedaba un chat o un formulario de precio
+      // abierto sin cerrarlo a mano, esas banderas se quedaban prendidas
+      // para siempre y el sondeo automático (loadQuotes) se frenaba en
+      // seco sin avisar: la lista dejaba de actualizarse aunque llegaran
+      // cotizaciones o mensajes nuevos, hasta recargar la página entera.
+      cardFormOpenId = null;
+      openChatQuoteId = null;
+      loadQuotes();
+    }
+    document.querySelectorAll('.tab').forEach((tabEl) => {
+      tabEl.addEventListener('click', () => selectTab(tabEl));
+    });
+
+    async function loadQuotes() {
+      // OJO: openChatQuoteId NO frena esto (a diferencia de cardFormOpenId)
+      // — antes sí lo hacía, y mientras el agente tenía CUALQUIER chat
+      // abierto, TODA la lista dejaba de actualizarse (cotizaciones nuevas,
+      // otros chats, todo), aunque los contadores de las pestañas seguían
+      // sumando por su cuenta aparte — se veía como "no entra nada" aunque
+      // en realidad estaba todo congelado detrás de un chat abierto en
+      // otro lado. Ahora la lista se sigue actualizando igual; el chat
+      // abierto se preserva aparte (ver renderList).
+      if (cardFormOpenId !== null) return; // no pisar un formulario de card abierto
+      let query = supabaseClient.from('quote_requests').select('*').limit(30);
+      if (currentTab === 'new') {
+        // La más vieja primero (orden de llegada) — la numeración de
+        // abajo (#1, #2...) depende de este orden, mismo criterio que ya
+        // se usa en las llamadas: la que entró primero se atiende
+        // primero.
+        query = query.order('created_at', { ascending: true });
+        // Nuevas sin tomar todavía — mismo criterio que "Cotizaciones
+        // nuevas" en la app: solo pending, sin agente asignado.
+        query = query.eq('status', 'pending');
+      } else if (currentTab === 'accepted') {
+        // Aceptadas por el cliente, mías, todavía sin cerrar la venta —
+        // antes esta pestaña no tenía filtro propio y mostraba lo mismo
+        // que "Mis cotizadas" (bug real, ya corregido).
+        query = query.eq('claimed_by_agent_id', agentId).eq('status', 'decided').eq('client_decision', 'accepted');
+      } else if (currentTab === 'sold') {
+        // Ya vendidas, mías — se borran solas 61 días después de que
+        // termina el viaje (ver migración 0105), acá se ven mientras tanto.
+        query = query.eq('claimed_by_agent_id', agentId).eq('status', 'purchased');
+      } else {
+        // Ya cotizadas por MÍ (tomadas), esperando o ya con decisión del
+        // cliente — no incluye compradas/expiradas para no acumular ruido
+        // viejo en esta lista básica.
+        query = query.eq('claimed_by_agent_id', agentId).in('status', ['quoted', 'decided']);
+      }
+      if (currentTab !== 'new') query = query.order('created_at', { ascending: false });
+      const { data, error } = await query;
+      if (error) return;
+      // Cuántos mensajes seguidos del cliente hay al final de CADA
+      // conversación visible (sin ningún mensaje del agente después) — ese
+      // número es el que se ve en el botón de Chat (ver renderList). Una
+      // sola consulta para toda la lista, no una por card. Se pidió
+      // porque una venta ya cerrada ("Vendidas") no tenía ningún aviso de
+      // que el cliente había escrito por el chat.
+      const quoteIds = (data || []).map((q) => q.id);
+      const pendingChatMap = {}; // quoteId -> cantidad de mensajes sin responder
+      if (quoteIds.length) {
+        const { data: msgs } = await supabaseClient
+          .from('quote_request_messages')
+          .select('quote_request_id, sender, created_at')
+          .in('quote_request_id', quoteIds)
+          .order('created_at', { ascending: true });
+        const byQuote = {};
+        (msgs || []).forEach((m) => {
+          (byQuote[m.quote_request_id] = byQuote[m.quote_request_id] || []).push(m);
+        });
+        Object.keys(byQuote).forEach((qid) => {
+          const list = byQuote[qid];
+          let count = 0;
+          for (let i = list.length - 1; i >= 0 && list[i].sender === 'client'; i--) count++;
+          if (count > 0) pendingChatMap[qid] = count;
+        });
+      }
+      // No repintar si no cambió nada de verdad desde el último sondeo —
+      // antes reconstruía TODA la lista cada 6s aunque fuera exactamente
+      // igual, lo que destruía y volvía a crear las miniaturas de
+      // documentos todo el tiempo (se veía como que parpadeaban). Un
+      // mensaje nuevo de chat no cambia ninguna columna de quote_requests,
+      // así que hace falta comparar pendingChatMap aparte.
+      const dataJSON = JSON.stringify(data || []);
+      const chatJSON = JSON.stringify(pendingChatMap);
+      if (dataJSON === lastLoadedQuotesJSON && chatJSON === lastLoadedChatJSON && currentTab === lastLoadedTab) return;
+      lastLoadedQuotesJSON = dataJSON;
+      lastLoadedChatJSON = chatJSON;
+      lastLoadedTab = currentTab;
+      renderList(data || [], pendingChatMap);
+    }
+
+    // Estos datos los llena CUALQUIER visitante anónimo desde los
+    // formularios públicos (búsqueda, preventa, "¿Necesitás ayuda?") — sin
+    // escapar, alguien podría meter HTML/JS en su "nombre" y que se
+    // ejecute acá adentro, con la sesión autenticada del agente. Se usa en
+    // cada lugar donde un campo de cliente entra a innerHTML.
+    function escapeHtml(str) {
+      return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // ---------- Restricciones migratorias (mismo criterio que index.html) ----------
+    // El cliente ya ve este mismo aviso y tiene que marcar "leí y entiendo"
+    // antes de poder mandar sus datos — acá se repite para que el Agente
+    // también lo vea y pueda preguntarle directamente, no para bloquear
+    // nada de este lado. Última revisión: 2026-08-31.
+    const US_AIRPORT_CODES = new Set(['JFK','LGA','EWR','MIA','FLL','MCO','TPA','ATL','ORD','MDW','LAX','SFO','SAN','SEA','DFW','IAH','DEN','PHX','LAS','BOS','PHL','IAD','DCA','BWI','CLT','MSP','DTW','STL','MCI','AUS','SAT','SLC','PDX','SJU','HNL','OGG','ANC','RDU','PIT','CLE','CVG','IND','MSY','JAX','MEM','OMA','OKC','ABQ','TUS','ELP','HOU','DAL','SJC','OAK','SNA','ONT','BUR']);
+    const CUBA_AIRPORT_CODES = new Set(['HAV','VRA','SNU','HOG','CFG','CMW','SCU','CYO','MZO']);
+    const NORTH_KOREA_AIRPORT_CODES = new Set(['FNJ']);
+    const US_ENTRY_BAN_FULL = new Set(['AF','BF','MM','TD','CG','GQ','ER','HT','IR','LA','LY','ML','NE','SL','SO','SS','SD','SY','YE','PS']);
+    const US_ENTRY_BAN_PARTIAL = new Set(['AO','AG','BJ','BI','CI','DM','GA','GM','MW','MR','NG','SN','TZ','TG','TO','TM','ZM','ZW']);
+    const TRAVEL_WARNING_TEXT = {
+      cuba: '⚠️ Turismo convencional a Cuba desde EE. UU.: prohibido por ley federal. El pasajero declaró viajar bajo una categoría de Licencia General de la OFAC (ver abajo cuál).',
+      nk: '🚫 Pasaporte de EE. UU. hacia/vía Corea del Norte: prohibido salvo validación especial del Departamento de Estado.',
+      banFull: '🚫 Veto migratorio (travel ban): esta nacionalidad tiene suspendida la emisión de visas para entrar a EE. UU.',
+      banPartial: '⚠️ Restricción de visa: esta nacionalidad enfrenta suspensiones parciales/auditorías extremas para ciertas visas de EE. UU.',
+      venezuela: '⚠️ Venezuela: entrada suspendida para funcionarios del gobierno y familiares directos; ciudadanos particulares con restricciones de visado.',
+    };
+    function extractIataCode(label) {
+      const m = /\(([A-Z]{3})\)\s*$/.exec(label || '');
+      return m ? m[1] : null;
+    }
+    function getTravelWarningsForPassenger(q, passenger) {
+      if (!q || q.category !== 'flight') return [];
+      const originIata = extractIataCode(q.origin);
+      const destIata = extractIataCode(q.destination);
+      const originIsUS = originIata && US_AIRPORT_CODES.has(originIata);
+      const destIsUS = destIata && US_AIRPORT_CODES.has(destIata);
+      const originIsCuba = originIata && CUBA_AIRPORT_CODES.has(originIata);
+      const destIsCuba = destIata && CUBA_AIRPORT_CODES.has(destIata);
+      const destIsNK = destIata && NORTH_KOREA_AIRPORT_CODES.has(destIata);
+      const warnings = [];
+      if ((originIsUS && destIsCuba) || (originIsCuba && destIsUS)) warnings.push(TRAVEL_WARNING_TEXT.cuba);
+      if (destIsNK && passenger.passportIssuingCountry === 'US') warnings.push(TRAVEL_WARNING_TEXT.nk);
+      if (destIsUS) {
+        if (US_ENTRY_BAN_FULL.has(passenger.nationality)) warnings.push(TRAVEL_WARNING_TEXT.banFull);
+        else if (US_ENTRY_BAN_PARTIAL.has(passenger.nationality)) warnings.push(TRAVEL_WARNING_TEXT.banPartial);
+        else if (passenger.nationality === 'VE') warnings.push(TRAVEL_WARNING_TEXT.venezuela);
+      }
+      return warnings;
+    }
+    // Nombres de país (ISO → español) solo para MOSTRAR — los pasajeros
+    // guardan el código ISO, no el nombre (ver buildCountrySelectHTML en
+    // index.html). Se pide una sola vez y se cachea.
+    let countryNamesEs = null;
+    let countryNamesPromise = null;
+    function loadCountryNamesEs() {
+      if (countryNamesEs) return Promise.resolve(countryNamesEs);
+      if (countryNamesPromise) return countryNamesPromise;
+      countryNamesPromise = fetch('https://raw.githubusercontent.com/umpirsky/country-list/master/data/es/country.json')
+        .then((r) => r.json())
+        .then((json) => { countryNamesEs = json; return json; })
+        .catch(() => { countryNamesEs = {}; return countryNamesEs; });
+      return countryNamesPromise;
+    }
+    function countryLabel(iso) {
+      if (!iso) return '';
+      return (countryNamesEs && countryNamesEs[iso]) || iso;
+    }
+    // Arma el bloque de avisos para TODOS los pasajeros de la cotización —
+    // uno por pasajero que tenga alguno, con su nombre y si ya marcó que
+    // leyó el aviso del lado del cliente.
+    function buildRestrictionWarningsHtml(q) {
+      if (!Array.isArray(q.passengers) || !q.passengers.length) return '';
+      const blocks = q.passengers.map((p) => {
+        const warnings = getTravelWarningsForPassenger(q, p);
+        if (!warnings.length) return '';
+        const name = escapeHtml(p.fullName || 'Pasajero');
+        const ackText = p.travelWarningsAcknowledged
+          ? '✅ El cliente marcó que leyó el aviso.'
+          : '⏳ El cliente todavía no marcó que leyó el aviso.';
+        return (
+          '<div class="restriction-block">' +
+          '<div class="restriction-passenger-name">' + name + ' — ' + escapeHtml(countryLabel(p.nationality)) + '</div>' +
+          warnings.map((w) => '<div class="restriction-text">' + escapeHtml(w) + '</div>').join('') +
+          '<div class="restriction-ack">' + ackText + '</div>' +
+          '</div>'
+        );
+      }).join('');
+      if (!blocks) return '';
+      // travel_reason es del viaje entero (categoría OFAC declarada para
+      // pasar por Cuba), no de un pasajero puntual — va una sola vez, no
+      // adentro de cada bloque.
+      const travelReasonHtml = q.travel_reason
+        ? '<div class="restriction-cuba-category">Categoría OFAC declarada: ' + escapeHtml(q.travel_reason) + '</div>'
+        : '';
+      return '<div class="restriction-warnings">' + blocks + travelReasonHtml + '</div>';
+    }
+
+    function fmtRoute(q) {
+      if (q.origin) return escapeHtml(q.origin) + ' → ' + escapeHtml(q.destination);
+      return escapeHtml(q.destination);
+    }
+
+    // La fecha pedida faltaba de la card — se veía origen/destino/clase/
+    // pasajeros pero nunca CUÁNDO quiere viajar el cliente, algo que el
+    // Agente necesita para cotizar. search_mode dice con qué precisión la
+    // dio (fecha exacta / semana / mes nada más).
+    function fmtDates(q) {
+      const fmtDate = (d) => new Date(d + 'T00:00:00').toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' });
+      const fmtMonth = (d) => new Date(d + 'T00:00:00').toLocaleDateString('es', { month: 'long', year: 'numeric' });
+      const pick = (exact, week, month) => {
+        if (q.search_mode === 'exact_date' && exact) return fmtDate(exact);
+        if (q.search_mode === 'week' && week) return 'semana del ' + fmtDate(week);
+        if (q.search_mode === 'month' && month) return fmtMonth(month);
+        return '';
+      };
+      const start = pick(q.search_date, q.search_week_start, q.search_month);
+      if (!start) return '';
+      if (q.trip_type === 'roundtrip') {
+        const back = pick(q.return_date, q.return_week_start, q.return_month);
+        return back ? 'Ida: ' + start + ' — Vuelta: ' + back : 'Ida: ' + start;
+      }
+      if (q.end_date) return start + ' — hasta ' + fmtDate(q.end_date);
+      return start;
+    }
+
+    // "Latido" de presencia — SOLO mientras el agente abrió explícitamente
+    // ESA cotización puntual (botón "Abrir cotización"), el cliente lo ve
+    // como "agente conectado" y ahí recién se desbloquea el botón de
+    // subir documentos. Antes se mandaba para TODAS las aceptadas
+    // visibles en la lista a la vez — con más de un cliente aceptado al
+    // mismo tiempo, eso desbloqueaba la subida para todos aunque el
+    // agente solo estuviera mirando uno. Reusa agent_viewing_at, una
+    // columna que ya existía para otra cosa (prioridad de emparejo de
+    // tiquets Centrav) — mismo mecanismo, no hace falta una columna
+    // nueva. Una sola cotización abierta a la vez.
+    let openWorkingQuoteId = null;
+    function sendAgentViewingHeartbeat() {
+      if (!openWorkingQuoteId) return;
+      supabaseClient.from('quote_requests')
+        .update({ agent_viewing_at: new Date().toISOString() })
+        .eq('id', openWorkingQuoteId)
+        .then(() => {});
+    }
+    setInterval(sendAgentViewingHeartbeat, 8000);
+
+    function openQuoteToWork(quoteId) {
+      openWorkingQuoteId = quoteId;
+      sendAgentViewingHeartbeat(); // no esperar los 8s para el primer latido
+      // Fuerza el repintado aunque los datos de la base no hayan cambiado
+      // (lo único que cambió es cuál está "abierta", que es local) — si
+      // no, el chequeo de "no repintar si no cambió nada" se lo salteaba.
+      lastLoadedQuotesJSON = null;
+      loadQuotes();
+    }
+
+    function renderList(quotes, pendingChatMap) {
+      pendingChatMap = pendingChatMap || {};
+      const list = document.getElementById('list');
+      const emptyMsg = document.getElementById('emptyMsg');
+      // Si hay un chat abierto, se saca su nodo ANTES de vaciar la lista
+      // (no se destruye) — así sobrevive al repintado con los mensajes,
+      // el scroll y lo que el agente tenga tipeado sin mandar todavía. Se
+      // vuelve a insertar en su card nueva más abajo.
+      const preservedThread = openChatQuoteId ? list.querySelector('.chat-thread') : null;
+      if (preservedThread) preservedThread.remove(); // lo saca del árbol ANTES de vaciar, si no innerHTML='' lo borra igual
+      list.innerHTML = '';
+      // Corta los canales de documentos de cotizaciones que ya no están
+      // en esta lista (se vendieron, cambiaron de pestaña, etc.) — sin
+      // esto quedarían escuchando para siempre de fondo.
+      const stillNeeded = new Set(quotes.filter((q) => q.client_docs_ready).map((q) => q.id));
+      Object.keys(docsThumbChannels).forEach((id) => {
+        if (!stillNeeded.has(id)) {
+          supabaseClient.removeChannel(docsThumbChannels[id]);
+          delete docsThumbChannels[id];
+        }
+      });
+      if (!quotes.length) {
+        emptyMsg.style.display = 'block';
+        return;
+      }
+      emptyMsg.style.display = 'none';
+      // Si UNA cotización tiene datos raros y algo de acá adentro tira una
+      // excepción, antes se cortaba el forEach entero — ni esa card ni
+      // ninguna de las que venían después (con su botón de Chat incluido)
+      // llegaban a pintarse, y no quedaba rastro visible de que algo
+      // había fallado. Ahora cada card se arma aparte: si una revienta,
+      // se salta solo esa y las demás siguen normal.
+      quotes.forEach((q, i) => {
+        try {
+          renderOneQuoteCard(q, i);
+        } catch (e) {
+          console.error('[panel] no se pudo pintar la cotización', q.id, e);
+          const errCard = document.createElement('div');
+          errCard.className = 'quote-card';
+          errCard.style.background = '#fdecea';
+          errCard.textContent = '⚠️ Error mostrando esta cotización (' + (q.contact_name || q.id) + '): ' + (e && e.message ? e.message : String(e));
+          list.appendChild(errCard);
+        }
+      });
+
+      function renderOneQuoteCard(q, i) {
+        const card = document.createElement('div');
+        card.className = 'quote-card';
+        let badgeHtml = '';
+        if (q.status === 'quoted') badgeHtml = '<span class="badge quoted">Esperando al cliente</span>';
+        else if (q.status === 'decided') {
+          badgeHtml = q.client_decision === 'accepted'
+            ? '<span class="badge decided-accepted">Aceptó — falta cobrar</span>'
+            : '<span class="badge decided-declined">Rechazó</span>';
+        } else if (q.status === 'purchased') {
+          badgeHtml = '<span class="badge decided-accepted">✅ Vendido' + (q.agency_confirmation_code ? ' — ref. ' + escapeHtml(q.agency_confirmation_code) : '') + '</span>';
+        }
+        // "Cuántos viajan" (lo que dijo el cliente AL PEDIR, antes de
+        // cotizar) — solo se pidió para cruceros hasta ahora, ver
+        // 0084_quote_requested_party.sql. Si ya aceptó, mejor mostrar los
+        // pasajeros completos que cargó (nombre real, no solo la cantidad).
+        let partyHtml = '';
+        if (q.requested_adults != null) {
+          partyHtml = (q.requested_adults) + ' adulto' + (q.requested_adults === 1 ? '' : 's') +
+            (q.requested_children ? ', ' + q.requested_children + ' niño(s)' : '');
+        }
+        let passengersHtml = '';
+        if (Array.isArray(q.passengers) && q.passengers.length) {
+          passengersHtml = '<div class="notes"><strong>Pasajeros:</strong> ' +
+            q.passengers.map((p) => escapeHtml(p.fullName || (p.firstName + ' ' + p.lastName) || 'Sin nombre')).join(', ') +
+            '</div>';
+        }
+        const datesHtml = fmtDates(q);
+        const numberPrefix = currentTab === 'new' ? '#' + (i + 1) + ' — ' : '';
+        card.innerHTML =
+          '<div class="route">' + numberPrefix + fmtRoute(q) + '</div>' +
+          '<div class="meta">' + escapeHtml(q.category || '') + ' · ' + escapeHtml(q.contact_name || 'Sin nombre') + (q.contact_phone ? ' · ' + escapeHtml(q.contact_phone) : '') + (q.contact_email ? ' · ' + escapeHtml(q.contact_email) : '') + '</div>' +
+          (datesHtml ? '<div class="meta">' + escapeHtml(datesHtml) + '</div>' : '') +
+          (partyHtml ? '<div class="meta">' + escapeHtml(partyHtml) + '</div>' : '') +
+          (q.notes ? '<div class="notes">' + escapeHtml(q.notes) + '</div>' : '') +
+          passengersHtml +
+          buildRestrictionWarningsHtml(q) +
+          badgeHtml;
+        list.appendChild(card);
+
+        if (currentTab === 'new') {
+          const claimBtn = document.createElement('button');
+          claimBtn.className = 'claim-btn';
+          claimBtn.textContent = 'Tomar y poner precio';
+          claimBtn.addEventListener('click', () => showPriceForm(card, q));
+          card.appendChild(claimBtn);
+        } else if (q.status === 'quoted') {
+          const info = document.createElement('div');
+          info.className = 'already-quoted';
+          info.textContent = 'Precio enviado: USD ' + (q.quoted_price_basic_usd ?? q.quoted_price_usd);
+          card.appendChild(info);
+        } else if (q.status === 'decided' && q.client_decision === 'accepted') {
+          const info = document.createElement('div');
+          info.className = 'already-quoted';
+          const hasConsent = !!(q.payment_consent_at && q.payment_consent_ip);
+          info.textContent = 'Precio aceptado: USD ' + (q.quoted_price_basic_usd ?? q.quoted_price_usd) +
+            (hasConsent ? ' — consentimiento de cobro confirmado' : ' — SIN consentimiento de cobro todavía');
+          card.appendChild(info);
+
+          // El agente tiene que abrir ESTA cotización puntual para que el
+          // cliente vea "agente conectado" y se le desbloquee la subida
+          // de documentos — antes se mandaba el latido para TODAS las
+          // aceptadas visibles en la lista a la vez, así que con más de
+          // un cliente aceptado al mismo tiempo se desbloqueaba para
+          // todos aunque el agente solo estuviera mirando uno.
+          const isOpenForWork = openWorkingQuoteId === q.id;
+          const openBtn = document.createElement('button');
+          openBtn.className = 'claim-btn';
+          openBtn.textContent = isOpenForWork ? '📂 Abierta — conectado con el cliente' : '📂 Abrir cotización';
+          if (isOpenForWork) openBtn.disabled = true;
+          openBtn.addEventListener('click', () => openQuoteToWork(q.id));
+          card.appendChild(openBtn);
+
+          // Regla que quedó definida: sin el consentimiento (fecha + IP)
+          // guardado, no se puede cerrar la venta — sin eso no hay
+          // respaldo si el cliente después dice que no reconoce el cargo.
+          const sellBtn = document.createElement('button');
+          sellBtn.className = 'claim-btn';
+          sellBtn.textContent = hasConsent ? '✅ Marcar como vendido' : '🔒 Falta consentimiento de cobro';
+          sellBtn.disabled = !hasConsent;
+          if (!hasConsent) sellBtn.style.opacity = '0.5';
+          sellBtn.addEventListener('click', () => showSellForm(card, q));
+          card.appendChild(sellBtn);
+
+          // El cliente subió pasaporte/tarjeta y está esperando — se pide
+          // solo, sin que el agente tenga que tocar nada, y se muestra
+          // como miniatura directo en la card. Viaja por Realtime, nunca
+          // se guarda: si el cliente ya cerró la pestaña, no llega nada.
+          // OJO: también se muestra si ya hay algo en el caché aunque
+          // client_docs_ready haya vuelto a false — el cliente apaga esa
+          // bandera apenas el agente confirma que recibió las dos fotos,
+          // y sin esto la miniatura desaparecía de la card justo después
+          // de haber llegado.
+          if (q.client_docs_ready || docsThumbCache[q.id]) {
+            const thumbs = document.createElement('div');
+            thumbs.className = 'docs-thumbs';
+            thumbs.id = 'docsThumbs-' + q.id;
+            thumbs.textContent = 'Buscando documentos del cliente…';
+            card.appendChild(thumbs);
+            ensureDocsThumbChannel(q);
+            renderDocsThumbs(q.id); // por si ya se habían recibido antes de este repintado
+          }
+        }
+
+        // Chat con el cliente — mismo mecanismo que ya usa la app
+        // (quote_request_messages), disponible para CUALQUIER cotización,
+        // no solo las de "Consulta general". Antes esto solo se podía
+        // contestar desde la app; algunos clientes prefieren escribir en
+        // vez de llamar.
+        const chatBtn = document.createElement('button');
+        const pendingCount = pendingChatMap[q.id] || 0;
+        const hasPendingChat = pendingCount > 0;
+        chatBtn.className = 'chat-toggle-btn' + (hasPendingChat ? ' pending' : '');
+        chatBtn.textContent = hasPendingChat ? '💬 Chat (' + pendingCount + ')' : '💬 Chat';
+        chatBtn.addEventListener('click', () => toggleChat(card, q));
+        card.appendChild(chatBtn);
+        // Reinserta el hilo que se sacó arriba — mismos mensajes, mismo
+        // scroll, mismo texto sin mandar, no un chat "nuevo" desde cero.
+        if (preservedThread && openChatQuoteId === q.id) {
+          card.appendChild(preservedThread);
+        }
+      }
+    }
+
+    async function toggleChat(card, quote) {
+      const existing = card.querySelector('.chat-thread');
+      if (existing) {
+        existing.remove();
+        openChatQuoteId = null;
+        loadQuotes(); // por si se acumuló algo mientras el chat estaba abierto
+        return;
+      }
+      openChatQuoteId = quote.id;
+      const thread = document.createElement('div');
+      thread.className = 'chat-thread';
+      thread.innerHTML =
+        '<div class="chat-messages"><span style="font-size:12px;color:rgba(26,26,26,0.5);">Cargando…</span></div>' +
+        '<form class="chat-form">' +
+        '<input type="text" placeholder="Escribí tu respuesta…" autocomplete="off" required>' +
+        '<button type="submit">Enviar</button>' +
+        '</form>';
+      card.appendChild(thread);
+      await loadChatMessages(thread, quote.id);
+
+      // La lista general deja de sondear mientras este chat está abierto
+      // (openChatQuoteId, ver loadQuotes) — así que el chat en sí se
+      // refresca solo, para poder seguir la conversación en vivo sin tener
+      // que cerrar y volver a abrir para ver si el cliente contestó.
+      const chatPollTimer = setInterval(() => {
+        if (openChatQuoteId !== quote.id || !document.body.contains(thread)) {
+          clearInterval(chatPollTimer);
+          return;
+        }
+        loadChatMessages(thread, quote.id);
+      }, 5000);
+
+      thread.querySelector('.chat-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const input = thread.querySelector('input');
+        const body = input.value.trim();
+        if (!body) return;
+        input.value = '';
+        const { error } = await supabaseClient
+          .from('quote_request_messages')
+          .insert({ quote_request_id: quote.id, sender: 'agent', sender_agent_id: agentId, body });
+        if (error) {
+          alert('No se pudo enviar: ' + error.message);
+          return;
+        }
+        // Antes acá avisaba al cliente por send-request-notification (push
+        // por Expo, de la app nativa) — se sacó: la app ya no existe, el
+        // cliente ahora es siempre un navegador, ese fetch no llegaba a
+        // nadie. El cliente ve el mensaje nuevo la próxima vez que el
+        // panel de cotización sondea la conversación.
+        await loadChatMessages(thread, quote.id);
+      });
+    }
+
+    async function loadChatMessages(thread, quoteId) {
+      const { data, error } = await supabaseClient
+        .from('quote_request_messages')
+        .select('*')
+        .eq('quote_request_id', quoteId)
+        .order('created_at', { ascending: true });
+      const messagesEl = thread.querySelector('.chat-messages');
+      if (error) {
+        messagesEl.innerHTML = '<span style="font-size:12px;color:#c0392b;">No se pudo cargar el chat.</span>';
+        return;
+      }
+      messagesEl.innerHTML = '';
+      if (!data.length) {
+        messagesEl.innerHTML = '<span style="font-size:12px;color:rgba(26,26,26,0.5);">Sin mensajes todavía.</span>';
+      }
+      data.forEach((m) => {
+        const b = document.createElement('div');
+        b.className = 'chat-bubble ' + (m.sender === 'client' ? 'client' : 'agent');
+        b.textContent = m.body;
+        messagesEl.appendChild(b);
+      });
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    // Precio básico y simple nada más (un solo número) — a propósito no
+    // incluye todavía extras/camarotes/asientos como sí tiene la app; eso
+    // se suma después con más calma, esto es la base mínima para no dejar
+    // al agente sin ninguna forma de cotizar desde la web.
+    function showPriceForm(card, quote) {
+      if (card.querySelector('.price-form')) return; // ya está abierto
+      cardFormOpenId = quote.id;
+      const row = document.createElement('div');
+      row.className = 'price-form';
+      const stopsBlock = quote.category === 'flight'
+        ? '<label class="price-form-label">¿El vuelo es directo o con escala(s)?</label>' +
+          '<div class="price-form-stops-choice">' +
+          '<label><input type="radio" name="pf-stops-choice" class="pf-stops-direct" checked> Directo</label>' +
+          '<label><input type="radio" name="pf-stops-choice" class="pf-stops-has"> Con escala(s)</label>' +
+          '</div>' +
+          '<input type="text" class="pf-stops-detail" placeholder="Dónde son las escalas (ej. Madrid, Bogotá)" style="display:none;">'
+        : '';
+      row.innerHTML =
+        stopsBlock +
+        '<label class="price-form-label">Precio base y seguro de viaje (USD)</label>' +
+        '<div class="price-form-row">' +
+        '<input type="number" inputmode="decimal" class="pf-base" placeholder="Precio" min="1" step="0.01">' +
+        '<input type="number" inputmode="decimal" class="pf-insurance" placeholder="Seguro (opc.)" min="0" step="0.01">' +
+        '</div>' +
+        '<label class="price-form-label">Equipaje de mano y equipaje personal (USD, opcional — si la tarifa no los trae gratis)</label>' +
+        '<div class="price-form-row">' +
+        '<input type="number" inputmode="decimal" class="pf-carryon" placeholder="Equip. de mano" min="0" step="0.01">' +
+        '<input type="number" inputmode="decimal" class="pf-personal" placeholder="Equip. personal" min="0" step="0.01">' +
+        '</div>' +
+        '<label class="price-form-label">Maletas facturadas — precio por cada una ("No disponible" la quita de la oferta)</label>' +
+        '<div class="price-form-row">' +
+        '<div class="price-form-seat"><input type="number" inputmode="decimal" class="pf-bag1" placeholder="1ra" min="0" step="0.01"><label class="price-form-seat-off"><input type="checkbox" class="pf-bag1-off"> No disponible</label></div>' +
+        '<div class="price-form-seat"><input type="number" inputmode="decimal" class="pf-bag2" placeholder="2da" min="0" step="0.01"><label class="price-form-seat-off"><input type="checkbox" class="pf-bag2-off"> No disponible</label></div>' +
+        '<div class="price-form-seat"><input type="number" inputmode="decimal" class="pf-bag3" placeholder="3ra" min="0" step="0.01"><label class="price-form-seat-off"><input type="checkbox" class="pf-bag3-off"> No disponible</label></div>' +
+        '</div>' +
+        '<label class="price-form-label">Asientos — precio por tipo (vacío = incluido; "No disponible" lo quita de la oferta)</label>' +
+        '<div class="price-form-row">' +
+        '<div class="price-form-seat"><input type="number" inputmode="decimal" class="pf-seat-aisle" placeholder="Pasillo" min="0" step="0.01"><label class="price-form-seat-off"><input type="checkbox" class="pf-seat-aisle-off"> No disponible</label></div>' +
+        '<div class="price-form-seat"><input type="number" inputmode="decimal" class="pf-seat-middle" placeholder="Centro" min="0" step="0.01"><label class="price-form-seat-off"><input type="checkbox" class="pf-seat-middle-off"> No disponible</label></div>' +
+        '<div class="price-form-seat"><input type="number" inputmode="decimal" class="pf-seat-window" placeholder="Ventanilla" min="0" step="0.01"><label class="price-form-seat-off"><input type="checkbox" class="pf-seat-window-off"> No disponible</label></div>' +
+        '</div>' +
+        '<label class="price-form-label">Qué incluye este precio (opcional, lo ve el cliente)</label>' +
+        '<textarea class="pf-notes" rows="2" placeholder="Ej. Tarifa económica básica, no incluye cambios de fecha"></textarea>' +
+        '<div class="price-form-actions">' +
+        '<button type="button" class="pf-submit">Enviar</button>' +
+        '<button type="button" class="price-cancel">Cancelar</button>' +
+        '</div>';
+      card.appendChild(row);
+      const baseInput = row.querySelector('.pf-base');
+      const btn = row.querySelector('.pf-submit');
+      row.querySelector('.price-cancel').addEventListener('click', () => {
+        cardFormOpenId = null;
+        row.remove();
+      });
+      // Cada checkbox "No disponible" apaga y vacía su input de precio al
+      // lado — así queda claro que ese tipo/maleta se sacó de la oferta,
+      // no que el agente simplemente no llenó el campo todavía.
+      ['.pf-bag1', '.pf-bag2', '.pf-bag3', '.pf-seat-aisle', '.pf-seat-middle', '.pf-seat-window'].forEach((sel) => {
+        const input = row.querySelector(sel);
+        const off = row.querySelector(sel + '-off');
+        off.addEventListener('change', () => {
+          input.disabled = off.checked;
+          if (off.checked) input.value = '';
+        });
+      });
+      // El renglón para escribir dónde son las escalas solo aparece si el
+      // agente marca "Con escala(s)" — pueden ser varias, va como texto
+      // libre (ej. "Madrid, Bogotá") para no limitar a una sola.
+      const stopsHasRadio = row.querySelector('.pf-stops-has');
+      const stopsDetailInput = row.querySelector('.pf-stops-detail');
+      if (stopsHasRadio && stopsDetailInput) {
+        row.querySelectorAll('input[name="pf-stops-choice"]').forEach((radio) => {
+          radio.addEventListener('change', () => {
+            stopsDetailInput.style.display = stopsHasRadio.checked ? '' : 'none';
+            if (!stopsHasRadio.checked) stopsDetailInput.value = '';
+          });
+        });
+      }
+      baseInput.focus();
+      btn.addEventListener('click', async () => {
+        const price = Number(baseInput.value);
+        if (!price || price <= 0) {
+          alert('Poné un precio base válido.');
+          return;
+        }
+        const numOrNull = (el) => {
+          const v = Number(row.querySelector(el).value);
+          return v > 0 ? v : null;
+        };
+        // "Directo" o el detalle de dónde son las escalas — solo aplica a
+        // vuelos, el resto de categorías no tiene este bloque en el form.
+        let stopsValue = null;
+        if (stopsHasRadio) {
+          if (stopsHasRadio.checked) {
+            const detail = stopsDetailInput.value.trim();
+            if (!detail) {
+              alert('Escribí dónde son las escalas.');
+              return;
+            }
+            stopsValue = detail;
+          } else {
+            stopsValue = 'Directo';
+          }
+        }
+        const insurancePrice = numOrNull('.pf-insurance');
+        const carryOnPrice = numOrNull('.pf-carryon');
+        const personalItemPrice = numOrNull('.pf-personal');
+        // Array en orden (1ra, 2da, 3ra) — no deja huecos: si la 2da está
+        // vacía pero la 3ra tiene precio, la 3ra no cuenta (no hay forma
+        // de "saltear" una posición con este esquema).
+        const bagPrices = [];
+        for (const sel of ['.pf-bag1', '.pf-bag2', '.pf-bag3']) {
+          const v = numOrNull(sel);
+          if (v == null) break;
+          bagPrices.push(v);
+        }
+        const seatPrices = {};
+        const aislePrice = numOrNull('.pf-seat-aisle');
+        const middlePrice = numOrNull('.pf-seat-middle');
+        const windowPrice = numOrNull('.pf-seat-window');
+        if (aislePrice != null) seatPrices.aisle = aislePrice;
+        if (middlePrice != null) seatPrices.middle = middlePrice;
+        if (windowPrice != null) seatPrices.window = windowPrice;
+        // Tipos de asiento que SÍ se ofrecen — se le saca al cliente el que
+        // el agente marcó "No disponible" (ej. no hay pasillo en ese vuelo).
+        // Si no se apagó ninguno, se manda null (comportamiento de siempre:
+        // los tres disponibles) — si se apagó alguno, se manda la lista
+        // (puede quedar vacía si se apagaron los tres).
+        const anySeatOff = ['aisle', 'middle', 'window'].some((t) => row.querySelector('.pf-seat-' + t + '-off').checked);
+        const seatTypes = ['aisle', 'middle', 'window'].filter((t) => !row.querySelector('.pf-seat-' + t + '-off').checked);
+        const notes = row.querySelector('.pf-notes').value.trim();
+
+        btn.disabled = true;
+        // No deja tomar una cotización si hay otra más vieja esperando —
+        // fuerza el orden de llegada del lado de la base, no solo del
+        // orden en que se muestran (eso un agente lo podía ignorar).
+        const { error } = await supabaseClient.rpc('claim_and_price_quote', {
+          p_agent_id: agentId,
+          p_quote_id: quote.id,
+          p_price: price,
+          p_insurance_price: insurancePrice,
+          p_extra_bag_prices: bagPrices.length ? bagPrices : null,
+          p_seat_type_prices: Object.keys(seatPrices).length ? seatPrices : null,
+          p_agent_notes: notes || null,
+          p_seat_type: anySeatOff ? seatTypes.join(',') : null,
+          p_carry_on_price: carryOnPrice,
+          p_personal_item_price: personalItemPrice,
+          p_stops: stopsValue,
+        });
+        if (error) {
+          alert('No se pudo enviar: ' + error.message);
+          btn.disabled = false;
+          return;
+        }
+        cardFormOpenId = null;
+        loadQuotes();
+      });
+    }
+
+    // Cierre de venta — pide el número de confirmación/referencia que da
+    // la agencia (Classic Vacations, Downtown Travel, etc.) al cerrar la
+    // compra ahí. Ya se validó antes que exista el consentimiento de cobro
+    // (ver hasConsent más arriba) — acá solo falta la referencia.
+    function showSellForm(card, quote) {
+      if (card.querySelector('.price-row')) return;
+      cardFormOpenId = quote.id;
+      const row = document.createElement('div');
+      row.className = 'price-row';
+      row.innerHTML =
+        '<input type="text" placeholder="N.º de confirmación de la agencia">' +
+        '<button type="button">Confirmar venta</button>' +
+        '<button type="button" class="price-cancel">Cancelar</button>';
+      card.appendChild(row);
+      const input = row.querySelector('input');
+      const btn = row.querySelector('button');
+      row.querySelector('.price-cancel').addEventListener('click', () => {
+        cardFormOpenId = null;
+        row.remove();
+      });
+      input.focus();
+      btn.addEventListener('click', async () => {
+        const reference = input.value.trim();
+        if (!reference) {
+          alert('Poné el número de confirmación que te dio la agencia.');
+          return;
+        }
+        if (!confirm('¿Confirmás que la venta ya está cerrada con la agencia, con la referencia "' + reference + '"?')) return;
+        btn.disabled = true;
+        // Marca la cotización Y guarda el resumen de pago (sin datos de
+        // tarjeta) en el mismo paso — antes esto último nunca pasaba, por
+        // eso las ventas no aparecían en el resumen de pagos.
+        const { error } = await supabaseClient.rpc('confirm_quote_sale', {
+          p_quote_id: quote.id,
+          p_agency_confirmation_code: reference,
+          p_amount_usd: quote.quoted_price_basic_usd ?? quote.quoted_price_usd,
+        });
+        if (error) {
+          alert('No se pudo confirmar: ' + error.message);
+          btn.disabled = false;
+          return;
+        }
+        if (openWorkingQuoteId === quote.id) openWorkingQuoteId = null;
+        // Aviso de "tiket vendido" a contacto@mimetravel.com — mismo
+        // mecanismo de siempre (FormSubmit), para poder cuadrar ventas con
+        // los correos de tiket que manda la agencia (ver
+        // agency_confirmation_code).
+        const clientEmail = quote.contact_email || '';
+        sendSaleToFormSubmit({
+          _subject: 'Tiket vendido — Mime Travel',
+          agente: agentName,
+          referencia: reference,
+          cotizacion_id: quote.id,
+          cliente_nombre: quote.contact_name || '',
+          cliente_email: clientEmail || '(sin correo registrado)',
+          cliente_telefono: quote.contact_phone || '',
+          ruta: (quote.origin ? quote.origin + ' → ' : '') + (quote.destination || ''),
+          precio_usd: 'USD ' + (quote.quoted_price_basic_usd ?? quote.quoted_price_usd ?? '(sin precio registrado)'),
+        }).catch(() => {});
+        cardFormOpenId = null;
+        loadQuotes();
+      });
+    }
+
+    // Documentos del cliente (pasaporte/tarjeta): llegan por Realtime
+    // mientras el cliente sigue conectado, en pedazos — se arman acá en
+    // memoria del navegador del agente y nunca se guardan en ningún lado.
+    // Se piden los dos SOLOS apenas la card se muestra (sin que el agente
+    // tenga que tocar nada) y se ven como miniatura directo en la card.
+    const docsThumbCache = {}; // quoteId -> { passport: dataUrl|null, card: dataUrl|null }
+    const docsThumbChannels = {}; // quoteId -> canal (uno por cotización, para no repetir el pedido)
+    const docsIncomingChunks = {};
+
+    function renderDocsThumbs(quoteId) {
+      const el = document.getElementById('docsThumbs-' + quoteId);
+      if (!el) return; // la card ya no está en pantalla
+      const cache = docsThumbCache[quoteId] || {};
+      if (!cache.passport && !cache.card) {
+        el.textContent = 'Buscando documentos del cliente…';
+        return;
+      }
+      el.innerHTML = '';
+      ['passport', 'card'].forEach((docType) => {
+        if (!cache[docType]) return;
+        const img = document.createElement('img');
+        img.src = cache[docType];
+        img.alt = docType === 'card' ? 'Tarjeta' : 'Pasaporte';
+        img.title = 'Tocá para ver en grande';
+        img.addEventListener('click', () => openDocViewer(cache[docType], img.alt));
+        el.appendChild(img);
+      });
+    }
+
+    // Si el primer pedido se pierde (red, el cliente todavía no terminó
+    // de armar su canal, lo que sea), antes se quedaba esperando en
+    // silencio para siempre — ahora reintenta cada 10s lo que falte,
+    // hasta tener las dos.
+    const docsThumbRetryTimers = {};
+
+    function ensureDocsThumbChannel(quote) {
+      if (docsThumbChannels[quote.id]) return; // ya está pidiendo/recibiendo para esta cotización
+      // No pisar lo que ya se recibió antes, si por lo que sea el canal
+      // se armó de nuevo (ej. se limpió y se volvió a crear) — sin esto,
+      // la miniatura ya recibida se borraba sola y volvía a aparecer
+      // recién cuando se recibía de nuevo.
+      if (!docsThumbCache[quote.id]) docsThumbCache[quote.id] = { passport: null, card: null };
+      const channel = supabaseClient.channel('quote-docs:' + quote.id, { config: { broadcast: { self: false } } });
+      docsThumbChannels[quote.id] = channel;
+
+      function stopRetrying() {
+        if (docsThumbRetryTimers[quote.id]) {
+          clearInterval(docsThumbRetryTimers[quote.id]);
+          delete docsThumbRetryTimers[quote.id];
+        }
+      }
+      function requestMissing() {
+        const cache = docsThumbCache[quote.id];
+        if (!cache) return stopRetrying();
+        if (!cache.passport) channel.send({ type: 'broadcast', event: 'request-doc', payload: { docType: 'passport' } });
+        if (!cache.card) channel.send({ type: 'broadcast', event: 'request-doc', payload: { docType: 'card' } });
+        if (cache.passport && cache.card) stopRetrying();
+      }
+
+      channel
+        .on('broadcast', { event: 'photo-chunk' }, ({ payload }) => {
+          const buf = docsIncomingChunks[payload.id] || (docsIncomingChunks[payload.id] = { docType: payload.docType, total: payload.total, parts: [] });
+          buf.parts[payload.index] = payload.data;
+          if (buf.parts.filter(Boolean).length === buf.total) {
+            const dataUrl = buf.parts.join('');
+            delete docsIncomingChunks[payload.id];
+            docsThumbCache[quote.id][buf.docType] = dataUrl;
+            renderDocsThumbs(quote.id);
+            channel.send({ type: 'broadcast', event: 'docs-received', payload: { docType: buf.docType } });
+            if (docsThumbCache[quote.id].passport && docsThumbCache[quote.id].card) stopRetrying();
+          }
+        })
+        .subscribe((status) => {
+          if (status === 'SUBSCRIBED') {
+            requestMissing();
+            docsThumbRetryTimers[quote.id] = setInterval(requestMissing, 10000);
+          }
+        });
+    }
+
+    function openDocViewer(dataUrl, label) {
+      document.getElementById('docsOverlayTitle').textContent = label;
+      document.getElementById('docsOverlayImg').src = dataUrl;
+      document.getElementById('docsOverlay').classList.add('active');
+    }
+
+    document.getElementById('docsCloseBtn').addEventListener('click', () => {
+      document.getElementById('docsOverlay').classList.remove('active');
+      document.getElementById('docsOverlayImg').src = '';
     });
   </script>
 </body>
