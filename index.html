@@ -6105,6 +6105,15 @@
     searchForm.addEventListener('submit', function (e) {
       e.preventDefault();
       const form = this;
+      // Compara el correo con su confirmación ANTES de mandar nada — así se
+      // atajan los típicos errores de tipeo (ej. gmial.com) que hacían que
+      // el cliente nunca recibiera la respuesta del agente.
+      const searchEmailConfirmEl = document.getElementById('searchEmailConfirm');
+      if (searchEmailConfirmEl.value.trim().toLowerCase() !== document.getElementById('searchEmail').value.trim().toLowerCase()) {
+        searchMsg.textContent = t('msgEmailMismatch');
+        searchEmailConfirmEl.focus();
+        return;
+      }
       const activeType = searchTabs.querySelector('.search-tab.active')?.dataset.type || 'vuelos';
       const data = Object.fromEntries(new FormData(form).entries());
 
