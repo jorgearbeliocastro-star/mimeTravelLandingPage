@@ -7894,9 +7894,16 @@
         renderAddonQty(extraBagOffered, selectedExtraBagQty, quote.category === 'cruise' ? 'quoteExtraGuestQtyLabel' : 'quoteExtraBagQtyLabel', 'quoteExtraBagQty', (v) => { selectedExtraBagQty = v; }, quote.quoted_extra_bag_prices, quote.category === 'cruise' ? 3 : 4);
         renderAddonCheckbox(refundableOffered, selectedWantsRefundable, quote.quoted_refundable_price_usd, 'quoteRefundableCheckboxLabel', 'quoteRefundableCheckbox', (v) => { selectedWantsRefundable = v; });
         // Tipo de asiento: a diferencia de arriba se elige uno solo (radio,
-        // no checkbox) — se muestra si el agente restringió disponibilidad
-        // o cargó algún precio; el que tenga precio lo muestra al lado.
-        const seatTypeOffered = quote.quoted_seat_type != null || quote.quoted_seat_type_prices != null;
+        // no checkbox) — el que tenga precio lo muestra al lado. Para
+        // vuelos se muestra SIEMPRE (pasillo/centro/ventanilla incluidos
+        // gratis si el agente no cargó precio), salvo que haya excluido
+        // los tres explícitamente ("No disponible" en los tres). Cruceros
+        // siguen como antes: solo si el agente cargó camarotes de verdad,
+        // porque ahí el "tipo de asiento" es el camarote en sí, no algo
+        // que venga gratis por defecto.
+        const seatTypeOffered = quote.category === 'flight'
+          ? quote.quoted_seat_type !== ''
+          : (quote.quoted_seat_type != null || quote.quoted_seat_type_prices != null);
         if (seatTypeOffered) {
           const availableSeatTypes = quote.quoted_seat_type ? quote.quoted_seat_type.split(',').filter(Boolean) : ['aisle', 'middle', 'window'];
           const seatTypeWrap = document.createElement('div');
