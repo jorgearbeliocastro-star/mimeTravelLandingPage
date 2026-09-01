@@ -531,16 +531,6 @@
         // Ya vendidas, mías — se borran solas 61 días después de que
         // termina el viaje (ver migración 0105), acá se ven mientras tanto.
         query = query.eq('claimed_by_agent_id', agentId).eq('status', 'purchased');
-      } else if (currentTab === 'chat') {
-        // No es un estado — junta TODAS las que tienen un mensaje del
-        // cliente sin responder, sin importar en qué pestaña de estado
-        // estarían (nueva, mía, aceptada o ya vendida). Ver
-        // getPendingChatQuoteIds/updateChatTabBadge.
-        if (!pendingChatQuoteIds.length) {
-          renderList([], {});
-          return;
-        }
-        query = query.in('id', pendingChatQuoteIds);
       } else {
         // Ya cotizadas por MÍ (tomadas), esperando o ya con decisión del
         // cliente — no incluye compradas/expiradas para no acumular ruido
