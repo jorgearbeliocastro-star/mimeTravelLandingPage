@@ -6894,7 +6894,7 @@
           '<label class="quote-pax-label">' + t('quotePaxExpiry') + '</label>' +
           buildDateSelectsHTML('docExpiry', index, nowYear, nowYear + 15) +
           '<label class="quote-pax-label">' + t('quotePaxIssuingCountry') + '</label>' +
-          '<input type="text" class="quote-pax-input" name="passportIssuingCountry-' + index + '">' +
+          buildCountrySelectHTML('passportIssuingCountry', index) +
           // Orden lógico: primero la calle, después en qué ciudad, después
           // el código postal — como en cualquier formulario de dirección
           // real (antes estaba Ciudad → Código postal → Dirección, al
