@@ -1410,12 +1410,13 @@
         let stopsValue = null;
         if (stopsHasRadio) {
           if (stopsHasRadio.checked) {
-            const detail = stopsDetailInput.value.trim();
-            if (!detail) {
-              alert('Escribí dónde son las escalas.');
+            const countryInputs = Array.from(row.querySelectorAll('.pf-stop-country'));
+            const countries = countryInputs.map((el) => el.value.trim());
+            if (countries.some((c) => !c)) {
+              alert('Poné el país de cada escala.');
               return;
             }
-            stopsValue = detail;
+            stopsValue = countries.join(', ');
           } else {
             stopsValue = 'Directo';
           }
