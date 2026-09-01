@@ -462,6 +462,10 @@
       // countryLabel) hasta el próximo cambio real de datos, porque
       // loadQuotes se salta el repintado si nada cambió.
       await loadCountryNamesEs();
+      if (chatViewMode) {
+        document.getElementById('tabsRow').hidden = true;
+        document.getElementById('chatViewTitle').hidden = false;
+      }
       loadQuotes();
       pollTimer = setInterval(loadQuotes, 6000);
       updateAcceptedBadge();
