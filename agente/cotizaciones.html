@@ -450,7 +450,7 @@
         navigator.serviceWorker.addEventListener('message', (event) => {
           if (event.data && event.data.type === 'push-received') {
             updateAcceptedBadge();
-            updateChatTabBadges();
+            updateChatTabBadge().then(() => { if (currentTab === 'chat') loadQuotes(); });
             loadQuotes();
           }
         });
