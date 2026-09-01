@@ -6802,14 +6802,14 @@
     // countryNamesData[currentLang] tiene que estar ya cargado antes de
     // llamar esto (ver renderPassengerForm) — si por algo no cargó,
     // igual se arma vacío en vez de romper el formulario entero.
-    function buildCountrySelectHTML(name, index) {
+    function buildCountrySelectHTML(name, index, required) {
       const names = countryNamesData[currentLang] || countryNamesData.es || {};
       const options = Object.keys(names)
         .sort((a, b) => names[a].localeCompare(names[b]))
         .map((iso) => '<option value="' + iso + '">' + names[iso] + '</option>')
         .join('');
       return (
-        '<select class="quote-pax-input" name="' + name + '-' + index + '" required>' +
+        '<select class="quote-pax-input" name="' + name + '-' + index + '"' + (required ? ' required' : '') + '>' +
         '<option value="">' + t('selectPlaceholder') + '</option>' +
         options +
         '</select>'
