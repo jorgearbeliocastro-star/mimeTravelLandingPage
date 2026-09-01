@@ -441,8 +441,8 @@
       pollTimer = setInterval(loadQuotes, 6000);
       updateAcceptedBadge();
       setInterval(updateAcceptedBadge, 6000);
-      updateChatTabBadges();
-      setInterval(updateChatTabBadges, 6000);
+      updateChatTabBadge().then(() => { if (currentTab === 'chat') loadQuotes(); });
+      setInterval(() => updateChatTabBadge().then(() => { if (currentTab === 'chat') loadQuotes(); }), 6000);
       // Apenas llega un push (aunque esta pestaña ya esté abierta), el
       // service worker avisa acá — así el número se actualiza al toque,
       // no recién en el próximo sondeo de 6s.
