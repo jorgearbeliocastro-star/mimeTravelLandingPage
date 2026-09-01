@@ -230,6 +230,7 @@
       const { data: sessionData } = await supabaseClient.auth.getSession();
       currentAccessToken = sessionData?.session?.access_token || null;
       startPresenceHeartbeat(supabaseClient);
+      startAvailabilityAutoLogout(supabaseClient);
       loadRingingCalls();
       pollTimer = setInterval(loadRingingCalls, 3000);
     })();
