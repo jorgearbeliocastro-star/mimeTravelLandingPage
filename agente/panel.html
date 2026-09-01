@@ -1300,7 +1300,15 @@
           '<label><input type="radio" name="pf-stops-choice" class="pf-stops-direct" checked> Directo</label>' +
           '<label><input type="radio" name="pf-stops-choice" class="pf-stops-has"> Con escala(s)</label>' +
           '</div>' +
-          '<input type="text" class="pf-stops-detail" placeholder="Dónde son las escalas (ej. Madrid, Bogotá)" style="display:none;">'
+          '<div class="pf-stops-extra" style="display:none;">' +
+          '<label class="price-form-label">¿Cuántas escalas?</label>' +
+          '<select class="pf-stops-count">' +
+          '<option value="1">1</option>' +
+          '<option value="2">2</option>' +
+          '<option value="3">3</option>' +
+          '</select>' +
+          '<div class="pf-stops-countries"></div>' +
+          '</div>'
         : '';
       row.innerHTML =
         stopsBlock +
