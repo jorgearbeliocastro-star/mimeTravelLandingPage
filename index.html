@@ -8096,6 +8096,8 @@
             renderQuoteStatus(quote);
           }
           activeQuoteRouteLabel = quote.origin ? quote.origin + ' → ' + quote.destination : quote.destination;
+          activeQuoteOrigin = quote.origin || null;
+          activeQuoteDestination = quote.destination || null;
           activeQuoteCategory = quote.category || null;
           activeQuoteContactEmail = quote.contact_email || '';
           activeQuoteContactPhone = quote.contact_phone || '';
