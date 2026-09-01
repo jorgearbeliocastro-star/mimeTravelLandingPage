@@ -823,7 +823,26 @@
         return;
       }
       emptyMsg.style.display = 'none';
+      // Si UNA cotización tiene datos raros y algo de acá adentro tira una
+      // excepción, antes se cortaba el forEach entero — ni esa card ni
+      // ninguna de las que venían después (con su botón de Chat incluido)
+      // llegaban a pintarse, y no quedaba rastro visible de que algo
+      // había fallado. Ahora cada card se arma aparte: si una revienta,
+      // se salta solo esa y las demás siguen normal.
       quotes.forEach((q, i) => {
+        try {
+          renderOneQuoteCard(q, i);
+        } catch (e) {
+          console.error('[cotizaciones] no se pudo pintar la cotización', q.id, e);
+          const errCard = document.createElement('div');
+          errCard.className = 'quote-card';
+          errCard.style.background = '#fdecea';
+          errCard.textContent = '⚠️ Error mostrando esta cotización (' + (q.contact_name || q.id) + '): ' + (e && e.message ? e.message : String(e));
+          list.appendChild(errCard);
+        }
+      });
+
+      function renderOneQuoteCard(q, i) {
         const card = document.createElement('div');
         card.className = 'quote-card';
         let badgeHtml = '';
