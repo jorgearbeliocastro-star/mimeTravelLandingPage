@@ -691,7 +691,8 @@
       loadQuotes();
     }
 
-    function renderList(quotes) {
+    function renderList(quotes, pendingChatMap) {
+      pendingChatMap = pendingChatMap || {};
       const list = document.getElementById('list');
       const emptyMsg = document.getElementById('emptyMsg');
       list.innerHTML = '';
