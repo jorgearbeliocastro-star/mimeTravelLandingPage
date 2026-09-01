@@ -606,7 +606,7 @@
         // viejo en esta lista básica.
         query = query.eq('claimed_by_agent_id', agentId).in('status', ['quoted', 'decided']);
       }
-      if (currentTab !== 'new') query = query.order('created_at', { ascending: false });
+      if (!chatViewMode && currentTab !== 'new') query = query.order('created_at', { ascending: false });
       const { data, error } = await query;
       if (error) return;
       // Cuántos mensajes seguidos del cliente hay al final de CADA
