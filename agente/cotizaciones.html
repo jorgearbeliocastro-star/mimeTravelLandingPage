@@ -447,25 +447,10 @@
       // countryLabel) hasta el próximo cambio real de datos, porque
       // loadQuotes se salta el repintado si nada cambió.
       await loadCountryNamesEs();
-      // Viene de tocar la notificación push de "tenés un mensaje nuevo"
-      // (ver notifyClientMessageWeb en index.html) — antes esa notificación
-      // mandaba siempre a la pestaña de siempre sin ninguna pista de dónde
-      // estaba la conversación; el agente tenía que buscarla a mano. Con
-      // esto abre DIRECTO esa cotización puntual con el chat ya abierto,
-      // sin pasar por el filtro normal de "pendiente" (por si algo ya lo
-      // resolvió otro agente desde entonces, igual la muestra).
-      const deepLinkChatId = new URLSearchParams(window.location.search).get('chat');
-      if (deepLinkChatId) {
-        history.replaceState(null, '', window.location.pathname);
-        await openDeepLinkChat(deepLinkChatId);
-      } else {
-        loadQuotes();
-      }
+      loadQuotes();
       pollTimer = setInterval(loadQuotes, 6000);
       updateAcceptedBadge();
       setInterval(updateAcceptedBadge, 6000);
-      updateChatTabBadge().then(() => { if (currentTab === 'chat') loadQuotes(); });
-      setInterval(() => updateChatTabBadge().then(() => { if (currentTab === 'chat') loadQuotes(); }), 6000);
       // Apenas llega un push (aunque esta pestaña ya esté abierta), el
       // service worker avisa acá — así el número se actualiza al toque,
       // no recién en el próximo sondeo de 6s.
@@ -473,7 +458,6 @@
         navigator.serviceWorker.addEventListener('message', (event) => {
           if (event.data && event.data.type === 'push-received') {
             updateAcceptedBadge();
-            updateChatTabBadge().then(() => { if (currentTab === 'chat') loadQuotes(); });
             loadQuotes();
           }
         });
