@@ -943,6 +943,11 @@
         chatBtn.textContent = hasPendingChat ? '💬 Chat — 🔴 mensaje nuevo' : '💬 Chat';
         chatBtn.addEventListener('click', () => toggleChat(card, q));
         card.appendChild(chatBtn);
+        // Reinserta el hilo que se sacó arriba — mismos mensajes, mismo
+        // scroll, mismo texto sin mandar, no un chat "nuevo" desde cero.
+        if (preservedThread && openChatQuoteId === q.id) {
+          card.appendChild(preservedThread);
+        }
       });
     }
 
