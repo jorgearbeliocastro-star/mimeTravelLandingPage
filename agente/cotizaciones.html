@@ -535,6 +535,14 @@
       document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
       tabEl.classList.add('active');
       currentTab = tabEl.dataset.tab;
+      // Cambiar de pestaña reconstruye la lista igual (se van las cards de
+      // la pestaña vieja) — si quedaba un chat o un formulario de precio
+      // abierto sin cerrarlo a mano, esas banderas se quedaban prendidas
+      // para siempre y el sondeo automático (loadQuotes) se frenaba en
+      // seco sin avisar: la lista dejaba de actualizarse aunque llegaran
+      // cotizaciones o mensajes nuevos, hasta recargar la página entera.
+      cardFormOpenId = null;
+      openChatQuoteId = null;
       loadQuotes();
     }
     document.querySelectorAll('.tab').forEach((tabEl) => {
