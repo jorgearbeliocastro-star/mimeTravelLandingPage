@@ -926,9 +926,10 @@
         // contestar desde la app; algunos clientes prefieren escribir en
         // vez de llamar.
         const chatBtn = document.createElement('button');
-        const hasPendingChat = !!pendingChatMap[q.id];
+        const pendingCount = pendingChatMap[q.id] || 0;
+        const hasPendingChat = pendingCount > 0;
         chatBtn.className = 'chat-toggle-btn' + (hasPendingChat ? ' pending' : '');
-        chatBtn.textContent = hasPendingChat ? '💬 Chat — 🔴 mensaje nuevo' : '💬 Chat';
+        chatBtn.textContent = hasPendingChat ? '💬 Chat (' + pendingCount + ')' : '💬 Chat';
         chatBtn.addEventListener('click', () => toggleChat(card, q));
         card.appendChild(chatBtn);
         // Reinserta el hilo que se sacó arriba — mismos mensajes, mismo
