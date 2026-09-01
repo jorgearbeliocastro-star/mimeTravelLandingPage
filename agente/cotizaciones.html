@@ -915,8 +915,11 @@
       const existing = card.querySelector('.chat-thread');
       if (existing) {
         existing.remove();
+        openChatQuoteId = null;
+        loadQuotes(); // por si se acumuló algo mientras el chat estaba abierto
         return;
       }
+      openChatQuoteId = quote.id;
       const thread = document.createElement('div');
       thread.className = 'chat-thread';
       thread.innerHTML =
