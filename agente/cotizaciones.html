@@ -574,19 +574,7 @@
       // abierto se preserva aparte (ver renderList).
       if (cardFormOpenId !== null) return; // no pisar un formulario de card abierto
       let query = supabaseClient.from('quote_requests').select('*').limit(30);
-      // Viene del botón "💬 Chat" del panel principal (?view=chat) — junta
-      // TODAS las que tienen un mensaje del cliente sin responder, sin
-      // importar en qué pestaña de estado estarían (nueva, mía, aceptada
-      // o vendida). Antes esto no existía y el agente tenía que adivinar
-      // en cuál pestaña estaba la conversación.
-      if (chatViewMode) {
-        const pendingIds = await getPendingChatQuoteIds();
-        if (!pendingIds.length) {
-          renderList([], {});
-          return;
-        }
-        query = query.in('id', pendingIds).order('created_at', { ascending: false });
-      } else if (currentTab === 'new') {
+      if (currentTab === 'new') {
         // La más vieja primero (orden de llegada) — la numeración de
         // abajo (#1, #2...) depende de este orden, mismo criterio que ya
         // se usa en las llamadas: la que entró primero se atiende
