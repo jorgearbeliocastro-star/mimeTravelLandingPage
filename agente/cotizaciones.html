@@ -289,6 +289,16 @@
     font-size: 13px;
     cursor: pointer;
   }
+  .chat-toggle-btn.pending {
+    border-color: #c0392b;
+    background: #fdecea;
+    color: #c0392b;
+    animation: chatPendingPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes chatPendingPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.35); }
+    50% { box-shadow: 0 0 0 5px rgba(192,57,43,0); }
+  }
   .chat-thread {
     margin-top: 12px;
     border-top: 1px solid rgba(27,58,92,0.08);
