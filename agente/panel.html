@@ -1421,12 +1421,16 @@
         if (stopsHasRadio) {
           if (stopsHasRadio.checked) {
             const countryInputs = Array.from(row.querySelectorAll('.pf-stop-country'));
-            const countries = countryInputs.map((el) => el.value.trim());
-            if (countries.some((c) => !c)) {
-              alert('Poné el país de cada escala.');
+            const durationInputs = Array.from(row.querySelectorAll('.pf-stop-duration'));
+            const stops = countryInputs.map((el, i) => ({
+              country: el.value.trim(),
+              duration: durationInputs[i].value.trim(),
+            }));
+            if (stops.some((s) => !s.country || !s.duration)) {
+              alert('Poné el país y cuánto dura la espera de cada escala.');
               return;
             }
-            stopsValue = countries.join(', ');
+            stopsValue = stops.map((s) => s.country + ' — ' + s.duration).join(', ');
           } else {
             stopsValue = 'Directo';
           }
