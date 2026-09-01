@@ -5097,18 +5097,18 @@
       const destIsNK = destIata && NORTH_KOREA_AIRPORT_CODES.has(destIata);
       const warnings = [];
       if ((originIsUS && destIsCuba) || (originIsCuba && destIsUS)) {
-        warnings.push({ key: 'cuba', text: TRAVEL_WARNING_TEXT.cuba, needsCubaCategory: true });
+        warnings.push({ key: 'cuba', text: travelWarningText('cuba'), needsCubaCategory: true });
       }
       if (destIsNK && passenger.passportIssuingCountry === 'US') {
-        warnings.push({ key: 'nk', text: TRAVEL_WARNING_TEXT.nk });
+        warnings.push({ key: 'nk', text: travelWarningText('nk') });
       }
       if (destIsUS) {
         if (US_ENTRY_BAN_FULL.has(passenger.nationality)) {
-          warnings.push({ key: 'banFull', text: TRAVEL_WARNING_TEXT.banFull });
+          warnings.push({ key: 'banFull', text: travelWarningText('banFull') });
         } else if (US_ENTRY_BAN_PARTIAL.has(passenger.nationality)) {
-          warnings.push({ key: 'banPartial', text: TRAVEL_WARNING_TEXT.banPartial });
+          warnings.push({ key: 'banPartial', text: travelWarningText('banPartial') });
         } else if (passenger.nationality === 'VE') {
-          warnings.push({ key: 'venezuela', text: TRAVEL_WARNING_TEXT.venezuela });
+          warnings.push({ key: 'venezuela', text: travelWarningText('venezuela') });
         }
       }
       return warnings;
