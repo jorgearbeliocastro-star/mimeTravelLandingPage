@@ -542,7 +542,7 @@
     });
 
     async function loadQuotes() {
-      if (cardFormOpenId !== null) return; // no pisar un formulario de card abierto
+      if (cardFormOpenId !== null || openChatQuoteId !== null) return; // no pisar un formulario o un chat abierto
       let query = supabaseClient.from('quote_requests').select('*').limit(30);
       if (currentTab === 'new') {
         // La más vieja primero (orden de llegada) — la numeración de
