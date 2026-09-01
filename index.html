@@ -6876,7 +6876,7 @@
           '<label class="quote-pax-label">' + t('quotePaxCountryOfBirth') + '</label>' +
           '<input type="text" class="quote-pax-input" name="countryOfBirth-' + index + '">' +
           '<label class="quote-pax-label">' + t('quotePaxNationality') + '</label>' +
-          '<input type="text" class="quote-pax-input" name="nationality-' + index + '">' +
+          buildCountrySelectHTML('nationality', index) +
           '<label class="quote-pax-label">' + t('quotePaxPlaceOfBirth') + '</label>' +
           '<input type="text" class="quote-pax-input" name="placeOfBirth-' + index + '">' +
           '<label class="quote-pax-label">' + t('quotePaxLanguage') + '</label>' +
