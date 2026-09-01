@@ -480,37 +480,6 @@
       }
     })();
 
-    // IDs de cotizaciones (mías o sin agente asignado) con un mensaje del
-    // cliente sin responder — lo usa loadQuotes cuando chatViewMode está
-    // activo.
-    async function getPendingChatQuoteIds() {
-      const { data: msgs, error } = await supabaseClient
-        .from('quote_request_messages')
-        .select('quote_request_id, sender, created_at')
-        .order('created_at', { ascending: false })
-        .limit(100);
-      if (error) {
-        console.error('[cotizaciones] error consultando chats:', error);
-        return [];
-      }
-      const lastSenderByQuote = {};
-      (msgs || []).forEach((m) => {
-        if (!(m.quote_request_id in lastSenderByQuote)) lastSenderByQuote[m.quote_request_id] = m.sender;
-      });
-      const pendingIds = Object.keys(lastSenderByQuote).filter((id) => lastSenderByQuote[id] === 'client');
-      if (!pendingIds.length) return [];
-      const { data: quotes, error: quotesError } = await supabaseClient
-        .from('quote_requests')
-        .select('id')
-        .in('id', pendingIds)
-        .or('claimed_by_agent_id.eq.' + agentId + ',claimed_by_agent_id.is.null');
-      if (quotesError) {
-        console.error('[cotizaciones] error filtrando chats:', quotesError);
-        return [];
-      }
-      return (quotes || []).map((q) => q.id);
-    }
-
     // Cartel de diagnóstico temporal (ver #chatDiag arriba) —
     // corre solo, aparte de todo lo demás, con su propio try/catch para
     // que un error acá nunca tumbe el resto de la página.
