@@ -1358,16 +1358,39 @@
           if (off.checked) input.value = '';
         });
       });
-      // El renglón para escribir dónde son las escalas solo aparece si el
-      // agente marca "Con escala(s)" — pueden ser varias, va como texto
-      // libre (ej. "Madrid, Bogotá") para no limitar a una sola.
+      // El bloque de escalas solo aparece si el agente marca "Con
+      // escala(s)" — primero elige CUÁNTAS son, y ahí se arma un renglón
+      // por cada una para poner el país de esa escala puntual (antes era
+      // un solo campo de texto libre para todas juntas).
       const stopsHasRadio = row.querySelector('.pf-stops-has');
-      const stopsDetailInput = row.querySelector('.pf-stops-detail');
-      if (stopsHasRadio && stopsDetailInput) {
+      const stopsExtra = row.querySelector('.pf-stops-extra');
+      const stopsCountSelect = row.querySelector('.pf-stops-count');
+      const stopsCountriesWrap = row.querySelector('.pf-stops-countries');
+      function rebuildStopCountryInputs() {
+        const n = Number(stopsCountSelect.value) || 1;
+        stopsCountriesWrap.innerHTML = '';
+        for (let i = 1; i <= n; i++) {
+          const label = document.createElement('label');
+          label.className = 'price-form-label';
+          label.textContent = 'País de la escala ' + i;
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'pf-stop-country';
+          input.placeholder = 'Ej. México';
+          stopsCountriesWrap.appendChild(label);
+          stopsCountriesWrap.appendChild(input);
+        }
+      }
+      if (stopsHasRadio && stopsExtra) {
+        rebuildStopCountryInputs();
+        stopsCountSelect.addEventListener('change', rebuildStopCountryInputs);
         row.querySelectorAll('input[name="pf-stops-choice"]').forEach((radio) => {
           radio.addEventListener('change', () => {
-            stopsDetailInput.style.display = stopsHasRadio.checked ? '' : 'none';
-            if (!stopsHasRadio.checked) stopsDetailInput.value = '';
+            stopsExtra.style.display = stopsHasRadio.checked ? '' : 'none';
+            if (!stopsHasRadio.checked) {
+              stopsCountSelect.value = '1';
+              rebuildStopCountryInputs();
+            }
           });
         });
       }
