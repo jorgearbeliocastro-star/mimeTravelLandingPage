@@ -5011,10 +5011,58 @@
         banPartial: '⚠️ RESTRIÇÃO DE VISTO: Cidadãos deste país enfrentam suspensões parciais ou verificações extremas para certos vistos de não imigrante (como turismo B1/B2 ou estudantes). Certifique-se de que o passageiro tenha um visto físico válido e aprovado antes de confirmar a viagem.',
         venezuela: '⚠️ CONTROLES OFICIAIS: A entrada nos EUA está suspensa para funcionários do governo venezuelano e seus familiares diretos. Cidadãos particulares enfrentam restrições rigorosas de visto e verificação de antecedentes.',
       },
+      // Los de acá abajo NO son idiomas del sitio (currentLang nunca vale
+      // esto) — solo se usan para el aviso de veto/restricción migratoria,
+      // elegido según la NACIONALIDAD del pasajero, no según en qué idioma
+      // esté navegando (ver travelWarningTextForNationality/NATIONALITY_LANG).
+      // Por eso solo tienen banFull/banPartial, no cuba/nk/venezuela — esos
+      // tres siguen el idioma del sitio (no dependen de una nacionalidad
+      // puntual: cuba/nk son por ruta, venezuela ya cae siempre en 'es').
+      fr: {
+        banFull: "🚫 INTERDICTION DE VOYAGE : Les ressortissants de ce pays ont l'émission de visas d'immigrant et de non-immigrant (tourisme/affaires) entièrement suspendue pour entrer aux États-Unis. Vérifiez si le passager est admissible à une exemption humanitaire officielle avant d'émettre les billets.",
+        banPartial: "⚠️ RESTRICTION DE VISA : Les ressortissants de ce pays font face à des suspensions partielles ou à un contrôle extrême pour certains visas de non-immigrant (comme le tourisme B1/B2 ou les visas étudiants). Assurez-vous que le passager dispose d'un visa physique valide et approuvé avant de confirmer le voyage.",
+      },
+      ar: {
+        banFull: 'حظر السفر: تم تعليق إصدار تأشيرات الهجرة وغير الهجرة (السياحة/الأعمال) بالكامل لمواطني هذا البلد للدخول إلى الولايات المتحدة. تحقق مما إذا كان المسافر مؤهلاً لإعفاء إنساني رسمي قبل إصدار التذاكر. 🚫',
+        banPartial: 'قيود على التأشيرة: يواجه مواطنو هذا البلد تعليقاً جزئياً أو تدقيقاً مشدداً لبعض تأشيرات غير الهجرة (مثل السياحة B1/B2 أو تأشيرات الطلاب). تأكد من أن المسافر يملك تأشيرة سارية ومعتمدة قبل تأكيد السفر. ⚠️',
+      },
+      fa: {
+        banFull: 'ممنوعیت سفر: صدور ویزای مهاجرتی و غیرمهاجرتی (توریستی/تجاری) برای شهروندان این کشور جهت ورود به ایالات متحده به‌طور کامل معلق شده است. پیش از صدور بلیط بررسی کنید که آیا مسافر واجد شرایط معافیت بشردوستانه رسمی است یا خیر. 🚫',
+      },
+      ht: {
+        banFull: '🚫 ENTÈDIKSYON VWAYAJ: Emisyon vas imigran ak non-imigran (touris/biznis) pou sitwayen peyi sa a sispann konplètman pou antre Ozetazini. Tcheke si pasaje a kalifye pou yon egzansyon imanitè ofisyèl anvan ou bay tikè.',
+      },
+      ru: {
+        banPartial: '⚠️ ОГРАНИЧЕНИЕ ВИЗЫ: Граждане этой страны сталкиваются с частичным приостановлением выдачи или крайне строгой проверкой для некоторых неиммиграционных виз (например, туристических B1/B2 или студенческих). Убедитесь, что у пассажира есть действующая одобренная физическая виза перед подтверждением поездки.',
+      },
+      sw: {
+        banPartial: '⚠️ VIZUIZI VYA VISA: Raia wa nchi hii wanakabiliwa na kusimamishwa kwa sehemu au ukaguzi mkali kwa baadhi ya visa zisizo za uhamiaji (kama vile utalii B1/B2 au visa za wanafunzi). Hakikisha abiria ana visa halali na iliyoidhinishwa kabla ya kuthibitisha safari.',
+      },
     };
     function travelWarningText(key) {
       const dict = TRAVEL_WARNING_TEXT_BY_LANG[currentLang] || TRAVEL_WARNING_TEXT_BY_LANG.es;
       return dict[key] || TRAVEL_WARNING_TEXT_BY_LANG.es[key];
+    }
+    // Idioma principal de cada nacionalidad con restricción — SOLO para
+    // elegir en qué idioma mostrarle el aviso de veto/restricción a ESE
+    // pasajero puntual (banFull/banPartial/venezuela), sin importar el
+    // idioma del sitio. Para los 9 países de idioma minoritario donde no
+    // hay forma de verificar una traducción automática acá (tigriña,
+    // kirundi, chichewa, turcomano, tongano, shona/ndebele, lao, birmano,
+    // pastún/dari), se usa inglés de respaldo en vez de arriesgar un texto
+    // legal mal traducido — decisión explícita del dueño de la agencia.
+    const NATIONALITY_LANG = {
+      AF: 'en', BF: 'fr', MM: 'en', TD: 'fr', CG: 'fr', GQ: 'es', ER: 'en', HT: 'ht', IR: 'fa',
+      LA: 'en', LY: 'ar', ML: 'fr', NE: 'fr', SL: 'en', SO: 'ar', SS: 'en', SD: 'ar', SY: 'ar',
+      YE: 'ar', PS: 'ar',
+      AO: 'pt', AG: 'en', BJ: 'fr', BI: 'fr', CI: 'fr', DM: 'en', GA: 'fr', GM: 'en', MW: 'en',
+      MR: 'ar', NG: 'en', SN: 'fr', TZ: 'sw', TG: 'fr', TO: 'en', TM: 'ru', ZM: 'en', ZW: 'en',
+      VE: 'es',
+    };
+    function travelWarningTextForNationality(key, nationalityIso) {
+      const lang = NATIONALITY_LANG[nationalityIso] || 'en';
+      const dict = TRAVEL_WARNING_TEXT_BY_LANG[lang] || TRAVEL_WARNING_TEXT_BY_LANG.en;
+      return dict[key] || TRAVEL_WARNING_TEXT_BY_LANG.en[key];
     }
     // Las 12 categorías de Licencia General de la OFAC para viajar a Cuba
     // (31 CFR 515.560) — el cliente tiene que declarar bajo cuál viaja.
