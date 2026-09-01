@@ -21,7 +21,7 @@ self.addEventListener('push', (event) => {
     body: data.body || '',
     icon: '../logo-v4.png',
     badge: '../logo-v4.png',
-    data: { url: data.url || '/agente/cotizaciones.html' },
+    data: { url: data.url || '/agente/panel.html' },
     requireInteraction: true,
   };
   event.waitUntil(
