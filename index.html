@@ -7013,6 +7013,40 @@
     // (ya había aceptado antes, pero le faltaban los datos). Empieza con un
     // solo pasajero y deja agregar más con "+ Agregar otro pasajero" — no
     // hace falta saber de antemano cuántos son.
+    // Repinta el bloque de avisos de UN pasajero según lo que tenga cargado
+    // ahora mismo en Nacionalidad/País emisor — ver getTravelWarningsForPassenger.
+    // Solo avisa (no bloquea el resto del formulario); lo que sí es
+    // obligatorio es marcar "leí y entiendo" antes de poder mandar el
+    // formulario entero (ver validación en el submit).
+    function renderPassengerWarnings(blockEl) {
+      const container = blockEl.querySelector('[data-pax-warnings]');
+      if (!container) return;
+      const natSelect = blockEl.querySelector('[name^="nationality-"]');
+      const passSelect = blockEl.querySelector('[name^="passportIssuingCountry-"]');
+      if (!natSelect) return;
+      const passenger = { nationality: natSelect.value, passportIssuingCountry: passSelect ? passSelect.value : '' };
+      const quoteForCheck = { origin: activeQuoteOrigin, destination: activeQuoteDestination, category: activeQuoteCategory };
+      const warnings = getTravelWarningsForPassenger(quoteForCheck, passenger);
+      if (!warnings.length) {
+        container.innerHTML = '';
+        return;
+      }
+      const needsCubaCategory = warnings.some((w) => w.needsCubaCategory);
+      container.innerHTML =
+        warnings.map((w) => '<div class="quote-pax-warning">' + w.text + '</div>').join('') +
+        (needsCubaCategory
+          ? '<label class="quote-pax-label">' + t('quotePaxCubaCategoryLabel') + '</label>' +
+            '<select class="quote-pax-input" data-pax-cuba-category required>' +
+            '<option value="">' + t('selectPlaceholder') + '</option>' +
+            CUBA_OFAC_CATEGORIES.map((c) => '<option value="' + c.replace(/"/g, '&quot;') + '">' + c + '</option>').join('') +
+            '</select>'
+          : '') +
+        '<label class="quote-pax-warning-ack">' +
+        '<input type="checkbox" data-pax-warning-ack required> ' +
+        '<span>' + t('quotePaxWarningAck') + '</span>' +
+        '</label>';
+    }
+
     function renderPassengerForm(mode) {
       showingPassengerForm = true;
       quoteStatusBar.innerHTML = '';
