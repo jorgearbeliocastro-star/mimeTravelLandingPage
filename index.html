@@ -7068,6 +7068,18 @@
         if (removeBtn) removeBtn.closest('[data-pax-block]').remove();
       });
 
+      // Aviso de restricciones migratorias — se recalcula cada vez que el
+      // cliente cambia Nacionalidad o País emisor del pasaporte de
+      // CUALQUIER pasajero (delegado, mismo criterio que el botón de
+      // sacar pasajero de arriba). Solo avisa, no bloquea el resto del
+      // formulario — lo que sí bloquea es el envío si no se marcó la
+      // casilla de "leí y entiendo" (ver validación en el submit).
+      blocksWrap.addEventListener('change', function (e) {
+        if (!e.target.matches('[name^="nationality-"], [name^="passportIssuingCountry-"]')) return;
+        const blockEl = e.target.closest('[data-pax-block]');
+        if (blockEl) renderPassengerWarnings(blockEl);
+      });
+
       // Consentimiento de cobro — solo al aceptar de verdad (mode='accept'),
       // no al "solo enviar mis datos". El agente cobra por teléfono/video,
       // no hay un link de pago seguro de por medio (ver payment_consent_at):
