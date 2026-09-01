@@ -6300,6 +6300,12 @@
 
     presaleForm.addEventListener('submit', function (e) {
       e.preventDefault();
+      const presaleEmailConfirmEl = document.getElementById('presaleEmailConfirm');
+      if (presaleEmailConfirmEl.value.trim().toLowerCase() !== document.getElementById('presaleEmail').value.trim().toLowerCase()) {
+        presaleMsg.textContent = t('msgEmailMismatch');
+        presaleEmailConfirmEl.focus();
+        return;
+      }
       presaleMsg.textContent = t('msgPresaleSending');
       const form = this;
       const data = Object.fromEntries(new FormData(form).entries());
