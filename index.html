@@ -6995,6 +6995,11 @@
           emergencyContactPhone: val('emergencyContactPhone') || null,
         };
       }
+      // travelWarningsAcknowledged/cubaOfacCategory: solo existen si el
+      // bloque de avisos migratorios se llegó a mostrar para este pasajero
+      // (ver renderPassengerWarnings) — si nunca apareció, quedan null.
+      const warningAck = block.querySelector('[data-pax-warning-ack]');
+      const cubaCategory = block.querySelector('[data-pax-cuba-category]');
       return {
         fullName: val('fullName'),
         document: val('document'),
@@ -7003,6 +7008,8 @@
         nationality: val('nationality'),
         gender: val('gender'),
         passportIssuingCountry: val('passportIssuingCountry'),
+        travelWarningsAcknowledged: warningAck ? warningAck.checked : null,
+        cubaOfacCategory: cubaCategory ? (cubaCategory.value || null) : null,
       };
     }
 
