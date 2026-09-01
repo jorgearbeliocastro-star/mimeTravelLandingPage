@@ -1310,7 +1310,9 @@
           '<option value="3">3</option>' +
           '</select>' +
           '<div class="pf-stops-countries"></div>' +
-          '</div>'
+          '</div>' +
+          '<label class="price-form-label">Horario de salida y llegada</label>' +
+          '<input type="text" class="pf-schedule" placeholder="Ej. Sale 8:00am, llega 2:30pm">'
         : '';
       row.innerHTML =
         stopsBlock +
@@ -1462,6 +1464,8 @@
         const anySeatOff = ['aisle', 'middle', 'window'].some((t) => row.querySelector('.pf-seat-' + t + '-off').checked);
         const seatTypes = ['aisle', 'middle', 'window'].filter((t) => !row.querySelector('.pf-seat-' + t + '-off').checked);
         const notes = row.querySelector('.pf-notes').value.trim();
+        const scheduleInput = row.querySelector('.pf-schedule');
+        const scheduleValue = scheduleInput ? scheduleInput.value.trim() || null : null;
 
         btn.disabled = true;
         // No deja tomar una cotización si hay otra más vieja esperando —
@@ -1479,6 +1483,7 @@
           p_carry_on_price: carryOnPrice,
           p_personal_item_price: personalItemPrice,
           p_stops: stopsValue,
+          p_schedule: scheduleValue,
         });
         if (error) {
           alert('No se pudo enviar: ' + error.message);
