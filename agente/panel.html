@@ -1374,13 +1374,21 @@
         for (let i = 1; i <= n; i++) {
           const label = document.createElement('label');
           label.className = 'price-form-label';
-          label.textContent = 'País de la escala ' + i;
-          const input = document.createElement('input');
-          input.type = 'text';
-          input.className = 'pf-stop-country';
-          input.placeholder = 'Ej. México';
+          label.textContent = 'Escala ' + i + ' — país y cuánto dura la espera';
+          const stopRow = document.createElement('div');
+          stopRow.className = 'price-form-row';
+          const countryInput = document.createElement('input');
+          countryInput.type = 'text';
+          countryInput.className = 'pf-stop-country';
+          countryInput.placeholder = 'Ej. México';
+          const durationInput = document.createElement('input');
+          durationInput.type = 'text';
+          durationInput.className = 'pf-stop-duration';
+          durationInput.placeholder = 'Ej. 2h 30m';
+          stopRow.appendChild(countryInput);
+          stopRow.appendChild(durationInput);
           stopsCountriesWrap.appendChild(label);
-          stopsCountriesWrap.appendChild(input);
+          stopsCountriesWrap.appendChild(stopRow);
         }
       }
       if (stopsHasRadio && stopsExtra) {
