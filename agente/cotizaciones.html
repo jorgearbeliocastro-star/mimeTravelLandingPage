@@ -377,6 +377,11 @@
     let currentTab = 'new';
     let lastLoadedQuotesJSON = null;
     let lastLoadedTab = null;
+    // Aparte de lastLoadedQuotesJSON — un mensaje nuevo de chat NO cambia
+    // ninguna columna de quote_requests, así que sin esto el aviso de
+    // "mensaje nuevo" en el botón de Chat nunca aparecía (el repintado se
+    // saltaba por completo, ver loadQuotes).
+    let lastLoadedChatJSON = null;
     let pollTimer = null;
     // Mientras algún formulario de card está abierto (poner precio,
     // confirmar venta), el sondeo automático (cada 6s) no debe reconstruir
