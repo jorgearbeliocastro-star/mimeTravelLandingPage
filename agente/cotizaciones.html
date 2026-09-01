@@ -563,7 +563,15 @@
     });
 
     async function loadQuotes() {
-      if (cardFormOpenId !== null || openChatQuoteId !== null) return; // no pisar un formulario o un chat abierto
+      // OJO: openChatQuoteId NO frena esto (a diferencia de cardFormOpenId)
+      // — antes sí lo hacía, y mientras el agente tenía CUALQUIER chat
+      // abierto, TODA la lista dejaba de actualizarse (cotizaciones nuevas,
+      // otros chats, todo), aunque los contadores de las pestañas seguían
+      // sumando por su cuenta aparte — se veía como "no entra nada" aunque
+      // en realidad estaba todo congelado detrás de un chat abierto en
+      // otro lado. Ahora la lista se sigue actualizando igual; el chat
+      // abierto se preserva aparte (ver renderList).
+      if (cardFormOpenId !== null) return; // no pisar un formulario de card abierto
       let query = supabaseClient.from('quote_requests').select('*').limit(30);
       if (currentTab === 'new') {
         // La más vieja primero (orden de llegada) — la numeración de
