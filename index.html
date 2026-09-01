@@ -7010,6 +7010,26 @@
     function renderPassengerForm(mode) {
       showingPassengerForm = true;
       quoteStatusBar.innerHTML = '';
+      // Los <select> de Nacionalidad/País emisor (buildCountrySelectHTML)
+      // necesitan la lista de países ya cargada — si el cliente nunca usó
+      // el buscador de vuelos por país, todavía no se pidió. Se espera acá
+      // (con un aviso breve) en vez de armar el formulario con selects
+      // vacíos.
+      if (!countryNamesData[currentLang]) {
+        const loading = document.createElement('p');
+        loading.className = 'quote-status-notes';
+        loading.textContent = '…';
+        quoteStatusBar.appendChild(loading);
+        loadCountryNames(currentLang).then(function () {
+          if (showingPassengerForm) renderPassengerFormInner(mode);
+        });
+        return;
+      }
+      renderPassengerFormInner(mode);
+    }
+
+    function renderPassengerFormInner(mode) {
+      quoteStatusBar.innerHTML = '';
 
       const intro = document.createElement('p');
       intro.className = 'quote-status-notes';
