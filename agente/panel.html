@@ -113,9 +113,13 @@
   }
   .nav-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    /* Fijo en 2 columnas (de a dos, uno al lado del otro) — antes era
+       auto-fit con un mínimo de 200px, que en pantallas anchas terminaba
+       poniendo cada card cuadrada gigante ocupando casi todo el ancho. */
+    grid-template-columns: repeat(2, 1fr);
     gap: 16px;
-    margin-bottom: 24px;
+    max-width: 420px;
+    margin: 0 auto 24px;
   }
   .nav-card {
     position: relative;
