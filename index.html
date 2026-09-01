@@ -4615,7 +4615,7 @@
           agentId: record.claimedByAgentId || null,
           title: 'Cotización nueva',
           body: (record.origin ? record.origin + ' → ' : '') + (record.destination || 'Consulta general'),
-          url: '/agente/cotizaciones.html',
+          url: '/agente/panel.html',
         }),
       }).catch(() => {});
     }
@@ -6926,7 +6926,7 @@
           agentId: null,
           title: accepted ? 'Cliente aceptó la cotización' : 'Cliente rechazó la cotización',
           body: 'Tocá para ver los detalles.',
-          url: '/agente/cotizaciones.html',
+          url: '/agente/panel.html',
         }),
       }).catch(() => {});
     }
@@ -6943,7 +6943,7 @@
           agentId: null,
           title: 'Tenés un mensaje nuevo',
           body: 'El cliente te escribió sobre su cotización.',
-          url: '/agente/cotizaciones.html',
+          url: '/agente/panel.html',
         }),
       }).catch(() => {});
     }
