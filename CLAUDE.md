@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Static one-page marketing site for **Mime Travel**, a travel agency (flights, cruises, hotels, car rentals). The entire site is a single self-contained file: [index.html](index.html) — no build step, no package manager, no framework. CSS is inline in a `<style>` block and JS is inline in a `<script>` block at the end of the file.
 
-This site is the public front-end for a companion app, **"la expancion"** (`../la expancion`, a separate Expo/React Native + Supabase repo) — the agent/booking backend. Quote requests submitted here land directly in that app's Supabase database and get routed to its agent pool. See "Forms & the la expancion integration" below before touching form submission logic — changes on one side can silently break what agents see on the other.
+The site talks directly to a shared Supabase backend (project `ihrfaprvzdafclquuhlh`) for quote requests, the agent panel (`agente/*.html`), and calls — this repo is self-contained; there is no other repo it depends on. Quote requests submitted from the public site land in that Supabase project's `quote_requests` table and get routed to the agent pool via the pages under `agente/`. See "Forms & the Supabase integration" below before touching form submission logic.
 
 ## Working with this repo
 
