@@ -336,14 +336,71 @@
       startPresenceHeartbeat(supabaseClient);
       pollRingingCalls();
       setInterval(pollRingingCalls, 4000);
+      pollPendingChats();
+      setInterval(pollPendingChats, 6000);
       // Apenas llega un push con esta pantalla ya abierta, el service
       // worker avisa acá — el número se actualiza al toque.
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.addEventListener('message', (event) => {
-          if (event.data && event.data.type === 'push-received') pollRingingCalls();
+          if (event.data && event.data.type === 'push-received') {
+            pollRingingCalls();
+            pollPendingChats();
+          }
         });
       }
     })();
+
+    // Mismo criterio que pollRingingCalls, pero para el chat de
+    // cotizaciones — antes esto solo se veía si el agente ya tenía
+    // cotizaciones.html abierta y encima entraba a esa card puntual; desde
+    // esta pantalla principal no había ningún aviso de que un cliente
+    // había escrito (ni siquiera en una cotización ya vendida).
+    async function pollPendingChats() {
+      const { data: msgs, error } = await supabaseClient
+        .from('quote_request_messages')
+        .select('quote_request_id, sender, created_at')
+        .order('created_at', { ascending: false })
+        .limit(100);
+      const card = document.getElementById('cotizacionesNavCard');
+      const badge = document.getElementById('chatBadge');
+      if (error) {
+        console.error('[panel] error consultando chats:', error);
+        return;
+      }
+      // El último mensaje de cada cotización (la primera vez que aparece
+      // ese id, porque ya viene ordenado del más nuevo al más viejo) — si
+      // es del cliente, está esperando respuesta.
+      const lastSenderByQuote = {};
+      (msgs || []).forEach((m) => {
+        if (!(m.quote_request_id in lastSenderByQuote)) lastSenderByQuote[m.quote_request_id] = m.sender;
+      });
+      const pendingQuoteIds = Object.keys(lastSenderByQuote).filter((id) => lastSenderByQuote[id] === 'client');
+      if (!pendingQuoteIds.length) {
+        badge.hidden = true;
+        card.classList.remove('ringing');
+        return;
+      }
+      // Solo avisa de las que son mías o todavía sin agente asignado — no
+      // tiene sentido que me suene el chat de una cotización de otro agente.
+      const { data: mine, error: mineError } = await supabaseClient
+        .from('quote_requests')
+        .select('id')
+        .in('id', pendingQuoteIds)
+        .or('claimed_by_agent_id.eq.' + agentId + ',claimed_by_agent_id.is.null');
+      if (mineError) {
+        console.error('[panel] error filtrando chats:', mineError);
+        return;
+      }
+      const count = (mine || []).length;
+      if (count > 0) {
+        badge.textContent = String(count);
+        badge.hidden = false;
+        card.classList.add('ringing');
+      } else {
+        badge.hidden = true;
+        card.classList.remove('ringing');
+      }
+    }
 
     // Aviso simple de "hay una llamada esperando" en esta pantalla de
     // inicio — sin depender de tener llamadas.html abierta.
