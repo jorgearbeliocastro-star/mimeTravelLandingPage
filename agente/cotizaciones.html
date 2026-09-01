@@ -881,27 +881,6 @@
       });
     }
 
-    // Llega desde el link de la notificación push (?chat=<id>) — trae esa
-    // cotización puntual directo, con el chat ya abierto, sin depender del
-    // filtro normal de "pendiente" (si ya la respondió otro agente desde
-    // el dispositivo, igual la muestra en vez de dejar la pantalla vacía).
-    async function openDeepLinkChat(quoteId) {
-      const { data: quote, error } = await supabaseClient.from('quote_requests').select('*').eq('id', quoteId).single();
-      if (error || !quote) {
-        loadQuotes();
-        return;
-      }
-      const chatTabEl = document.querySelector('.tab[data-tab="chat"]');
-      if (chatTabEl) {
-        document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
-        chatTabEl.classList.add('active');
-      }
-      currentTab = 'chat';
-      renderList([quote], { [quote.id]: true });
-      const card = document.querySelector('.quote-card');
-      if (card) toggleChat(card, quote);
-    }
-
     async function toggleChat(card, quote) {
       const existing = card.querySelector('.chat-thread');
       if (existing) {
