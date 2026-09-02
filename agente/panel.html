@@ -1194,6 +1194,8 @@
             ensureDocsThumbChannel(q);
             renderDocsThumbs(q.id); // por si ya se habían recibido antes de este repintado
           }
+        } else if (q.status === 'decided' && q.client_decision !== 'accepted') {
+          card.appendChild(buildDiscardButton(q));
         }
 
         // Chat con el cliente — mismo mecanismo que ya usa la app
