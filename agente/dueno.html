@@ -260,7 +260,7 @@
         const isOwner = p.role === 'super_admin';
         const connected = isConnectedNow(p.last_active_at);
         return '<div class="agent-row"><span>' + name + '</span><span style="display:flex; gap:6px; align-items:center;">' +
-          '<span class="role-tag' + (connected ? '' : ' owner') + '" style="background:' + (connected ? 'rgba(46,125,50,0.15)' : 'rgba(26,26,26,0.08)') + '; color:' + (connected ? '#2e7d32' : 'rgba(26,26,26,0.55)') + ';">' + (connected ? '🟢 Conectado' : '⚪ Desconectado') + '</span>' +
+          '<span class="role-tag ' + (connected ? 'conn-yes' : 'conn-no') + '">' + (connected ? '🟢 Conectado' : '⚪ Desconectado') + '</span>' +
           '<span class="role-tag' + (isOwner ? ' owner' : '') + '">' + (isOwner ? 'Dueño' : 'Agente') + '</span></span></div>';
       }).join('');
     }
