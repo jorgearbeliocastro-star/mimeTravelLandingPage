@@ -1136,6 +1136,7 @@
           info.className = 'already-quoted';
           info.textContent = 'Precio enviado: USD ' + (q.quoted_price_basic_usd ?? q.quoted_price_usd);
           card.appendChild(info);
+          card.appendChild(buildReassignButton(q));
         } else if (q.status === 'decided' && q.client_decision === 'accepted') {
           const info = document.createElement('div');
           info.className = 'already-quoted';
