@@ -1537,6 +1537,21 @@
         }
         const row = Array.isArray(data) ? data[0] : data;
         const name = row?.new_agent_name || 'otro agente';
+        // No bloqueante — igual que notifyLaExpancion en index.html: si
+        // el push falla, la transferencia en la base ya quedó hecha
+        // igual, solo no sonó el aviso en el teléfono de quien la recibió.
+        if (row?.new_agent_id) {
+          fetch(WEB_PUSH_FUNCTIONS_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': WEB_PUSH_WEBHOOK_SECRET },
+            body: JSON.stringify({
+              agentId: row.new_agent_id,
+              title: 'Te pasaron una cotización',
+              body: (quote.origin ? quote.origin + ' → ' : '') + (quote.destination || 'Consulta general'),
+              url: '/agente/panel.html',
+            }),
+          }).catch(() => {});
+        }
         alert(row?.was_fallback_to_owner
           ? 'No había ningún agente disponible — se le pasó al dueño (' + name + ').'
           : 'Pasada a ' + name + '.');
