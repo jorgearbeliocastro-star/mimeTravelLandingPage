@@ -109,6 +109,37 @@
   }
   .agent-row .role-tag.owner { background: rgba(255,122,89,0.2); color: var(--coral); }
   .empty { text-align: center; color: rgba(26,26,26,0.5); font-size: 13.5px; padding: 12px 0; }
+  .q-tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .q-tab {
+    border: 1.5px solid rgba(27,58,92,0.15);
+    background: #fff;
+    color: var(--primary);
+    border-radius: 16px;
+    padding: 6px 12px;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .q-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .q-card {
+    border: 1px solid rgba(27,58,92,0.08);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    background: var(--arena);
+  }
+  .q-card .q-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .q-card .q-agent {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: rgba(27,58,92,0.1);
+    color: var(--primary);
+    white-space: nowrap;
+  }
+  .q-card .q-route { font-weight: 700; font-size: 14px; }
+  .q-card .q-meta { font-size: 12.5px; color: rgba(26,26,26,0.65); margin-top: 2px; }
 </style>
 </head>
 <body>
