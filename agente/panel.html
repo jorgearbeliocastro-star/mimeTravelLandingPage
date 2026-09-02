@@ -1562,6 +1562,32 @@
       return btn;
     }
 
+    // Botón para borrar del todo una cotización que el cliente ya rechazó
+    // — sin esto se quedaban acumuladas para siempre en "Mis cotizadas"
+    // sin ninguna forma de sacarlas (ver discard_declined_quote en
+    // Supabase, que también borra sus mensajes de chat antes de borrar la
+    // cotización, para no dejar nada huérfano).
+    function buildDiscardButton(quote) {
+      const btn = document.createElement('button');
+      btn.className = 'claim-btn';
+      btn.textContent = '🗑 Descartar';
+      btn.addEventListener('click', async () => {
+        if (!confirm('¿Borrar del todo esta cotización rechazada? No se puede deshacer.')) return;
+        btn.disabled = true;
+        const { error } = await supabaseClient.rpc('discard_declined_quote', {
+          p_agent_id: agentId,
+          p_quote_id: quote.id,
+        });
+        if (error) {
+          alert('No se pudo descartar: ' + error.message);
+          btn.disabled = false;
+          return;
+        }
+        loadQuotes();
+      });
+      return btn;
+    }
+
     // Cierre de venta — pide el número de confirmación/referencia que da
     // la agencia (Classic Vacations, Downtown Travel, etc.) al cerrar la
     // compra ahí. Ya se validó antes que exista el consentimiento de cobro
