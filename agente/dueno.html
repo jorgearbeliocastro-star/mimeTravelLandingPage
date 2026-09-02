@@ -218,8 +218,13 @@
         return;
       }
       loadTeam();
+      loadTeamQuotes();
     })();
 
+    // Mapa id -> nombre de agente, para no repetir el join en cada
+    // cotización — se pide una sola vez (el equipo no cambia tan seguido)
+    // y se reusa acá y en loadTeamQuotes.
+    let agentNamesById = {};
     async function loadTeam() {
       const { data, error } = await supabaseClient
         .from('profiles')
