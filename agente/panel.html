@@ -558,6 +558,11 @@
     const SUPABASE_URL = 'https://ihrfaprvzdafclquuhlh.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_lcWymV25nHd2_iOMjRwD4A_XOXvOdPK';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Mismo secret/función que usa index.html para avisar de cotizaciones
+    // nuevas (send-web-push) — acá se reusa para avisarle al agente/dueño
+    // que recibió una cotización transferida (ver buildReassignButton).
+    const WEB_PUSH_WEBHOOK_SECRET = '3a61e1f14f2ff3350889bd67cf2250bebde907e17b6d733e';
+    const WEB_PUSH_FUNCTIONS_URL = SUPABASE_URL + '/functions/v1/send-web-push';
 
     let agentId = null;
     let agentName = '';
