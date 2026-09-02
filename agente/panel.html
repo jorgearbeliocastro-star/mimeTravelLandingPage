@@ -915,29 +915,70 @@
       banFull: '🚫 Veto migratorio (travel ban): esta nacionalidad tiene suspendida la emisión de visas para entrar a EE. UU.',
       banPartial: '⚠️ Restricción de visa: esta nacionalidad enfrenta suspensiones parciales/auditorías extremas para ciertas visas de EE. UU.',
       venezuela: '⚠️ Venezuela: entrada suspendida para funcionarios del gobierno y familiares directos; ciudadanos particulares con restricciones de visado.',
+      // Sumados 2026-09-01 — mismo criterio que index.html, ver ahí la
+      // investigación con fuentes de por qué el texto es distinto al de
+      // Cuba en vuelos (acá no hay categoría OFAC que declarar, es un
+      // bloqueo total; y el aviso de green card es política de cada
+      // naviera, no ley federal).
+      cubaCruiseBan: '🚫 Cruceros EE. UU. ↔ Cuba: prohibidos por regulación federal para navieras que operan bajo ley de EE. UU. Este itinerario no se puede ofrecer legalmente.',
+      greenCard: 'ℹ️ Si algún pasajero es residente permanente de EE. UU. (green card) sin ciudadanía: la naviera va a pedirle la green card original + pasaporte vigente de su país (la green card sola no alcanza).',
     };
     function extractIataCode(label) {
       const m = /\(([A-Z]{3})\)\s*$/.exec(label || '');
       return m ? m[1] : null;
     }
+    function normalizeText(str) {
+      return String(str || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+    }
+    // Mismas listas que index.html (ver ahí el porqué de cada puerto) —
+    // un crucero no guarda código de puerto, se compara por ciudad.
+    const CRUISE_US_PORT_CITIES = new Set(
+      ['Miami', 'Miami Beach', 'Fort Lauderdale', 'Port Canaveral', 'Tampa', 'Galveston', 'Nueva Orleans', 'New Orleans', 'Los Ángeles', 'Seattle', 'San Juan', 'San Juan (Puerto Rico)']
+        .map(normalizeText)
+    );
+    const CRUISE_CUBA_PORT_CITIES = new Set(
+      ['La Habana', 'Havana', 'Varadero', 'Cayo Coco', 'Cayo Santa María', 'Cayo Guillermo', 'Trinidad (Cuba)', 'Sancti Spíritus', 'Santiago de Cuba', 'Holguín', 'Camagüey', 'Cienfuegos', 'Pinar del Río', 'Baracoa']
+        .map(normalizeText)
+    );
+    function cruisePortMatches(cityLabel, citySet) {
+      return !!cityLabel && citySet.has(normalizeText(cityLabel));
+    }
     function getTravelWarningsForPassenger(q, passenger) {
-      if (!q || q.category !== 'flight') return [];
-      const originIata = extractIataCode(q.origin);
-      const destIata = extractIataCode(q.destination);
-      const originIsUS = originIata && US_AIRPORT_CODES.has(originIata);
-      const destIsUS = destIata && US_AIRPORT_CODES.has(destIata);
-      const originIsCuba = originIata && CUBA_AIRPORT_CODES.has(originIata);
-      const destIsCuba = destIata && CUBA_AIRPORT_CODES.has(destIata);
-      const destIsNK = destIata && NORTH_KOREA_AIRPORT_CODES.has(destIata);
-      const warnings = [];
-      if ((originIsUS && destIsCuba) || (originIsCuba && destIsUS)) warnings.push(TRAVEL_WARNING_TEXT.cuba);
-      if (destIsNK && passenger.passportIssuingCountry === 'US') warnings.push(TRAVEL_WARNING_TEXT.nk);
-      if (destIsUS) {
-        if (US_ENTRY_BAN_FULL.has(passenger.nationality)) warnings.push(TRAVEL_WARNING_TEXT.banFull);
-        else if (US_ENTRY_BAN_PARTIAL.has(passenger.nationality)) warnings.push(TRAVEL_WARNING_TEXT.banPartial);
-        else if (passenger.nationality === 'VE') warnings.push(TRAVEL_WARNING_TEXT.venezuela);
+      if (!q) return [];
+      if (q.category === 'flight') {
+        const originIata = extractIataCode(q.origin);
+        const destIata = extractIataCode(q.destination);
+        const originIsUS = originIata && US_AIRPORT_CODES.has(originIata);
+        const destIsUS = destIata && US_AIRPORT_CODES.has(destIata);
+        const originIsCuba = originIata && CUBA_AIRPORT_CODES.has(originIata);
+        const destIsCuba = destIata && CUBA_AIRPORT_CODES.has(destIata);
+        const destIsNK = destIata && NORTH_KOREA_AIRPORT_CODES.has(destIata);
+        const warnings = [];
+        if ((originIsUS && destIsCuba) || (originIsCuba && destIsUS)) warnings.push(TRAVEL_WARNING_TEXT.cuba);
+        if (destIsNK && passenger.passportIssuingCountry === 'US') warnings.push(TRAVEL_WARNING_TEXT.nk);
+        if (destIsUS) {
+          if (US_ENTRY_BAN_FULL.has(passenger.nationality)) warnings.push(TRAVEL_WARNING_TEXT.banFull);
+          else if (US_ENTRY_BAN_PARTIAL.has(passenger.nationality)) warnings.push(TRAVEL_WARNING_TEXT.banPartial);
+          else if (passenger.nationality === 'VE') warnings.push(TRAVEL_WARNING_TEXT.venezuela);
+        }
+        return warnings;
       }
-      return warnings;
+      if (q.category === 'cruise') {
+        const originIsUS = cruisePortMatches(q.origin, CRUISE_US_PORT_CITIES);
+        const destIsUS = cruisePortMatches(q.destination, CRUISE_US_PORT_CITIES);
+        const originIsCuba = cruisePortMatches(q.origin, CRUISE_CUBA_PORT_CITIES);
+        const destIsCuba = cruisePortMatches(q.destination, CRUISE_CUBA_PORT_CITIES);
+        const warnings = [];
+        if ((originIsUS && destIsCuba) || (originIsCuba && destIsUS)) warnings.push(TRAVEL_WARNING_TEXT.cubaCruiseBan);
+        if (originIsUS || destIsUS) {
+          if (US_ENTRY_BAN_FULL.has(passenger.nationality)) warnings.push(TRAVEL_WARNING_TEXT.banFull);
+          else if (US_ENTRY_BAN_PARTIAL.has(passenger.nationality)) warnings.push(TRAVEL_WARNING_TEXT.banPartial);
+          else if (passenger.nationality === 'VE') warnings.push(TRAVEL_WARNING_TEXT.venezuela);
+          warnings.push(TRAVEL_WARNING_TEXT.greenCard);
+        }
+        return warnings;
+      }
+      return [];
     }
     // Nombres de país (ISO → español) solo para MOSTRAR — los pasajeros
     // guardan el código ISO, no el nombre (ver buildCountrySelectHTML en
