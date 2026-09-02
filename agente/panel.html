@@ -1511,6 +1511,35 @@
       });
     }
 
+    // Botón para pasarle una cotización "a medias" (ya tomada, esperando
+    // al cliente) a otro agente antes de irse — sin esto quedaba huérfana,
+    // solo la veía el agente que la tomó (ver reassign_quote en Supabase).
+    function buildReassignButton(quote) {
+      const btn = document.createElement('button');
+      btn.className = 'claim-btn';
+      btn.textContent = '↪ Pasar a otro agente';
+      btn.addEventListener('click', async () => {
+        if (!confirm('¿Pasar esta cotización a otro agente disponible ahora?')) return;
+        btn.disabled = true;
+        const { data, error } = await supabaseClient.rpc('reassign_quote', {
+          p_agent_id: agentId,
+          p_quote_id: quote.id,
+        });
+        if (error) {
+          alert('No se pudo transferir: ' + error.message);
+          btn.disabled = false;
+          return;
+        }
+        const row = Array.isArray(data) ? data[0] : data;
+        const name = row?.new_agent_name || 'otro agente';
+        alert(row?.was_fallback_to_owner
+          ? 'No había ningún agente disponible — se le pasó al dueño (' + name + ').'
+          : 'Pasada a ' + name + '.');
+        loadQuotes();
+      });
+      return btn;
+    }
+
     // Cierre de venta — pide el número de confirmación/referencia que da
     // la agencia (Classic Vacations, Downtown Travel, etc.) al cerrar la
     // compra ahí. Ya se validó antes que exista el consentimiento de cobro
