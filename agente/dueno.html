@@ -240,12 +240,66 @@
         list.innerHTML = '<div class="empty">Todavía no hay agentes.</div>';
         return;
       }
+      agentNamesById = {};
+      data.forEach((p) => { agentNamesById[p.id] = p.full_name || '(sin nombre)'; });
       list.innerHTML = data.map((p) => {
         const name = escapeHtml(p.full_name || '(sin nombre)');
         const isOwner = p.role === 'super_admin';
         return '<div class="agent-row"><span>' + name + '</span><span class="role-tag' + (isOwner ? ' owner' : '') + '">' + (isOwner ? 'Dueño' : 'Agente') + '</span></div>';
       }).join('');
     }
+
+    // Vista de solo lectura: TODAS las cotizaciones de TODOS los agentes,
+    // no solo las del dueño — para actuar sobre una (poner precio, cerrar
+    // venta, etc.) hay que ir al modo agente normal, acá no se repiten
+    // esos botones.
+    let currentTeamTab = 'new';
+    function fmtRoute(q) {
+      if (q.origin) return escapeHtml(q.origin) + ' → ' + escapeHtml(q.destination || '');
+      return escapeHtml(q.destination || '');
+    }
+    async function loadTeamQuotes() {
+      let query = supabaseClient.from('quote_requests').select('*').limit(30);
+      if (currentTeamTab === 'new') {
+        query = query.eq('status', 'pending').order('created_at', { ascending: true });
+      } else if (currentTeamTab === 'accepted') {
+        query = query.eq('status', 'decided').eq('client_decision', 'accepted').order('created_at', { ascending: false });
+      } else if (currentTeamTab === 'sold') {
+        query = query.eq('status', 'purchased').order('created_at', { ascending: false });
+      } else {
+        query = query.in('status', ['quoted', 'decided']).order('created_at', { ascending: false });
+      }
+      const { data, error } = await query;
+      const list = document.getElementById('teamQuotesList');
+      if (error) {
+        list.innerHTML = '<div class="empty">No se pudo cargar.</div>';
+        return;
+      }
+      if (!data || !data.length) {
+        list.innerHTML = '<div class="empty">No hay cotizaciones acá.</div>';
+        return;
+      }
+      list.innerHTML = data.map((q) => {
+        const agentName = q.claimed_by_agent_id
+          ? escapeHtml(agentNamesById[q.claimed_by_agent_id] || 'Agente')
+          : 'Sin tomar';
+        const price = q.quoted_price_basic_usd ?? q.quoted_price_usd;
+        const priceLine = price != null ? 'USD ' + price : '';
+        const created = q.created_at ? new Date(q.created_at).toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
+        return '<div class="q-card">' +
+          '<div class="q-top"><span class="q-route">' + fmtRoute(q) + '</span><span class="q-agent">' + agentName + '</span></div>' +
+          '<div class="q-meta">' + escapeHtml(q.contact_name || 'Sin nombre') + (priceLine ? ' · ' + priceLine : '') + (created ? ' · ' + created : '') + '</div>' +
+          '</div>';
+      }).join('');
+    }
+    document.querySelectorAll('.q-tab').forEach((tabEl) => {
+      tabEl.addEventListener('click', () => {
+        document.querySelectorAll('.q-tab').forEach((t) => t.classList.remove('active'));
+        tabEl.classList.add('active');
+        currentTeamTab = tabEl.dataset.tab;
+        loadTeamQuotes();
+      });
+    });
 
     function escapeHtml(str) {
       return String(str == null ? '' : str)
