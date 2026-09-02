@@ -228,10 +228,18 @@
     // cotización — se pide una sola vez (el equipo no cambia tan seguido)
     // y se reusa acá y en loadTeamQuotes.
     let agentNamesById = {};
+    // "Conectado" = mandó su latido de presencia hace menos de 90s (mismo
+    // margen que ya usa el resto del sistema, ver agente/presence.js) —
+    // no es lo mismo que el interruptor 🟢/🔴 "Disponible" (ese lo prende/
+    // apaga el agente a mano; esto es si tiene el panel abierto AHORA).
+    function isConnectedNow(lastActiveAt) {
+      if (!lastActiveAt) return false;
+      return (Date.now() - new Date(lastActiveAt).getTime()) < 90000;
+    }
     async function loadTeam() {
       const { data, error } = await supabaseClient
         .from('profiles')
-        .select('id, full_name, role')
+        .select('id, full_name, role, last_active_at')
         .in('role', ['agent', 'super_admin'])
         .order('full_name', { ascending: true });
       const list = document.getElementById('teamList');
@@ -248,9 +256,16 @@
       list.innerHTML = data.map((p) => {
         const name = escapeHtml(p.full_name || '(sin nombre)');
         const isOwner = p.role === 'super_admin';
-        return '<div class="agent-row"><span>' + name + '</span><span class="role-tag' + (isOwner ? ' owner' : '') + '">' + (isOwner ? 'Dueño' : 'Agente') + '</span></div>';
+        const connected = isConnectedNow(p.last_active_at);
+        return '<div class="agent-row"><span>' + name + '</span><span style="display:flex; gap:6px; align-items:center;">' +
+          '<span class="role-tag' + (connected ? '' : ' owner') + '" style="background:' + (connected ? 'rgba(46,125,50,0.15)' : 'rgba(26,26,26,0.08)') + '; color:' + (connected ? '#2e7d32' : 'rgba(26,26,26,0.55)') + ';">' + (connected ? '🟢 Conectado' : '⚪ Desconectado') + '</span>' +
+          '<span class="role-tag' + (isOwner ? ' owner' : '') + '">' + (isOwner ? 'Dueño' : 'Agente') + '</span></span></div>';
       }).join('');
     }
+    // Refresca el estado de conectado/desconectado sin recargar todo el
+    // equipo — el latido de cada agente llega cada 45s (ver presence.js),
+    // así que 20s de sondeo alcanza para reflejarlo con margen razonable.
+    setInterval(loadTeam, 20000);
 
     // Vista de solo lectura: TODAS las cotizaciones de TODOS los agentes,
     // no solo las del dueño — para actuar sobre una (poner precio, cerrar
