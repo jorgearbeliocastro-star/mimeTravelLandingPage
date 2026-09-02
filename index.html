@@ -4978,14 +4978,32 @@
     // en su idioma) — la traducción es responsabilidad de quien mantenga
     // este texto de acá en más, no viene de un traductor legal certificado.
     // Última revisión: 2026-08-31.
-    // Solo aplica a vuelos — es donde tenemos origen/destino como
-    // aeropuerto real; el resto de categorías no pasa por control de
-    // migración de la misma forma.
+    // Aplica a vuelos y cruceros — el resto de categorías (hoteles, autos,
+    // paquetes) no pasa por control de migración de la misma forma.
     // Lista curada de aeropuertos que esta agencia realmente cotiza — no
     // hace falta la totalidad del país, alcanza con los que se usan acá.
     const US_AIRPORT_CODES = new Set(['JFK','LGA','EWR','MIA','FLL','MCO','TPA','ATL','ORD','MDW','LAX','SFO','SAN','SEA','DFW','IAH','DEN','PHX','LAS','BOS','PHL','IAD','DCA','BWI','CLT','MSP','DTW','STL','MCI','AUS','SAT','SLC','PDX','SJU','HNL','OGG','ANC','RDU','PIT','CLE','CVG','IND','MSY','JAX','MEM','OMA','OKC','ABQ','TUS','ELP','HOU','DAL','SJC','OAK','SNA','ONT','BUR']);
     const CUBA_AIRPORT_CODES = new Set(['HAV','VRA','SNU','HOG','CFG','CMW','SCU','CYO','MZO']);
     const NORTH_KOREA_AIRPORT_CODES = new Set(['FNJ']);
+    // Un crucero no guarda código de puerto (ver worldPortLabels, junta
+    // solo el nombre de ciudad) — para las mismas restricciones de arriba
+    // acá se compara por nombre de ciudad normalizado en vez de código.
+    // Puertos de salida de crucero de EE. UU. que esta agencia realmente
+    // cotiza (investigado 2026-09-01, no es una lista exhaustiva de TODOS
+    // los puertos de EE. UU., alcanza con los reales de esta agencia).
+    const CRUISE_US_PORT_CITIES = new Set(
+      ['Miami', 'Miami Beach', 'Fort Lauderdale', 'Port Canaveral', 'Tampa', 'Galveston', 'Nueva Orleans', 'New Orleans', 'Los Ángeles', 'Seattle', 'San Juan', 'San Juan (Puerto Rico)']
+        .map(normalizeText)
+    );
+    // Reusa la lista curada de ciudades cubanas que ya existe para
+    // destinos de Hoteles/Autos/Cruceros (COUNTRY_CITIES['Cuba']) — no
+    // hace falta mantener otra lista aparte.
+    const CRUISE_CUBA_PORT_CITIES = new Set(
+      (COUNTRY_CITIES['Cuba'] || []).concat(['Havana']).map(normalizeText)
+    );
+    function cruisePortMatches(cityLabel, citySet) {
+      return !!cityLabel && citySet.has(normalizeText(cityLabel));
+    }
     // Nacionalidades por código ISO — se compara contra el valor del
     // <select> de Nacionalidad del pasajero (ver buildPassengerBlockHTML),
     // que guarda el ISO, no el nombre traducido.
