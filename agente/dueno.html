@@ -217,7 +217,10 @@
         window.location.href = 'panel.html';
         return;
       }
-      loadTeam();
+      // Se espera a que termine loadTeam (llena agentNamesById) antes de
+      // pintar las cotizaciones — si no, la primera tanda mostraba
+      // "Agente" genérico en vez del nombre real hasta el próximo cambio.
+      await loadTeam();
       loadTeamQuotes();
     })();
 
