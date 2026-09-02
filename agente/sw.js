@@ -19,8 +19,8 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'Mime Travel';
   const options = {
     body: data.body || '',
-    icon: '../logo-v4.png',
-    badge: '../logo-v4.png',
+    icon: '../icon-192.png',
+    badge: '../icon-192.png',
     data: { url: data.url || '/agente/panel.html' },
     requireInteraction: true,
   };
