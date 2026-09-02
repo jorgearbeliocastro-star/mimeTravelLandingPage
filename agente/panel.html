@@ -1169,6 +1169,7 @@
           if (!hasConsent) sellBtn.style.opacity = '0.5';
           sellBtn.addEventListener('click', () => showSellForm(card, q));
           card.appendChild(sellBtn);
+          card.appendChild(buildReassignButton(q));
 
           // El cliente subió pasaporte/tarjeta y está esperando — se pide
           // solo, sin que el agente tenga que tocar nada, y se muestra
