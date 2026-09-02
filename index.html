@@ -5170,35 +5170,70 @@
     // cotización — puede haber más de uno (ej. Cuba + veto migratorio no
     // se solapan en la práctica, pero la función no asume que no puedan).
     function getTravelWarningsForPassenger(quote, passenger) {
-      if (!quote || quote.category !== 'flight') return [];
-      const originIata = extractIataCode(quote.origin);
-      const destIata = extractIataCode(quote.destination);
-      const originIsUS = originIata && US_AIRPORT_CODES.has(originIata);
-      const destIsUS = destIata && US_AIRPORT_CODES.has(destIata);
-      const originIsCuba = originIata && CUBA_AIRPORT_CODES.has(originIata);
-      const destIsCuba = destIata && CUBA_AIRPORT_CODES.has(destIata);
-      const destIsNK = destIata && NORTH_KOREA_AIRPORT_CODES.has(destIata);
-      const warnings = [];
-      if ((originIsUS && destIsCuba) || (originIsCuba && destIsUS)) {
-        warnings.push({ key: 'cuba', text: travelWarningText('cuba') });
-      }
-      if (destIsNK && passenger.passportIssuingCountry === 'US') {
-        warnings.push({ key: 'nk', text: travelWarningText('nk') });
-      }
-      if (destIsUS) {
-        // Estos tres SÍ dependen de la nacionalidad puntual del pasajero
-        // (a diferencia de cuba/nk arriba, que no cambian según quién
-        // viaja) — por eso van en el idioma de ESE país, no en el idioma
-        // en que esté navegando el sitio (ver travelWarningTextForNationality).
-        if (US_ENTRY_BAN_FULL.has(passenger.nationality)) {
-          warnings.push({ key: 'banFull', text: travelWarningTextForNationality('banFull', passenger.nationality) });
-        } else if (US_ENTRY_BAN_PARTIAL.has(passenger.nationality)) {
-          warnings.push({ key: 'banPartial', text: travelWarningTextForNationality('banPartial', passenger.nationality) });
-        } else if (passenger.nationality === 'VE') {
-          warnings.push({ key: 'venezuela', text: travelWarningTextForNationality('venezuela', passenger.nationality) });
+      if (!quote) return [];
+      if (quote.category === 'flight') {
+        const originIata = extractIataCode(quote.origin);
+        const destIata = extractIataCode(quote.destination);
+        const originIsUS = originIata && US_AIRPORT_CODES.has(originIata);
+        const destIsUS = destIata && US_AIRPORT_CODES.has(destIata);
+        const originIsCuba = originIata && CUBA_AIRPORT_CODES.has(originIata);
+        const destIsCuba = destIata && CUBA_AIRPORT_CODES.has(destIata);
+        const destIsNK = destIata && NORTH_KOREA_AIRPORT_CODES.has(destIata);
+        const warnings = [];
+        if ((originIsUS && destIsCuba) || (originIsCuba && destIsUS)) {
+          warnings.push({ key: 'cuba', text: travelWarningText('cuba') });
         }
+        if (destIsNK && passenger.passportIssuingCountry === 'US') {
+          warnings.push({ key: 'nk', text: travelWarningText('nk') });
+        }
+        if (destIsUS) {
+          // Estos tres SÍ dependen de la nacionalidad puntual del pasajero
+          // (a diferencia de cuba/nk arriba, que no cambian según quién
+          // viaja) — por eso van en el idioma de ESE país, no en el idioma
+          // en que esté navegando el sitio (ver travelWarningTextForNationality).
+          if (US_ENTRY_BAN_FULL.has(passenger.nationality)) {
+            warnings.push({ key: 'banFull', text: travelWarningTextForNationality('banFull', passenger.nationality) });
+          } else if (US_ENTRY_BAN_PARTIAL.has(passenger.nationality)) {
+            warnings.push({ key: 'banPartial', text: travelWarningTextForNationality('banPartial', passenger.nationality) });
+          } else if (passenger.nationality === 'VE') {
+            warnings.push({ key: 'venezuela', text: travelWarningTextForNationality('venezuela', passenger.nationality) });
+          }
+        }
+        return warnings;
       }
-      return warnings;
+      if (quote.category === 'cruise') {
+        // Un crucero no guarda código de puerto — se compara por nombre de
+        // ciudad (ver CRUISE_US_PORT_CITIES/CRUISE_CUBA_PORT_CITIES).
+        const originIsUS = cruisePortMatches(quote.origin, CRUISE_US_PORT_CITIES);
+        const destIsUS = cruisePortMatches(quote.destination, CRUISE_US_PORT_CITIES);
+        const originIsCuba = cruisePortMatches(quote.origin, CRUISE_CUBA_PORT_CITIES);
+        const destIsCuba = cruisePortMatches(quote.destination, CRUISE_CUBA_PORT_CITIES);
+        const warnings = [];
+        // A diferencia de un vuelo, acá no hay categoría OFAC que declarar
+        // — las navieras que operan bajo ley de EE. UU. tienen prohibido
+        // tocar puerto cubano, punto (investigado 2026-09-01).
+        if ((originIsUS && destIsCuba) || (originIsCuba && destIsUS)) {
+          warnings.push({ key: 'cubaCruiseBan', text: travelWarningText('cubaCruiseBan') });
+        }
+        // Un crucero de ida y vuelta sale y vuelve al MISMO puerto — por
+        // eso acá se chequea origen U destino (a diferencia de un vuelo,
+        // donde solo importa el destino porque ahí sí se entra a EE. UU.).
+        if (originIsUS || destIsUS) {
+          if (US_ENTRY_BAN_FULL.has(passenger.nationality)) {
+            warnings.push({ key: 'banFull', text: travelWarningTextForNationality('banFull', passenger.nationality) });
+          } else if (US_ENTRY_BAN_PARTIAL.has(passenger.nationality)) {
+            warnings.push({ key: 'banPartial', text: travelWarningTextForNationality('banPartial', passenger.nationality) });
+          } else if (passenger.nationality === 'VE') {
+            warnings.push({ key: 'venezuela', text: travelWarningTextForNationality('venezuela', passenger.nationality) });
+          }
+          // Aviso general (no hay campo de "residencia" en el formulario
+          // para dirigirlo solo a quien corresponde) — es política de cada
+          // naviera, no ley federal (ver investigación, 2026-09-01).
+          warnings.push({ key: 'greenCard', text: travelWarningText('greenCard') });
+        }
+        return warnings;
+      }
+      return [];
     }
 
     // A diferencia de getTravelWarningsForPassenger (por pasajero), esto es
