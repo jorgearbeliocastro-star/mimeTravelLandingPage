@@ -1588,6 +1588,8 @@
         const departureValue = departureInput && departureInput.value ? formatTime12h(departureInput.value) : null;
         const arrivalValue = arrivalInput && arrivalInput.value ? formatTime12h(arrivalInput.value) : null;
         const scheduleValue = departureValue && arrivalValue ? (departureValue + ' ... ' + arrivalValue) : null;
+        const airlineInput = row.querySelector('.pf-airline');
+        const airlineValue = airlineInput ? airlineInput.value.trim() || null : null;
 
         btn.disabled = true;
         // No deja tomar una cotización si hay otra más vieja esperando —
