@@ -240,6 +240,8 @@
         return;
       }
       agentId = userData.user.id;
+      const { data: profile } = await supabaseClient.from('profiles').select('full_name').eq('id', agentId).single();
+      agentName = profile?.full_name || userData.user.email || '';
       supabaseClient.auth.onAuthStateChange((_event, session) => {
         currentAccessToken = session?.access_token || null;
       });
