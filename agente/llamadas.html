@@ -380,7 +380,7 @@
           .select('status')
           .eq('id', callId)
           .maybeSingle();
-        if (data && data.status === 'ended') closeCallScreen();
+        if (data && data.status === 'ended') promptPostCallOrClose();
       }, 4000);
 
       call = startWebRTCCall({
