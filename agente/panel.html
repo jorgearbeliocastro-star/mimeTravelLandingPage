@@ -1294,7 +1294,7 @@
 
       thread.querySelector('.chat-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const input = thread.querySelector('input');
+        const input = thread.querySelector('input[type="text"]');
         const body = input.value.trim();
         if (!body) return;
         input.value = '';
@@ -1311,6 +1311,35 @@
         // nadie. El cliente ve el mensaje nuevo la próxima vez que el
         // panel de cotización sondea la conversación.
         await loadChatMessages(thread, quote.id);
+      });
+
+      // Foto por el chat — sube a Storage (bucket público solo de
+      // lectura, ver chat_photos_setup.sql) y manda el mensaje con
+      // attachment_url apuntando ahí. Sin texto, solo la foto.
+      const photoInput = thread.querySelector('.chat-photo-input');
+      photoInput.addEventListener('change', async () => {
+        const file = photoInput.files[0];
+        if (!file) return;
+        photoInput.disabled = true;
+        try {
+          const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+          const path = quote.id + '/' + crypto.randomUUID() + '.' + ext;
+          const { error: uploadError } = await supabaseClient.storage
+            .from('chat-photos')
+            .upload(path, file);
+          if (uploadError) throw uploadError;
+          const { data: urlData } = supabaseClient.storage.from('chat-photos').getPublicUrl(path);
+          const { error: insertError } = await supabaseClient
+            .from('quote_request_messages')
+            .insert({ quote_request_id: quote.id, sender: 'agent', sender_agent_id: agentId, body: '', attachment_url: urlData.publicUrl });
+          if (insertError) throw insertError;
+          await loadChatMessages(thread, quote.id);
+        } catch (err) {
+          alert('No se pudo mandar la foto: ' + (err && err.message ? err.message : err));
+        } finally {
+          photoInput.value = '';
+          photoInput.disabled = false;
+        }
       });
     }
 
