@@ -327,6 +327,41 @@
       });
     });
 
+    // Registro de llamadas — antes no había ningún lugar para ver el
+    // historial (solo se veían las que estaban sonando AHORA, en
+    // agente/llamadas.html). Últimas 30, más nueva primero.
+    const CALL_STATUS_LABEL = {
+      accepted: '✅ Contestada',
+      declined: '🚫 Rechazada',
+      ended: '☎️ Terminada',
+      missed: '⏳ Sin contestar',
+    };
+    async function loadCallsLog() {
+      const { data, error } = await supabaseClient
+        .from('call_requests')
+        .select('id, status, client_language, accepted_by, created_at, updated_at')
+        .order('created_at', { ascending: false })
+        .limit(30);
+      const list = document.getElementById('callsLogList');
+      if (error) {
+        list.innerHTML = '<div class="empty">No se pudo cargar el registro de llamadas.</div>';
+        return;
+      }
+      if (!data || !data.length) {
+        list.innerHTML = '<div class="empty">Todavía no hay llamadas.</div>';
+        return;
+      }
+      list.innerHTML = data.map((c) => {
+        const statusLabel = CALL_STATUS_LABEL[c.status] || (c.status || 'Sonando');
+        const agentName = c.accepted_by ? escapeHtml(agentNamesById[c.accepted_by] || 'Agente') : 'Nadie atendió';
+        const when = c.created_at ? new Date(c.created_at).toLocaleString('es', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+        return '<div class="q-card">' +
+          '<div class="q-top"><span class="q-route">' + statusLabel + '</span><span class="q-agent">' + agentName + '</span></div>' +
+          '<div class="q-meta">' + escapeHtml((c.client_language || '').toUpperCase()) + (when ? ' · ' + when : '') + '</div>' +
+          '</div>';
+      }).join('');
+    }
+
     function escapeHtml(str) {
       return String(str == null ? '' : str)
         .replace(/&/g, '&amp;')
