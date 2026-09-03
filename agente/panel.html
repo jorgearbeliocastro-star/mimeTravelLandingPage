@@ -1614,6 +1614,14 @@
           btn.disabled = false;
           return;
         }
+        // Aerolínea — no va como parámetro del RPC (ese vive en Supabase,
+        // no sé si acepta uno nuevo sin verlo) sino como un update directo
+        // aparte, mismo mecanismo ya probado que usa agent_viewing_at más
+        // abajo. No bloqueante: si falla, el precio ya se mandó igual,
+        // solo faltaría la aerolínea.
+        if (airlineValue) {
+          supabaseClient.from('quote_requests').update({ quoted_airline: airlineValue }).eq('id', quote.id).then(() => {});
+        }
         cardFormOpenId = null;
         loadQuotes();
       });
