@@ -515,15 +515,57 @@
     });
     document.getElementById('closeSnapshotBtn').addEventListener('click', closeSnapshotView);
 
-    document.getElementById('hangupBtn').addEventListener('click', async function () {
-      this.disabled = true;
+    document.getElementById('hangupBtn').addEventListener('click', function () {
+      document.getElementById('postCallOverlay').style.display = 'flex';
+    });
+
+    // Termina la llamada de verdad — se llega acá recién después de
+    // "Colgar sin venta" o "Enviar y colgar", nunca directo desde el
+    // botón ⏹ (ver arriba).
+    async function finishHangup() {
+      const btn = document.getElementById('hangupBtn');
+      btn.disabled = true;
       try {
         await supabaseClient.from('call_requests').update({ status: 'ended', updated_at: new Date().toISOString() }).eq('id', activeCallId);
         if (call) await call.hangup();
       } finally {
         closeCallScreen();
+        btn.disabled = false;
+      }
+    }
+
+    document.getElementById('postCallSkipBtn').addEventListener('click', function () {
+      document.getElementById('postCallOverlay').style.display = 'none';
+      document.getElementById('postCallAirline').value = '';
+      document.getElementById('postCallReference').value = '';
+      finishHangup();
+    });
+
+    document.getElementById('postCallSendBtn').addEventListener('click', async function () {
+      const airline = document.getElementById('postCallAirline').value.trim();
+      const reference = document.getElementById('postCallReference').value.trim();
+      if (!airline || !reference) {
+        alert('Completá aerolínea y número de confirmación, o tocá "Colgar sin venta".');
+        return;
+      }
+      this.disabled = true;
+      try {
+        await sendCallSaleToFormSubmit({
+          _subject: 'Tiket vendido — Mime Travel (llamada)',
+          agente: agentName,
+          aerolinea: airline,
+          referencia: reference,
+          llamada_id: activeCallId,
+        });
+      } catch (e) {
+        // no bloqueante — la venta se cerró igual, solo no salió el aviso
+      } finally {
         this.disabled = false;
       }
+      document.getElementById('postCallOverlay').style.display = 'none';
+      document.getElementById('postCallAirline').value = '';
+      document.getElementById('postCallReference').value = '';
+      finishHangup();
     });
 
     function closeCallScreen() {
