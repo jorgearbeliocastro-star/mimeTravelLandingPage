@@ -515,9 +515,24 @@
     });
     document.getElementById('closeSnapshotBtn').addEventListener('click', closeSnapshotView);
 
+    // true = fui YO el que tocó ⏹ con la llamada todavía viva (hace falta
+    // colgar de verdad: avisar por el canal + cortar WebRTC). false = la
+    // llamada ya se cortó sola (el cliente colgó, o se cayó la conexión)
+    // — acá no hay nada que colgar, solo cerrar la pantalla. En los dos
+    // casos se le pregunta al agente por la venta antes de cerrar, así no
+    // se pierde el aviso solo porque el cliente cortó primero.
+    let pendingRealHangup = false;
+
     document.getElementById('hangupBtn').addEventListener('click', function () {
+      pendingRealHangup = true;
       document.getElementById('postCallOverlay').style.display = 'flex';
     });
+
+    function promptPostCallOrClose() {
+      if (document.getElementById('postCallOverlay').style.display === 'flex') return; // ya está abierto
+      pendingRealHangup = false;
+      document.getElementById('postCallOverlay').style.display = 'flex';
+    }
 
     // Termina la llamada de verdad — se llega acá recién después de
     // "Colgar sin venta" o "Enviar y colgar", nunca directo desde el
@@ -526,8 +541,10 @@
       const btn = document.getElementById('hangupBtn');
       btn.disabled = true;
       try {
-        await supabaseClient.from('call_requests').update({ status: 'ended', updated_at: new Date().toISOString() }).eq('id', activeCallId);
-        if (call) await call.hangup();
+        if (pendingRealHangup) {
+          await supabaseClient.from('call_requests').update({ status: 'ended', updated_at: new Date().toISOString() }).eq('id', activeCallId);
+          if (call) await call.hangup();
+        }
       } finally {
         closeCallScreen();
         btn.disabled = false;
