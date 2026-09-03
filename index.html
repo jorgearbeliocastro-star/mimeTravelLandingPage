@@ -8427,7 +8427,22 @@
       messages.forEach((m) => {
         const bubble = document.createElement('div');
         bubble.className = 'quote-chat-bubble ' + (m.sender === 'client' ? 'quote-chat-bubble-client' : 'quote-chat-bubble-agent');
-        bubble.textContent = m.body;
+        if (m.attachment_url) {
+          const img = document.createElement('img');
+          img.src = m.attachment_url;
+          img.alt = 'Foto';
+          img.style.cssText = 'max-width:200px; max-height:200px; border-radius:8px; display:block; cursor:pointer;';
+          img.addEventListener('click', () => window.open(m.attachment_url, '_blank'));
+          bubble.appendChild(img);
+          if (m.body) {
+            const p = document.createElement('div');
+            p.style.marginTop = '4px';
+            p.textContent = m.body;
+            bubble.appendChild(p);
+          }
+        } else {
+          bubble.textContent = m.body;
+        }
         quoteChatMessages.appendChild(bubble);
       });
       if (wasNearBottom) quoteChatMessages.scrollTop = quoteChatMessages.scrollHeight;
