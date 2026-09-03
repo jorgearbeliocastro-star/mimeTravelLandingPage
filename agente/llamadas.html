@@ -427,7 +427,7 @@
             supabaseClient.from('call_requests').update({ status: 'ended', updated_at: new Date().toISOString() }).eq('id', callId).then(() => {});
             setTimeout(closeCallScreen, 2000);
           }
-          if (state === 'ended') closeCallScreen();
+          if (state === 'ended') promptPostCallOrClose();
         },
       });
     }
