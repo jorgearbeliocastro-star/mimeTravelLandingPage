@@ -168,6 +168,22 @@
     </div>
   </div>
 
+  <!-- Antes de colgar de verdad: sin esto, una llamada nunca dejaba
+       rastro de si terminó en venta o no (a diferencia de una cotización,
+       que sí tiene ese flujo). Aerolínea + referencia son opcionales — si
+       no hubo venta, "Colgar sin venta" cuelga directo, sin mandar nada. -->
+  <div id="postCallOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:50; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#fff; border-radius:14px; padding:20px; max-width:340px; width:100%; font-family:inherit;">
+      <h3 style="margin:0 0 12px; font-size:16px;">¿Se cerró una venta en esta llamada?</h3>
+      <input type="text" id="postCallAirline" placeholder="Aerolínea" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:8px; border:1.5px solid rgba(27,58,92,0.15); margin-bottom:8px; font-size:14px;">
+      <input type="text" id="postCallReference" placeholder="N.º de confirmación de la agencia" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:8px; border:1.5px solid rgba(27,58,92,0.15); margin-bottom:14px; font-size:14px;">
+      <div style="display:flex; gap:8px;">
+        <button type="button" id="postCallSkipBtn" style="flex:1; padding:10px; border-radius:8px; border:1.5px solid rgba(27,58,92,0.15); background:#fff; font-weight:700; cursor:pointer;">Colgar sin venta</button>
+        <button type="button" id="postCallSendBtn" style="flex:1; padding:10px; border-radius:8px; border:none; background:#FF7A59; color:#fff; font-weight:700; cursor:pointer;">Enviar y colgar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Ver documento/tarjeta: dibuja el cuadro actual del video remoto en un
        canvas para poder acercarlo y leerlo, nada se sube ni se guarda. -->
   <div class="snapshot-overlay" id="snapshotOverlay">
