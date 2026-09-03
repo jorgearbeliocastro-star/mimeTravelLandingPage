@@ -1361,7 +1361,21 @@
       data.forEach((m) => {
         const b = document.createElement('div');
         b.className = 'chat-bubble ' + (m.sender === 'client' ? 'client' : 'agent');
-        b.textContent = m.body;
+        if (m.attachment_url) {
+          const img = document.createElement('img');
+          img.src = m.attachment_url;
+          img.alt = 'Foto';
+          img.style.cssText = 'max-width:180px; max-height:180px; border-radius:8px; display:block;';
+          b.appendChild(img);
+          if (m.body) {
+            const p = document.createElement('div');
+            p.style.marginTop = '4px';
+            p.textContent = m.body;
+            b.appendChild(p);
+          }
+        } else {
+          b.textContent = m.body;
+        }
         messagesEl.appendChild(b);
       });
       messagesEl.scrollTop = messagesEl.scrollHeight;
