@@ -187,8 +187,21 @@
     const SUPABASE_URL = 'https://ihrfaprvzdafclquuhlh.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_lcWymV25nHd2_iOMjRwD4A_XOXvOdPK';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Mismo mecanismo que ya usa panel.html para el correo de "Tiket
+    // vendido" — acá hacía falta aparte porque las llamadas no pasan por
+    // ninguna cotización, así que no había NINGÚN rastro de si el cliente
+    // terminó comprando o no.
+    const FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ajax/contacto@mimetravel.com';
+    function sendCallSaleToFormSubmit(data) {
+      return fetch(FORMSUBMIT_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(data),
+      });
+    }
 
     let agentId = null;
+    let agentName = '';
     let call = null;
     let pollTimer = null;
     let endedPoll = null;
