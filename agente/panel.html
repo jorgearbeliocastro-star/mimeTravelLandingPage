@@ -1403,7 +1403,9 @@
       const row = document.createElement('div');
       row.className = 'price-form';
       const stopsBlock = quote.category === 'flight'
-        ? '<label class="price-form-label">¿El vuelo es directo o con escala(s)?</label>' +
+        ? '<label class="price-form-label">Aerolínea</label>' +
+          '<input type="text" class="pf-airline" placeholder="Ej. American Airlines">' +
+          '<label class="price-form-label">¿El vuelo es directo o con escala(s)?</label>' +
           '<div class="price-form-stops-choice">' +
           '<label><input type="radio" name="pf-stops-choice" class="pf-stops-direct" checked> Directo</label>' +
           '<label><input type="radio" name="pf-stops-choice" class="pf-stops-has"> Con escala(s)</label>' +
