@@ -8637,6 +8637,43 @@
     // Si el visitante ya tenía una cotización o consulta en curso en este
     // navegador (recargó la página, volvió más tarde), se ofrece un botón
     // para retomarla en vez de forzar el panel abierto de entrada.
+    // Sondeo global (en toda la web, no solo con la cotización abierta) de
+    // llamadas ENTRANTES iniciadas por un agente (ver callClient() en
+    // agente/panel.html) — el push (parte de arriba, subscribeClientPush)
+    // llega igual aunque el cliente no esté en el sitio, pero esto cubre
+    // el caso de que SÍ esté navegando y todavía no haya dado permiso de
+    // notificaciones. Sumado 2026-09-03.
+    // OJO: depende de que la política de RLS deje leer call_requests
+    // filtrado por client_token desde el cliente (anon) — si no está
+    // permitido, esto simplemente nunca encuentra nada, sin romper nada
+    // más del sitio (el push sigue funcionando igual por su cuenta).
+    (function pollIncomingAgentCalls() {
+      const clientToken = getOrCreateWebClientToken();
+      let redirected = false;
+      setInterval(async () => {
+        if (redirected || document.hidden) return;
+        try {
+          const { data, error } = await laExpancion
+            .from('call_requests')
+            .select('id, created_at')
+            .eq('client_token', clientToken)
+            .eq('initiated_by', 'agent')
+            .is('status', null)
+            .order('created_at', { ascending: false })
+            .limit(1);
+          if (error || !data || !data.length) return;
+          // Solo si es reciente (últimos 2 minutos) — evita redirigir por
+          // una llamada vieja que quedó sin resolver hace rato.
+          const ageMs = Date.now() - new Date(data[0].created_at).getTime();
+          if (ageMs > 2 * 60 * 1000) return;
+          redirected = true;
+          window.location.href = 'llamar.html?incoming=' + data[0].id;
+        } catch (e) {
+          // no bloqueante
+        }
+      }, 8000);
+    })();
+
     (function restoreStoredQuote() {
       const storedId = localStorage.getItem(QUOTE_ID_STORAGE_KEY);
       if (!storedId) return;
