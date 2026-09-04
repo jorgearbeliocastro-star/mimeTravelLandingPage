@@ -1703,6 +1703,33 @@
       });
     }
 
+    // Llamar al dueño — llamada interna, sumada 2026-09-04. get_super_admin_id()
+    // ya existe en la base (la vimos en la auditoría), evita tener que
+    // hardcodear el id del dueño acá.
+    document.getElementById('callOwnerBtn').addEventListener('click', async function () {
+      this.disabled = true;
+      try {
+        const { data: ownerId, error: ownerError } = await supabaseClient.rpc('get_super_admin_id');
+        if (ownerError || !ownerId) {
+          alert('No se pudo encontrar al dueño: ' + (ownerError ? ownerError.message : 'sin configurar'));
+          return;
+        }
+        const callId = crypto.randomUUID();
+        const { error } = await supabaseClient.from('internal_call_requests').insert({
+          id: callId,
+          caller_id: agentId,
+          callee_id: ownerId,
+        });
+        if (error) {
+          alert('No se pudo iniciar la llamada: ' + error.message);
+          return;
+        }
+        window.location.href = 'llamadas.html?internalOutgoing=' + callId;
+      } finally {
+        this.disabled = false;
+      }
+    });
+
     // Llamar AL cliente — sumado 2026-09-03. Crea la fila de call_requests
     // como YA hacía llamar.html del lado del cliente, pero acá el agente
     // es "initiated_by=agent" y ya queda asignado (accepted_by=agentId)
