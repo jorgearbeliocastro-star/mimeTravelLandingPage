@@ -470,24 +470,30 @@
 
     document.getElementById('hangupBtn').addEventListener('click', function () {
       pendingRealHangup = true;
+      // Una llamada interna (dueño <-> agente) nunca termina en venta —
+      // se salta el formulario y cuelga directo.
+      if (activeCallIsInternal) { finishHangup(); return; }
       document.getElementById('postCallOverlay').style.display = 'flex';
     });
 
     function promptPostCallOrClose() {
+      if (activeCallIsInternal) { closeCallScreen(); return; }
       if (document.getElementById('postCallOverlay').style.display === 'flex') return; // ya está abierto
       pendingRealHangup = false;
       document.getElementById('postCallOverlay').style.display = 'flex';
     }
 
     // Termina la llamada de verdad — se llega acá recién después de
-    // "Colgar sin venta" o "Enviar y colgar", nunca directo desde el
-    // botón ⏹ (ver arriba).
+    // "Colgar sin venta" o "Enviar y colgar" (o directo, si es interna —
+    // ver arriba), nunca directo desde el botón ⏹ en una llamada con
+    // cliente.
     async function finishHangup() {
       const btn = document.getElementById('hangupBtn');
       btn.disabled = true;
       try {
         if (pendingRealHangup) {
-          await supabaseClient.from('call_requests').update({ status: 'ended', updated_at: new Date().toISOString() }).eq('id', activeCallId);
+          const tableName = activeCallIsInternal ? 'internal_call_requests' : 'call_requests';
+          await supabaseClient.from(tableName).update({ status: 'ended', updated_at: new Date().toISOString() }).eq('id', activeCallId);
           if (call) await call.hangup();
         }
       } finally {
