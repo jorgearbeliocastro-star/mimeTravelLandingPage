@@ -140,6 +140,10 @@
     const SUPABASE_URL = 'https://ihrfaprvzdafclquuhlh.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_lcWymV25nHd2_iOMjRwD4A_XOXvOdPK';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Mismo secret/función que ya usa panel.html para avisar por push —
+    // hace falta acá para "Volver a llamar" (ver callBackClient).
+    const WEB_PUSH_WEBHOOK_SECRET = '3a61e1f14f2ff3350889bd67cf2250bebde907e17b6d733e';
+    const WEB_PUSH_FUNCTIONS_URL = SUPABASE_URL + '/functions/v1/send-web-push';
     // Mismo mecanismo que ya usa panel.html para el correo de "Tiket
     // vendido" — acá hacía falta aparte porque las llamadas no pasan por
     // ninguna cotización, así que no había NINGÚN rastro de si el cliente
