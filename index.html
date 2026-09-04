@@ -8658,7 +8658,9 @@
             .select('id, created_at')
             .eq('client_token', clientToken)
             .eq('initiated_by', 'agent')
-            .is('status', null)
+            // 'accepted' (no null) — ver callClient()/callBackClient() del
+            // lado del agente, que ahora la crea así a propósito.
+            .eq('status', 'accepted')
             .order('created_at', { ascending: false })
             .limit(1);
           if (error || !data || !data.length) return;
