@@ -1373,6 +1373,7 @@
       data.forEach((m) => {
         const b = document.createElement('div');
         b.className = 'chat-bubble ' + (m.sender === 'client' ? 'client' : 'agent');
+        b.style.position = 'relative';
         if (m.attachment_url) {
           const img = document.createElement('img');
           img.src = m.attachment_url;
@@ -1387,6 +1388,26 @@
           }
         } else {
           b.textContent = m.body;
+        }
+        // Solo se puede borrar lo que mandó UNO MISMO (agente) — para
+        // corregir errores de tipeo/foto equivocada. Los del cliente se
+        // quedan como están, no es algo que el agente deba poder tocar.
+        if (m.sender !== 'client') {
+          const del = document.createElement('button');
+          del.type = 'button';
+          del.title = 'Borrar este mensaje';
+          del.textContent = '✕';
+          del.style.cssText = 'position:absolute; top:-8px; left:-8px; width:20px; height:20px; border-radius:50%; border:none; background:rgba(0,0,0,0.35); color:#fff; font-size:11px; line-height:1; cursor:pointer;';
+          del.addEventListener('click', async () => {
+            if (!confirm('¿Borrar este mensaje?')) return;
+            const { error: delError } = await supabaseClient.from('quote_request_messages').delete().eq('id', m.id);
+            if (delError) {
+              alert('No se pudo borrar: ' + delError.message);
+              return;
+            }
+            await loadChatMessages(thread, quoteId);
+          });
+          b.appendChild(del);
         }
         messagesEl.appendChild(b);
       });
