@@ -298,7 +298,7 @@
       openCallScreen(callId, clientToken);
     }
 
-    function openCallScreen(callId) {
+    function openCallScreen(callId, isCaller) {
       activeCallId = callId;
       document.getElementById('callScreen').classList.add('active');
       const statusBar = document.getElementById('callStatusBar');
@@ -306,9 +306,12 @@
       const videoBtn = document.getElementById('videoBtn');
       muteBtn.disabled = true;
       videoBtn.disabled = true;
+      if (isCaller) statusBar.textContent = 'Llamando…';
 
-      // Respaldo: si el cliente cuelga y el aviso en vivo se pierde, este
-      // sondeo agarra el cambio de estado directo de la base.
+      // Respaldo: si el otro lado cuelga/rechaza y el aviso en vivo se
+      // pierde, este sondeo agarra el cambio de estado directo de la
+      // base. "declined" solo puede pasar en una llamada saliente (el
+      // cliente la rechazó) — ahí no tiene sentido preguntar por venta.
       endedPoll = setInterval(async () => {
         const { data } = await supabaseClient
           .from('call_requests')
@@ -316,12 +319,13 @@
           .eq('id', callId)
           .maybeSingle();
         if (data && data.status === 'ended') promptPostCallOrClose();
+        if (data && data.status === 'declined') closeCallScreen();
       }, 4000);
 
       call = startWebRTCCall({
         supabaseClient,
         channelName: 'call:' + callId,
-        isCaller: false,
+        isCaller: !!isCaller,
         localVideoEl: document.getElementById('localVideo'),
         remoteVideoEl: document.getElementById('remoteVideo'),
         onState(state) {
