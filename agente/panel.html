@@ -644,6 +644,8 @@
         document.getElementById('duenoNavCard').hidden = false;
       } else {
         roleBadge.textContent = 'Agente';
+        // Llamar al dueño — solo tiene sentido para quien NO es el dueño.
+        document.getElementById('callOwnerBtn').hidden = false;
       }
       // Ahora que la app queda de lado, el "latido" de presencia (para
       // saber si el agente está conectado) tiene que salir de acá — antes
