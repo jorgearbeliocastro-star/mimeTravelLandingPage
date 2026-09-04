@@ -462,7 +462,7 @@
       call = startWebRTCCall({
         supabaseClient,
         channelName: 'call:' + window.__callId,
-        isCaller: true,
+        isCaller: isCaller,
         video: wantsVideo,
         localVideoEl: document.getElementById('localVideo'),
         remoteVideoEl: document.getElementById('remoteVideo'),
