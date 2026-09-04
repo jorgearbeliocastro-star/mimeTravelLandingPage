@@ -444,10 +444,6 @@
       const callScreen = document.getElementById('callScreen');
       if (!callScreen.classList.contains('active')) return; // ya se cerró
       callScreen.classList.remove('active');
-      awaitingDocType = null;
-      scanStatus.classList.remove('active');
-      closeSnapshotView();
-      clearAllSnapshots();
       // Antes esto solo escondía la pantalla — la conexión de WebRTC
       // seguía viva de fondo (audio y todo) si closeCallScreen se
       // disparaba desde el sondeo de respaldo en vez del botón de
