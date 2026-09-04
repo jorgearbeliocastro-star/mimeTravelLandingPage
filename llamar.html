@@ -565,7 +565,8 @@
       statusBar.style.display = 'block';
       document.getElementById('videoArea').style.display = 'block';
       controls.style.display = 'flex';
-      main();
+      if (incomingCallId) joinIncomingCall();
+      else main();
     }
     document.getElementById('choiceVideoBtn').addEventListener('click', () => startAfterChoice(true));
     document.getElementById('choiceAudioBtn').addEventListener('click', () => startAfterChoice(false));
