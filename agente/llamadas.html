@@ -265,6 +265,64 @@
       else stopRingtone();
     }
 
+    // "Volver a llamar" — sumado 2026-09-03, para cuando el cliente llamó
+    // primero (por fuera de una cotización, así que no hay tarjeta con el
+    // botón "📞 Llamar" para volver a encontrarlo). Cualquier agente ve
+    // esto, no solo el dueño — a diferencia del registro completo que
+    // solo tiene dueno.html.
+    async function loadRecentCalls() {
+      const { data, error } = await supabaseClient
+        .from('call_requests')
+        .select('id, client_token, client_language, status, initiated_by, created_at')
+        .order('created_at', { ascending: false })
+        .limit(10);
+      const list = document.getElementById('recentCallsList');
+      if (error || !data || !data.length) {
+        list.innerHTML = '<div class="empty">Sin llamadas recientes.</div>';
+        return;
+      }
+      list.innerHTML = '';
+      data.forEach((c) => {
+        const card = document.createElement('div');
+        card.className = 'call-card';
+        const when = c.created_at ? new Date(c.created_at).toLocaleString('es', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+        const dirLabel = c.initiated_by === 'agent' ? 'Llamada tuya' : 'Cliente llamó';
+        card.innerHTML =
+          '<div class="info">' + dirLabel + ' · ' + (c.client_language || '').toUpperCase() + '<br>' +
+          '<span style="font-weight:400; font-size:12px; color:rgba(26,26,26,0.6);">' + when + '</span></div>' +
+          '<div class="call-actions"><button class="btn btn-accept">📞 Volver a llamar</button></div>';
+        card.querySelector('.btn-accept').addEventListener('click', () => callBackClient(c.client_token));
+        list.appendChild(card);
+      });
+    }
+
+    async function callBackClient(clientToken) {
+      if (activeCallId) { alert('Ya tenés una llamada en curso.'); return; }
+      const callId = crypto.randomUUID();
+      const { error } = await supabaseClient.from('call_requests').insert({
+        id: callId,
+        client_token: clientToken,
+        initiated_by: 'agent',
+        accepted_by: agentId,
+      });
+      if (error) {
+        alert('No se pudo iniciar la llamada: ' + error.message);
+        return;
+      }
+      fetch(WEB_PUSH_FUNCTIONS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': WEB_PUSH_WEBHOOK_SECRET },
+        body: JSON.stringify({
+          clientToken: clientToken,
+          title: 'Te está llamando un agente',
+          body: 'Tocá para atender la videollamada.',
+          url: '/llamar.html?incoming=' + callId,
+        }),
+      }).catch(() => {});
+      clearInterval(pollTimer);
+      openCallScreen(callId, true);
+    }
+
     function renderList(calls) {
       const list = document.getElementById('list');
       const emptyMsg = document.getElementById('emptyMsg');
