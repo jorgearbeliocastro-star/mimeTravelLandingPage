@@ -265,10 +265,17 @@
         const name = escapeHtml(p.full_name || '(sin nombre)');
         const isOwner = p.role === 'super_admin';
         const connected = isConnectedNow(p.last_active_at);
+        // Sin botón de llamar para uno mismo (la fila del dueño, viéndola
+        // el propio dueño) — no tiene sentido llamarse a sí mismo.
+        const callBtn = isOwner ? '' : '<button type="button" class="role-tag" data-call-agent="' + p.id + '" style="border:none; cursor:pointer;">📞</button>';
         return '<div class="agent-row"><span>' + name + '</span><span style="display:flex; gap:6px; align-items:center;">' +
           '<span class="role-tag ' + (connected ? 'conn-yes' : 'conn-no') + '">' + (connected ? '🟢 Conectado' : '⚪ Desconectado') + '</span>' +
-          '<span class="role-tag' + (isOwner ? ' owner' : '') + '">' + (isOwner ? 'Dueño' : 'Agente') + '</span></span></div>';
+          '<span class="role-tag' + (isOwner ? ' owner' : '') + '">' + (isOwner ? 'Dueño' : 'Agente') + '</span>' +
+          callBtn + '</span></div>';
       }).join('');
+      list.querySelectorAll('[data-call-agent]').forEach((btn) => {
+        btn.addEventListener('click', () => callAgent(btn.dataset.callAgent));
+      });
     }
     // Refresca el estado de conectado/desconectado sin recargar todo el
     // equipo — el latido de cada agente llega cada 45s (ver presence.js),
