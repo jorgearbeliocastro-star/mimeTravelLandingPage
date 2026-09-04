@@ -435,34 +435,6 @@
       stopHoldMusic();
     }
 
-    // Escaneo de documento (pasaporte/tarjeta), igual que el escaneo de
-    // tarjeta de cualquier app de pago: mientras la cámara trasera está
-    // encendida, se mide en vivo la zona de la imagen que cae DENTRO del
-    // recuadro guía — no el cuadro entero — y recién cuando esa zona se
-    // queda quieta Y tiene contenido (no es pared/mesa vacía) se dispara
-    // sola la captura. Nada de esto se guarda: la foto capturada se
-    // manda directo al agente por el canal de datos de la llamada
-    // (peer-to-peer, no pasa por Supabase) y acá no queda ni el recorte
-    // ni nada más.
-    let docScanRunning = false;
-    let docScanRAF = null;
-    let docScanTimeout = null;
-    // Proporción real de cada documento — un pasaporte NO es una tarjeta
-    // más chica, tiene otra forma (más cuadrado), así que el recuadro
-    // guía tiene que coincidir con la forma correcta para que el cliente
-    // encuadre bien y no se corte texto importante.
-    const DOC_ASPECT = { card: 1.586, passport: 1.42 };
-    let currentDocAspect = DOC_ASPECT.card;
-    let currentRequestedDocType = null;
-
-    function stopDocScan() {
-      docScanRunning = false;
-      if (docScanRAF) cancelAnimationFrame(docScanRAF);
-      docScanRAF = null;
-      if (docScanTimeout) clearTimeout(docScanTimeout);
-      docScanTimeout = null;
-    }
-
     // Traduce dónde está el recuadro guía EN PANTALLA (CSS) a qué
     // rectángulo de la imagen real de la cámara le corresponde — hace
     // falta porque el video se muestra con object-fit:cover, que recorta
