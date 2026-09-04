@@ -1263,6 +1263,15 @@
         chatBtn.textContent = hasPendingChat ? '💬 Chat (' + pendingCount + ')' : '💬 Chat';
         chatBtn.addEventListener('click', () => toggleChat(card, q));
         card.appendChild(chatBtn);
+        // Llamar AL cliente — antes solo funcionaba al revés (el cliente
+        // llamaba). Necesita client_token, que toda cotización tiene.
+        if (q.client_token) {
+          const callBtn = document.createElement('button');
+          callBtn.className = 'chat-toggle-btn';
+          callBtn.textContent = '📞 Llamar';
+          callBtn.addEventListener('click', () => callClient(q));
+          card.appendChild(callBtn);
+        }
         // Reinserta el hilo que se sacó arriba — mismos mensajes, mismo
         // scroll, mismo texto sin mandar, no un chat "nuevo" desde cero.
         if (preservedThread && openChatQuoteId === q.id) {
