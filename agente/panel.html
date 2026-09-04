@@ -1650,6 +1650,22 @@
         supabaseClient.from('quote_requests').update({
           price_expires_at: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(),
         }).eq('id', quote.id).then(() => {});
+        // Aviso push al CLIENTE — sumado 2026-09-03. No bloqueante: si
+        // falla, el precio ya quedó guardado igual, el cliente se entera
+        // igual la próxima vez que abra la página (o por el sonido, si la
+        // tiene abierta).
+        if (quote.client_token) {
+          fetch(WEB_PUSH_FUNCTIONS_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': WEB_PUSH_WEBHOOK_SECRET },
+            body: JSON.stringify({
+              clientToken: quote.client_token,
+              title: '¡Ya tenés precio!',
+              body: fmtRoute(quote),
+              url: '/',
+            }),
+          }).catch(() => {});
+        }
         cardFormOpenId = null;
         loadQuotes();
       });
