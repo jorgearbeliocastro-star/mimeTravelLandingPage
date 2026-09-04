@@ -200,6 +200,16 @@
       currentAccessToken = sessionData?.session?.access_token || null;
       startPresenceHeartbeat(supabaseClient);
       startAvailabilityAutoLogout(supabaseClient);
+      // Llamada SALIENTE (el agente llamando al cliente, ver
+      // callClient() en panel.html) — se salta la lista de "atender/
+      // rechazar" de siempre y arranca la pantalla de llamada directo,
+      // como quien llama (isCaller=true), esperando a que el cliente
+      // se sume del otro lado.
+      const outgoingCallId = new URLSearchParams(location.search).get('outgoing');
+      if (outgoingCallId) {
+        openCallScreen(outgoingCallId, true);
+        return;
+      }
       loadRingingCalls();
       pollTimer = setInterval(loadRingingCalls, 3000);
     })();
