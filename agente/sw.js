@@ -23,6 +23,11 @@ self.addEventListener('push', (event) => {
     badge: '../icon-192.png',
     data: { url: data.url || '/agente/panel.html' },
     requireInteraction: true,
+    // Ayuda a notarla aunque el sonido esté apagado a nivel del canal de
+    // notificación de Android (eso no se puede forzar desde acá, es
+    // config del teléfono) — el sonido en sí lo maneja el sistema, no
+    // esta opción.
+    vibrate: [200, 100, 200],
   };
   event.waitUntil(
     Promise.all([
