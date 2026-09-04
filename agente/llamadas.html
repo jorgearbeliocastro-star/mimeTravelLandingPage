@@ -380,8 +380,11 @@
       openCallScreen(callId, false);
     }
 
-    function openCallScreen(callId, isCaller) {
+    function openCallScreen(callId, isCaller, isInternal) {
       activeCallId = callId;
+      activeCallIsInternal = !!isInternal;
+      const tableName = activeCallIsInternal ? 'internal_call_requests' : 'call_requests';
+      const channelPrefix = activeCallIsInternal ? 'internal-call:' : 'call:';
       document.getElementById('callScreen').classList.add('active');
       const statusBar = document.getElementById('callStatusBar');
       const muteBtn = document.getElementById('muteBtn');
@@ -393,10 +396,11 @@
       // Respaldo: si el otro lado cuelga/rechaza y el aviso en vivo se
       // pierde, este sondeo agarra el cambio de estado directo de la
       // base. "declined" solo puede pasar en una llamada saliente (el
-      // cliente la rechazó) — ahí no tiene sentido preguntar por venta.
+      // cliente/agente la rechazó) — ahí no tiene sentido preguntar por
+      // venta (y en una llamada interna nunca corresponde preguntar).
       endedPoll = setInterval(async () => {
         const { data } = await supabaseClient
-          .from('call_requests')
+          .from(tableName)
           .select('status')
           .eq('id', callId)
           .maybeSingle();
@@ -406,7 +410,7 @@
 
       call = startWebRTCCall({
         supabaseClient,
-        channelName: 'call:' + callId,
+        channelName: channelPrefix + callId,
         isCaller: !!isCaller,
         localVideoEl: document.getElementById('localVideo'),
         remoteVideoEl: document.getElementById('remoteVideo'),
