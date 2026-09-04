@@ -1643,6 +1643,13 @@
         if (airlineValue) {
           supabaseClient.from('quote_requests').update({ quoted_airline: airlineValue }).eq('id', quote.id).then(() => {});
         }
+        // El RPC pone el precio con 1 hora de vencimiento (hardcodeado ahí
+        // adentro, no lo veo) — se pisa acá a 4 horas, mismo mecanismo de
+        // arriba. No bloqueante: si falla, la cotización queda igual con
+        // la 1 hora original del RPC, no se pierde nada más.
+        supabaseClient.from('quote_requests').update({
+          price_expires_at: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(),
+        }).eq('id', quote.id).then(() => {});
         cardFormOpenId = null;
         loadQuotes();
       });
