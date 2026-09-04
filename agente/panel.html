@@ -1708,6 +1708,12 @@
         client_token: quote.client_token,
         initiated_by: 'agent',
         accepted_by: agentId,
+        // Sin esto queda en 'ringing' (el default) — y get_ringing_calls_
+        // for_agent no filtra por accepted_by, así que le aparecería a
+        // CUALQUIER OTRO agente como si fuera una llamada entrante real.
+        // 'accepted' es correcto acá: quien llama ya "atendió" su propia
+        // llamada saliente desde el vamos.
+        status: 'accepted',
       });
       if (error) {
         alert('No se pudo iniciar la llamada: ' + error.message);
