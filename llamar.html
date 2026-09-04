@@ -562,7 +562,6 @@
             if (ended) return;
             ended = true;
             stopWaitingAudio();
-            stopDocScan();
             supabaseClient.rpc('client_end_call', { p_token: getClientToken(), p_id: window.__callId }).catch(() => {});
             statusBar.textContent = 'No se pudo conectar';
             showFallback();
