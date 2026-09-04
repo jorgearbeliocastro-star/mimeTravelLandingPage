@@ -295,7 +295,7 @@
         pollTimer = setInterval(loadRingingCalls, 3000);
         return;
       }
-      openCallScreen(callId, clientToken);
+      openCallScreen(callId, false);
     }
 
     function openCallScreen(callId, isCaller) {
