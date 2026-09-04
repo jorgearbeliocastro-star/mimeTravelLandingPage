@@ -183,6 +183,44 @@
     let call = null;
     let ended = false;
     let connectedOnce = false;
+    // Llamada ENTRANTE (el agente llamando a este cliente, ver
+    // callClient() en agente/panel.html) — llega por ?incoming=<id> en la
+    // URL, sea porque tocó la notificación push o porque index.html lo
+    // detectó por sondeo y lo mandó acá. Sumado 2026-09-03.
+    const incomingCallId = new URLSearchParams(location.search).get('incoming');
+    if (incomingCallId) {
+      document.querySelector('#choiceScreen p').textContent = 'Un agente te está llamando — ¿cómo preferís atender?';
+      const declineBtn = document.createElement('button');
+      declineBtn.type = 'button';
+      declineBtn.className = 'choice-btn';
+      declineBtn.style.background = 'rgba(255,255,255,0.08)';
+      declineBtn.textContent = '❌ No atender ahora';
+      declineBtn.addEventListener('click', async () => {
+        try {
+          await supabaseClient.from('call_requests').update({ status: 'declined', updated_at: new Date().toISOString() }).eq('id', incomingCallId);
+        } catch (e) {}
+        window.location.href = 'index.html';
+      });
+      document.getElementById('choiceScreen').appendChild(declineBtn);
+    }
+
+    // Se une a una llamada que YA EXISTE (la creó el agente) en vez de
+    // crear una nueva — por eso no hace el insert que hace main(), solo
+    // marca "accepted" y arranca WebRTC del lado callee (isCaller=false).
+    async function joinIncomingCall() {
+      window.__callId = incomingCallId;
+      const { error } = await supabaseClient
+        .from('call_requests')
+        .update({ status: 'accepted', updated_at: new Date().toISOString() })
+        .eq('id', incomingCallId);
+      if (error) {
+        statusBar.textContent = 'No se pudo conectar la llamada.';
+        showFallback();
+        return;
+      }
+      statusBar.textContent = 'Conectando…';
+      startCall(false);
+    }
 
     function showFallback() {
       controls.style.display = 'none';
