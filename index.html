@@ -4593,6 +4593,44 @@
       return token;
     }
 
+    function urlBase64ToUint8Array(base64String) {
+      const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+      const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+      const rawData = atob(base64);
+      return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
+    }
+
+    // Notificaciones push para el cliente — sumado 2026-09-03, para poder
+    // avisarle en el celular cuando el agente le pone precio (o lo llama),
+    // aunque no tenga esta pestaña abierta. Se llama desde openQuotePanel,
+    // cada vez que el cliente tiene una cotización activa — si ya está
+    // suscripto, esto no hace nada de más (el navegador devuelve la misma
+    // suscripción). Todo no bloqueante: si algo falla acá, la cotización
+    // ya se mandó igual, el cliente solo se queda sin el aviso push.
+    let clientPushSubscribeAttempted = false;
+    async function subscribeClientPush() {
+      if (clientPushSubscribeAttempted) return;
+      clientPushSubscribeAttempted = true;
+      try {
+        if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+        if (Notification.permission === 'denied') return;
+        const reg = await navigator.serviceWorker.register('/sw.js');
+        let sub = await reg.pushManager.getSubscription();
+        if (!sub) {
+          sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(WEB_PUSH_VAPID_PUBLIC_KEY),
+          });
+        }
+        await laExpancion.from('client_push_subscriptions').insert({
+          client_token: getOrCreateWebClientToken(),
+          subscription: sub.toJSON(),
+        });
+      } catch (e) {
+        // no bloqueante — el navegador puede negar el permiso, no soportarlo, etc.
+      }
+    }
+
     // Idioma detectado del navegador (nunca se le pregunta al visitante),
     // igual que la app lo detecta del locale del teléfono.
     async function resolveWebClientLanguage() {
