@@ -220,9 +220,19 @@
         openCallScreen(outgoingCallId, true);
         return;
       }
+      // Llamada interna SALIENTE (dueño llamando a un agente desde
+      // dueno.html, o un agente llamando al dueño desde panel.html) —
+      // mismo criterio que ?outgoing= pero para internal_call_requests.
+      const internalOutgoingId = new URLSearchParams(location.search).get('internalOutgoing');
+      if (internalOutgoingId) {
+        openCallScreen(internalOutgoingId, true, true);
+        return;
+      }
       loadRingingCalls();
       loadRecentCalls();
       pollTimer = setInterval(loadRingingCalls, 3000);
+      loadIncomingInternalCalls();
+      internalCallPollTimer = setInterval(loadIncomingInternalCalls, 3000);
     })();
 
     // Tono: bird-whistling.mp3, repetido cada 0.5s.
