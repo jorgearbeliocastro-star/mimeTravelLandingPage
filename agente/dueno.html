@@ -291,6 +291,25 @@
       if (q.origin) return escapeHtml(q.origin) + ' → ' + escapeHtml(q.destination || '');
       return escapeHtml(q.destination || '');
     }
+    // Llamar a un agente (dueño -> agente) — llamada interna, sumada
+    // 2026-09-04. Mismo mecanismo que el botón "Llamar al dueño" de
+    // panel.html, pero al revés.
+    async function callAgent(agentUserId) {
+      const { data: userData } = await supabaseClient.auth.getUser();
+      if (!userData?.user) return;
+      const callId = crypto.randomUUID();
+      const { error } = await supabaseClient.from('internal_call_requests').insert({
+        id: callId,
+        caller_id: userData.user.id,
+        callee_id: agentUserId,
+      });
+      if (error) {
+        alert('No se pudo iniciar la llamada: ' + error.message);
+        return;
+      }
+      window.location.href = 'llamadas.html?internalOutgoing=' + callId;
+    }
+
     async function loadTeamQuotes() {
       let query = supabaseClient.from('quote_requests').select('*').limit(30);
       if (currentTeamTab === 'new') {
