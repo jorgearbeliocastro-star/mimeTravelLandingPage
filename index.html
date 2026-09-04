@@ -8553,6 +8553,7 @@
       } catch {
         // no bloqueante — algún navegador viejo sin soporte
       }
+      subscribeClientPush();
       activeQuoteRouteLabel = routeLabel || '';
       activePanelMode = mode === 'support' ? 'support' : 'quote';
       localStorage.setItem(QUOTE_ID_STORAGE_KEY, quoteId);
