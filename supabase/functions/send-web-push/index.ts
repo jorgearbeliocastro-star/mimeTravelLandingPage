@@ -41,6 +41,35 @@ Deno.serve(async (req) => {
   if (!body) return new Response('bad request', { status: 400, headers: CORS_HEADERS });
 
   const { title, body: msgBody, url } = body;
+
+  // Rama separada: avisarle al CLIENTE en vez de a agentes — sumada
+  // 2026-09-03 para poder avisarle en el celular cuando el agente le pone
+  // precio, aunque no tenga la pestaña abierta. No toca nada de la lógica
+  // de agentes de abajo, es un camino aparte de punta a punta.
+  if (body.clientToken) {
+    const { data: clientSubs, error: clientErr } = await supabase
+      .from('client_push_subscriptions')
+      .select('id, subscription')
+      .eq('client_token', body.clientToken);
+    if (clientErr) return new Response(JSON.stringify({ error: clientErr.message }), { status: 500, headers: CORS_HEADERS });
+    const clientPayload = JSON.stringify({ title, body: msgBody, url });
+    const clientResults = await Promise.allSettled(
+      (clientSubs ?? []).map((row: any) => webpush.sendNotification(row.subscription, clientPayload))
+    );
+    const expiredIds: number[] = [];
+    clientResults.forEach((r, i) => {
+      if (r.status === 'rejected' && ((r as any).reason?.statusCode === 410 || (r as any).reason?.statusCode === 404)) {
+        expiredIds.push((clientSubs as any)[i].id);
+      }
+    });
+    if (expiredIds.length) {
+      await supabase.from('client_push_subscriptions').delete().in('id', expiredIds);
+    }
+    return new Response(JSON.stringify({ sent: clientResults.filter((r) => r.status === 'fulfilled').length }), {
+      headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+    });
+  }
+
   // Sin agentId = avisa a TODOS los agentes DISPONIBLES suscriptos
   // (cotización general, sin agente asignado). El join con profiles y el
   // filtro is_available es lo que hace que un agente "apagado" (ver
