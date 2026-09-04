@@ -4576,6 +4576,9 @@
     // abierta.
     const WEB_PUSH_WEBHOOK_SECRET = '3a61e1f14f2ff3350889bd67cf2250bebde907e17b6d733e';
     const WEB_PUSH_FUNCTIONS_URL = LA_EXPANCION_SUPABASE_URL + '/functions/v1/send-web-push';
+    // Misma llave pública VAPID que ya usa agente/panel.html — es del
+    // proyecto entero, no por rol, así que se reusa tal cual.
+    const WEB_PUSH_VAPID_PUBLIC_KEY = 'BGa5n6mV8kYVoF9fYsiEo-2M1jHRWd-pA2OTyLmAWbe1YCNsE3EGZv-ysXU_69iUaxmskaOng0OTfXT5C4M1_80';
     const laExpancion = window.supabase.createClient(LA_EXPANCION_SUPABASE_URL, LA_EXPANCION_SUPABASE_ANON_KEY);
 
     // Identifica este navegador como "cliente sin cuenta" — mismo patrón que
