@@ -1556,6 +1556,15 @@
           alert('Poné un precio base válido.');
           return;
         }
+        // Obligatoria para vuelos — se estaban mandando cotizaciones sin
+        // decirle al cliente en qué aerolínea vuela.
+        if (quote.category === 'flight') {
+          const airlineCheckInput = row.querySelector('.pf-airline');
+          if (!airlineCheckInput || !airlineCheckInput.value.trim()) {
+            alert('Poné la aerolínea antes de enviar la cotización.');
+            return;
+          }
+        }
         const numOrNull = (el) => {
           const v = Number(row.querySelector(el).value);
           return v > 0 ? v : null;
