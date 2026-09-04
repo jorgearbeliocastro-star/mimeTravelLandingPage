@@ -164,6 +164,10 @@
     let endedPoll = null;
     let callHeartbeatTimer = null;
     let activeCallId = null;
+    // true = la llamada activa es interna (dueño <-> agente, tabla
+    // internal_call_requests) en vez de una llamada con un cliente
+    // (call_requests) — ver openCallScreen. Sumado 2026-09-04.
+    let activeCallIsInternal = false;
 
     // Último recurso: si el celular del Agente mata la pestaña de golpe
     // durante una llamada, ni "colgar" ni el 'failed' de WebRTC llegan a
