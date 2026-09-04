@@ -436,13 +436,13 @@
             // nunca confunde una llamada larga en curso con una colgada.
             if (!callHeartbeatTimer) {
               callHeartbeatTimer = setInterval(() => {
-                supabaseClient.from('call_requests').update({ updated_at: new Date().toISOString() }).eq('id', callId).then(() => {});
+                supabaseClient.from(tableName).update({ updated_at: new Date().toISOString() }).eq('id', callId).then(() => {});
               }, 60000);
             }
           }
           if (state === 'failed') {
             statusBar.textContent = 'No se pudo conectar';
-            supabaseClient.from('call_requests').update({ status: 'ended', updated_at: new Date().toISOString() }).eq('id', callId).then(() => {});
+            supabaseClient.from(tableName).update({ status: 'ended', updated_at: new Date().toISOString() }).eq('id', callId).then(() => {});
             setTimeout(closeCallScreen, 2000);
           }
           if (state === 'ended') promptPostCallOrClose();
