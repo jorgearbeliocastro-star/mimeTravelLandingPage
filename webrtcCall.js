@@ -80,12 +80,6 @@ function startWebRTCCall({ supabaseClient, channelName, isCaller, localVideoEl, 
     pc = new RTCPeerConnection({ iceServers: CALL_ICE_SERVERS });
     localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
 
-    if (isCaller) {
-      setupDataChannel(pc.createDataChannel('doc'));
-    } else {
-      pc.ondatachannel = (event) => setupDataChannel(event.channel);
-    }
-
     pc.ontrack = (event) => {
       if (remoteVideoEl && event.streams[0]) {
         remoteVideoEl.srcObject = event.streams[0];
