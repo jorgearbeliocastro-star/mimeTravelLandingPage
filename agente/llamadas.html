@@ -273,8 +273,7 @@
         .select('id, caller_id')
         .eq('callee_id', agentId)
         .eq('status', 'ringing')
-        .order('created_at', { ascending: true })
-        .limit: undefined;
+        .order('created_at', { ascending: true });
       const list = document.getElementById('internalCallsList');
       if (error || !data || !data.length) {
         list.innerHTML = '';
