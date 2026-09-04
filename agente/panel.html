@@ -1622,6 +1622,8 @@
         const scheduleValue = departureValue && arrivalValue ? (departureValue + ' ... ' + arrivalValue) : null;
         const airlineInput = row.querySelector('.pf-airline');
         const airlineValue = airlineInput ? airlineInput.value.trim() || null : null;
+        const fareConditionsInput = row.querySelector('.pf-fare-conditions');
+        const fareConditionsValue = fareConditionsInput ? fareConditionsInput.value.trim() || null : null;
 
         btn.disabled = true;
         // No deja tomar una cotización si hay otra más vieja esperando —
