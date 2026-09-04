@@ -541,25 +541,6 @@
         video: wantsVideo,
         localVideoEl: document.getElementById('localVideo'),
         remoteVideoEl: document.getElementById('remoteVideo'),
-        onDocRequest(docType) {
-          currentRequestedDocType = docType;
-          const banner = document.getElementById('docRequestBanner');
-          banner.textContent = docType === 'card'
-            ? '💳 Acercá la tarjeta hasta que quede dentro del recuadro'
-            : '🛂 Acercá el pasaporte hasta que quede dentro del recuadro';
-          banner.classList.add('active');
-          currentDocAspect = DOC_ASPECT[docType] || DOC_ASPECT.card;
-          const guideFrame = document.getElementById('docGuideFrame');
-          guideFrame.style.aspectRatio = currentDocAspect + ' / 1';
-          // Un documento se lee mejor con la cámara trasera (mejor
-          // foco/calidad que la frontal) — se cambia sola, sin cortar la
-          // llamada. Recién cuando ya está en trasera arranca el
-          // escaneo, porque necesita el video de ESA cámara para medir.
-          document.getElementById('videoArea').classList.add('doc-capture');
-          guideFrame.classList.add('active');
-          stopDocScan();
-          if (call) call.switchCamera('environment').then(() => startDocScan(docType));
-        },
         onState(state) {
           if (state === 'connected') {
             connectedOnce = true;
