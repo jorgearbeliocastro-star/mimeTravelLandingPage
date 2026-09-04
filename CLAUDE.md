@@ -14,13 +14,18 @@ The site talks directly to a shared Supabase backend (project `ihrfaprvzdafclquu
 
 ## Working with this repo
 
-- There is no build/lint/test tooling — edit `index.html` directly.
-- To preview locally, open `index.html` in a browser, or serve it with any static file server (e.g. the VSCode "Live Server" extension, or `python -m http.server`).
+- There is no build/lint/test tooling anywhere in the repo (not just `index.html` — this applies equally to every page under `agente/` and to `llamar.html`) — edit files directly.
+- To preview locally, open the relevant `.html` file in a browser, or serve it with any static file server (e.g. the VSCode "Live Server" extension, or `python -m http.server`). Pages under `agente/` require a real logged-in Supabase session (with MFA/aal2 — see "Agent-side pages") to get past their own guard, so you can't usefully preview those against production data without agent credentials.
 - Fonts (Fraunces + Inter) load from Google Fonts CDN; destination/experience photos are hotlinked from Unsplash as placeholders — swap for real assets when available. When picking a new Unsplash placeholder, actually view the image before using it — a photo's ID/alt text isn't a guarantee it shows what you think it shows.
-- Sanity-check edits with a quick balanced-tag check before considering a change done, since there's no linter to catch structural HTML mistakes:
+- Sanity-check edits with a quick balanced-tag check before considering a change done, since there's no linter to catch structural HTML mistakes — run it against whichever file you touched (swap the filename):
   ```bash
   node -e "const h=require('fs').readFileSync('index.html','utf8'); ['section','div','form','button'].forEach(t=>console.log(t,(h.match(new RegExp('<'+t+'[ >]','g'))||[]).length,(h.match(new RegExp('</'+t+'>','g'))||[]).length))"
   ```
+- For a syntax check of the inline `<script>` block after an edit (catches unbalanced braces/parens that the tag check won't), extract and parse it rather than eyeballing a multi-thousand-line file:
+  ```bash
+  node -e "const h=require('fs').readFileSync('index.html','utf8'); const m=[...h.matchAll(/<script(\s[^>]*)?>([\s\S]*?)<\/script>/g)].filter(x=>!/\ssrc=/.test(x[1]||'')); m.forEach((x,i)=>{try{new Function(x[2])}catch(e){console.log('script#'+i,e.message)}}); console.log('checked',m.length,'inline scripts')"
+  ```
+  Note the `\s[^>]*` — a naive `[^>]*` after `<script` will match `src="..."` fragments inside the huge inline script's own string literals and silently skip the real block.
 
 ## Auto-commit hook (important — affects git history you'll see)
 
