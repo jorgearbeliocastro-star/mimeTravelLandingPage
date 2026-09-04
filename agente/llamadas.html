@@ -309,6 +309,9 @@
         client_token: clientToken,
         initiated_by: 'agent',
         accepted_by: agentId,
+        // Ver el comentario igual en panel.html/callClient — sin esto
+        // queda en 'ringing' y le aparece a otros agentes como entrante.
+        status: 'accepted',
       });
       if (error) {
         alert('No se pudo iniciar la llamada: ' + error.message);
