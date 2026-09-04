@@ -264,6 +264,69 @@
       ringtoneAudio.currentTime = 0;
     }
 
+    // Llamadas internas ENTRANTES (dueño <-> agente) — separadas del todo
+    // de las de clientes (otra tabla, otro botón). Sumado 2026-09-04.
+    async function loadIncomingInternalCalls() {
+      if (activeCallId) return; // ya en una llamada, no pisar con otro timbre
+      const { data, error } = await supabaseClient
+        .from('internal_call_requests')
+        .select('id, caller_id')
+        .eq('callee_id', agentId)
+        .eq('status', 'ringing')
+        .order('created_at', { ascending: true })
+        .limit: undefined;
+      const list = document.getElementById('internalCallsList');
+      if (error || !data || !data.length) {
+        list.innerHTML = '';
+        return;
+      }
+      const callerIds = [...new Set(data.map((c) => c.caller_id))];
+      const { data: callerProfiles } = await supabaseClient.from('profiles').select('id, full_name').in('id', callerIds);
+      const nameById = {};
+      (callerProfiles || []).forEach((p) => { nameById[p.id] = p.full_name || 'Alguien del equipo'; });
+      startRingtone();
+      list.innerHTML = data.map((c) => {
+        return '<div class="call-card" data-internal-call="' + c.id + '">' +
+          '<div class="info">📞 Te llama ' + escapeHtmlLocal(nameById[c.caller_id] || 'Alguien del equipo') + '</div>' +
+          '<div class="call-actions"><button class="btn btn-accept">Atender</button><button class="btn btn-decline">Rechazar</button></div>' +
+          '</div>';
+      }).join('');
+      list.querySelectorAll('[data-internal-call]').forEach((card) => {
+        const id = card.dataset.internalCall;
+        card.querySelector('.btn-accept').addEventListener('click', () => acceptInternalCall(id));
+        card.querySelector('.btn-decline').addEventListener('click', () => declineInternalCall(id));
+      });
+    }
+
+    function escapeHtmlLocal(str) {
+      return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    async function declineInternalCall(callId) {
+      stopRingtone();
+      await supabaseClient.from('internal_call_requests').update({ status: 'declined', updated_at: new Date().toISOString() }).eq('id', callId);
+      loadIncomingInternalCalls();
+    }
+
+    async function acceptInternalCall(callId) {
+      stopRingtone();
+      clearInterval(internalCallPollTimer);
+      clearInterval(pollTimer);
+      const { error } = await supabaseClient
+        .from('internal_call_requests')
+        .update({ status: 'accepted', updated_at: new Date().toISOString() })
+        .eq('id', callId);
+      if (error) {
+        alert('No se pudo atender la llamada — probá de nuevo.');
+        internalCallPollTimer = setInterval(loadIncomingInternalCalls, 3000);
+        pollTimer = setInterval(loadRingingCalls, 3000);
+        return;
+      }
+      openCallScreen(callId, false, true);
+    }
+
     async function loadRingingCalls() {
       // Si ya se aceptó una llamada mientras este pedido estaba en vuelo,
       // esta respuesta llegó tarde y está desactualizada (sigue viendo la
