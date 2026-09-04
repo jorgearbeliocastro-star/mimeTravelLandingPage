@@ -1680,6 +1680,39 @@
       });
     }
 
+    // Llamar AL cliente — sumado 2026-09-03. Crea la fila de call_requests
+    // como YA hacía llamar.html del lado del cliente, pero acá el agente
+    // es "initiated_by=agent" y ya queda asignado (accepted_by=agentId)
+    // desde el vamos — no hace falta que "conteste" nadie de este lado,
+    // la pantalla que se abre después ya arranca la llamada real.
+    async function callClient(quote) {
+      const callId = crypto.randomUUID();
+      const { error } = await supabaseClient.from('call_requests').insert({
+        id: callId,
+        client_token: quote.client_token,
+        initiated_by: 'agent',
+        accepted_by: agentId,
+      });
+      if (error) {
+        alert('No se pudo iniciar la llamada: ' + error.message);
+        return;
+      }
+      // Push al cliente — no bloqueante, pero sin esto el cliente solo se
+      // entera si tiene el sitio abierto en ese momento (ver
+      // llamar.html?incoming=, que también lo detecta por sondeo).
+      fetch(WEB_PUSH_FUNCTIONS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': WEB_PUSH_WEBHOOK_SECRET },
+        body: JSON.stringify({
+          clientToken: quote.client_token,
+          title: 'Te está llamando un agente',
+          body: 'Tocá para atender la videollamada.',
+          url: '/llamar.html?incoming=' + callId,
+        }),
+      }).catch(() => {});
+      window.location.href = 'llamadas.html?outgoing=' + callId + '&client=' + encodeURIComponent(quote.client_token);
+    }
+
     // Botón para pasarle una cotización "a medias" (ya tomada, esperando
     // al cliente) a otro agente antes de irse — sin esto quedaba huérfana,
     // solo la veía el agente que la tomó (ver reassign_quote en Supabase).
