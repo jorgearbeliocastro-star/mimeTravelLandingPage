@@ -1787,7 +1787,7 @@
         }
         const row = Array.isArray(data) ? data[0] : data;
         const name = row?.new_agent_name || 'otro agente';
-        // No bloqueante — igual que notifyLaExpancion en index.html: si
+        // No bloqueante — igual que notifyAgentsOfNewQuote en index.html: si
         // el push falla, la transferencia en la base ya quedó hecha
         // igual, solo no sonó el aviso en el teléfono de quien la recibió.
         if (row?.new_agent_id) {
