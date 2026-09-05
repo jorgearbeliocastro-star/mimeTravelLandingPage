@@ -7676,8 +7676,8 @@
       // ahí el estado pasa a "purchased" y el mensaje de compra confirmada
       // (más abajo, quoteStatusPurchased) ya avisa que puede cerrar.
       el.textContent = allReceived
-        ? '✅ El agente ya recibió tus documentos — seguí esperando, te avisamos apenas se confirme la compra.'
-        : '⏳ No cierres esta pantalla ni cambies de página hasta que el agente reciba tus documentos.';
+        ? '⚠️ NO CIERRES ESTA PANTALLA — seguí esperando, tu compra recién se completa cuando el agente confirme.'
+        : '⚠️ NO CIERRES NI CAMBIES DE PÁGINA — si cerrás ahora, tu compra NO se puede completar y vas a tener que volver a mandar tus documentos.';
       el.className = 'docs-upload-status waiting';
     }
 
