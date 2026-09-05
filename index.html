@@ -6281,8 +6281,8 @@
         : data.ninos != null ? parseCountField(data.ninos, 20) : null;
       return { requestedAdults, requestedChildren };
     }
-    // Arma el pedido de cotización para "la expansión" según la pestaña
-    // activa (Vuelos/Cruceros/Hoteles/Autos/Todo en uno) — cada una guarda
+    // Arma el pedido de cotización según la pestaña activa
+    // (Vuelos/Cruceros/Hoteles/Autos/Todo en uno) — cada una guarda
     // sus campos en quote_requests de forma distinta.
     function buildSearchQuotePayload(type, data) {
       const base = { contactName: data.nombre, contactEmail: data.email, contactPhone: null };
