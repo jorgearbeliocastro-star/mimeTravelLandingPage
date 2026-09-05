@@ -260,7 +260,9 @@
           showMsg('Esta cuenta está suspendida.', 'error');
           return;
         }
-        await proceedAfterPasswordLogin();
+        showMsg('¡Listo! Entrando…', 'ok');
+        window.location.href = 'panel.html';
+        return;
       } catch (err) {
         showMsg('Error inesperado: ' + (err && err.message ? err.message : String(err)), 'error');
       } finally {
