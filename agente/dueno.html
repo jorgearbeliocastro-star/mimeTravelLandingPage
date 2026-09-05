@@ -204,6 +204,7 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_lcWymV25nHd2_iOMjRwD4A_XOXvOdPK';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const CREATE_AGENT_URL = SUPABASE_URL + '/functions/v1/create-agent';
+    const DELETE_AGENT_URL = SUPABASE_URL + '/functions/v1/delete-agent';
     // Mismas constantes que ya usa panel.html — para avisarle por push al
     // agente cuando el dueño lo llama (ver callAgent()).
     const WEB_PUSH_WEBHOOK_SECRET = '3a61e1f14f2ff3350889bd67cf2250bebde907e17b6d733e';
