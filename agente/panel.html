@@ -1732,7 +1732,7 @@
             agentId: ownerId,
             title: 'Te está llamando ' + (agentName || 'un agente'),
             body: 'Tocá para atender la llamada.',
-            url: '/agente/llamadas.html?internalOutgoing=' + callId,
+            url: '/agente/llamadas.html',
           }),
         }).catch(() => {});
         window.location.href = 'llamadas.html?internalOutgoing=' + callId;
