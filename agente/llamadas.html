@@ -518,7 +518,10 @@
       const videoBtn = document.getElementById('videoBtn');
       muteBtn.disabled = true;
       videoBtn.disabled = true;
-      if (isCaller) statusBar.textContent = 'Llamando…';
+      if (isCaller) {
+        statusBar.textContent = 'Llamando…';
+        startRingbackTone();
+      }
 
       // Respaldo: si el otro lado cuelga/rechaza y el aviso en vivo se
       // pierde, este sondeo agarra el cambio de estado directo de la
