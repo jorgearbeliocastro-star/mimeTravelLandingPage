@@ -385,11 +385,18 @@
       return true;
     }
 
-    // El cliente decide cuándo mandar cada foto (dos botones propios del
-    // lado de él) — acá solo se puede VER la que ya llegó, tocar el botón
-    // antes de eso no hace nada.
-    function requestDocFromCall(docType) {
-      if (docsCallReceived[docType]) showCallDoc(docType);
+    // El botón del agente PIDE el documento (avisa al cliente cuál
+    // mostrar entre sus dos opciones) — si ya llegó, tocarlo de nuevo
+    // solo la vuelve a mostrar, no pide otra vez.
+    async function requestDocFromCall(docType) {
+      if (docsCallReceived[docType]) {
+        showCallDoc(docType);
+        return;
+      }
+      const ok = await ensureDocsCallChannel();
+      if (!ok) return;
+      updateDocBtnState(docType, 'waiting');
+      docsCallChannel.send({ type: 'broadcast', event: 'request-doc', payload: { docType } });
     }
 
     function showCallDoc(docType) {
