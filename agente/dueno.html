@@ -420,8 +420,27 @@
         return '<div class="q-card">' +
           '<div class="q-top"><span class="q-route">' + fmtRoute(q) + '</span><span class="q-agent">' + agentName + '</span></div>' +
           '<div class="q-meta">' + escapeHtml(q.contact_name || 'Sin nombre') + (priceLine ? ' · ' + priceLine : '') + (created ? ' · ' + created : '') + '</div>' +
+          '<button type="button" class="claim-btn" data-delete-quote="' + q.id + '" style="margin-top:6px;">🗑 Borrar</button>' +
           '</div>';
       }).join('');
+      list.querySelectorAll('[data-delete-quote]').forEach((btn) => {
+        btn.addEventListener('click', () => deleteQuote(btn.dataset.deleteQuote, btn));
+      });
+    }
+
+    // Borrar cualquier cotización, sin importar su estado — solo el Dueño
+    // puede (ver policy quote_requests_delete_owner). Sus mensajes de
+    // chat se borran solos (ON DELETE CASCADE en la base).
+    async function deleteQuote(quoteId, btn) {
+      if (!confirm('¿Borrar esta cotización del todo? No se puede deshacer.')) return;
+      btn.disabled = true;
+      const { error } = await supabaseClient.from('quote_requests').delete().eq('id', quoteId);
+      if (error) {
+        alert('No se pudo borrar: ' + error.message);
+        btn.disabled = false;
+        return;
+      }
+      loadTeamQuotes();
     }
     document.querySelectorAll('.q-tab').forEach((tabEl) => {
       tabEl.addEventListener('click', () => {
