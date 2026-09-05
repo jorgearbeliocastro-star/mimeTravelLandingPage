@@ -209,11 +209,6 @@
     // cualquier otro agente que llegue a esta URL a mano se va derecho
     // al panel normal, no ve nada de esto.
     (async () => {
-      const { data: aalData } = await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();
-      if (!aalData || aalData.currentLevel !== 'aal2') {
-        window.location.href = 'login.html';
-        return;
-      }
       const { data: userData } = await supabaseClient.auth.getUser();
       if (!userData?.user) {
         window.location.href = 'login.html';
