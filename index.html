@@ -6863,12 +6863,9 @@
     });
 
     // ===== Panel de cotización / chat con el agente =====
-    // Todo esto llama directo a los mismos RPCs que ya usa la app móvil
-    // (ver src/services/quoteService.ts de "la expansión") — verificados
-    // por client_token en el servidor, no por sesión, así que funcionan
-    // igual desde acá sin necesitar login. Se actualiza por polling (mismo
-    // criterio que la app: ver POLL_MS en ClientQuoteChatScreen.tsx), no
-    // por Realtime.
+    // Todo esto llama a RPCs de Supabase verificados por client_token en el
+    // servidor, no por sesión, así que funcionan igual desde acá sin
+    // necesitar login. Se actualiza por polling, no por Realtime.
     const QUOTE_POLL_MS = 5000;
     // renderQuoteStatus() reconstruye todo el HTML del panel desde cero —
     // si se llama en cada poll aunque nada haya cambiado, el navegador
