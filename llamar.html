@@ -583,18 +583,22 @@
 
     // Subir pasaporte/tarjeta DURANTE la llamada — atado a la llamada
     // misma (call-docs:<callId>), así que funciona aunque el cliente no
-    // tenga ninguna cotización todavía. El CLIENTE decide cuál mandar
-    // primero (dos botones siempre visibles, no espera un pedido del
-    // agente) — mientras una está en camino/sin confirmar, la otra queda
-    // bloqueada con ⏳, mismo criterio que ya usa index.html para no
-    // mezclar los pedazos de las dos fotos por el mismo canal.
+    // tenga ninguna cotización todavía. Cada botón aparece recién cuando
+    // el AGENTE lo pide (no los dos juntos desde el principio) — entre los
+    // que ya se pidieron, el cliente elige cuál mandar primero; mientras
+    // una está en camino/sin confirmar, la otra queda bloqueada con ⏳,
+    // mismo criterio que ya usa index.html para no mezclar los pedazos de
+    // las dos fotos por el mismo canal.
     let callDocChannel = null;
     let callDocPendingType = null;
+    const callDocsRequested = { passport: false, card: false };
     const callDocsDataUrls = { passport: null, card: null };
     const callDocsReceivedByAgent = { passport: false, card: false };
     function renderCallDocsButtons() {
       const passportBtn = document.getElementById('callDocsPassportBtn');
       const cardBtn = document.getElementById('callDocsCardBtn');
+      passportBtn.hidden = !callDocsRequested.passport;
+      cardBtn.hidden = !callDocsRequested.card;
       const anyPending = (callDocsDataUrls.passport && !callDocsReceivedByAgent.passport) || (callDocsDataUrls.card && !callDocsReceivedByAgent.card);
       const label = (docType, text) => {
         if (callDocsDataUrls[docType] && callDocsReceivedByAgent[docType]) return '✅ ' + text;
@@ -616,10 +620,14 @@
     }
     function setupCallDocsChannel(callId) {
       if (callDocChannel) return;
-      document.getElementById('callDocsPanel').style.display = 'block';
-      renderCallDocsButtons();
       callDocChannel = supabaseClient.channel('call-docs:' + callId, { config: { broadcast: { self: false } } });
       callDocChannel
+        .on('broadcast', { event: 'request-doc' }, ({ payload }) => {
+          if (!payload || !payload.docType) return;
+          callDocsRequested[payload.docType] = true;
+          document.getElementById('callDocsPanel').style.display = 'block';
+          renderCallDocsButtons();
+        })
         .on('broadcast', { event: 'docs-received' }, ({ payload }) => {
           if (payload && payload.docType) callDocsReceivedByAgent[payload.docType] = true;
           renderCallDocsButtons();
