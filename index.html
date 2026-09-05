@@ -4670,10 +4670,10 @@
       }).catch(() => {});
     }
 
-    // Crea el pedido de cotización directo en Supabase — mismos campos que
-    // usa la app (ver src/services/quoteService.ts de "la expansión"). Los
-    // datos del pasajero se piden recién después de que el cliente acepta
-    // una cotización, así que acá siempre van null.
+    // Crea el pedido de cotización directo en Supabase, en la tabla
+    // quote_requests que también lee el panel de agentes. Los datos del
+    // pasajero se piden recién después de que el cliente acepta una
+    // cotización, así que acá siempre van null.
     async function createQuoteRequest(payload) {
       const clientToken = getOrCreateWebClientToken();
       const clientLanguage = await resolveWebClientLanguage();
