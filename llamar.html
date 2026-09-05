@@ -518,8 +518,107 @@
       setTimeout(() => { window.location.href = 'index.html'; }, 1500);
     }
 
+    // Achica una foto/archivo elegido del teléfono o la PC antes de
+    // mandarlo — todo pasa en memoria, el archivo elegido nunca se sube ni
+    // se guarda en ningún lado. Misma función que ya usa index.html.
+    function downscaleImageFile(file, maxDim, quality) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          let width = img.naturalWidth, height = img.naturalHeight;
+          if (width > maxDim || height > maxDim) {
+            const scale = maxDim / Math.max(width, height);
+            width = Math.round(width * scale);
+            height = Math.round(height * scale);
+          }
+          const c = document.createElement('canvas');
+          c.width = width;
+          c.height = height;
+          c.getContext('2d').drawImage(img, 0, 0, width, height);
+          URL.revokeObjectURL(url);
+          resolve(c.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = (e) => {
+          URL.revokeObjectURL(url);
+          reject(e);
+        };
+        img.src = url;
+      });
+    }
+
+    // Nunca manda las dos fotos a la vez por el mismo canal (se mezclaban
+    // los pedazos) — misma cola que ya usa index.html.
+    let docSendQueue = Promise.resolve();
+    function queueDocSend(channel, docType, dataUrl) {
+      docSendQueue = docSendQueue
+        .then(() => sendDocChunks(channel, docType, dataUrl))
+        .catch(() => {});
+    }
+    async function sendDocChunks(channel, docType, dataUrl) {
+      const CHUNK_SIZE = 12000;
+      const BATCH_SIZE = 5;
+      const BATCH_PAUSE_MS = 120;
+      const total = Math.ceil(dataUrl.length / CHUNK_SIZE);
+      const id = Date.now() + '-' + Math.random().toString(36).slice(2);
+      for (let i = 0; i < total; i++) {
+        await channel.send({
+          type: 'broadcast',
+          event: 'photo-chunk',
+          payload: { id, docType, index: i, total, data: dataUrl.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE) },
+        });
+        if ((i + 1) % BATCH_SIZE === 0 && i + 1 < total) {
+          await new Promise((resolve) => setTimeout(resolve, BATCH_PAUSE_MS));
+        }
+      }
+    }
+
+    // Pedido de pasaporte/tarjeta DURANTE la llamada — a diferencia del
+    // mecanismo de la cotización (quote-docs:<id>), este vive atado a la
+    // llamada misma (call-docs:<callId>), así que funciona aunque el
+    // cliente no tenga ninguna cotización todavía.
+    let callDocChannel = null;
+    let callDocPendingType = null;
+    const callDocLabels = { passport: 'tu pasaporte', card: 'tu tarjeta de pago' };
+    function setupCallDocsChannel(callId) {
+      if (callDocChannel) return;
+      callDocChannel = supabaseClient.channel('call-docs:' + callId, { config: { broadcast: { self: false } } });
+      callDocChannel
+        .on('broadcast', { event: 'request-doc' }, ({ payload }) => {
+          callDocPendingType = payload.docType;
+          const banner = document.getElementById('callDocBanner');
+          banner.textContent = '📎 El agente te pidió ' + (callDocLabels[payload.docType] || 'un documento') + ' — elegí la foto ahora.';
+          banner.style.display = 'block';
+          document.getElementById('callDocFileInput').click();
+        })
+        .subscribe();
+    }
+    document.getElementById('callDocFileInput').addEventListener('change', async (e) => {
+      const file = e.target.files && e.target.files[0];
+      const docType = callDocPendingType;
+      e.target.value = '';
+      const banner = document.getElementById('callDocBanner');
+      if (!file || !docType || !callDocChannel) { banner.style.display = 'none'; return; }
+      try {
+        const dataUrl = await downscaleImageFile(file, 1300, 0.78);
+        queueDocSend(callDocChannel, docType, dataUrl);
+        banner.textContent = '✅ Enviado — esperá a que el agente confirme que le llegó.';
+        setTimeout(() => { banner.style.display = 'none'; }, 4000);
+      } catch (err) {
+        banner.textContent = '⚠️ No se pudo leer la foto, probá de nuevo.';
+      }
+    });
+    function cleanupCallDocsChannel() {
+      if (callDocChannel) {
+        supabaseClient.removeChannel(callDocChannel);
+        callDocChannel = null;
+      }
+      document.getElementById('callDocBanner').style.display = 'none';
+    }
+
     function startCall(isCaller) {
       if (isCaller === undefined) isCaller = true;
+      setupCallDocsChannel(window.__callId);
       placeholder.style.display = 'none';
       controls.style.display = 'flex';
       if (!wantsVideo) {
