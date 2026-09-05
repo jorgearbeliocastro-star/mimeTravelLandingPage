@@ -114,8 +114,24 @@
     <div class="controls">
       <button class="btn-circle" id="muteBtn">🎤</button>
       <button class="btn-circle" id="videoBtn">📷</button>
+      <!-- Pedir pasaporte/tarjeta sin salir de la pantalla de la llamada —
+           ocultos por defecto, solo tienen sentido en una llamada con
+           cliente (no en una interna dueño<->agente, que no tiene
+           client_token ni cotización asociada). Usan el mismo sistema de
+           subida desde galería que ya existe en index.html/panel.html —
+           NO le sacan una foto a la cámara de la llamada. -->
+      <button class="btn-circle" id="requestPassportBtn" hidden title="Pedir pasaporte">🛂</button>
+      <button class="btn-circle" id="requestCardBtn" hidden title="Pedir tarjeta">💳</button>
       <button class="btn-circle btn-hangup" id="hangupBtn">⏹</button>
     </div>
+  </div>
+
+  <!-- Foto recibida durante la llamada — nunca se guarda, se borra sola al
+       cerrar esta vista (mismo criterio que el overlay de panel.html). -->
+  <div class="docs-overlay" id="callDocsOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:60; align-items:center; justify-content:center; flex-direction:column; padding:20px;">
+    <div id="callDocsOverlayTitle" style="color:#fff; margin-bottom:12px; font-size:15px;"></div>
+    <img id="callDocsOverlayImg" alt="" style="max-width:100%; max-height:70vh; border-radius:8px;">
+    <button type="button" id="callDocsCloseBtn" style="margin-top:16px; padding:10px 18px; border-radius:8px; border:none; background:#fff; font-weight:700; cursor:pointer;">Cerrar</button>
   </div>
 
   <!-- Antes de colgar de verdad: sin esto, una llamada nunca dejaba
