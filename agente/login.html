@@ -332,9 +332,9 @@
     // los agentes pueden tener una app autenticadora en su teléfono.
     (async () => {
       const { data: userData } = await supabaseClient.auth.getUser();
-      if (userData?.user) {
-        window.location.href = 'panel.html';
-      }
+      if (!userData?.user) return;
+      const { data: profile } = await supabaseClient.from('profiles').select('role').eq('id', userData.user.id).maybeSingle();
+      window.location.href = profile?.role === 'super_admin' ? 'dueno.html' : 'panel.html';
     })();
   </script>
 </body>
