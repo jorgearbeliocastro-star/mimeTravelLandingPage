@@ -4552,16 +4552,16 @@
       });
     });
 
-    // ===== Integración con "la expansión" (app de agentes) =====
-    // Los pedidos de cotización se mandan directo a la misma base de Supabase
-    // que usa la app — quedan en quote_requests exactamente igual que si un
-    // Agente los viera creados desde ahí. La anon key es pública a propósito
-    // (protegida por Row Level Security en la base), igual que el
-    // WEBHOOK_SECRET de aviso — mismo criterio que usa la app misma.
-    const LA_EXPANCION_SUPABASE_URL = 'https://ihrfaprvzdafclquuhlh.supabase.co';
-    const LA_EXPANCION_SUPABASE_ANON_KEY = 'sb_publishable_lcWymV25nHd2_iOMjRwD4A_XOXvOdPK';
-    // Antes acá también estaban LA_EXPANCION_WEBHOOK_SECRET/FUNCTIONS_URL,
-    // para avisar por send-request-notification (push por Expo) — se
+    // ===== Integración con el backend de Supabase (panel de agentes) =====
+    // Los pedidos de cotización se mandan directo a la base de Supabase que
+    // usa el panel de agentes — quedan en quote_requests exactamente igual
+    // que si un Agente los viera creados desde ahí. La anon key es pública a
+    // propósito (protegida por Row Level Security en la base), igual que el
+    // WEBHOOK_SECRET de aviso.
+    const SUPABASE_URL = 'https://ihrfaprvzdafclquuhlh.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_lcWymV25nHd2_iOMjRwD4A_XOXvOdPK';
+    // Antes acá también estaban las constantes para avisar por
+    // send-request-notification (push por Expo) — se
     // sacaron: esa función es para la app nativa que ya no existe, ningún
     // agente tiene token de Expo, no llegaba a nadie. El aviso real es el
     // de WEB_PUSH_FUNCTIONS_URL de abajo.
@@ -4569,22 +4569,22 @@
     // autorización de cobro CON la IP real de quien la marcó (el RPC no
     // puede leer eso, solo una función que reciba la conexión HTTP en sí).
     const PAYMENT_CONSENT_WEBHOOK_SECRET = '20836b3d0203b2f92af37facb2e6777a0b2ca736e2d07980';
-    const PAYMENT_CONSENT_FUNCTIONS_URL = LA_EXPANCION_SUPABASE_URL + '/functions/v1/record-payment-consent';
+    const PAYMENT_CONSENT_FUNCTIONS_URL = SUPABASE_URL + '/functions/v1/record-payment-consent';
     // Notificación push real del navegador, propia de la web (no la de la
     // app, que está pausada) — sin esto, ningún agente se enteraba de una
     // cotización nueva a menos que tuviera la pestaña de Cotizaciones
     // abierta.
     const WEB_PUSH_WEBHOOK_SECRET = '3a61e1f14f2ff3350889bd67cf2250bebde907e17b6d733e';
-    const WEB_PUSH_FUNCTIONS_URL = LA_EXPANCION_SUPABASE_URL + '/functions/v1/send-web-push';
+    const WEB_PUSH_FUNCTIONS_URL = SUPABASE_URL + '/functions/v1/send-web-push';
     // Misma llave pública VAPID que ya usa agente/panel.html — es del
     // proyecto entero, no por rol, así que se reusa tal cual.
     const WEB_PUSH_VAPID_PUBLIC_KEY = 'BGa5n6mV8kYVoF9fYsiEo-2M1jHRWd-pA2OTyLmAWbe1YCNsE3EGZv-ysXU_69iUaxmskaOng0OTfXT5C4M1_80';
-    const laExpancion = window.supabase.createClient(LA_EXPANCION_SUPABASE_URL, LA_EXPANCION_SUPABASE_ANON_KEY);
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // Identifica este navegador como "cliente sin cuenta" — mismo patrón que
     // el token que la app guarda en el teléfono, pero acá vive en localStorage.
     function getOrCreateWebClientToken() {
-      const KEY = 'la-expancion.client-token';
+      const KEY = 'mime-travel.client-token';
       let token = localStorage.getItem(KEY);
       if (!token) {
         token = crypto.randomUUID();
@@ -4622,7 +4622,7 @@
             applicationServerKey: urlBase64ToUint8Array(WEB_PUSH_VAPID_PUBLIC_KEY),
           });
         }
-        await laExpancion.from('client_push_subscriptions').insert({
+        await supabaseClient.from('client_push_subscriptions').insert({
           client_token: getOrCreateWebClientToken(),
           subscription: sub.toJSON(),
         });
@@ -4637,7 +4637,7 @@
       const detected = (navigator.language || '').split('-')[0] || null;
       if (!detected) return null;
       try {
-        const { data, error } = await laExpancion.rpc('resolve_client_language', { p_language: detected });
+        const { data, error } = await supabaseClient.rpc('resolve_client_language', { p_language: detected });
         if (error) return detected;
         return data || detected;
       } catch {
@@ -4647,7 +4647,7 @@
 
     // Avisa a la Edge Function que hay un pedido nuevo para notificar al
     // Agente (push). No bloqueante: si falla, el pedido ya quedó guardado igual.
-    function notifyLaExpancion(record) {
+    function notifyAgentsOfNewQuote(record) {
       // Aviso real del navegador — si el cliente ya tiene un agente
       // asignado le suena solo a él (y si ese agente no tiene suscripción
       // activa, send-web-push cae solo al pool general), si no, directo a
@@ -4674,12 +4674,12 @@
     // usa la app (ver src/services/quoteService.ts de "la expansión"). Los
     // datos del pasajero se piden recién después de que el cliente acepta
     // una cotización, así que acá siempre van null.
-    async function createLaExpancionQuoteRequest(payload) {
+    async function createQuoteRequest(payload) {
       const clientToken = getOrCreateWebClientToken();
       const clientLanguage = await resolveWebClientLanguage();
       let preferredAgentId = null;
       try {
-        const { data } = await laExpancion.rpc('get_preferred_agent_for_client', { p_token: clientToken });
+        const { data } = await supabaseClient.rpc('get_preferred_agent_for_client', { p_token: clientToken });
         preferredAgentId = data || null;
       } catch {
         // no bloqueante — si falla, el pedido cae al pool general de agentes
@@ -4691,7 +4691,7 @@
       // devuelva la fila insertada dispara ese SELECT y el insert ENTERO
       // falla por RLS, aunque el insert en sí sería válido. Por eso el id
       // se recupera aparte, con el mismo RPC que ya usa el resto de la web.
-      const { error } = await laExpancion.from('quote_requests').insert({
+      const { error } = await supabaseClient.from('quote_requests').insert({
         client_token: clientToken,
         claimed_by_agent_id: preferredAgentId,
         category: payload.category,
@@ -4730,7 +4730,7 @@
       // punto más donde algo podía trabarse. El push real (send-web-push)
       // no necesita el id de la cotización para nada, así que no hace
       // falta esperarlo.
-      notifyLaExpancion({
+      notifyAgentsOfNewQuote({
         origin: payload.origin,
         destination: payload.destination,
         claimedByAgentId: preferredAgentId,
@@ -4740,7 +4740,7 @@
       // web — se busca aparte, sin bloquear el aviso de arriba. Si por lo
       // que sea falla, no se rompe el flujo: el pedido ya quedó guardado,
       // simplemente no se abre el panel de chat.
-      const { data: myQuotes, error: fetchError } = await laExpancion.rpc('get_quote_requests_by_token', { p_token: clientToken });
+      const { data: myQuotes, error: fetchError } = await supabaseClient.rpc('get_quote_requests_by_token', { p_token: clientToken });
       const inserted = !fetchError && myQuotes && myQuotes.length ? myQuotes[0] : null;
       return inserted ? inserted.id : null;
     }
@@ -6378,7 +6378,7 @@
     // tarjeta de itinerario) antes de llegar acá.
     function submitQuoteRequest(form, payload) {
       searchMsg.textContent = t('msgSearchSending');
-      createLaExpancionQuoteRequest(payload)
+      createQuoteRequest(payload)
         .then((quoteId) => {
           searchMsg.textContent = t('msgSearchSuccess');
           sendToFormSubmit(form, 'Nueva búsqueda de viaje — Mime Travel').catch(() => {});
@@ -6506,7 +6506,7 @@
       if (activeType === 'cruceros') {
         searchMsg.textContent = t('msgSearchSending');
         const destinationCanonical = canonicalDestination(data.destino);
-        laExpancion
+        supabaseClient
           .from('cruise_itineraries')
           .select('*')
           .eq('active', true)
@@ -6712,7 +6712,7 @@
         ]),
       };
 
-      createLaExpancionQuoteRequest(payload)
+      createQuoteRequest(payload)
         .then((quoteId) => {
           presaleMsg.textContent = t('msgPresaleSuccess');
           // Aviso por correo además de la notificación push de la app —
@@ -6879,8 +6879,8 @@
     // cambió (no depende de las selecciones del cliente — esas se aplican
     // directo sobre el DOM existente, ver los click handlers más abajo).
     let lastRenderedQuoteJSON = null;
-    const QUOTE_ID_STORAGE_KEY = 'la-expancion.active-quote-id';
-    const QUOTE_MODE_STORAGE_KEY = 'la-expancion.active-quote-mode';
+    const QUOTE_ID_STORAGE_KEY = 'mime-travel.active-quote-id';
+    const QUOTE_MODE_STORAGE_KEY = 'mime-travel.active-quote-mode';
 
     const quotePanel = document.getElementById('quotePanel');
     const quotePanelRoute = document.getElementById('quotePanelRoute');
@@ -7488,7 +7488,7 @@
         quoteDecisionInFlight = true;
         const clientToken = getOrCreateWebClientToken();
         const decideStep = mode === 'accept'
-          ? laExpancion.rpc('decide_quote_request_with_tier', { p_token: clientToken, p_id: activeQuoteId, p_accept: true, p_tier: selectedQuoteTier, p_insurance_qty: selectedWantsInsurance ? 1 : 0, p_extra_bag_qty: selectedExtraBagQty, p_carry_on_qty: 0, p_chosen_seat_type: selectedChosenSeatType || null, p_wants_refundable: selectedWantsRefundable, p_chosen_custom_addon_labels: Object.keys(selectedCustomAddons).filter((label) => selectedCustomAddons[label]), p_cabin_deck_preference: selectedCabinDeckPreference || null, p_cabin_position_preference: selectedCabinPositionPreference || null, p_cabin_connecting_with: selectedCabinConnectingWith || null, p_cabin_bed_config: selectedCabinBedConfig || null }).then(({ error }) => {
+          ? supabaseClient.rpc('decide_quote_request_with_tier', { p_token: clientToken, p_id: activeQuoteId, p_accept: true, p_tier: selectedQuoteTier, p_insurance_qty: selectedWantsInsurance ? 1 : 0, p_extra_bag_qty: selectedExtraBagQty, p_carry_on_qty: 0, p_chosen_seat_type: selectedChosenSeatType || null, p_wants_refundable: selectedWantsRefundable, p_chosen_custom_addon_labels: Object.keys(selectedCustomAddons).filter((label) => selectedCustomAddons[label]), p_cabin_deck_preference: selectedCabinDeckPreference || null, p_cabin_position_preference: selectedCabinPositionPreference || null, p_cabin_connecting_with: selectedCabinConnectingWith || null, p_cabin_bed_config: selectedCabinBedConfig || null }).then(({ error }) => {
               if (error) throw error;
               notifyQuoteDecisionWeb(activeQuoteId, mode === 'accept');
               // No bloqueante a propósito — si esto falla, igual se
@@ -7503,7 +7503,7 @@
           : Promise.resolve();
         const cubaCategorySelect = document.getElementById('cubaOfacCategorySelect');
         decideStep
-          .then(() => laExpancion.rpc('submit_quote_passengers', { p_token: clientToken, p_id: activeQuoteId, p_passengers: passengers, p_travel_reason: cubaCategorySelect ? (cubaCategorySelect.value || null) : null }))
+          .then(() => supabaseClient.rpc('submit_quote_passengers', { p_token: clientToken, p_id: activeQuoteId, p_passengers: passengers, p_travel_reason: cubaCategorySelect ? (cubaCategorySelect.value || null) : null }))
           .then(({ error }) => {
             if (error) throw error;
             showingPassengerForm = false;
@@ -7595,9 +7595,9 @@
     let docsChannelResubscribeTimer = null;
     function setupDocsChannel(quoteId, clientToken) {
       if (docsChannelQuoteId === quoteId && docsChannel) return;
-      if (docsChannel) laExpancion.removeChannel(docsChannel);
+      if (docsChannel) supabaseClient.removeChannel(docsChannel);
       docsChannelQuoteId = quoteId;
-      docsChannel = laExpancion.channel('quote-docs:' + quoteId, { config: { broadcast: { self: false } } });
+      docsChannel = supabaseClient.channel('quote-docs:' + quoteId, { config: { broadcast: { self: false } } });
       docsChannel
         .on('broadcast', { event: 'request-doc' }, ({ payload }) => {
           const dataUrl = docsDataUrls[payload.docType];
@@ -8382,7 +8382,7 @@
               // canal en vivo, así llega más rápido y más entero.
               docsDataUrls[docType] = await downscaleImageFile(file, 1300, 0.78);
               docsReceivedByAgent[docType] = false;
-              const { error: readyError } = await laExpancion.rpc('set_quote_docs_ready', { p_token: clientToken, p_id: quote.id, p_ready: true });
+              const { error: readyError } = await supabaseClient.rpc('set_quote_docs_ready', { p_token: clientToken, p_id: quote.id, p_ready: true });
               if (readyError) {
                 console.error('[docs-upload] set_quote_docs_ready falló:', readyError);
                 if (statusEl) {
@@ -8441,7 +8441,7 @@
       if (!window.confirm(t('quoteDecisionConfirm'))) return;
       quoteDecisionInFlight = true;
       const clientToken = getOrCreateWebClientToken();
-      laExpancion.rpc('decide_quote_request_with_tier', { p_token: clientToken, p_id: activeQuoteId, p_accept: accept, p_tier: 'basic' })
+      supabaseClient.rpc('decide_quote_request_with_tier', { p_token: clientToken, p_id: activeQuoteId, p_accept: accept, p_tier: 'basic' })
         .then(({ error }) => {
           if (error) throw error;
           notifyQuoteDecisionWeb(activeQuoteId, accept);
@@ -8493,7 +8493,7 @@
       if (!activeQuoteId) return;
       const clientToken = getOrCreateWebClientToken();
       try {
-        const { data: quotes, error } = await laExpancion.rpc('get_quote_requests_by_token', { p_token: clientToken });
+        const { data: quotes, error } = await supabaseClient.rpc('get_quote_requests_by_token', { p_token: clientToken });
         if (error) throw error;
         const quote = (quotes || []).find((q) => q.id === activeQuoteId);
         if (quote) {
@@ -8518,7 +8518,7 @@
           activeQuoteContactPhone = quote.contact_phone || '';
           quotePanelRoute.textContent = activeQuoteRouteLabel;
         }
-        const { data: messages, error: msgError } = await laExpancion.rpc('get_quote_request_messages', {
+        const { data: messages, error: msgError } = await supabaseClient.rpc('get_quote_request_messages', {
           p_token: clientToken,
           p_quote_request_id: activeQuoteId,
         });
@@ -8618,7 +8618,7 @@
       if (!body || !activeQuoteId) return;
       quoteChatInput.value = '';
       const clientToken = getOrCreateWebClientToken();
-      laExpancion.rpc('send_client_message', { p_token: clientToken, p_quote_request_id: activeQuoteId, p_body: body })
+      supabaseClient.rpc('send_client_message', { p_token: clientToken, p_quote_request_id: activeQuoteId, p_body: body })
         .then(({ error }) => {
           if (error) throw error;
           notifyClientMessageWeb(activeQuoteId);
@@ -8653,7 +8653,7 @@
       setInterval(async () => {
         if (redirected || document.hidden) return;
         try {
-          const { data, error } = await laExpancion
+          const { data, error } = await supabaseClient
             .from('call_requests')
             .select('id, created_at')
             .eq('client_token', clientToken)
@@ -8681,7 +8681,7 @@
       if (!storedId) return;
       const storedMode = localStorage.getItem(QUOTE_MODE_STORAGE_KEY) === 'support' ? 'support' : 'quote';
       const clientToken = getOrCreateWebClientToken();
-      laExpancion.rpc('get_quote_requests_by_token', { p_token: clientToken })
+      supabaseClient.rpc('get_quote_requests_by_token', { p_token: clientToken })
         .then(({ data, error }) => {
           if (error) throw error;
           const found = (data || []).find((q) => q.id === storedId);
@@ -8809,7 +8809,7 @@
     (function personalizeNeedHelpBtn() {
       if (activeQuoteId) return; // ya tiene botón de retomar, no hace falta
       const clientToken = getOrCreateWebClientToken();
-      laExpancion.rpc('get_preferred_agent_name_for_client', { p_token: clientToken })
+      supabaseClient.rpc('get_preferred_agent_name_for_client', { p_token: clientToken })
         .then(({ data }) => {
           if (!data) return;
           needHelpBtn.textContent = (currentLang === 'en' ? 'Agent ' : 'Agente ') + data;
@@ -8830,10 +8830,10 @@
       // ahora escribe desde el teléfono, lo reconecta con el mismo Agente
       // en vez de mandarlo al pool general. Ver migración
       // 0049_agent_link_across_devices.sql en "la expansión".
-      laExpancion.rpc('get_preferred_agent_for_client', { p_token: clientToken, p_email: data.email })
+      supabaseClient.rpc('get_preferred_agent_for_client', { p_token: clientToken, p_email: data.email })
         .then(({ data: preferredAgentId }) => {
           return resolveWebClientLanguage().then((clientLanguage) => {
-            return laExpancion.from('quote_requests').insert({
+            return supabaseClient.from('quote_requests').insert({
               client_token: clientToken,
               claimed_by_agent_id: preferredAgentId || null,
               category: 'package',
@@ -8866,7 +8866,7 @@
               // El aviso sale YA, apenas se confirma el guardado — no
               // espera a buscar el id de la fila (eso solo hace falta
               // para abrir el panel de chat acá, no para el push).
-              notifyLaExpancion({
+              notifyAgentsOfNewQuote({
                 origin: null,
                 destination: 'Consulta general',
                 claimedByAgentId: preferredAgentId || null,
@@ -8879,7 +8879,7 @@
         // rompe). El id se recupera aparte, con el mismo RPC de siempre —
         // sin bloquear el aviso de arriba.
         .then((preferredAgentId) =>
-          laExpancion.rpc('get_quote_requests_by_token', { p_token: clientToken }).then(({ data: myQuotes, error }) => {
+          supabaseClient.rpc('get_quote_requests_by_token', { p_token: clientToken }).then(({ data: myQuotes, error }) => {
             if (error) throw error;
             const inserted = (myQuotes || [])[0];
             if (!inserted) throw new Error('insert sin resultado');
@@ -8888,7 +8888,7 @@
         )
         .then(({ quoteId, preferredAgentId }) => {
           return (preferredAgentId
-            ? laExpancion.rpc('get_preferred_agent_name_for_client', { p_token: clientToken, p_email: data.email }).then(({ data: name }) => name)
+            ? supabaseClient.rpc('get_preferred_agent_name_for_client', { p_token: clientToken, p_email: data.email }).then(({ data: name }) => name)
             : Promise.resolve(null)
           ).then((agentName) => {
             helpMsg.textContent = t('msgPresaleSuccess');
