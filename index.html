@@ -8833,7 +8833,10 @@
       supabaseClient.rpc('get_preferred_agent_name_for_client', { p_token: clientToken })
         .then(({ data }) => {
           if (!data) return;
-          needHelpBtn.textContent = (currentLang === 'en' ? 'Agent ' : 'Agente ') + data;
+          // Solo el primer nombre — el completo hacía que el botón
+          // ocupara 2 líneas en pantallas angostas.
+          const firstName = data.trim().split(' ')[0];
+          needHelpBtn.textContent = (currentLang === 'en' ? 'Agent ' : 'Agente ') + firstName;
         })
         .catch(() => {});
     })();
