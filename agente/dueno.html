@@ -271,10 +271,11 @@
         // Sin botón de borrar para uno mismo (la fila del dueño) — esta
         // función es solo para dar de baja Agentes que ya no trabajan más.
         const deleteBtn = isOwner ? '' : '<button type="button" class="role-tag" data-delete-agent="' + p.id + '" style="border:none; cursor:pointer;">🗑</button>';
+        const editBtn = isOwner ? '' : '<button type="button" class="role-tag" data-edit-agent="' + p.id + '" style="border:none; cursor:pointer;">✏️</button>';
         return '<div class="agent-row"><span>' + name + '</span><span style="display:flex; gap:6px; align-items:center;">' +
           '<span class="role-tag ' + (connected ? 'conn-yes' : 'conn-no') + '">' + (connected ? '🟢 Conectado' : '⚪ Desconectado') + '</span>' +
           '<span class="role-tag' + (isOwner ? ' owner' : '') + '">' + (isOwner ? 'Dueño' : 'Agente') + '</span>' +
-          callBtn + deleteBtn + '</span></div>';
+          callBtn + editBtn + deleteBtn + '</span></div>';
       }).join('');
       list.querySelectorAll('[data-call-agent]').forEach((btn) => {
         btn.addEventListener('click', () => callAgent(btn.dataset.callAgent));
@@ -282,6 +283,37 @@
       list.querySelectorAll('[data-delete-agent]').forEach((btn) => {
         btn.addEventListener('click', () => deleteAgentAccount(btn.dataset.deleteAgent, agentNamesById[btn.dataset.deleteAgent]));
       });
+      list.querySelectorAll('[data-edit-agent]').forEach((btn) => {
+        btn.addEventListener('click', () => editAgentCredentials(btn.dataset.editAgent, agentNamesById[btn.dataset.editAgent]));
+      });
+    }
+
+    // Cambia el correo y/o la contraseña de un agente — vía la Edge
+    // Function update-agent-credentials, que valida del lado del servidor
+    // que quien llama sea el Dueño. Dos prompts simples en vez de un
+    // formulario aparte, en línea con el resto de esta pantalla.
+    async function editAgentCredentials(agentId, agentName) {
+      const newEmail = prompt('Nuevo correo para "' + (agentName || 'este agente') + '" (dejar vacío para no cambiarlo):', '');
+      const newPassword = prompt('Nueva contraseña (6+ caracteres, dejar vacío para no cambiarla):', '');
+      if (!newEmail && !newPassword) return;
+      if (newPassword && newPassword.length < 6) {
+        alert('La contraseña necesita al menos 6 caracteres.');
+        return;
+      }
+      try {
+        const { data: sessionData } = await supabaseClient.auth.getSession();
+        const accessToken = sessionData?.session?.access_token;
+        const res = await fetch(UPDATE_AGENT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + accessToken },
+          body: JSON.stringify({ agentId, newEmail: newEmail || null, newPassword: newPassword || null }),
+        });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error || 'No se pudo actualizar el agente.');
+        alert('✅ Listo, se actualizó.');
+      } catch (err) {
+        alert('⚠️ ' + (err && err.message ? err.message : 'Error desconocido.'));
+      }
     }
 
     // Borra la cuenta de un agente por completo (Authentication + su fila
