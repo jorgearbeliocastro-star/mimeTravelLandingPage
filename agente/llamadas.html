@@ -375,23 +375,21 @@
             docsCallReceived[buf.docType] = buf.parts.join('');
             delete docsCallIncomingChunks[payload.id];
             updateDocBtnState(buf.docType, 'received');
+            // Sin este aviso, el botón del cliente se quedaba bloqueado en
+            // ⏳ para siempre — es lo que desbloquea la otra foto del lado
+            // de él (ver 'docs-received' en llamar.html).
+            docsCallChannel.send({ type: 'broadcast', event: 'docs-received', payload: { docType: buf.docType } });
           }
         })
         .subscribe();
       return true;
     }
 
-    async function requestDocFromCall(docType) {
-      const ok = await ensureDocsCallChannel();
-      if (!ok) return;
-      if (docsCallReceived[docType]) {
-        // Ya la tenemos — tocar de nuevo el botón la vuelve a mostrar, no
-        // pide otra vez (igual que showSnapshot en el sistema viejo).
-        showCallDoc(docType);
-        return;
-      }
-      updateDocBtnState(docType, 'waiting');
-      docsCallChannel.send({ type: 'broadcast', event: 'request-doc', payload: { docType } });
+    // El cliente decide cuándo mandar cada foto (dos botones propios del
+    // lado de él) — acá solo se puede VER la que ya llegó, tocar el botón
+    // antes de eso no hace nada.
+    function requestDocFromCall(docType) {
+      if (docsCallReceived[docType]) showCallDoc(docType);
     }
 
     function showCallDoc(docType) {
@@ -626,10 +624,13 @@
       const videoBtn = document.getElementById('videoBtn');
       muteBtn.disabled = true;
       videoBtn.disabled = true;
-      // Pedir documentos solo tiene sentido en una llamada con cliente
-      // (tiene client_token → cotización) — una interna dueño<->agente no.
+      // Ver documentos solo tiene sentido en una llamada con cliente — una
+      // interna dueño<->agente no. Se abre el canal ya mismo (no recién al
+      // tocar un botón) porque el cliente puede mandar la foto por su
+      // cuenta en cualquier momento, sin que el agente pida nada.
       document.getElementById('requestPassportBtn').hidden = activeCallIsInternal;
       document.getElementById('requestCardBtn').hidden = activeCallIsInternal;
+      if (!activeCallIsInternal) ensureDocsCallChannel();
       if (isCaller) {
         statusBar.textContent = 'Llamando…';
         startRingbackTone();
