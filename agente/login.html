@@ -324,11 +324,12 @@
       btn.disabled = false;
     });
 
-    // Si ya había una sesión con el segundo factor ya verificado (aal2),
-    // no hace falta pasar por el login de nuevo.
+    // Si ya había una sesión activa, no hace falta pasar por el login de
+    // nuevo. El segundo factor (MFA) se sacó a pedido del dueño: no todos
+    // los agentes pueden tener una app autenticadora en su teléfono.
     (async () => {
-      const { data } = await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();
-      if (data && data.currentLevel === 'aal2') {
+      const { data: userData } = await supabaseClient.auth.getUser();
+      if (userData?.user) {
         window.location.href = 'panel.html';
       }
     })();
