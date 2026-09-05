@@ -342,6 +342,100 @@
       }
     }
 
+    // Pedir/recibir pasaporte o tarjeta sin salir de esta pantalla. Usa el
+    // mismo canal y protocolo que ya usan index.html (cliente) y
+    // panel.html (agente) para no duplicar ni inventar un mecanismo nuevo.
+    function updateDocBtnState(docType, state) {
+      // state: 'idle' | 'waiting' | 'received'
+      const btn = document.getElementById(docType === 'passport' ? 'requestPassportBtn' : 'requestCardBtn');
+      if (!btn) return;
+      const icon = docType === 'passport' ? '🛂' : '💳';
+      btn.disabled = state === 'waiting';
+      btn.textContent = state === 'received' ? '✅' : (state === 'waiting' ? '⏳' : icon);
+    }
+
+    async function ensureDocsCallChannel() {
+      if (docsCallChannel && docsCallQuoteId) return true;
+      // Busca la cotización más reciente de ESTE cliente (por client_token
+      // de la llamada activa) — es lo mismo que ya hace panel.html, no hay
+      // otra forma de saber a qué cotización pedirle las fotos.
+      const { data: callRow } = await supabaseClient.from('call_requests').select('client_token').eq('id', activeCallId).maybeSingle();
+      if (!callRow || !callRow.client_token) {
+        alert('No se encontró el cliente de esta llamada.');
+        return false;
+      }
+      const { data: quoteRow } = await supabaseClient
+        .from('quote_requests')
+        .select('id')
+        .eq('client_token', callRow.client_token)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!quoteRow) {
+        alert('Este cliente todavía no tiene ninguna cotización — no se le puede pedir documentos hasta que haga una.');
+        return false;
+      }
+      docsCallQuoteId = quoteRow.id;
+      docsCallChannel = supabaseClient.channel('quote-docs:' + docsCallQuoteId, { config: { broadcast: { self: false } } });
+      docsCallChannel
+        .on('broadcast', { event: 'photo-chunk' }, ({ payload }) => {
+          const buf = docsCallIncomingChunks[payload.id] || (docsCallIncomingChunks[payload.id] = { docType: payload.docType, total: payload.total, parts: [] });
+          buf.parts[payload.index] = payload.data;
+          if (buf.parts.filter(Boolean).length === buf.total) {
+            docsCallReceived[buf.docType] = buf.parts.join('');
+            delete docsCallIncomingChunks[payload.id];
+            updateDocBtnState(buf.docType, 'received');
+          }
+        })
+        .subscribe();
+      return true;
+    }
+
+    async function requestDocFromCall(docType) {
+      const ok = await ensureDocsCallChannel();
+      if (!ok) return;
+      if (docsCallReceived[docType]) {
+        // Ya la tenemos — tocar de nuevo el botón la vuelve a mostrar, no
+        // pide otra vez (igual que showSnapshot en el sistema viejo).
+        showCallDoc(docType);
+        return;
+      }
+      updateDocBtnState(docType, 'waiting');
+      docsCallChannel.send({ type: 'broadcast', event: 'request-doc', payload: { docType } });
+    }
+
+    function showCallDoc(docType) {
+      const dataUrl = docsCallReceived[docType];
+      if (!dataUrl) return;
+      document.getElementById('callDocsOverlayTitle').textContent = docType === 'passport' ? 'Pasaporte del cliente' : 'Tarjeta de pago del cliente — no anotar el número, solo confirmar los últimos 4 dígitos';
+      document.getElementById('callDocsOverlayImg').src = dataUrl;
+      document.getElementById('callDocsOverlay').style.display = 'flex';
+    }
+    document.getElementById('callDocsCloseBtn').addEventListener('click', () => {
+      document.getElementById('callDocsOverlay').style.display = 'none';
+    });
+    document.getElementById('requestPassportBtn').addEventListener('click', () => {
+      if (docsCallReceived.passport) { showCallDoc('passport'); return; }
+      requestDocFromCall('passport');
+    });
+    document.getElementById('requestCardBtn').addEventListener('click', () => {
+      if (docsCallReceived.card) { showCallDoc('card'); return; }
+      requestDocFromCall('card');
+    });
+
+    function cleanupDocsCallChannel() {
+      if (docsCallChannel) {
+        supabaseClient.removeChannel(docsCallChannel);
+        docsCallChannel = null;
+      }
+      docsCallQuoteId = null;
+      docsCallReceived = { passport: null, card: null };
+      for (const k in docsCallIncomingChunks) delete docsCallIncomingChunks[k];
+      updateDocBtnState('passport', 'idle');
+      updateDocBtnState('card', 'idle');
+      document.getElementById('callDocsOverlay').style.display = 'none';
+    }
+
     // Llamadas internas ENTRANTES (dueño <-> agente) — separadas del todo
     // de las de clientes (otra tabla, otro botón). Sumado 2026-09-04.
     async function loadIncomingInternalCalls() {
