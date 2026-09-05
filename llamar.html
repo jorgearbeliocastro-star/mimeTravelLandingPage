@@ -156,6 +156,14 @@
     <button class="btn-circle btn-hangup" id="hangupBtn">⏹</button>
   </div>
 
+  <!-- Pedido de documentos DURANTE la llamada — no depende de ninguna
+       cotización, funciona para cualquier cliente que esté llamando. El
+       agente pide (🛂/💳 en su pantalla) y acá se abre solo el selector
+       de archivos; nunca se guarda nada, solo viaja en vivo por el canal
+       de la llamada. -->
+  <input type="file" accept="image/*" id="callDocFileInput" style="display:none;">
+  <div id="callDocBanner" style="display:none; position:fixed; top:0; left:0; right:0; background:var(--coral,#FF7A59); color:#fff; text-align:center; padding:12px 16px; font-weight:700; font-size:14px; z-index:70;"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="webrtcCall.js"></script>
   <script>
