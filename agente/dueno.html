@@ -212,6 +212,11 @@
     const WEB_PUSH_WEBHOOK_SECRET = '3a61e1f14f2ff3350889bd67cf2250bebde907e17b6d733e';
     const WEB_PUSH_FUNCTIONS_URL = SUPABASE_URL + '/functions/v1/send-web-push';
 
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await supabaseClient.auth.signOut();
+      window.location.href = 'login.html';
+    });
+
     // Guardia de sesión + rol: solo el Dueño (super_admin) entra acá —
     // cualquier otro agente que llegue a esta URL a mano se va derecho
     // al panel normal, no ve nada de esto.
