@@ -8826,7 +8826,7 @@
       // ya cotizó antes desde OTRO dispositivo (ej. su compu de casa) y
       // ahora escribe desde el teléfono, lo reconecta con el mismo Agente
       // en vez de mandarlo al pool general. Ver migración
-      // 0049_agent_link_across_devices.sql en "la expansión".
+      // 0049_agent_link_across_devices.sql (no está en este repo).
       supabaseClient.rpc('get_preferred_agent_for_client', { p_token: clientToken, p_email: data.email })
         .then(({ data: preferredAgentId }) => {
           return resolveWebClientLanguage().then((clientLanguage) => {
