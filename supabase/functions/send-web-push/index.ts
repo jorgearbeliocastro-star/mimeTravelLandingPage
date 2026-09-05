@@ -1,6 +1,6 @@
 // Función aparte, propia de la web (mimeTravelLandingPage) — NO toca ni
-// depende de la función "send-request-notification" que usa la app nativa
-// (la expancion). Manda una notificación push real del navegador a los
+// depende de la función "send-request-notification" (de otro proyecto, sin
+// relación con este). Manda una notificación push real del navegador a los
 // agentes que se suscribieron desde el panel web (agente/panel.html),
 // usando el protocolo estándar Web Push (VAPID) — sin ningún servicio
 // pago de terceros.
