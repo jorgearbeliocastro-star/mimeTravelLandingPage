@@ -546,6 +546,7 @@
         remoteVideoEl: document.getElementById('remoteVideo'),
         onState(state) {
           if (state === 'connected') {
+            stopRingbackTone();
             statusBar.textContent = 'En llamada';
             muteBtn.disabled = false;
             videoBtn.disabled = false;
