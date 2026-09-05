@@ -442,7 +442,9 @@
         client_language: (navigator.language || 'es').split('-')[0],
       });
       if (error) {
-        statusBar.textContent = 'No se pudo iniciar la llamada.';
+        // Muestra el motivo real (antes decía siempre lo mismo, sin decir
+        // por qué) — temporal, para diagnosticar sin necesitar la consola.
+        statusBar.textContent = 'No se pudo iniciar la llamada: ' + error.message;
         showFallback();
         return;
       }
