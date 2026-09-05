@@ -375,6 +375,10 @@
             docsCallReceived[buf.docType] = buf.parts.join('');
             delete docsCallIncomingChunks[payload.id];
             updateDocBtnState(buf.docType, 'received');
+            // Sin este aviso, el botón del cliente se quedaba bloqueado en
+            // ⏳ para siempre — es lo que desbloquea la otra foto del lado
+            // de él (ver 'docs-received' en llamar.html).
+            docsCallChannel.send({ type: 'broadcast', event: 'docs-received', payload: { docType: buf.docType } });
           }
         })
         .subscribe();
