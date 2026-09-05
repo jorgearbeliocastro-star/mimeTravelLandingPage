@@ -569,6 +569,33 @@
     </div>
   </div>
 
+  <!-- Autocompletado del campo "Aerolínea" del formulario de precio — el
+       input en sí se recrea cada vez que se abre ese formulario, pero
+       apunta acá por su atributo list, así que basta con esta única lista. -->
+  <datalist id="airlineDatalist">
+    <option value="American Airlines">
+    <option value="Delta Air Lines">
+    <option value="United Airlines">
+    <option value="JetBlue">
+    <option value="Spirit Airlines">
+    <option value="Frontier Airlines">
+    <option value="Southwest Airlines">
+    <option value="Avianca">
+    <option value="Copa Airlines">
+    <option value="LATAM Airlines">
+    <option value="Aeroméxico">
+    <option value="Air Canada">
+    <option value="Iberia">
+    <option value="Air Europa">
+    <option value="Turkish Airlines">
+    <option value="Emirates">
+    <option value="Qatar Airways">
+    <option value="Lufthansa">
+    <option value="Air France">
+    <option value="KLM">
+    <option value="British Airways">
+  </datalist>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="presence.js"></script>
   <script>
