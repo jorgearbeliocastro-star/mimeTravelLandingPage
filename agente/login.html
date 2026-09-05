@@ -214,6 +214,13 @@
         }
         window.__pendingFactorId = enrollData.id;
         document.getElementById('qrImg').src = enrollData.totp.qr_code;
+        // Para cuando el agente entra desde el mismo celular donde tiene
+        // la app autenticadora — escanear un QR en la propia pantalla no
+        // se puede, así que se suman dos salidas: el link otpauth:// (el
+        // navegador/Android lo abre directo en Google Authenticator si
+        // está instalada) y la clave manual como último recurso.
+        document.getElementById('enrollAppLink').href = enrollData.totp.uri;
+        document.getElementById('enrollSecret').textContent = enrollData.totp.secret;
         showStep('stepEnroll');
         showMsg('', '');
       }
