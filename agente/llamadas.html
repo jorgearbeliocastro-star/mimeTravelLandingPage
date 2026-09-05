@@ -572,6 +572,7 @@
             }
           }
           if (state === 'failed') {
+            stopRingbackTone();
             statusBar.textContent = 'No se pudo conectar';
             supabaseClient.from(tableName).update({ status: 'ended', updated_at: new Date().toISOString() }).eq('id', callId).then(() => {});
             setTimeout(closeCallScreen, 2000);
