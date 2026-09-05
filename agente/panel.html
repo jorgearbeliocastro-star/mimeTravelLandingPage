@@ -773,6 +773,17 @@
           });
         }
         const { data: userData } = await supabaseClient.auth.getUser();
+        // Borra cualquier suscripción vieja de ESTE MISMO dispositivo antes
+        // de guardar la nueva — sin esto, activar "Notificaciones" más de
+        // una vez desde el mismo aparato dejaba filas duplicadas con el
+        // mismo endpoint, y cada llamada/aviso terminaba sonando varias
+        // veces en el mismo celular. Otros dispositivos del mismo agente
+        // (PC, tablet) no se tocan — tienen su propio endpoint.
+        await supabaseClient
+          .from('agent_push_subscriptions')
+          .delete()
+          .eq('agent_id', userData.user.id)
+          .eq('subscription->>endpoint', sub.toJSON().endpoint);
         const { error } = await supabaseClient
           .from('agent_push_subscriptions')
           .insert({ agent_id: userData.user.id, subscription: sub.toJSON() });
