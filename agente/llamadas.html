@@ -516,13 +516,14 @@
 
     // "Volver a llamar" — sumado 2026-09-03, para cuando el cliente llamó
     // primero (por fuera de una cotización, así que no hay tarjeta con el
-    // botón "📞 Llamar" para volver a encontrarlo). Cualquier agente ve
-    // esto, no solo el dueño — a diferencia del registro completo que
-    // solo tiene dueno.html.
+    // botón "📞 Llamar" para volver a encontrarlo). Solo las llamadas que
+    // ESTE agente atendió/hizo — el historial de TODOS los agentes es
+    // exclusivo del dueño, en dueno.html.
     async function loadRecentCalls() {
       const { data, error } = await supabaseClient
         .from('call_requests')
         .select('id, client_token, client_language, status, initiated_by, created_at')
+        .eq('accepted_by', agentId)
         .order('created_at', { ascending: false })
         .limit(10);
       const list = document.getElementById('recentCallsList');
