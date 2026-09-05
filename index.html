@@ -4601,9 +4601,14 @@
     // el token que la app guarda en el teléfono, pero acá vive en localStorage.
     function getOrCreateWebClientToken() {
       const KEY = 'mime-travel.client-token';
+      const OLD_KEY = 'la-expancion.client-token'; // nombre viejo — ver abajo
       let token = localStorage.getItem(KEY);
       if (!token) {
-        token = crypto.randomUUID();
+        // Si ya tenía un token guardado con el nombre viejo (de antes de
+        // renombrar esta clave), lo migra en vez de generar uno nuevo —
+        // sin esto, cualquier cliente que ya tuviera cotizaciones quedaba
+        // "separado" de su propia identidad de un día para el otro.
+        token = localStorage.getItem(OLD_KEY) || crypto.randomUUID();
         localStorage.setItem(KEY, token);
       }
       return token;
