@@ -267,14 +267,41 @@
         // Sin botón de llamar para uno mismo (la fila del dueño, viéndola
         // el propio dueño) — no tiene sentido llamarse a sí mismo.
         const callBtn = isOwner ? '' : '<button type="button" class="role-tag" data-call-agent="' + p.id + '" style="border:none; cursor:pointer;">📞</button>';
+        // Sin botón de borrar para uno mismo (la fila del dueño) — esta
+        // función es solo para dar de baja Agentes que ya no trabajan más.
+        const deleteBtn = isOwner ? '' : '<button type="button" class="role-tag" data-delete-agent="' + p.id + '" style="border:none; cursor:pointer;">🗑</button>';
         return '<div class="agent-row"><span>' + name + '</span><span style="display:flex; gap:6px; align-items:center;">' +
           '<span class="role-tag ' + (connected ? 'conn-yes' : 'conn-no') + '">' + (connected ? '🟢 Conectado' : '⚪ Desconectado') + '</span>' +
           '<span class="role-tag' + (isOwner ? ' owner' : '') + '">' + (isOwner ? 'Dueño' : 'Agente') + '</span>' +
-          callBtn + '</span></div>';
+          callBtn + deleteBtn + '</span></div>';
       }).join('');
       list.querySelectorAll('[data-call-agent]').forEach((btn) => {
         btn.addEventListener('click', () => callAgent(btn.dataset.callAgent));
       });
+      list.querySelectorAll('[data-delete-agent]').forEach((btn) => {
+        btn.addEventListener('click', () => deleteAgentAccount(btn.dataset.deleteAgent, agentNamesById[btn.dataset.deleteAgent]));
+      });
+    }
+
+    // Borra la cuenta de un agente por completo (Authentication + su fila
+    // en profiles) — vía la Edge Function delete-agent, que valida del
+    // lado del servidor que quien llama sea el Dueño.
+    async function deleteAgentAccount(agentId, agentName) {
+      if (!confirm('¿Borrar del todo la cuenta de "' + (agentName || 'este agente') + '"? No se puede deshacer — pierde acceso al panel para siempre.')) return;
+      try {
+        const { data: sessionData } = await supabaseClient.auth.getSession();
+        const accessToken = sessionData?.session?.access_token;
+        const res = await fetch(DELETE_AGENT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + accessToken },
+          body: JSON.stringify({ agentId }),
+        });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error || 'No se pudo borrar el agente.');
+        loadTeam();
+      } catch (err) {
+        alert('⚠️ ' + (err && err.message ? err.message : 'Error desconocido.'));
+      }
     }
     // Refresca el estado de conectado/desconectado sin recargar todo el
     // equipo — el latido de cada agente llega cada 45s (ver presence.js),
