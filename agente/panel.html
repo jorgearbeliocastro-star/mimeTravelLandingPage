@@ -615,14 +615,11 @@
       });
     }
 
-    // Guardia de sesión: sin login + segundo factor verificado (aal2), no
-    // se puede ver nada de este panel — vuelve directo al login.
+    // Guardia de sesión: sin login (correo + contraseña), no se puede ver
+    // nada de este panel — vuelve directo al login. El segundo factor
+    // (MFA) se sacó a pedido del dueño: no todos los agentes pueden tener
+    // una app autenticadora en su teléfono.
     (async () => {
-      const { data: aalData } = await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();
-      if (!aalData || aalData.currentLevel !== 'aal2') {
-        window.location.href = 'login.html';
-        return;
-      }
       const { data: userData } = await supabaseClient.auth.getUser();
       if (!userData?.user) {
         window.location.href = 'login.html';
