@@ -4596,6 +4596,13 @@
     // proyecto entero, no por rol, así que se reusa tal cual.
     const WEB_PUSH_VAPID_PUBLIC_KEY = 'BGa5n6mV8kYVoF9fYsiEo-2M1jHRWd-pA2OTyLmAWbe1YCNsE3EGZv-ysXU_69iUaxmskaOng0OTfXT5C4M1_80';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Página 100% pública — si este navegador se usó alguna vez para
+    // entrar a agente/login.html, queda guardada esa sesión (mismo
+    // proyecto de Supabase) y las acciones de acá (pedir cotización,
+    // llamar) salen "logueadas como agente" en vez de anónimas, lo que
+    // las políticas de seguridad de la base rechazan. Se cierra cualquier
+    // sesión vieja apenas carga — acá nunca debería haber una iniciada.
+    supabaseClient.auth.signOut().catch(() => {});
 
     // Identifica este navegador como "cliente sin cuenta" — mismo patrón que
     // el token que la app guarda en el teléfono, pero acá vive en localStorage.
