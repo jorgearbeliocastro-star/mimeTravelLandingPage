@@ -306,6 +306,19 @@
         alert('No se pudo iniciar la llamada: ' + error.message);
         return;
       }
+      // Push al agente — sin esto, si no tiene llamadas.html abierta en ese
+      // momento, el timbre nunca suena. Mismo patrón que "Llamar al dueño"
+      // en panel.html.
+      fetch(WEB_PUSH_FUNCTIONS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': WEB_PUSH_WEBHOOK_SECRET },
+        body: JSON.stringify({
+          agentId: agentUserId,
+          title: 'Te está llamando el dueño',
+          body: 'Tocá para atender la llamada.',
+          url: '/agente/llamadas.html',
+        }),
+      }).catch(() => {});
       window.location.href = 'llamadas.html?internalOutgoing=' + callId;
     }
 
