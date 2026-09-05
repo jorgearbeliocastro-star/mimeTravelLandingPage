@@ -188,11 +188,10 @@
     let internalCallPollTimer = null;
 
     // Pedir pasaporte/tarjeta sin salir de la pantalla de la llamada —
-    // reusa el MISMO canal/protocolo que ya usan index.html y panel.html
-    // ('quote-docs:'+quoteId, eventos 'request-doc'/'photo-chunk'), nunca
+    // canal atado a la llamada misma ('call-docs:'+callId), funciona para
+    // cualquier cliente esté llamando, tenga o no una cotización. Nunca
     // guarda la foto en ningún lado, se pierde sola al cerrar esta pantalla.
     let docsCallChannel = null;
-    let docsCallQuoteId = null;
     let docsCallReceived = { passport: null, card: null };
     const docsCallIncomingChunks = {};
 
