@@ -167,7 +167,7 @@
     // navegador como "cliente sin cuenta" (ver getOrCreateWebClientToken en
     // index.html).
     function getClientToken() {
-      const KEY = 'la-expancion.client-token';
+      const KEY = 'mime-travel.client-token';
       let token = localStorage.getItem(KEY);
       if (!token) {
         token = crypto.randomUUID();
