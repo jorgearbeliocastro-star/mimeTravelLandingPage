@@ -187,6 +187,15 @@
     let activeCallIsInternal = false;
     let internalCallPollTimer = null;
 
+    // Pedir pasaporte/tarjeta sin salir de la pantalla de la llamada —
+    // reusa el MISMO canal/protocolo que ya usan index.html y panel.html
+    // ('quote-docs:'+quoteId, eventos 'request-doc'/'photo-chunk'), nunca
+    // guarda la foto en ningún lado, se pierde sola al cerrar esta pantalla.
+    let docsCallChannel = null;
+    let docsCallQuoteId = null;
+    let docsCallReceived = { passport: null, card: null };
+    const docsCallIncomingChunks = {};
+
     // Último recurso: si el celular del Agente mata la pestaña de golpe
     // durante una llamada, ni "colgar" ni el 'failed' de WebRTC llegan a
     // dispararse — con keepalive el pedido sigue viajando igual.
