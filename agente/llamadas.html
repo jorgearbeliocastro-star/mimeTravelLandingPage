@@ -409,7 +409,6 @@
         supabaseClient.removeChannel(docsCallChannel);
         docsCallChannel = null;
       }
-      docsCallQuoteId = null;
       docsCallReceived = { passport: null, card: null };
       for (const k in docsCallIncomingChunks) delete docsCallIncomingChunks[k];
       updateDocBtnState('passport', 'idle');
