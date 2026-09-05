@@ -2572,8 +2572,24 @@
     font-size: 13px;
     font-weight: 600;
   }
-  .docs-upload-status.waiting { color: var(--coral); }
+  .docs-upload-status.waiting {
+    /* Bien grande y llamativo a propósito — no se guarda nada si el
+       cliente cierra la pantalla antes de que el agente reciba las fotos,
+       así que este aviso tiene que ser imposible de pasar por alto. */
+    color: #fff;
+    background: var(--coral);
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 16px;
+    line-height: 1.4;
+    text-align: center;
+    animation: docsWarnPulse 1.4s ease-in-out infinite;
+  }
   .docs-upload-status.done { color: #2e7d32; }
+  @keyframes docsWarnPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,122,89,0.55); }
+    50% { box-shadow: 0 0 0 10px rgba(255,122,89,0); }
+  }
 
   /* El chat viene cerrado por defecto — antes quedaba siempre desplegado
      abajo y le sacaba espacio a los precios/checkboxes de arriba, forzando
