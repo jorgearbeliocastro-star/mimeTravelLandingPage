@@ -355,28 +355,10 @@
     }
 
     async function ensureDocsCallChannel() {
-      if (docsCallChannel && docsCallQuoteId) return true;
-      // Busca la cotización más reciente de ESTE cliente (por client_token
-      // de la llamada activa) — es lo mismo que ya hace panel.html, no hay
-      // otra forma de saber a qué cotización pedirle las fotos.
-      const { data: callRow } = await supabaseClient.from('call_requests').select('client_token').eq('id', activeCallId).maybeSingle();
-      if (!callRow || !callRow.client_token) {
-        alert('No se encontró el cliente de esta llamada.');
-        return false;
-      }
-      const { data: quoteRow } = await supabaseClient
-        .from('quote_requests')
-        .select('id')
-        .eq('client_token', callRow.client_token)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (!quoteRow) {
-        alert('Este cliente todavía no tiene ninguna cotización — no se le puede pedir documentos hasta que haga una.');
-        return false;
-      }
-      docsCallQuoteId = quoteRow.id;
-      docsCallChannel = supabaseClient.channel('quote-docs:' + docsCallQuoteId, { config: { broadcast: { self: false } } });
+      if (docsCallChannel) return true;
+      // Atado a la llamada misma (no a una cotización) — funciona para
+      // cualquier cliente que esté llamando, tenga o no una cotización.
+      docsCallChannel = supabaseClient.channel('call-docs:' + activeCallId, { config: { broadcast: { self: false } } });
       docsCallChannel
         .on('broadcast', { event: 'photo-chunk' }, ({ payload }) => {
           const buf = docsCallIncomingChunks[payload.id] || (docsCallIncomingChunks[payload.id] = { docType: payload.docType, total: payload.total, parts: [] });
