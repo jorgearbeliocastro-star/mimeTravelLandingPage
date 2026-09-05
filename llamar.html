@@ -198,12 +198,14 @@
       declineBtn.style.background = 'rgba(255,255,255,0.08)';
       declineBtn.textContent = '❌ No atender ahora';
       declineBtn.addEventListener('click', async () => {
+        stopRingtone();
         try {
           await supabaseClient.from('call_requests').update({ status: 'declined', updated_at: new Date().toISOString() }).eq('id', incomingCallId);
         } catch (e) {}
         window.location.href = 'index.html';
       });
       document.getElementById('choiceScreen').appendChild(declineBtn);
+      startRingtone();
     }
 
     // Se une a una llamada que YA EXISTE (la creó el agente) en vez de
