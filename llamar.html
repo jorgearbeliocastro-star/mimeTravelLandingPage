@@ -170,9 +170,12 @@
     // index.html).
     function getClientToken() {
       const KEY = 'mime-travel.client-token';
+      const OLD_KEY = 'la-expancion.client-token'; // nombre viejo — ver index.html
       let token = localStorage.getItem(KEY);
       if (!token) {
-        token = crypto.randomUUID();
+        // Migra el token viejo si existía, en vez de generar uno nuevo —
+        // mismo criterio que getOrCreateWebClientToken() en index.html.
+        token = localStorage.getItem(OLD_KEY) || crypto.randomUUID();
         localStorage.setItem(KEY, token);
       }
       return token;
