@@ -595,6 +595,7 @@
     let wantsVideo = true;
     function startAfterChoice(withVideo) {
       wantsVideo = withVideo;
+      stopRingtone();
       document.getElementById('choiceScreen').style.display = 'none';
       statusBar.style.display = 'block';
       document.getElementById('videoArea').style.display = 'block';
