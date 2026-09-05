@@ -249,6 +249,15 @@
         openCallScreen(internalOutgoingId, true, true);
         return;
       }
+      // Llamada ENTRANTE ya aceptada desde panel.html (el overlay de
+      // pantalla completa de ahí ya hizo el accept en la base) — entra
+      // directo a la pantalla de llamada como quien atiende (isCaller=
+      // false), sin pasar de nuevo por la lista de atender/rechazar.
+      const joinAcceptedId = new URLSearchParams(location.search).get('joinAccepted');
+      if (joinAcceptedId) {
+        openCallScreen(joinAcceptedId, false);
+        return;
+      }
       loadRingingCalls();
       loadRecentCalls();
       pollTimer = setInterval(loadRingingCalls, 3000);
