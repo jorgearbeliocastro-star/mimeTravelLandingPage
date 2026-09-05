@@ -259,7 +259,12 @@
           return;
         }
         showMsg('¡Listo! Entrando…', 'ok');
-        window.location.href = 'panel.html';
+        // El dueño va directo a su propio panel — antes caía en el panel
+        // de agentes igual que cualquiera, y ahí le aparecía una tarjeta
+        // extra ("Llamar al dueño") pensada solo para agentes, mezclando
+        // las dos pantallas. Separado del todo: el dueño solo entra a
+        // panel.html si él mismo toca "Modo agente" desde dueno.html.
+        window.location.href = profile.role === 'super_admin' ? 'dueno.html' : 'panel.html';
         return;
       } catch (err) {
         showMsg('Error inesperado: ' + (err && err.message ? err.message : String(err)), 'error');
