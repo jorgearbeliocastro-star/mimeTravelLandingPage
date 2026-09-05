@@ -558,6 +558,20 @@
     <p class="note">Falta todavía: en cotizaciones — extras/camarotes/asientos (solo hay precio simple por ahora).</p>
   </main>
 
+  <!-- Llamada entrante — antes solo se avisaba con un numerito chico en la
+       tarjeta de "Llamadas" (fácil de no notar si el agente estaba metido
+       en otra pantalla), sin sonido ni nada. Ahora, si el agente está
+       disponible, esto tapa toda la pantalla con timbre real, como
+       cualquier llamada normal. -->
+  <div id="incomingCallOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:100; align-items:center; justify-content:center; flex-direction:column; color:#fff; text-align:center; padding:24px;">
+    <div style="font-size:48px; margin-bottom:12px;">📞</div>
+    <div style="font-size:20px; font-weight:700; margin-bottom:32px;">Llamada entrante</div>
+    <div style="display:flex; gap:20px;">
+      <button type="button" id="incomingCallDeclineBtn" style="width:70px; height:70px; border-radius:50%; border:none; background:#c0392b; color:#fff; font-size:26px; cursor:pointer;">✕</button>
+      <button type="button" id="incomingCallAcceptBtn" style="width:70px; height:70px; border-radius:50%; border:none; background:#2e7d32; color:#fff; font-size:26px; cursor:pointer;">📞</button>
+    </div>
+  </div>
+
   <!-- Documentos del cliente (pasaporte/tarjeta): llegan en vivo por
        Realtime mientras el cliente sigue conectado, nunca se guardan acá
        ni en ningún lado — se borran al cerrar esta vista. -->
