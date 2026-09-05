@@ -624,10 +624,13 @@
       const videoBtn = document.getElementById('videoBtn');
       muteBtn.disabled = true;
       videoBtn.disabled = true;
-      // Pedir documentos solo tiene sentido en una llamada con cliente
-      // (tiene client_token → cotización) — una interna dueño<->agente no.
+      // Ver documentos solo tiene sentido en una llamada con cliente — una
+      // interna dueño<->agente no. Se abre el canal ya mismo (no recién al
+      // tocar un botón) porque el cliente puede mandar la foto por su
+      // cuenta en cualquier momento, sin que el agente pida nada.
       document.getElementById('requestPassportBtn').hidden = activeCallIsInternal;
       document.getElementById('requestCardBtn').hidden = activeCallIsInternal;
+      if (!activeCallIsInternal) ensureDocsCallChannel();
       if (isCaller) {
         statusBar.textContent = 'Llamando…';
         startRingbackTone();
