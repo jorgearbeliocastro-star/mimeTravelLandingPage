@@ -167,11 +167,9 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
-    // Mismo proyecto de Supabase que usa la web pública y la app (la
-    // expancion) — el anon key es público a propósito (protegido por RLS
-    // del lado del servidor, igual que en index.html). El panel de agente
-    // se decide SEPARADO de la app nativa a partir de ahora — no reusa ni
-    // depende de su código, aunque comparta la misma base de datos.
+    // Mismo proyecto de Supabase que usa la web pública — el anon key es
+    // público a propósito (protegido por RLS del lado del servidor, igual
+    // que en index.html).
     const SUPABASE_URL = 'https://ihrfaprvzdafclquuhlh.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_lcWymV25nHd2_iOMjRwD4A_XOXvOdPK';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
