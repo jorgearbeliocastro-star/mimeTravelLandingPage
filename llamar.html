@@ -156,18 +156,13 @@
     <button class="btn-circle btn-hangup" id="hangupBtn">⏹</button>
   </div>
 
-  <!-- Subir documentos DURANTE la llamada — no depende de ninguna
+  <!-- Pedido de documentos DURANTE la llamada — no depende de ninguna
        cotización, funciona para cualquier cliente que esté llamando. El
-       cliente elige cuál mandar primero (no lo decide el agente); nunca
-       se guarda nada, solo viaja en vivo por el canal de la llamada. -->
-  <div id="callDocsPanel" style="display:none; position:fixed; left:0; right:0; bottom:0; background:#1B3A5C; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); z-index:70; text-align:center;">
-    <div style="display:flex; gap:10px; justify-content:center;">
-      <button type="button" id="callDocsPassportBtn" style="flex:1; max-width:180px; padding:10px 8px; border-radius:8px; border:none; background:#fff; color:#1B3A5C; font-weight:700; font-size:13px; cursor:pointer;"></button>
-      <button type="button" id="callDocsCardBtn" style="flex:1; max-width:180px; padding:10px 8px; border-radius:8px; border:none; background:#fff; color:#1B3A5C; font-weight:700; font-size:13px; cursor:pointer;"></button>
-    </div>
-    <div id="callDocsStatus" style="color:#fff; font-size:12px; margin-top:8px;"></div>
-  </div>
+       agente pide (🛂/💳 en su pantalla) y acá se abre solo el selector
+       de archivos; nunca se guarda nada, solo viaja en vivo por el canal
+       de la llamada. -->
   <input type="file" accept="image/*" id="callDocFileInput" style="display:none;">
+  <div id="callDocBanner" style="display:none; position:fixed; top:0; left:0; right:0; background:var(--coral,#FF7A59); color:#fff; text-align:center; padding:12px 16px; font-weight:700; font-size:14px; z-index:70;"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="webrtcCall.js"></script>
@@ -579,71 +574,45 @@
       }
     }
 
-    // Subir pasaporte/tarjeta DURANTE la llamada — atado a la llamada
-    // misma (call-docs:<callId>), así que funciona aunque el cliente no
-    // tenga ninguna cotización todavía. El CLIENTE decide cuál mandar
-    // primero (dos botones siempre visibles, no espera un pedido del
-    // agente) — mientras una está en camino/sin confirmar, la otra queda
-    // bloqueada con ⏳, mismo criterio que ya usa index.html para no
-    // mezclar los pedazos de las dos fotos por el mismo canal.
+    // Pedido de pasaporte/tarjeta DURANTE la llamada — a diferencia del
+    // mecanismo de la cotización (quote-docs:<id>), este vive atado a la
+    // llamada misma (call-docs:<callId>), así que funciona aunque el
+    // cliente no tenga ninguna cotización todavía.
     let callDocChannel = null;
     let callDocPendingType = null;
-    const callDocsDataUrls = { passport: null, card: null };
-    const callDocsReceivedByAgent = { passport: false, card: false };
-    function renderCallDocsButtons() {
-      const passportBtn = document.getElementById('callDocsPassportBtn');
-      const cardBtn = document.getElementById('callDocsCardBtn');
-      const anyPending = (callDocsDataUrls.passport && !callDocsReceivedByAgent.passport) || (callDocsDataUrls.card && !callDocsReceivedByAgent.card);
-      const label = (docType, text) => {
-        if (callDocsDataUrls[docType] && callDocsReceivedByAgent[docType]) return '✅ ' + text;
-        if (callDocsDataUrls[docType]) return '⏳ ' + text;
-        return '📁 ' + text;
-      };
-      passportBtn.textContent = label('passport', 'Pasaporte');
-      passportBtn.disabled = anyPending;
-      cardBtn.textContent = label('card', 'Tarjeta de pago');
-      cardBtn.disabled = anyPending;
-      const statusEl = document.getElementById('callDocsStatus');
-      if (!callDocsDataUrls.passport && !callDocsDataUrls.card) {
-        statusEl.textContent = '';
-      } else if (anyPending) {
-        statusEl.textContent = '⚠️ No cierres ni cambies de pantalla hasta que el agente confirme.';
-      } else {
-        statusEl.textContent = '✅ El agente ya recibió lo que mandaste.';
-      }
-    }
+    const callDocLabels = { passport: 'tu pasaporte', card: 'tu tarjeta de pago' };
     function setupCallDocsChannel(callId) {
       if (callDocChannel) return;
-      document.getElementById('callDocsPanel').style.display = 'block';
-      renderCallDocsButtons();
       callDocChannel = supabaseClient.channel('call-docs:' + callId, { config: { broadcast: { self: false } } });
       callDocChannel
-        .on('broadcast', { event: 'docs-received' }, ({ payload }) => {
-          if (payload && payload.docType) callDocsReceivedByAgent[payload.docType] = true;
-          renderCallDocsButtons();
+        .on('broadcast', { event: 'request-doc' }, ({ payload }) => {
+          callDocPendingType = payload.docType;
+          const banner = document.getElementById('callDocBanner');
+          // El selector de archivo tiene que abrirse por un toque real del
+          // cliente (botón) — muchos celulares bloquean el .click()
+          // automático de un input de archivo si no viene de un gesto
+          // real del usuario, y no dejaba elegir cámara/galería/archivos.
+          banner.innerHTML = '📎 El agente te pidió ' + (callDocLabels[payload.docType] || 'un documento') + ' — <button type="button" id="callDocPickBtn" style="background:#fff; color:var(--coral,#FF7A59); border:none; border-radius:6px; padding:6px 12px; font-weight:700; margin-left:6px; cursor:pointer;">Elegir foto</button>';
+          banner.style.display = 'block';
+          document.getElementById('callDocPickBtn').addEventListener('click', () => {
+            document.getElementById('callDocFileInput').click();
+          });
         })
         .subscribe();
     }
-    function pickCallDoc(docType) {
-      if (callDocsDataUrls[docType] && !callDocsReceivedByAgent[docType]) return; // ya en camino
-      callDocPendingType = docType;
-      document.getElementById('callDocFileInput').click();
-    }
-    document.getElementById('callDocsPassportBtn').addEventListener('click', () => pickCallDoc('passport'));
-    document.getElementById('callDocsCardBtn').addEventListener('click', () => pickCallDoc('card'));
     document.getElementById('callDocFileInput').addEventListener('change', async (e) => {
       const file = e.target.files && e.target.files[0];
       const docType = callDocPendingType;
       e.target.value = '';
-      if (!file || !docType || !callDocChannel) return;
+      const banner = document.getElementById('callDocBanner');
+      if (!file || !docType || !callDocChannel) { banner.style.display = 'none'; return; }
       try {
         const dataUrl = await downscaleImageFile(file, 1300, 0.78);
-        callDocsDataUrls[docType] = dataUrl;
-        callDocsReceivedByAgent[docType] = false;
-        renderCallDocsButtons();
         queueDocSend(callDocChannel, docType, dataUrl);
+        banner.textContent = '✅ Enviado — esperá a que el agente confirme que le llegó.';
+        setTimeout(() => { banner.style.display = 'none'; }, 4000);
       } catch (err) {
-        document.getElementById('callDocsStatus').textContent = '⚠️ No se pudo leer la foto, probá de nuevo.';
+        banner.textContent = '⚠️ No se pudo leer la foto, probá de nuevo.';
       }
     });
     function cleanupCallDocsChannel() {
@@ -651,7 +620,7 @@
         supabaseClient.removeChannel(callDocChannel);
         callDocChannel = null;
       }
-      document.getElementById('callDocsPanel').style.display = 'none';
+      document.getElementById('callDocBanner').style.display = 'none';
     }
 
     function startCall(isCaller) {
