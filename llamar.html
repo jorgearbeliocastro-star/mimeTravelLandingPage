@@ -588,9 +588,15 @@
         .on('broadcast', { event: 'request-doc' }, ({ payload }) => {
           callDocPendingType = payload.docType;
           const banner = document.getElementById('callDocBanner');
-          banner.textContent = '📎 El agente te pidió ' + (callDocLabels[payload.docType] || 'un documento') + ' — elegí la foto ahora.';
+          // El selector de archivo tiene que abrirse por un toque real del
+          // cliente (botón) — muchos celulares bloquean el .click()
+          // automático de un input de archivo si no viene de un gesto
+          // real del usuario, y no dejaba elegir cámara/galería/archivos.
+          banner.innerHTML = '📎 El agente te pidió ' + (callDocLabels[payload.docType] || 'un documento') + ' — <button type="button" id="callDocPickBtn" style="background:#fff; color:var(--coral,#FF7A59); border:none; border-radius:6px; padding:6px 12px; font-weight:700; margin-left:6px; cursor:pointer;">Elegir foto</button>';
           banner.style.display = 'block';
-          document.getElementById('callDocFileInput').click();
+          document.getElementById('callDocPickBtn').addEventListener('click', () => {
+            document.getElementById('callDocFileInput').click();
+          });
         })
         .subscribe();
     }
