@@ -816,7 +816,9 @@
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       await supabaseClient.auth.signOut();
-      window.location.href = 'login.html';
+      // Directo a la web del cliente, sin pasar por login.html — a pedido
+      // del dueño.
+      window.location.href = '../index.html';
     });
 
     // Llave pública VAPID — es pública a propósito (el navegador la usa
