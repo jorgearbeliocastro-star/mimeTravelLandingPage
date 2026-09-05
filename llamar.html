@@ -164,6 +164,14 @@
     const WEB_PUSH_WEBHOOK_SECRET = '3a61e1f14f2ff3350889bd67cf2250bebde907e17b6d733e';
     const WEB_PUSH_FUNCTIONS_URL = SUPABASE_URL + '/functions/v1/send-web-push';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Esta página es 100% pública, para clientes sin cuenta — si el mismo
+    // navegador se usó alguna vez para entrar a agente/login.html, queda
+    // guardada esa sesión (mismo proyecto de Supabase, misma localStorage)
+    // y el pedido de llamada sale "logueado como agente" en vez de
+    // anónimo, lo que la política de seguridad de la base rechaza. Se
+    // cierra cualquier sesión vieja apenas carga, sin preguntar — acá
+    // nunca debería haber una sesión iniciada.
+    supabaseClient.auth.signOut().catch(() => {});
 
     // Mismo token que usa el resto de la web pública para identificar este
     // navegador como "cliente sin cuenta" (ver getOrCreateWebClientToken en
