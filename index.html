@@ -8506,7 +8506,12 @@
           seatTypeWrap.className = 'quote-status-seat-type';
           const label = document.createElement('span');
           label.className = 'quote-status-seat-type-label';
-          label.textContent = t(quote.category === 'cruise' ? 'quoteCabinTypeLabel' : 'quoteSeatTypeLabel');
+          // Mismo campo (quoted_seat_type/quoted_seat_type_prices) para
+          // las 4 categorías, solo cambia cómo se le llama y con qué
+          // prefijo de traducción se busca cada opción — ver SEAT_TYPE_
+          // LABEL_KEY/SEAT_TYPE_OPTION_PREFIX más abajo.
+          const SEAT_TYPE_LABEL_KEY = { cruise: 'quoteCabinTypeLabel', hotel: 'quoteRoomTypeLabel', car: 'quoteCarTypeLabel' };
+          label.textContent = t(SEAT_TYPE_LABEL_KEY[quote.category] || 'quoteSeatTypeLabel');
           seatTypeWrap.appendChild(label);
           if (quote.category === 'cruise') {
             // Agrupado por camarote, con sus niveles Bella/Fantastica/Aurea
