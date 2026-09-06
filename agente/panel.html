@@ -1639,6 +1639,65 @@
     // incluye todavía extras/camarotes/asientos como sí tiene la app; eso
     // se suma después con más calma, esto es la base mínima para no dejar
     // al agente sin ninguna forma de cotizar desde la web.
+    // Reusa el mismo mecanismo de "tipo de asiento" que ya existe para
+    // vuelo (quoted_seat_type / quoted_seat_type_prices) — para crucero la
+    // "clave de asiento" es un camarote compuesto ("interior_bella",
+    // "yacht_club_royal_suite", etc.), exactamente como ya lo espera
+    // index.html del lado del cliente (ver CABIN_TYPE_ORDER/FARE_TIER_ORDER/
+    // YACHT_CLUB_SUITE_ORDER ahí). No es una columna nueva — es la misma
+    // infraestructura de vuelo, con otras claves. Esto vivía en la app
+    // "la expancion" (sacada de este repo el 2026-09-01); acá se reconstruye
+    // usando el mismo modelo de datos que el cliente ya consume.
+    function getSeatTypeOptions(category) {
+      if (category === 'flight') {
+        return [
+          { key: 'aisle', label: 'Pasillo' },
+          { key: 'middle', label: 'Centro' },
+          { key: 'window', label: 'Ventanilla' },
+        ];
+      }
+      if (category === 'cruise') {
+        const cabins = [
+          { key: 'interior', label: 'Interior' },
+          { key: 'oceanview', label: 'Vista al mar' },
+          { key: 'balcony', label: 'Balcón' },
+          { key: 'suite', label: 'Suite' },
+        ];
+        const tiers = [
+          { key: 'bella', label: 'Bella' },
+          { key: 'fantastica', label: 'Fantastica' },
+          { key: 'aurea', label: 'Aurea' },
+        ];
+        const options = [];
+        cabins.forEach((cabin) => {
+          tiers.forEach((tier) => {
+            options.push({ key: cabin.key + '_' + tier.key, label: cabin.label + ' — ' + tier.label });
+          });
+        });
+        // Yacht Club no tiene niveles Bella/Fantastica/Aurea — son 3
+        // habitaciones propias con precio único cada una (mismo criterio
+        // que ya usa index.html, ver YACHT_CLUB_SUITE_ORDER).
+        [
+          { key: 'royal_suite', label: 'Royal Suite' },
+          { key: 'deluxe_suite', label: 'Deluxe Suite' },
+          { key: 'interior_suite', label: 'Interior Suite' },
+        ].forEach((suite) => {
+          options.push({ key: 'yacht_club_' + suite.key, label: 'MSC Yacht Club — ' + suite.label });
+        });
+        return options;
+      }
+      return [];
+    }
+    // Arma las filas de precio+"No disponible" para una lista de
+    // {key,label} — genérico para que sirva igual con 3 claves (vuelo) o
+    // 15 (crucero), sin repetir el HTML a mano por cada una.
+    function buildSeatPriceRowsHTML(options) {
+      return options.map((o) =>
+        '<div class="price-form-seat"><input type="number" inputmode="decimal" class="pf-seat-' + o.key + '" placeholder="' + o.label + '" min="0" step="0.01">' +
+        '<label class="price-form-seat-off"><input type="checkbox" class="pf-seat-' + o.key + '-off"> No disponible</label></div>'
+      ).join('');
+    }
+
     function showPriceForm(card, quote) {
       if (card.querySelector('.price-form')) return; // ya está abierto
       cardFormOpenId = quote.id;
