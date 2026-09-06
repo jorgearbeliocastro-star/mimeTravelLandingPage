@@ -9187,7 +9187,8 @@
           // Solo el primer nombre — el completo hacía que el botón
           // ocupara 2 líneas en pantallas angostas.
           const firstName = data.trim().split(' ')[0];
-          needHelpBtn.textContent = (currentLang === 'en' ? 'Agent ' : 'Agente ') + firstName;
+          const agentPrefix = { en: 'Agent ', fr: 'Agent ' }[currentLang] || 'Agente ';
+          needHelpBtn.textContent = agentPrefix + firstName;
         })
         .catch(() => {});
     })();
