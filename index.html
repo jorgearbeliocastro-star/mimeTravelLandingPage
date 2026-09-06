@@ -7143,7 +7143,14 @@
       'luna-de-miel': 'Lua de mel',
       naturaleza: 'Natureza'
     };
-    const EXP_LABELS = { es: EXP_LABELS_ES, en: EXP_LABELS_EN, it: EXP_LABELS_IT, pt: EXP_LABELS_PT };
+    const EXP_LABELS_FR = {
+      aventura: 'Aventure',
+      relax: 'Détente',
+      cultura: 'Culture',
+      'luna-de-miel': 'Lune de miel',
+      naturaleza: 'Nature'
+    };
+    const EXP_LABELS = { es: EXP_LABELS_ES, en: EXP_LABELS_EN, it: EXP_LABELS_IT, pt: EXP_LABELS_PT, fr: EXP_LABELS_FR };
     function expLabel(category) {
       return (EXP_LABELS[currentLang] || EXP_LABELS_ES)[category];
     }
