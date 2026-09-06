@@ -1669,13 +1669,17 @@
           '<label class="price-form-label">Condiciones de la tarifa (reembolso, cambios, equipaje incluido)</label>' +
           '<textarea class="pf-fare-conditions" rows="2" placeholder="Ej. No reembolsable, permite cambios con cargo, sin equipaje facturado incluido"></textarea>'
         : '';
+      // Equipaje de mano/facturado y tipo de asiento son conceptos de
+      // avión — no le corresponden a crucero, hotel, auto ni paquete.
       // Antes esto se resolvía bloqueando TODO el formulario para crucero
       // (mala interpretación de un pedido que era solo "sacale a crucero
-      // los campos de avión") — la corrección real es esta: el crucero sí
-      // tiene formulario, solo que sin equipaje/asientos (conceptos de
-      // vuelo que no aplican a un camarote). numOrNull() más abajo, en el
-      // submit, ya está preparado para que estos campos no existan.
-      const luggageSeatsBlock = quote.category === 'cruise' ? '' :
+      // los campos de avión"), y el mismo problema seguía sin arreglar
+      // para hotel/auto/paquete. La corrección real: condicionar por SU
+      // categoría puntual (vuelo), igual que stopsBlock arriba — cada
+      // categoría tiene su propio cuestionario, sin atarla a las demás.
+      // numOrNull() más abajo, en el submit, ya está preparado para que
+      // estos campos no existan.
+      const luggageSeatsBlock = quote.category === 'flight' ?
         '<label class="price-form-label">Equipaje de mano y equipaje personal (USD, opcional — si la tarifa no los trae gratis)</label>' +
         '<div class="price-form-row">' +
         '<input type="number" inputmode="decimal" class="pf-carryon" placeholder="Equip. de mano" min="0" step="0.01">' +
