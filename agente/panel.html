@@ -955,10 +955,15 @@
       const badge = document.getElementById('acceptedTabBadge');
       if (error || !count) {
         badge.hidden = true;
+        badge.classList.remove('needs-price');
         return;
       }
       badge.textContent = String(count);
       badge.hidden = false;
+      // Mismo parpadeo que el resto del panel para "esto necesita que
+      // actúes" — clientes que ya aceptaron un precio y están esperando
+      // que se les cierre la venta.
+      badge.classList.add('needs-price');
     }
 
     function selectTab(tabEl) {
