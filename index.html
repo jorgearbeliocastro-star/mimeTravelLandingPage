@@ -2065,28 +2065,45 @@
     font-family: var(--font-body);
   }
 
-  /* Foto del camarote — flota arriba del botón solo mientras el cursor
-     está encima (o con foco/tap); es la misma foto para las tres tarifas
-     de este camarote (muestra la habitación, no diferencia tarifas). */
-  .quote-status-cabin-card-preview {
-    position: absolute;
-    left: 50%;
-    bottom: calc(100% + 8px);
-    transform: translateX(-50%) scale(0.96);
-    width: 160px;
-    height: 110px;
-    object-fit: cover;
-    border-radius: 10px;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.15s ease, transform 0.15s ease;
-    z-index: 20;
+  /* Envoltorio de cada tarjeta de camarote — agrupa el botón de selección
+     y el botón de foto (aparte, no anidado adentro del primero). */
+  .quote-status-cabin-card-wrap {
+    position: relative;
+    flex: 1 1 84px;
+    min-width: 84px;
   }
 
-  /* Qué incluye esa tarifa en particular — mismo criterio que la foto de
-     arriba (aparece solo con el cursor encima/foco), pero abajo del botón
-     y del mismo porte, para no apretar el texto dentro de la tarjeta. */
+  .quote-status-cabin-card-wrap .quote-status-cabin-card {
+    width: 100%;
+  }
+
+  /* Botón de cámara — siempre visible (no depende de :hover, que en el
+     celular no existe) y abre la foto real del camarote en grande, con el
+     mismo lightbox que usan las fotos de los extras. Antes la foto vivía
+     adentro de la tarjeta y solo se veía al pasar el cursor encima, por
+     eso en el celular quedaba invisible ("está en miniatura"). */
+  .quote-status-cabin-photo-btn {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
+    background: #fff;
+    font-size: 13px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    z-index: 5;
+  }
+
+  /* Qué incluye esa tarifa en particular — sigue apareciendo solo con el
+     cursor encima/foco (es texto corto, no una foto que haga falta ver
+     siempre en el celular). */
   .quote-status-cabin-card-desc {
     position: absolute;
     left: 50%;
