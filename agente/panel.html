@@ -1330,6 +1330,40 @@
           claimBtn.textContent = 'Tomar y poner precio';
           claimBtn.addEventListener('click', () => showPriceForm(card, q));
           card.appendChild(claimBtn);
+          // Para cuando hace falta pedirle algo al cliente (fecha ambigua,
+          // escala rara, lo que sea) antes de poder cotizar de verdad —
+          // "tomarla" sin precio todavía saca esta cotización de la lista
+          // de entrantes para el resto del equipo (deja de contar como
+          // "la más vieja esperando"), pero sigue siendo mía: la sigo
+          // viendo en "Cotizadas" hasta que le ponga precio.
+          const needInfoBtn = document.createElement('button');
+          needInfoBtn.className = 'claim-btn secondary';
+          needInfoBtn.textContent = '🔍 Necesito más datos del cliente';
+          needInfoBtn.addEventListener('click', async () => {
+            needInfoBtn.disabled = true;
+            const { error } = await supabaseClient.rpc('claim_quote_no_price', { p_agent_id: agentId, p_quote_id: q.id });
+            if (error) {
+              alert('No se pudo tomar: ' + error.message);
+              needInfoBtn.disabled = false;
+              return;
+            }
+            loadQuotes();
+          });
+          card.appendChild(needInfoBtn);
+        } else if (q.status === 'pending' && q.claimed_by_agent_id === agentId) {
+          // La tomé para pedirle algo al cliente (ver needInfoBtn arriba) y
+          // todavía no le puse precio — el chat de abajo (siempre visible
+          // en la card, ver más abajo) es donde se resuelve el ida y
+          // vuelta con el cliente.
+          const info = document.createElement('div');
+          info.className = 'already-quoted';
+          info.textContent = '🔍 Esperando más datos del cliente — todavía sin precio.';
+          card.appendChild(info);
+          const priceBtn = document.createElement('button');
+          priceBtn.className = 'claim-btn';
+          priceBtn.textContent = 'Ya tengo lo que necesito — poner precio';
+          priceBtn.addEventListener('click', () => showPriceForm(card, q));
+          card.appendChild(priceBtn);
         } else if (q.status === 'quoted') {
           const info = document.createElement('div');
           info.className = 'already-quoted';
