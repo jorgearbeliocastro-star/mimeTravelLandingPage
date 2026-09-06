@@ -672,7 +672,12 @@
       ADDON_CATEGORY_ORDER.forEach((cat) => {
         const items = addonCatalogCache.filter((a) => a.category === cat);
         if (!items.length) return;
-        html += '<div class="addon-category-heading">' + ADDON_CATEGORY_LABELS[cat] + ' (' + items.length + ')</div>';
+        const isOpen = !!addonExpandedCategories[cat];
+        html += '<button type="button" class="addon-category-toggle' + (isOpen ? ' open' : '') + '" data-cat-toggle="' + cat + '">' +
+          '<span>' + ADDON_CATEGORY_LABELS[cat] + ' (' + items.length + ')</span>' +
+          '<span class="addon-category-toggle-arrow">▾</span>' +
+          '</button>';
+        html += '<div class="addon-category-body' + (isOpen ? ' open' : '') + '" data-cat-body="' + cat + '">';
         html += items.map((a) => {
           const photo = a.photo_url ? '<img src="' + a.photo_url + '" alt="">' : '<div style="width:56px;height:56px;border-radius:8px;background:var(--arena);flex-shrink:0;"></div>';
           return '<div class="addon-row">' + photo +
@@ -687,8 +692,18 @@
             '</div>' +
           '</div>';
         }).join('');
+        html += '</div>';
       });
       list.innerHTML = html;
+      list.querySelectorAll('[data-cat-toggle]').forEach((toggle) => {
+        toggle.addEventListener('click', () => {
+          const cat = toggle.dataset.catToggle;
+          const nowOpen = !addonExpandedCategories[cat];
+          addonExpandedCategories = { ...addonExpandedCategories, [cat]: nowOpen };
+          toggle.classList.toggle('open', nowOpen);
+          list.querySelector('[data-cat-body="' + cat + '"]').classList.toggle('open', nowOpen);
+        });
+      });
       list.querySelectorAll('[data-addon-toggle]').forEach((btn) => {
         btn.addEventListener('click', () => toggleAddonActive(btn.dataset.addonToggle));
       });
