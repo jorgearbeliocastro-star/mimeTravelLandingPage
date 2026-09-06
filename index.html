@@ -2589,6 +2589,15 @@
     animation: docsWarnPulse 1.4s ease-in-out infinite;
   }
   .docs-upload-status.done { color: #2e7d32; }
+  /* Mismo anillo creciente que docsWarnPulse (mismo color, es el color del
+     propio botón) — para que un precio nuevo (o "con dos opciones") no
+     pase desapercibido si el cliente tiene la pestaña abierta pero no está
+     mirando en ese momento. Una clase aparte de quote-decision-accept
+     (que también usa el botón de "enviar" del formulario de pasajero) para
+     no hacer pulsar ese otro botón sin necesidad. */
+  .quote-decision-btn.quote-decision-new {
+    animation: docsWarnPulse 1.4s ease-in-out infinite;
+  }
   @keyframes docsWarnPulse {
     0%, 100% { box-shadow: 0 0 0 0 rgba(255,122,89,0.55); }
     50% { box-shadow: 0 0 0 10px rgba(255,122,89,0); }
