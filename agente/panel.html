@@ -1640,10 +1640,6 @@
     // se suma después con más calma, esto es la base mínima para no dejar
     // al agente sin ninguna forma de cotizar desde la web.
     function showPriceForm(card, quote) {
-      // A pedido explícito: para crucero no se abre este formulario.
-      // Hotel/auto/paquete siguen igual que siempre — esto es solo por
-      // crucero, no me pidieron sacarlo de las otras categorías.
-      if (quote.category === 'cruise') return;
       if (card.querySelector('.price-form')) return; // ya está abierto
       cardFormOpenId = quote.id;
       const row = document.createElement('div');
