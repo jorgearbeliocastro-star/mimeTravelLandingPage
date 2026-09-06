@@ -6424,14 +6424,20 @@
       // campo de mes completo).
       if (input._monthPickerPanel) {
         if (!input._monthPickerPanel.isConnected) {
-          input.insertAdjacentElement('afterend', input._monthPickerPanel);
+          document.body.appendChild(input._monthPickerPanel);
         }
         return;
       }
       const panel = document.createElement('div');
       panel.className = 'month-picker-panel';
       input._monthPickerPanel = panel;
-      input.insertAdjacentElement('afterend', panel);
+      // Va colgado directo de <body> (no al lado del input) — el panel
+      // está centrado en la pantalla con position:fixed, y ".search-bar"
+      // tiene backdrop-filter, que crea su propio "contenedor" para todo
+      // lo fixed que quede adentro; colgado de un ancestro con
+      // backdrop-filter, el centrado sería relativo a la barra de
+      // búsqueda y no a la pantalla entera.
+      document.body.appendChild(panel);
 
       function closePanel() {
         panel.classList.remove('open');
