@@ -8511,6 +8511,7 @@
           // prefijo de traducción se busca cada opción — ver SEAT_TYPE_
           // LABEL_KEY/SEAT_TYPE_OPTION_PREFIX más abajo.
           const SEAT_TYPE_LABEL_KEY = { cruise: 'quoteCabinTypeLabel', hotel: 'quoteRoomTypeLabel', car: 'quoteCarTypeLabel' };
+          const SEAT_TYPE_OPTION_PREFIX = { hotel: 'roomTypeOption_', car: 'carTypeOption_' };
           label.textContent = t(SEAT_TYPE_LABEL_KEY[quote.category] || 'quoteSeatTypeLabel');
           seatTypeWrap.appendChild(label);
           if (quote.category === 'cruise') {
