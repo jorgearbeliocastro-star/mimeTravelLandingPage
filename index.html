@@ -8979,6 +8979,8 @@
       if (!quoteId) return; // el pedido ya quedó guardado igual, solo no hay chat para abrir
       activeQuoteId = quoteId;
       notifiedQuoteUpdatedAt = null;
+      notifiedPurchased = false;
+      lastPolledQuoteStatus = null;
       // Se pide acá (dentro de un clic real del cliente, nunca solo) para
       // que el navegador no lo bloquee — si ya contestó antes (sí o no),
       // esto no hace nada, no vuelve a preguntar.
