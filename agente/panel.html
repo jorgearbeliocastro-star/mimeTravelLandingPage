@@ -1830,10 +1830,12 @@
         const fareConditionsValue = fareConditionsInput ? fareConditionsInput.value.trim() || null : null;
 
         btn.disabled = true;
-        // No deja tomar una cotización si hay otra más vieja esperando —
-        // fuerza el orden de llegada del lado de la base, no solo del
-        // orden en que se muestran (eso un agente lo podía ignorar).
-        const { error } = await supabaseClient.rpc('claim_and_price_quote', {
+        // price_claimed_quote reemplaza a claim_and_price_quote (que queda
+        // sin uso, no se borró): sirve tanto para el flujo directo (nadie
+        // la tomó todavía — ahí sí chequea el orden de llegada) como para
+        // cuando YO ya la tomé antes sin precio con claim_quote_no_price
+        // (ahí no vuelve a chequear el orden, ver needInfoBtn más arriba).
+        const { error } = await supabaseClient.rpc('price_claimed_quote', {
           p_agent_id: agentId,
           p_quote_id: quote.id,
           p_price: price,
