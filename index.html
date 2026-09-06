@@ -8920,8 +8920,18 @@
           // agente cotiza como si vuelve a cotizar más caro/barato,
           // así que un reenvío también avisa, no solo el primero.
           if (quote.status === 'quoted' && !quote.client_decision && quote.updated_at !== notifiedQuoteUpdatedAt) {
-            if (notifiedQuoteUpdatedAt !== null) playQuoteReadySound();
+            if (notifiedQuoteUpdatedAt !== null) {
+              playQuoteReadySound();
+              vibrateForUpdate();
+            }
             notifiedQuoteUpdatedAt = quote.updated_at;
+          }
+          // Venta confirmada — mismo criterio (no vibrar en el primer
+          // render, solo cuando el cambio pasa de verdad mientras el
+          // cliente sigue en la página).
+          if (quote.status === 'purchased' && !notifiedPurchased) {
+            if (notifiedQuoteUpdatedAt !== null) vibrateForUpdate();
+            notifiedPurchased = true;
           }
           const quoteJSON = JSON.stringify(quote);
           if (quoteJSON !== lastRenderedQuoteJSON) {
