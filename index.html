@@ -7370,6 +7370,9 @@
     // Se guarda el updated_at ya avisado para no repetir el sonido en cada
     // poll mientras sigue con el mismo precio.
     let notifiedQuoteUpdatedAt = null;
+    // Mismo criterio que notifiedQuoteUpdatedAt pero para "ya se confirmó
+    // la compra" — se resetea junto con el otro en openQuotePanel.
+    let notifiedPurchased = false;
     let quoteReadyAudio = null;
     function playQuoteReadySound() {
       try {
