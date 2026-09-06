@@ -658,6 +658,29 @@
 
     let agentId = null;
     let agentName = '';
+    // Catálogo de extras (excursiones/bebidas/spa/etc.) que carga el Dueño
+    // en dueno.html — se pide una sola vez acá y se reusa en cada
+    // formulario de precio de crucero que se abra (no hace falta pedirlo
+    // de nuevo por cada cotización). Mismas categorías/orden que ya usa
+    // dueno.html e index.html — ver quoteCustomAddonCategory.* del cliente.
+    let addonCatalogCache = [];
+    const ADDON_CATEGORY_LABELS = {
+      excursions: 'Excursiones',
+      restaurants: 'Restaurantes temáticos',
+      drinks: 'Paquetes de bebidas',
+      spa: 'Spa y belleza',
+      internet: 'Paquetes de internet',
+      amusement: 'Entretenimiento',
+      photos: 'Paquetes de fotos',
+      laundry: 'Paquetes de lavandería',
+      other: 'Otros',
+    };
+    const ADDON_CATEGORY_ORDER = Object.keys(ADDON_CATEGORY_LABELS);
+    async function loadAddonCatalogForPricing() {
+      const { data, error } = await supabaseClient.from('addon_catalog').select('*').eq('active', true);
+      if (error) return; // no bloqueante — si falla, el formulario de crucero simplemente no ofrece extras
+      addonCatalogCache = data || [];
+    }
     let currentTab = 'new';
     let lastLoadedQuotesJSON = null;
     let lastLoadedTab = null;
