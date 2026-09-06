@@ -8716,23 +8716,24 @@
       if (quote.status === 'decided') {
         const p = document.createElement('p');
         p.className = 'quote-status-resolved';
-        // El botón de subir documentos necesita a un agente escuchando del
-        // otro lado en ESE momento (no queda nada guardado si no hay nadie
-        // conectado) — se usa el mismo "latido" que el agente ya manda
-        // mientras tiene la cotización abierta en pantalla (agent_viewing_at,
-        // pensado originalmente para otra cosa, mismo mecanismo). Si el
-        // latido tiene más de 20s, se asume que no hay nadie mirando ahora.
-        const AGENT_PRESENT_WINDOW_MS = 20000;
-        const viewingAtMs = quote.agent_viewing_at ? new Date(quote.agent_viewing_at).getTime() : 0;
-        const agentPresent = (Date.now() - viewingAtMs) < AGENT_PRESENT_WINDOW_MS;
+        // Antes esto exigía que el agente tuviera ESTA cotización puntual
+        // abierta en pantalla (agent_viewing_at de los últimos 20s) para
+        // dejar subir los documentos — pero panel.html ya escucha el canal
+        // de documentos de TODAS las cotizaciones aceptadas en cada sondeo
+        // (cada 6s, ver loadQuotes/ensureDocsThumbChannel), no solo la que
+        // el agente tiene abierta puntualmente. Ese candado bloqueaba al
+        // cliente sin necesidad real: alcanza con que algún agente tenga
+        // panel.html abierto en general. Se saca la espera — el reintento
+        // cada 10s del lado del agente ya cubre que la foto llegue aunque
+        // el agente todavía no haya abierto esta cotización en particular.
         p.textContent = quote.client_decision === 'accepted'
-          ? (agentPresent ? '✅ El agente está conectado — ya podés subir tus documentos.' : '🔄 Esperando a que se conecte el agente…')
+          ? '✅ Ya podés subir tus documentos.'
           : t('quoteDecisionDeclined');
         quoteStatusBar.appendChild(p);
         // Ya decidido no hace falta repetir la info de vuelo (aerolínea,
         // horarios, condiciones) — eso era para ayudar a decidir; una vez
         // aceptada, lo único que importa acá es el estado del pago.
-        if (quote.client_decision === 'accepted' && agentPresent) {
+        if (quote.client_decision === 'accepted') {
           const clientToken = getOrCreateWebClientToken();
           setupDocsChannel(quote.id, clientToken);
           // Tres estados por botón: 📁 sin subir, ⏳ subida pero todavía
