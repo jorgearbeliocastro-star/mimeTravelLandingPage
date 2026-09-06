@@ -1387,7 +1387,7 @@
           info.textContent = '🔍 Esperando más datos del cliente — todavía sin precio.';
           card.appendChild(info);
           const priceBtn = document.createElement('button');
-          priceBtn.className = 'claim-btn';
+          priceBtn.className = 'claim-btn needs-price';
           priceBtn.textContent = 'Ya tengo lo que necesito — poner precio';
           priceBtn.addEventListener('click', () => showPriceForm(card, q));
           card.appendChild(priceBtn);
