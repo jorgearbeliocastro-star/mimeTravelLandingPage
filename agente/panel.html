@@ -1714,6 +1714,27 @@
         });
         return options;
       }
+      // Hotel y auto: no había nada armado para esto ni en este repo ni en
+      // "la expancion" (se buscó en las dos partes, no existe en ningún
+      // lado) — se arma nuevo, con el mismo mecanismo genérico de arriba.
+      // Categorías simples a falta de un catálogo real como el de
+      // camarotes; el Dueño las puede pedir ajustar si no son las que usa.
+      if (category === 'hotel') {
+        return [
+          { key: 'individual', label: 'Individual' },
+          { key: 'doble', label: 'Doble' },
+          { key: 'triple', label: 'Triple' },
+          { key: 'suite', label: 'Suite' },
+        ];
+      }
+      if (category === 'car') {
+        return [
+          { key: 'economico', label: 'Económico' },
+          { key: 'intermedio', label: 'Intermedio' },
+          { key: 'suv', label: 'SUV' },
+          { key: 'premium', label: 'Premium/Todoterreno' },
+        ];
+      }
       return [];
     }
     // Arma las filas de precio+"No disponible" para una lista de
