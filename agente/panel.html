@@ -1569,6 +1569,10 @@
     // se suma después con más calma, esto es la base mínima para no dejar
     // al agente sin ninguna forma de cotizar desde la web.
     function showPriceForm(card, quote) {
+      // A pedido explícito: este formulario queda solo para vuelos — para
+      // cualquier otra categoría (crucero, hotel, auto, paquete) no se
+      // abre nada.
+      if (quote.category !== 'flight') return;
       if (card.querySelector('.price-form')) return; // ya está abierto
       cardFormOpenId = quote.id;
       const row = document.createElement('div');
