@@ -1763,8 +1763,8 @@
         // Si no se apagó ninguno, se manda null (comportamiento de siempre:
         // los tres disponibles) — si se apagó alguno, se manda la lista
         // (puede quedar vacía si se apagaron los tres).
-        const anySeatOff = ['aisle', 'middle', 'window'].some((t) => row.querySelector('.pf-seat-' + t + '-off').checked);
-        const seatTypes = ['aisle', 'middle', 'window'].filter((t) => !row.querySelector('.pf-seat-' + t + '-off').checked);
+        const anySeatOff = ['aisle', 'middle', 'window'].some((t) => row.querySelector('.pf-seat-' + t + '-off')?.checked);
+        const seatTypes = ['aisle', 'middle', 'window'].filter((t) => !row.querySelector('.pf-seat-' + t + '-off')?.checked);
         const notes = row.querySelector('.pf-notes').value.trim();
         // Convierte "HH:MM" (24h, lo que da un <input type="time">) a "h:mmam/pm"
         // para mostrarle al cliente, ej. "13:00" -> "1:00pm".
