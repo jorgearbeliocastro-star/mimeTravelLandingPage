@@ -574,6 +574,142 @@
         .replace(/'/g, '&#39;');
     }
 
+    // Catálogo de extras (excursiones/bebidas/spa/etc.) — solo lectura
+    // para agentes, escritura solo para el Dueño (ver policies en Supabase,
+    // addon_catalog_*). Reemplaza a la herramienta que vivía en "la
+    // expancion" (app sacada de este proyecto el 2026-09-01); acá la
+    // reconstruimos usando el mismo modelo de datos que index.html ya
+    // espera consumir (quoteCustomAddonCategory.*).
+    const ADDON_CATEGORY_LABELS = {
+      excursions: 'Excursiones',
+      restaurants: 'Restaurantes temáticos',
+      drinks: 'Paquetes de bebidas',
+      spa: 'Spa y belleza',
+      internet: 'Paquetes de internet',
+      amusement: 'Entretenimiento',
+      photos: 'Paquetes de fotos',
+      laundry: 'Paquetes de lavandería',
+      other: 'Otros',
+    };
+    const ADDON_CATEGORY_ORDER = Object.keys(ADDON_CATEGORY_LABELS);
+    let addonCatalogCache = [];
+
+    async function loadAddonCatalog() {
+      const { data, error } = await supabaseClient
+        .from('addon_catalog')
+        .select('*')
+        .order('category', { ascending: true })
+        .order('label', { ascending: true });
+      const list = document.getElementById('addonList');
+      if (error) {
+        // Si la tabla todavía no existe (falta correr el SQL), no romper
+        // el resto de la pantalla — solo avisar acá adentro.
+        list.innerHTML = '<div class="empty">No se pudo cargar el catálogo (' + error.message + ').</div>';
+        return;
+      }
+      addonCatalogCache = data || [];
+      renderAddonCatalog();
+    }
+
+    function renderAddonCatalog() {
+      const list = document.getElementById('addonList');
+      if (!addonCatalogCache.length) {
+        list.innerHTML = '<div class="empty">Todavía no cargaste ningún extra.</div>';
+        return;
+      }
+      let html = '';
+      ADDON_CATEGORY_ORDER.forEach((cat) => {
+        const items = addonCatalogCache.filter((a) => a.category === cat);
+        if (!items.length) return;
+        html += '<div class="addon-category-heading">' + ADDON_CATEGORY_LABELS[cat] + ' (' + items.length + ')</div>';
+        html += items.map((a) => {
+          const photo = a.photo_url ? '<img src="' + a.photo_url + '" alt="">' : '<div style="width:56px;height:56px;border-radius:8px;background:var(--arena);flex-shrink:0;"></div>';
+          return '<div class="addon-row">' + photo +
+            '<div class="addon-info">' +
+              '<div class="addon-label">' + escapeHtml(a.label) + (a.active ? '' : ' <span style="color:rgba(26,26,26,0.4);font-weight:400;">(inactivo)</span>') + '</div>' +
+              '<div class="addon-price">USD ' + a.price_usd + '</div>' +
+              (a.description ? '<div class="addon-desc">' + escapeHtml(a.description) + '</div>' : '') +
+            '</div>' +
+            '<div style="display:flex; flex-direction:column; gap:4px;">' +
+              '<button type="button" class="role-tag" data-addon-toggle="' + a.id + '" style="border:none; cursor:pointer;">' + (a.active ? '🚫' : '✅') + '</button>' +
+              '<button type="button" class="role-tag" data-addon-delete="' + a.id + '" style="border:none; cursor:pointer;">🗑</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      });
+      list.innerHTML = html;
+      list.querySelectorAll('[data-addon-toggle]').forEach((btn) => {
+        btn.addEventListener('click', () => toggleAddonActive(btn.dataset.addonToggle));
+      });
+      list.querySelectorAll('[data-addon-delete]').forEach((btn) => {
+        btn.addEventListener('click', () => deleteAddonCatalogItem(btn.dataset.addonDelete));
+      });
+    }
+
+    // Activo/inactivo en vez de borrar directo para "sacarlo de oferta" —
+    // borrar de una es un paso aparte (deleteAddonCatalogItem), a
+    // propósito más difícil de deshacer.
+    async function toggleAddonActive(id) {
+      const item = addonCatalogCache.find((a) => a.id === id);
+      if (!item) return;
+      const { error } = await supabaseClient.from('addon_catalog').update({ active: !item.active, updated_at: new Date().toISOString() }).eq('id', id);
+      if (error) { alert('No se pudo actualizar: ' + error.message); return; }
+      loadAddonCatalog();
+    }
+
+    async function deleteAddonCatalogItem(id) {
+      if (!confirm('¿Borrar este extra del catálogo del todo? No se puede deshacer.')) return;
+      const { error } = await supabaseClient.from('addon_catalog').delete().eq('id', id);
+      if (error) { alert('No se pudo borrar: ' + error.message); return; }
+      loadAddonCatalog();
+    }
+
+    document.getElementById('addonForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('addonSubmitBtn');
+      const msg = document.getElementById('addonMsg');
+      msg.textContent = '';
+      msg.className = 'msg';
+      btn.disabled = true;
+      try {
+        const category = document.getElementById('addonCategory').value;
+        const label = document.getElementById('addonLabel').value.trim();
+        const priceUsd = Number(document.getElementById('addonPrice').value);
+        const description = document.getElementById('addonDescription').value.trim() || null;
+        const fileInput = document.getElementById('addonPhoto');
+        const file = fileInput.files && fileInput.files[0];
+        let photoUrl = null;
+        if (file) {
+          // Nombre de archivo saneado + timestamp para no pisar una foto
+          // existente si dos extras usan un nombre parecido (ej. dos
+          // "foto.png" subidas para categorías distintas).
+          const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+          const path = 'extras/' + category + '/' + Date.now() + '-' + safeName;
+          const { error: uploadError } = await supabaseClient.storage.from('addon-photos').upload(path, file);
+          if (uploadError) throw new Error('No se pudo subir la foto: ' + uploadError.message);
+          const { data: pub } = supabaseClient.storage.from('addon-photos').getPublicUrl(path);
+          photoUrl = pub && pub.publicUrl ? pub.publicUrl : null;
+        }
+        const { error: insertError } = await supabaseClient.from('addon_catalog').insert({
+          category,
+          label,
+          price_usd: priceUsd,
+          description,
+          photo_url: photoUrl,
+        });
+        if (insertError) throw new Error(insertError.message);
+        msg.textContent = '✅ Agregado al catálogo.';
+        msg.className = 'msg success';
+        document.getElementById('addonForm').reset();
+        loadAddonCatalog();
+      } catch (err) {
+        msg.textContent = '⚠️ ' + (err && err.message ? err.message : 'Error desconocido.');
+        msg.className = 'msg error';
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
     document.getElementById('createAgentForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('createAgentBtn');
