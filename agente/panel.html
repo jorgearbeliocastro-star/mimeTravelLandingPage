@@ -1815,6 +1815,22 @@
         buildSeatPriceRowsHTML(getSeatTypeOptions('cruise')) +
         '</div>'
         : '';
+      // Precio por tipo de habitación — solo hotel. Nuevo (no existía en
+      // ningún lado, ver comentario en getSeatTypeOptions), mismo
+      // mecanismo genérico que camarote/asiento.
+      const hotelRoomBlock = quote.category === 'hotel' ?
+        '<label class="price-form-label">Precio por tipo de habitación (USD, por noche) — vacío o "No disponible" lo saca de la oferta</label>' +
+        '<div class="price-form-row">' +
+        buildSeatPriceRowsHTML(getSeatTypeOptions('hotel')) +
+        '</div>'
+        : '';
+      // Precio por tipo de auto — solo alquiler de auto. Mismo criterio.
+      const carTypeBlock = quote.category === 'car' ?
+        '<label class="price-form-label">Precio por tipo de auto (USD, por día) — vacío o "No disponible" lo saca de la oferta</label>' +
+        '<div class="price-form-row">' +
+        buildSeatPriceRowsHTML(getSeatTypeOptions('car')) +
+        '</div>'
+        : '';
       // Extras del catálogo (excursiones/bebidas/spa/etc., ver dueno.html)
       // — no todos aplican a todos los cruceros (una excursión a Cozumel no
       // tiene sentido si ese itinerario no pasa por ahí), por eso es el
