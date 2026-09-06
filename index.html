@@ -8930,13 +8930,15 @@
             }
             notifiedQuoteUpdatedAt = quote.updated_at;
           }
-          // Venta confirmada — mismo criterio (no vibrar en el primer
-          // render, solo cuando el cambio pasa de verdad mientras el
-          // cliente sigue en la página).
+          // Venta confirmada — no vibrar en el primer poll de la sesión
+          // (si ya estaba comprada antes de abrir el panel, no es un
+          // cambio nuevo), solo cuando pasa de otro estado a "purchased"
+          // mientras el cliente sigue viendo la página.
           if (quote.status === 'purchased' && !notifiedPurchased) {
-            if (notifiedQuoteUpdatedAt !== null) vibrateForUpdate();
+            if (lastPolledQuoteStatus !== null && lastPolledQuoteStatus !== 'purchased') vibrateForUpdate();
             notifiedPurchased = true;
           }
+          lastPolledQuoteStatus = quote.status;
           const quoteJSON = JSON.stringify(quote);
           if (quoteJSON !== lastRenderedQuoteJSON) {
             lastRenderedQuoteJSON = quoteJSON;
