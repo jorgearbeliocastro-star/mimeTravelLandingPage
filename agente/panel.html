@@ -437,6 +437,16 @@
     color: rgba(27,58,92,0.75);
     background: transparent;
   }
+  /* Para "Ya tengo lo que necesito — poner precio" en una cotización que
+     tomé sin precio (ver claim_quote_no_price) — sin esto es fácil que se
+     pierda de vista entre el resto de cotizadas y quede sin precio varios
+     días. Mismo mecanismo (y misma velocidad) que .chat-toggle-btn.pending
+     de más arriba, no uno nuevo. */
+  .claim-btn.needs-price {
+    border-color: #c0392b;
+    color: #c0392b;
+    animation: chatPendingPulse 1.6s ease-in-out infinite;
+  }
   .chat-toggle-btn {
     margin-top: 8px;
     margin-left: 8px;
