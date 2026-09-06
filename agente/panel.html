@@ -1647,6 +1647,7 @@
       ['.pf-bag1', '.pf-bag2', '.pf-bag3', '.pf-seat-aisle', '.pf-seat-middle', '.pf-seat-window'].forEach((sel) => {
         const input = row.querySelector(sel);
         const off = row.querySelector(sel + '-off');
+        if (!input || !off) return; // no aplica a esta categoría (no es vuelo)
         off.addEventListener('change', () => {
           input.disabled = off.checked;
           if (off.checked) input.value = '';
