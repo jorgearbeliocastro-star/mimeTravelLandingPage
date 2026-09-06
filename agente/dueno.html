@@ -142,6 +142,44 @@
   }
   .q-card .q-route { font-weight: 700; font-size: 14px; }
   .q-card .q-meta { font-size: 12.5px; color: rgba(26,26,26,0.65); margin-top: 2px; }
+  .field select, .field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1.5px solid rgba(27,58,92,0.15);
+    font-size: 14px;
+    font-family: inherit;
+  }
+  .field textarea { resize: vertical; min-height: 60px; }
+  .addon-row {
+    display: flex;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(27,58,92,0.06);
+    align-items: flex-start;
+  }
+  .addon-row:last-child { border-bottom: none; }
+  .addon-row img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: var(--arena);
+    flex-shrink: 0;
+  }
+  .addon-row .addon-info { flex: 1; min-width: 0; }
+  .addon-row .addon-label { font-weight: 700; font-size: 13.5px; }
+  .addon-row .addon-price { color: var(--coral); font-weight: 700; font-size: 13px; }
+  .addon-row .addon-desc { font-size: 12px; color: rgba(26,26,26,0.6); margin-top: 2px; }
+  .addon-category-heading {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin: 14px 0 4px;
+  }
+  .addon-category-heading:first-child { margin-top: 0; }
 </style>
 </head>
 <body>
