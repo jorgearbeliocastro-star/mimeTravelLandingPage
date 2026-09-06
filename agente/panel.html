@@ -1714,7 +1714,9 @@
           }
         }
         const numOrNull = (el) => {
-          const v = Number(row.querySelector(el).value);
+          const node = row.querySelector(el);
+          if (!node) return null; // no aplica a esta categoría (no es vuelo)
+          const v = Number(node.value);
           return v > 0 ? v : null;
         };
         // "Directo" o el detalle de dónde son las escalas — solo aplica a
