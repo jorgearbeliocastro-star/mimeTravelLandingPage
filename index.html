@@ -8128,10 +8128,7 @@
         // así no queda ambiguo qué botón corresponde a qué precio. Si no
         // cargó precio completo, es el mismo comportamiento de siempre (un
         // solo precio, un botón).
-        // El desglose "básico/completo" (asiento, carry-on, maleta) es de
-        // vuelo — antes se mostraba igual para cualquier categoría si
-        // quoted_price_full_usd venía con algo, aunque fuera un crucero.
-        const hasTwoTiers = quote.category === 'flight' && quote.quoted_price_full_usd != null;
+        const hasTwoTiers = quote.quoted_price_full_usd != null;
         const insuranceOffered = quote.quoted_insurance_price_usd != null;
         const carryOnOffered = quote.quoted_carry_on_price_usd != null;
         const personalItemOffered = quote.quoted_personal_item_price_usd != null;
