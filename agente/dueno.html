@@ -190,15 +190,32 @@
   .addon-row .addon-label { font-weight: 700; font-size: 13.5px; }
   .addon-row .addon-price { color: var(--coral); font-weight: 700; font-size: 13px; }
   .addon-row .addon-desc { font-size: 12px; color: rgba(26,26,26,0.6); margin-top: 2px; }
-  .addon-category-heading {
+  /* Cada categoría es su propio desplegable, arranca colapsada — antes se
+     mostraban los extras de todas las categorías seguidos, uno debajo del
+     otro (con varias categorías cargadas quedaba todo "regado"). */
+  .addon-category-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: rgba(27,58,92,0.04);
+    border: 1px solid rgba(27,58,92,0.1);
+    border-radius: 8px;
+    padding: 8px 12px;
     font-size: 12.5px;
     font-weight: 700;
     color: var(--primary);
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    margin: 14px 0 4px;
+    cursor: pointer;
+    margin: 10px 0 0;
+    font-family: var(--font-body);
   }
-  .addon-category-heading:first-child { margin-top: 0; }
+  .addon-category-toggle:first-child { margin-top: 0; }
+  .addon-category-toggle-arrow { transition: transform 0.15s ease; }
+  .addon-category-toggle.open .addon-category-toggle-arrow { transform: rotate(180deg); }
+  .addon-category-body { display: none; }
+  .addon-category-body.open { display: block; }
 </style>
 </head>
 <body>
