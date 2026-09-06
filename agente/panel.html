@@ -997,8 +997,11 @@
       } else {
         // Ya cotizadas por MÍ (tomadas), esperando o ya con decisión del
         // cliente — no incluye compradas/expiradas para no acumular ruido
-        // viejo en esta lista básica.
-        query = query.eq('claimed_by_agent_id', agentId).in('status', ['quoted', 'decided']);
+        // viejo en esta lista básica. 'pending' sumado acá: son las que
+        // tomé con claim_quote_no_price para pedirle algo al cliente antes
+        // de poder cotizar (ver needInfoBtn) — siguen sin precio pero ya
+        // son mías, tienen que verse en algún lado.
+        query = query.eq('claimed_by_agent_id', agentId).in('status', ['pending', 'quoted', 'decided']);
       }
       if (currentTab !== 'new') query = query.order('created_at', { ascending: false });
       const { data, error } = await query;
