@@ -6192,11 +6192,68 @@
       }
     };
 
+    const SEARCH_FIELD_CONFIG_FR = {
+      vuelos: {
+        label: 'Vols',
+        fields: [
+          { label: 'Origine', name: 'origen', placeholder: 'D’où partez-vous ?', type: 'text', country: true, geoMode: 'airport' },
+          { label: 'Destination', name: 'destino', placeholder: 'Où allez-vous ?', type: 'text', country: true, geoMode: 'airport' },
+          { label: 'Date de départ', name: 'fecha_ida', placeholder: 'Quand partez-vous ?', type: 'date' },
+          { label: 'Date de retour', name: 'fecha_vuelta', placeholder: 'Quand revenez-vous ?', type: 'date' },
+          { label: 'Classe', name: 'clase', type: 'select', options: ['Économique', 'Premium Economy', 'Affaires', 'Première Classe'] },
+          { label: 'Adultes', name: 'adultos', type: 'select', default: '1', options: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10+'] },
+          { label: 'Enfants', name: 'ninos', type: 'select', default: '0', options: ['0', '1', '2', '3', '4', '5', '6+'] }
+        ]
+      },
+      cruceros: {
+        label: 'Croisières',
+        fields: [
+          { label: 'Port de départ', name: 'puerto_salida', type: 'select', default: 'Miami', options: ['N’importe quel port', 'Buenos Aires', 'Shanghai', 'Split', 'Copenhague', 'Miami', 'Port Canaveral (Orlando)', 'Cannes', 'Marseille', 'Hambourg', 'Kiel', 'Warnemünde (Berlin)', 'Le Pirée (Athènes)', 'Ancône', 'Bari', 'Brindisi', 'Cagliari', 'Civitavecchia (Rome)', 'Gênes', 'Livourne (Florence)', 'Messine', 'Naples', 'Olbia', 'Palerme', 'Trieste', 'Venise', 'La Valette', 'Oslo', 'Lisbonne', 'Alicante', 'Barcelone', 'Malaga', 'Palma de Majorque', 'Tarragone', 'Valence', 'Stockholm', 'Galveston (Texas)', 'La Goulette (Tunisie)', 'Istanbul', 'Kuşadası', 'Southampton (Londres)', 'Seattle'] },
+          { label: 'Destination', name: 'destino', type: 'select', default: 'Caraïbes et Bahamas', options: ['N’importe quelle destination', 'Alaska', 'Asie', 'Caraïbes et Bahamas', 'Méditerranée', 'MSC Grand Voyages', 'Europe du Nord', 'Canal de Panama', 'Amérique du Sud', 'MSC World Cruise'] },
+          { label: 'Date de départ', name: 'fechas', placeholder: 'Choisissez vos dates', type: 'text', monthPicker: true },
+          { label: 'Adultes (18+)', name: 'adultos', type: 'select', default: '2', options: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10+'] },
+          { label: 'Enfants (12-17)', name: 'ninos_12_17', type: 'select', default: '0', options: ['0', '1', '2'] },
+          { label: 'Jeunes enfants (2-11)', name: 'ninos_2_11', type: 'select', default: '0', options: ['0', '1', '2'] },
+          { label: 'Bébés (moins de 2 ans)', name: 'infantes', type: 'select', default: '0', options: ['0', '1'] }
+        ]
+      },
+      hoteles: {
+        label: 'Hôtels',
+        fields: [
+          { label: 'Destination', name: 'destino', placeholder: 'Où logez-vous ?', type: 'text', country: true },
+          { label: 'Arrivée', name: 'fecha_entrada', placeholder: 'Arrivée', type: 'date' },
+          { label: 'Départ', name: 'fecha_salida', placeholder: 'Départ', type: 'date' },
+          { label: 'Adultes', name: 'huespedes', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
+          { label: 'Enfants', name: 'ninos', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
+          { label: 'Chambres', name: 'habitaciones', type: 'select', options: ['1 chambre', '2 chambres', '3 chambres', '4+ chambres'] },
+          { label: 'Catégorie', name: 'estrellas', type: 'select', options: ['N’importe quelle catégorie', '3 étoiles', '4 étoiles', '5 étoiles', '5 étoiles Luxe'] }
+        ]
+      },
+      autos: {
+        label: 'Location de voiture',
+        fields: [
+          { label: 'Prise en charge à', name: 'ciudad_recogida', placeholder: 'Où récupérez-vous la voiture ?', type: 'text', country: true, airportCode: false },
+          { label: 'Restitution à', name: 'ciudad_entrega', placeholder: 'Où la restituez-vous ?', type: 'text', country: true, airportCode: false },
+          { label: 'Date de prise en charge', name: 'fechas', placeholder: 'Prise en charge', type: 'date' },
+          { label: 'Type de voiture', name: 'tipo_auto', type: 'select', options: ['N’importe quel type', 'Économique', 'Compacte', 'Intermédiaire / Berline', 'Standard', 'Full size', 'SUV compact', 'SUV grand', 'Minivan / Van', 'Pick-up', 'Luxe', 'Cabriolet'] }
+        ]
+      },
+      paquete: {
+        label: 'Tout-en-un',
+        fields: [
+          { label: 'Destinations', name: 'destinos', placeholder: 'Ex. Cancún, Rome, Santorin...', type: 'text', country: true },
+          { label: 'Date de début', name: 'fechas', placeholder: 'Choisissez vos dates', type: 'date' },
+          { label: 'Services recherchés', name: 'servicios_incluidos', type: 'checklist', options: ['Vol', 'Croisière', 'Hôtel', 'Location de voiture'] }
+        ]
+      }
+    };
+
     const SEARCH_FIELD_CONFIGS = {
       es: SEARCH_FIELD_CONFIG_ES,
       en: SEARCH_FIELD_CONFIG_EN,
       it: SEARCH_FIELD_CONFIG_IT,
       pt: SEARCH_FIELD_CONFIG_PT,
+      fr: SEARCH_FIELD_CONFIG_FR,
     };
 
     function getSearchFieldConfig() {
