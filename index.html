@@ -8605,33 +8605,27 @@
               group.tiers.forEach(function (entry) {
                 const price = seatTypePrices[entry.key];
                 const selected = selectedChosenSeatType === entry.key;
-                // Envoltorio: el botón de selección y el botón de foto van
-                // separados (no anidados) — antes la foto vivía DENTRO del
-                // botón de selección y solo aparecía con el cursor encima,
-                // lo que en el celular (sin hover real) la dejaba invisible.
-                // Ahora es un botón de cámara aparte, siempre visible,
-                // que abre la foto en grande (mismo lightbox que los extras).
-                const itemWrap = document.createElement('div');
                 const card = document.createElement('button');
                 card.type = 'button';
                 let photoUrl = null;
                 if (isYachtClub) {
-                  itemWrap.className = 'quote-status-yacht-club-card-wrap';
                   card.className = 'quote-status-yacht-club-card' + (selected ? ' active' : '');
                   photoUrl = YACHT_CLUB_SUITE_PHOTOS[entry.tier];
                   card.innerHTML =
+                    (photoUrl ? '<img class="quote-status-yacht-club-card-photo" src="' + photoUrl + '" alt="">' : '') +
                     '<span class="quote-status-cabin-card-label">' + t('yachtClubSuiteOption_' + entry.tier) + '</span>' +
                     '<span class="quote-status-cabin-card-price">USD ' + price + '</span>' +
                     '<span class="quote-status-yacht-club-card-desc">' + t('yachtClubSuiteDesc_' + entry.tier) + '</span>';
                 } else {
-                  itemWrap.className = 'quote-status-cabin-card-wrap';
                   card.className = 'quote-status-cabin-card quote-status-cabin-card--' + entry.tier + (selected ? ' active' : '');
                   photoUrl = cabinPhotoUrl;
                   card.innerHTML =
-                    // La descripción sigue apareciendo solo con el cursor
-                    // encima/foco (es texto corto, no una foto que haga
-                    // falta ver siempre) — la foto en cambio ahora tiene su
-                    // propio botón, ver photoBtn más abajo.
+                    // Foto (arriba) y descripción (abajo) aparecen cuando
+                    // este botón queda seleccionado (no solo con el cursor
+                    // encima — en el celular no hay cursor, por eso antes
+                    // quedaban invisibles). Tocar el botón hace las dos
+                    // cosas a la vez: elige la tarifa y muestra la foto.
+                    (photoUrl ? '<img class="quote-status-cabin-card-preview" src="' + photoUrl + '" alt="">' : '') +
                     '<span class="quote-status-cabin-card-label">' + t('fareTierOption_' + entry.tier) + '</span>' +
                     '<span class="quote-status-cabin-card-price">USD ' + price + '</span>' +
                     '<span class="quote-status-cabin-card-desc">' + t('fareTierDesc_' + entry.tier) + '</span>';
@@ -8642,20 +8636,7 @@
                   if (selectedChosenSeatType === entry.key) card.classList.add('active');
                   updateQuotePriceDisplay();
                 });
-                itemWrap.appendChild(card);
-                if (photoUrl) {
-                  const photoBtn = document.createElement('button');
-                  photoBtn.type = 'button';
-                  photoBtn.className = 'quote-status-cabin-photo-btn';
-                  photoBtn.setAttribute('aria-label', t('quoteViewCabinPhotoAria'));
-                  photoBtn.textContent = '📷';
-                  photoBtn.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    openPhotoLightbox(photoUrl);
-                  });
-                  itemWrap.appendChild(photoBtn);
-                }
-                grid.appendChild(itemWrap);
+                grid.appendChild(card);
               });
               cabinGroup.appendChild(grid);
               seatTypeWrap.appendChild(cabinGroup);
