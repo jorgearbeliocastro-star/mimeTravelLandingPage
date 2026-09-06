@@ -437,14 +437,19 @@
     color: rgba(27,58,92,0.75);
     background: transparent;
   }
-  /* Para "Ya tengo lo que necesito — poner precio" en una cotización que
-     tomé sin precio (ver claim_quote_no_price) — sin esto es fácil que se
-     pierda de vista entre el resto de cotizadas y quede sin precio varios
-     días. Mismo mecanismo (y misma velocidad) que .chat-toggle-btn.pending
-     de más arriba, no uno nuevo. */
-  .claim-btn.needs-price {
+  /* Marca genérica de "esto necesita que actúes" — mismo anillo creciente
+     y misma velocidad que .chat-toggle-btn.pending de más arriba, para
+     cualquier cosa nueva que le llegue al agente (no solo el chat). Sirve
+     tanto en botones (borde rojo) como en el badge de una pestaña (que ya
+     tiene su propio color de fondo, no necesita borde). Usado hoy por:
+     "Ya tengo lo que necesito — poner precio" (cotización tomada sin
+     precio, ver claim_quote_no_price), "Marcar como vendido" (ya con
+     consentimiento de cobro) y el badge de la pestaña "Aceptadas". */
+  .needs-price.claim-btn {
     border-color: #c0392b;
     color: #c0392b;
+  }
+  .needs-price {
     animation: chatPendingPulse 1.6s ease-in-out infinite;
   }
   .chat-toggle-btn {
