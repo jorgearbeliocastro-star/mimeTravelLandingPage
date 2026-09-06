@@ -7397,6 +7397,18 @@
         // no bloqueante
       }
     }
+    // Vibración corta al llegar un precio nuevo o confirmarse la compra —
+    // aparte del sonido, para el que tiene el celular en silencio. OJO:
+    // Safari/iOS no tiene esta API, no hay forma de sortearlo con código
+    // (mismo tipo de límite que el push en iOS) — en esos casos esto
+    // simplemente no hace nada, sin error.
+    function vibrateForUpdate() {
+      try {
+        if (navigator.vibrate) navigator.vibrate([120, 60, 120]);
+      } catch {
+        // no bloqueante
+      }
+    }
     // Qué precio (básico/completo) tocó el cliente antes de abrir el
     // formulario de pasajero — se usa recién al mandar la aceptación.
     let selectedQuoteTier = 'basic';
