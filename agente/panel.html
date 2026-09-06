@@ -1790,6 +1790,28 @@
         buildSeatPriceRowsHTML(getSeatTypeOptions('cruise')) +
         '</div>'
         : '';
+      // Extras del catálogo (excursiones/bebidas/spa/etc., ver dueno.html)
+      // — no todos aplican a todos los cruceros (una excursión a Cozumel no
+      // tiene sentido si ese itinerario no pasa por ahí), por eso es el
+      // agente el que elige a mano cuáles ofrecer en ESTA cotización
+      // puntual, no algo que se aplique solo. Solo activos (active=true).
+      const cruiseAddonsBlock = quote.category === 'cruise' && addonCatalogCache.length ?
+        '<label class="price-form-label">Extras a ofrecer en esta cotización (opcional — el cliente los ve con foto y puede sumarlos al precio)</label>' +
+        '<div class="pf-addons-list">' +
+        ADDON_CATEGORY_ORDER.map((cat) => {
+          const items = addonCatalogCache.filter((a) => a.category === cat);
+          if (!items.length) return '';
+          return '<div class="price-form-label" style="margin-top:8px; font-size:12px;">' + ADDON_CATEGORY_LABELS[cat] + '</div>' +
+            items.map((a) =>
+              '<label class="pf-addon-row">' +
+              '<input type="checkbox" class="pf-addon-check" data-addon-id="' + a.id + '">' +
+              (a.photo_url ? '<img src="' + a.photo_url + '" alt="">' : '<span class="pf-addon-noPhoto"></span>') +
+              '<span>' + escapeHtml(a.label) + ' (+USD ' + a.price_usd + ')</span>' +
+              '</label>'
+            ).join('');
+        }).join('') +
+        '</div>'
+        : '';
       row.innerHTML =
         stopsBlock +
         '<label class="price-form-label">Precio base y seguro de viaje (USD)</label>' +
@@ -1799,6 +1821,7 @@
         '</div>' +
         luggageSeatsBlock +
         cruiseCabinBlock +
+        cruiseAddonsBlock +
         '<label class="price-form-label">Qué incluye este precio (opcional, lo ve el cliente)</label>' +
         '<textarea class="pf-notes" rows="2" placeholder="Ej. Tarifa económica básica, no incluye cambios de fecha"></textarea>' +
         '<div class="price-form-actions">' +
