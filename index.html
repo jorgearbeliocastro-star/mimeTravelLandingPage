@@ -7372,7 +7372,11 @@
     let notifiedQuoteUpdatedAt = null;
     // Mismo criterio que notifiedQuoteUpdatedAt pero para "ya se confirmó
     // la compra" — se resetea junto con el otro en openQuotePanel.
+    // lastPolledQuoteStatus arranca null (todavía no hubo ni un poll) para
+    // no vibrar si la cotización YA estaba comprada la primera vez que se
+    // abre el panel en esta sesión (no es un cambio, ya estaba así).
     let notifiedPurchased = false;
+    let lastPolledQuoteStatus = null;
     let quoteReadyAudio = null;
     function playQuoteReadySound() {
       try {
