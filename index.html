@@ -5387,6 +5387,19 @@
         cubaCruiseBan: '🚫 CRUZEIROS PARA CUBA PROIBIDOS: As companhias de cruzeiro que operam sob a lei dos EUA têm proibição federal de atracar em portos cubanos para fins turísticos. Este itinerário não pode ser oferecido legalmente no momento.',
         greenCard: 'ℹ️ Se algum passageiro for residente permanente dos EUA (green card) mas não cidadão: a maioria das companhias de cruzeiro exige viajar com o green card original E o passaporte válido do seu país de cidadania (o green card sozinho não basta). É política de cada companhia, não uma exigência do governo dos EUA.',
       },
+      // Francés: ahora SÍ es idioma del sitio (currentLang puede valer
+      // 'fr'), por eso lleva el set completo igual que es/en/it/pt de
+      // arriba — banFull/banPartial reusan el mismo texto que ya existía
+      // acá para el uso por nacionalidad.
+      fr: {
+        cuba: "⚠️ ATTENTION : Le tourisme conventionnel à Cuba depuis les États-Unis est strictement interdit par la loi fédérale. Pour continuer, le passager doit obligatoirement déclarer qu'il voyage sous l'une des 12 catégories de licence générale de l'OFAC. Les justificatifs de dépenses doivent être conservés pendant 5 ans.",
+        nk: "🚫 RESTRICTION CRITIQUE : Les passeports américains ne sont PAS valides pour voyager vers ou à travers la Corée du Nord. Le voyage est interdit sauf validation spéciale et explicite du département d'État américain.",
+        banFull: "🚫 INTERDICTION DE VOYAGE : Les ressortissants de ce pays ont l'émission de visas d'immigrant et de non-immigrant (tourisme/affaires) entièrement suspendue pour entrer aux États-Unis. Vérifiez si le passager est admissible à une exemption humanitaire officielle avant d'émettre les billets.",
+        banPartial: "⚠️ RESTRICTION DE VISA : Les ressortissants de ce pays font face à des suspensions partielles ou à un contrôle extrême pour certains visas de non-immigrant (comme le tourisme B1/B2 ou les visas étudiants). Assurez-vous que le passager dispose d'un visa physique valide et approuvé avant de confirmer le voyage.",
+        venezuela: "⚠️ CONTRÔLES OFFICIELS : L'entrée aux États-Unis est suspendue pour les fonctionnaires du gouvernement vénézuélien et leurs proches. Les citoyens particuliers sont soumis à des restrictions de visa strictes et à une vérification des antécédents.",
+        cubaCruiseBan: "🚫 CROISIÈRES VERS CUBA INTERDITES : Les compagnies de croisière opérant sous la loi américaine ont l'interdiction fédérale de faire escale dans des ports cubains à des fins touristiques. Cet itinéraire ne peut actuellement pas être proposé légalement.",
+        greenCard: "ℹ️ Si un passager est résident permanent des États-Unis (green card) mais pas citoyen : la plupart des compagnies de croisière exigent de voyager avec la green card originale ET le passeport valide de son pays de citoyenneté (la green card seule ne suffit pas). C'est la politique de chaque compagnie, pas une exigence du gouvernement américain.",
+      },
       // Los de acá abajo NO son idiomas del sitio (currentLang nunca vale
       // esto) — solo se usan para el aviso de veto/restricción migratoria,
       // elegido según la NACIONALIDAD del pasajero, no según en qué idioma
@@ -5394,10 +5407,6 @@
       // Por eso solo tienen banFull/banPartial, no cuba/nk/venezuela — esos
       // tres siguen el idioma del sitio (no dependen de una nacionalidad
       // puntual: cuba/nk son por ruta, venezuela ya cae siempre en 'es').
-      fr: {
-        banFull: "🚫 INTERDICTION DE VOYAGE : Les ressortissants de ce pays ont l'émission de visas d'immigrant et de non-immigrant (tourisme/affaires) entièrement suspendue pour entrer aux États-Unis. Vérifiez si le passager est admissible à une exemption humanitaire officielle avant d'émettre les billets.",
-        banPartial: "⚠️ RESTRICTION DE VISA : Les ressortissants de ce pays font face à des suspensions partielles ou à un contrôle extrême pour certains visas de non-immigrant (comme le tourisme B1/B2 ou les visas étudiants). Assurez-vous que le passager dispose d'un visa physique valide et approuvé avant de confirmer le voyage.",
-      },
       ar: {
         banFull: 'حظر السفر: تم تعليق إصدار تأشيرات الهجرة وغير الهجرة (السياحة/الأعمال) بالكامل لمواطني هذا البلد للدخول إلى الولايات المتحدة. تحقق مما إذا كان المسافر مؤهلاً لإعفاء إنساني رسمي قبل إصدار التذاكر. 🚫',
         banPartial: 'قيود على التأشيرة: يواجه مواطنو هذا البلد تعليقاً جزئياً أو تدقيقاً مشدداً لبعض تأشيرات غير الهجرة (مثل السياحة B1/B2 أو تأشيرات الطلاب). تأكد من أن المسافر يملك تأشيرة سارية ومعتمدة قبل تأكيد السفر. ⚠️',
