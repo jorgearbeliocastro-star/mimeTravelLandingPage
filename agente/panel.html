@@ -2031,6 +2031,13 @@
         if (fareConditionsValue) {
           supabaseClient.from('quote_requests').update({ quoted_fare_conditions: fareConditionsValue }).eq('id', quote.id).then(() => {});
         }
+        // Extras elegidos (ver cruiseAddonsBlock/selectedAddons arriba) —
+        // mismo criterio que aerolínea: update directo aparte, no
+        // bloqueante. Solo se manda si tildó al menos uno (si no, no
+        // pisa nada — una cotización sin extras no necesita este campo).
+        if (selectedAddons.length) {
+          supabaseClient.from('quote_requests').update({ quoted_custom_addons: selectedAddons }).eq('id', quote.id).then(() => {});
+        }
         // El RPC pone el precio con 1 hora de vencimiento (hardcodeado ahí
         // adentro, no lo veo) — se pisa acá, mismo mecanismo de arriba. No
         // bloqueante: si falla, la cotización queda igual con la 1 hora
