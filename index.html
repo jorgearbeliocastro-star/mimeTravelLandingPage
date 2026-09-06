@@ -1902,6 +1902,57 @@
     display: block;
   }
 
+  /* Cada extra individual dentro de una categoría — el checkbox+precio
+     siempre visible, la foto+descripción escondidas hasta tocar la
+     flechita. Antes se mostraban todas seguidas (foto+descripción
+     siempre visibles), lo que hacía la lista muy larga con varios extras. */
+  .quote-status-addon-item {
+    border-bottom: 1px solid rgba(27, 58, 92, 0.08);
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+  }
+
+  .quote-status-addon-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .quote-status-addon-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .quote-status-addon-item-toggle {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: rgba(27, 58, 92, 0.6);
+    flex-shrink: 0;
+  }
+
+  .quote-status-addon-item-body {
+    display: none;
+    margin: 6px 0 4px 24px;
+  }
+
+  .quote-status-addon-item-body.open {
+    display: block;
+  }
+
+  .quote-status-addon-photo-large {
+    display: block;
+    max-width: 100%;
+    max-height: 160px;
+    border-radius: 8px;
+    object-fit: cover;
+    cursor: zoom-in;
+    margin-bottom: 6px;
+  }
+
   /* Lightbox de foto — sin fondo oscuro: solo la foto flotando encima,
      dejando ver la página (y el panel de cotización) detrás. */
   .photo-lightbox-overlay {
