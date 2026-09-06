@@ -1966,6 +1966,16 @@
         // quedar vacía si se apagaron todos).
         const anySeatOff = seatTypeKeys.some((t) => row.querySelector('.pf-seat-' + t + '-off')?.checked);
         const seatTypes = seatTypeKeys.filter((t) => !row.querySelector('.pf-seat-' + t + '-off')?.checked);
+        // Extras tildados en esta cotización puntual (ver cruiseAddonsBlock
+        // arriba) — se arma en la forma exacta que index.html ya espera
+        // leer de quoted_custom_addons (label/priceUSD/photoUrl/description/
+        // category), tomando los datos del catálogo cacheado, no de los
+        // checkboxes (ahí solo vive el id).
+        const selectedAddons = Array.from(row.querySelectorAll('.pf-addon-check:checked')).map((el) => {
+          const item = addonCatalogCache.find((a) => a.id === el.dataset.addonId);
+          if (!item) return null;
+          return { label: item.label, priceUSD: item.price_usd, photoUrl: item.photo_url, description: item.description, category: item.category };
+        }).filter(Boolean);
         const notes = row.querySelector('.pf-notes').value.trim();
         // Convierte "HH:MM" (24h, lo que da un <input type="time">) a "h:mmam/pm"
         // para mostrarle al cliente, ej. "13:00" -> "1:00pm".
