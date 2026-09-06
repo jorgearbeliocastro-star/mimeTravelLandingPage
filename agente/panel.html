@@ -1898,20 +1898,23 @@
           if (v == null) break;
           bagPrices.push(v);
         }
+        // Genérico por categoría (3 claves para vuelo, 15 para crucero —
+        // ver getSeatTypeOptions) en vez de la lista fija de antes, para no
+        // repetir esta lógica a mano por cada categoría nueva que la use.
+        const seatTypeKeys = getSeatTypeOptions(quote.category).map((o) => o.key);
         const seatPrices = {};
-        const aislePrice = numOrNull('.pf-seat-aisle');
-        const middlePrice = numOrNull('.pf-seat-middle');
-        const windowPrice = numOrNull('.pf-seat-window');
-        if (aislePrice != null) seatPrices.aisle = aislePrice;
-        if (middlePrice != null) seatPrices.middle = middlePrice;
-        if (windowPrice != null) seatPrices.window = windowPrice;
-        // Tipos de asiento que SÍ se ofrecen — se le saca al cliente el que
-        // el agente marcó "No disponible" (ej. no hay pasillo en ese vuelo).
-        // Si no se apagó ninguno, se manda null (comportamiento de siempre:
-        // los tres disponibles) — si se apagó alguno, se manda la lista
-        // (puede quedar vacía si se apagaron los tres).
-        const anySeatOff = ['aisle', 'middle', 'window'].some((t) => row.querySelector('.pf-seat-' + t + '-off')?.checked);
-        const seatTypes = ['aisle', 'middle', 'window'].filter((t) => !row.querySelector('.pf-seat-' + t + '-off')?.checked);
+        seatTypeKeys.forEach((key) => {
+          const p = numOrNull('.pf-seat-' + key);
+          if (p != null) seatPrices[key] = p;
+        });
+        // Tipos/camarotes que SÍ se ofrecen — se le saca al cliente el que
+        // el agente marcó "No disponible" (ej. no hay pasillo en ese vuelo,
+        // o no queda Yacht Club Royal Suite en ese crucero). Si no se apagó
+        // ninguno, se manda null (comportamiento de siempre: todos
+        // disponibles) — si se apagó alguno, se manda la lista (puede
+        // quedar vacía si se apagaron todos).
+        const anySeatOff = seatTypeKeys.some((t) => row.querySelector('.pf-seat-' + t + '-off')?.checked);
+        const seatTypes = seatTypeKeys.filter((t) => !row.querySelector('.pf-seat-' + t + '-off')?.checked);
         const notes = row.querySelector('.pf-notes').value.trim();
         // Convierte "HH:MM" (24h, lo que da un <input type="time">) a "h:mmam/pm"
         // para mostrarle al cliente, ej. "13:00" -> "1:00pm".
