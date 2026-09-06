@@ -1423,7 +1423,7 @@
           // guardado, no se puede cerrar la venta — sin eso no hay
           // respaldo si el cliente después dice que no reconoce el cargo.
           const sellBtn = document.createElement('button');
-          sellBtn.className = 'claim-btn';
+          sellBtn.className = 'claim-btn' + (hasConsent ? ' needs-price' : '');
           sellBtn.textContent = hasConsent ? '✅ Marcar como vendido' : '🔒 Falta consentimiento de cobro';
           sellBtn.disabled = !hasConsent;
           if (!hasConsent) sellBtn.style.opacity = '0.5';
