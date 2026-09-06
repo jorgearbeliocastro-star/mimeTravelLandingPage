@@ -978,8 +978,13 @@
         // primero.
         query = query.order('created_at', { ascending: true });
         // Nuevas sin tomar todavía — mismo criterio que "Cotizaciones
-        // nuevas" en la app: solo pending, sin agente asignado.
-        query = query.eq('status', 'pending');
+        // nuevas" en la app: solo pending, sin agente asignado. El filtro
+        // de claimed_by_agent_id es nuevo: antes "pending" y "sin agente"
+        // eran lo mismo (tomar y cotizar era un solo paso atómico); ahora
+        // que se puede tomar sin precio (ver claim_quote_no_price), una
+        // pending ya tomada tiene que desaparecer de acá para el resto del
+        // equipo aunque siga en status pending.
+        query = query.eq('status', 'pending').is('claimed_by_agent_id', null);
       } else if (currentTab === 'accepted') {
         // Aceptadas por el cliente, mías, todavía sin cerrar la venta —
         // antes esta pestaña no tenía filtro propio y mostraba lo mismo
