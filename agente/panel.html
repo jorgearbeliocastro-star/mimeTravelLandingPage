@@ -1895,6 +1895,15 @@
         cardFormOpenId = null;
         row.remove();
       });
+      // Desplegable de foto/descripción por extra (ver cruiseAddonsBlock
+      // más arriba) — cada flechita muestra/esconde solo su propio bloque.
+      row.querySelectorAll('.pf-addon-toggle').forEach((toggle) => {
+        toggle.addEventListener('click', () => {
+          const body = row.querySelector('[data-addon-body="' + toggle.dataset.addonToggle + '"]');
+          const open = body.classList.toggle('open');
+          toggle.classList.toggle('open', open);
+        });
+      });
       // Cada checkbox "No disponible" apaga y vacía su input de precio al
       // lado — así queda claro que ese tipo/maleta se sacó de la oferta,
       // no que el agente simplemente no llenó el campo todavía.
