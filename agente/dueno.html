@@ -561,6 +561,14 @@
       ended: '☎️ Terminada',
       missed: '⏳ Sin contestar',
     };
+    document.getElementById('callsLogToggle').addEventListener('click', () => {
+      const toggle = document.getElementById('callsLogToggle');
+      const body = document.getElementById('callsLogList');
+      const nowOpen = body.hidden; // estaba cerrado -> se abre
+      body.hidden = !nowOpen;
+      toggle.classList.toggle('open', nowOpen);
+    });
+
     async function loadCallsLog() {
       const { data, error } = await supabaseClient
         .from('call_requests')
