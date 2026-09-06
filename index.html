@@ -584,7 +584,13 @@
     display: none;
     position: absolute;
     top: 100%;
-    left: 16px;
+    /* Centrado respecto al campo que lo abre (no pegado a su borde
+       izquierdo) — con el ancho fijo de abajo, "left:16px" a secas lo
+       corría hacia un costado cuando el campo es angosto (ej. "Fecha de
+       salida" como segunda columna al lado de "Puerto de salida" en el
+       celular), quedando cortado en vez de centrado. */
+    left: 50%;
+    transform: translateX(-50%);
     width: 240px;
     max-width: calc(100vw - 32px);
     z-index: 50;
