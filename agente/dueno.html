@@ -640,6 +640,10 @@
     };
     const ADDON_CATEGORY_ORDER = Object.keys(ADDON_CATEGORY_LABELS);
     let addonCatalogCache = [];
+    // Qué categorías están desplegadas — se recuerda entre renders (el
+    // catálogo se vuelve a pintar entero después de activar/desactivar o
+    // borrar un extra), si no cada acción cerraría todo de nuevo.
+    let addonExpandedCategories = {};
 
     async function loadAddonCatalog() {
       const { data, error } = await supabaseClient
