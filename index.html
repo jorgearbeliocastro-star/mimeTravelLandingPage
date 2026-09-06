@@ -2065,45 +2065,30 @@
     font-family: var(--font-body);
   }
 
-  /* Envoltorio de cada tarjeta de camarote — agrupa el botón de selección
-     y el botón de foto (aparte, no anidado adentro del primero). */
-  .quote-status-cabin-card-wrap {
-    position: relative;
-    flex: 1 1 84px;
-    min-width: 84px;
-  }
-
-  .quote-status-cabin-card-wrap .quote-status-cabin-card {
-    width: 100%;
-  }
-
-  /* Botón de cámara — siempre visible (no depende de :hover, que en el
-     celular no existe) y abre la foto real del camarote en grande, con el
-     mismo lightbox que usan las fotos de los extras. Antes la foto vivía
-     adentro de la tarjeta y solo se veía al pasar el cursor encima, por
-     eso en el celular quedaba invisible ("está en miniatura"). */
-  .quote-status-cabin-photo-btn {
+  /* Foto del camarote — flota arriba del botón; es la misma foto para las
+     tres tarifas de este camarote (muestra la habitación, no diferencia
+     tarifas). Aparece con el cursor encima/foco (desktop) O cuando la
+     tarifa queda seleccionada (.active) — esto último para que funcione
+     igual en el celular, donde no existe el hover y antes quedaba
+     invisible ("está en miniatura"). */
+  .quote-status-cabin-card-preview {
     position: absolute;
-    top: -6px;
-    right: -6px;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    border: 1.5px solid rgba(0, 0, 0, 0.12);
-    background: #fff;
-    font-size: 13px;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    z-index: 5;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    transform: translateX(-50%) scale(0.96);
+    width: 160px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    z-index: 20;
   }
 
-  /* Qué incluye esa tarifa en particular — sigue apareciendo solo con el
-     cursor encima/foco (es texto corto, no una foto que haga falta ver
-     siempre en el celular). */
+  /* Qué incluye esa tarifa en particular — mismo criterio que la foto de
+     arriba (aparece con el cursor encima/foco o al quedar seleccionada). */
   .quote-status-cabin-card-desc {
     position: absolute;
     left: 50%;
@@ -2124,8 +2109,16 @@
     z-index: 20;
   }
 
+  .quote-status-cabin-card:hover .quote-status-cabin-card-preview,
+  .quote-status-cabin-card:focus-visible .quote-status-cabin-card-preview,
+  .quote-status-cabin-card.active .quote-status-cabin-card-preview {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+
   .quote-status-cabin-card:hover .quote-status-cabin-card-desc,
-  .quote-status-cabin-card:focus-visible .quote-status-cabin-card-desc {
+  .quote-status-cabin-card:focus-visible .quote-status-cabin-card-desc,
+  .quote-status-cabin-card.active .quote-status-cabin-card-desc {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
@@ -2136,9 +2129,9 @@
   }
 
   /* Yacht Club: 3 habitaciones reales (Royal/Deluxe/Interior Suite) — con
-     la tarjeta ya compacta (nombre + precio, descripción solo al pasar el
-     cursor, la foto con su propio botón — ver .quote-status-cabin-photo-btn
-     más arriba) entran en una sola fila sin apretarse, mismo criterio que
+     la tarjeta ya compacta (nombre + precio, foto y descripción al pasar
+     el cursor o al quedar seleccionada, igual que Bella/Fantastica/Aurea)
+     entran en una sola fila sin apretarse, mismo criterio que
      .quote-status-cabin-grid. */
   .quote-status-yacht-club-grid {
     display: flex;
@@ -2146,18 +2139,10 @@
     gap: 6px;
   }
 
-  .quote-status-yacht-club-card-wrap {
+  .quote-status-yacht-club-card {
     position: relative;
     flex: 1 1 84px;
     min-width: 84px;
-  }
-
-  .quote-status-yacht-club-card-wrap .quote-status-yacht-club-card {
-    width: 100%;
-  }
-
-  .quote-status-yacht-club-card {
-    position: relative;
     border: 1.5px solid rgba(0, 0, 0, 0.12);
     border-radius: 10px;
     padding: 8px 10px;
@@ -2170,10 +2155,37 @@
     font-family: var(--font-body);
   }
 
+  /* Foto grande de la habitación — mismo criterio que
+     .quote-status-cabin-card-preview: flota arriba de la tarjeta con el
+     cursor encima/foco o al quedar seleccionada. */
+  .quote-status-yacht-club-card-photo {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    transform: translateX(-50%) scale(0.96);
+    width: 220px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    z-index: 20;
+  }
+
+  .quote-status-yacht-club-card:hover .quote-status-yacht-club-card-photo,
+  .quote-status-yacht-club-card:focus-visible .quote-status-yacht-club-card-photo,
+  .quote-status-yacht-club-card.active .quote-status-yacht-club-card-photo {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+
   /* Qué trae cada habitación de Yacht Club — mismo criterio que la
      descripción de Bella/Fantastica/Aurea (ver .quote-status-cabin-card-desc):
-     cartelito flotante debajo de la tarjeta, que aparece solo con el
-     cursor encima o foco/tap, en vez de ocupar espacio fijo adentro. */
+     cartelito flotante debajo de la tarjeta, que aparece con el cursor
+     encima/foco o al quedar seleccionada, en vez de ocupar espacio fijo
+     adentro. */
   .quote-status-yacht-club-card-desc {
     position: absolute;
     left: 50%;
@@ -2195,7 +2207,8 @@
   }
 
   .quote-status-yacht-club-card:hover .quote-status-yacht-club-card-desc,
-  .quote-status-yacht-club-card:focus-visible .quote-status-yacht-club-card-desc {
+  .quote-status-yacht-club-card:focus-visible .quote-status-yacht-club-card-desc,
+  .quote-status-yacht-club-card.active .quote-status-yacht-club-card-desc {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
