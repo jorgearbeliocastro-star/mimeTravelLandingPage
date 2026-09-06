@@ -9254,7 +9254,7 @@
     // portugués si el navegador está en alguno de esos, inglés para
     // cualquier otro — mismo criterio que usa la app con el idioma del
     // teléfono (ver detectLang más arriba).
-    const SUPPORTED_LANGS = ['es', 'en', 'it', 'pt'];
+    const SUPPORTED_LANGS = ['es', 'en', 'it', 'pt', 'fr'];
     function applyLanguage(lang) {
       currentLang = SUPPORTED_LANGS.includes(lang) ? lang : 'es';
       document.documentElement.lang = currentLang;
