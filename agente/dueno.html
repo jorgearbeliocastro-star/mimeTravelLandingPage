@@ -235,6 +235,46 @@
       </div>
       <div id="teamQuotesList"></div>
     </div>
+
+    <div class="card">
+      <h2>Catálogo de extras (excursiones, bebidas, spa, etc.)</h2>
+      <p style="font-size:12.5px; color:rgba(26,26,26,0.6); margin-top:-6px;">Solo vos podés agregar/editar esto — el resto del equipo solo lo ve. El cliente ve foto + nombre + precio + descripción cuando el agente se lo ofrece en una cotización de crucero.</p>
+      <form id="addonForm">
+        <div class="field">
+          <label for="addonCategory">Categoría</label>
+          <select id="addonCategory" required>
+            <option value="excursions">Excursiones</option>
+            <option value="restaurants">Restaurantes temáticos</option>
+            <option value="drinks">Paquetes de bebidas</option>
+            <option value="spa">Spa y belleza</option>
+            <option value="internet">Paquetes de internet</option>
+            <option value="amusement">Entretenimiento</option>
+            <option value="photos">Paquetes de fotos</option>
+            <option value="laundry">Paquetes de lavandería</option>
+            <option value="other">Otros</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="addonLabel">Nombre</label>
+          <input type="text" id="addonLabel" placeholder="Ej. Excursión a Cozumel" required>
+        </div>
+        <div class="field">
+          <label for="addonPrice">Precio (USD)</label>
+          <input type="number" id="addonPrice" inputmode="decimal" min="0" step="0.01" required>
+        </div>
+        <div class="field">
+          <label for="addonDescription">Descripción (opcional, la ve el cliente)</label>
+          <textarea id="addonDescription" rows="2"></textarea>
+        </div>
+        <div class="field">
+          <label for="addonPhoto">Foto (opcional)</label>
+          <input type="file" id="addonPhoto" accept="image/*">
+        </div>
+        <button type="submit" class="btn" id="addonSubmitBtn">Agregar al catálogo</button>
+      </form>
+      <p class="msg" id="addonMsg"></p>
+      <div id="addonList" style="margin-top:16px;"></div>
+    </div>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
