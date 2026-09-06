@@ -1836,6 +1836,12 @@
       // tiene sentido si ese itinerario no pasa por ahí), por eso es el
       // agente el que elige a mano cuáles ofrecer en ESTA cotización
       // puntual, no algo que se aplique solo. Solo activos (active=true).
+      // Cada extra es su propio desplegable — el checkbox+precio siempre
+      // visible, la foto (y descripción, si tiene) escondidas hasta tocar
+      // la flechita. Antes se mostraban todas las fotos seguidas, una
+      // debajo de la otra, lo que hacía la lista larga difícil de mirar
+      // con varios extras cargados (ver mismo criterio en index.html, la
+      // vista del cliente).
       const cruiseAddonsBlock = quote.category === 'cruise' && addonCatalogCache.length ?
         '<label class="price-form-label">Extras a ofrecer en esta cotización (opcional — el cliente los ve con foto y puede sumarlos al precio)</label>' +
         '<div class="pf-addons-list">' +
@@ -1843,13 +1849,24 @@
           const items = addonCatalogCache.filter((a) => a.category === cat);
           if (!items.length) return '';
           return '<div class="price-form-label" style="margin-top:8px; font-size:12px;">' + ADDON_CATEGORY_LABELS[cat] + '</div>' +
-            items.map((a) =>
-              '<label class="pf-addon-row">' +
-              '<input type="checkbox" class="pf-addon-check" data-addon-id="' + a.id + '">' +
-              (a.photo_url ? '<img src="' + a.photo_url + '" alt="">' : '<span class="pf-addon-noPhoto"></span>') +
-              '<span>' + escapeHtml(a.label) + ' (+USD ' + a.price_usd + ')</span>' +
-              '</label>'
-            ).join('');
+            items.map((a) => {
+              const hasDetails = !!(a.photo_url || a.description);
+              return '<div class="pf-addon-item">' +
+                '<div class="pf-addon-header">' +
+                '<label class="pf-addon-row">' +
+                '<input type="checkbox" class="pf-addon-check" data-addon-id="' + a.id + '">' +
+                '<span>' + escapeHtml(a.label) + ' (+USD ' + a.price_usd + ')</span>' +
+                '</label>' +
+                (hasDetails ? '<button type="button" class="pf-addon-toggle" data-addon-toggle="' + a.id + '">▾</button>' : '') +
+                '</div>' +
+                (hasDetails ?
+                  '<div class="pf-addon-body" data-addon-body="' + a.id + '">' +
+                  (a.photo_url ? '<img class="pf-addon-photo-large" src="' + a.photo_url + '" alt="">' : '') +
+                  (a.description ? '<div class="pf-addon-desc">' + escapeHtml(a.description) + '</div>' : '') +
+                  '</div>'
+                  : '') +
+                '</div>';
+            }).join('');
         }).join('') +
         '</div>'
         : '';
