@@ -582,15 +582,15 @@
      naviera: se elige un mes y se llena el rango completo solo. */
   .month-picker-panel {
     display: none;
-    position: absolute;
-    top: 100%;
-    /* Centrado respecto al campo que lo abre (no pegado a su borde
-       izquierdo) — con el ancho fijo de abajo, "left:16px" a secas lo
-       corría hacia un costado cuando el campo es angosto (ej. "Fecha de
-       salida" como segunda columna al lado de "Puerto de salida" en el
-       celular), quedando cortado en vez de centrado. */
+    /* Centrado en la pantalla (no pegado al campo que lo abre) — cuando
+       "Fecha de salida" es la segunda columna al lado de "Puerto de
+       salida" en el celular, centrarlo solo respecto al campo lo seguía
+       dejando corrido hacia la derecha; con position:fixed centrado en el
+       viewport queda cómodo sin importar qué campo lo abrió. */
+    position: fixed;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
     width: 240px;
     max-width: calc(100vw - 32px);
     z-index: 50;
@@ -598,7 +598,6 @@
     border-radius: 12px;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
     padding: 14px;
-    margin-top: 4px;
     max-height: 340px;
     overflow-y: auto;
   }
