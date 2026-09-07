@@ -7979,7 +7979,13 @@
           '<label class="quote-pax-label">' + t('quotePaxEmergencyContactName') + '</label>' +
           '<input type="text" class="quote-pax-input" name="emergencyContactName-' + index + '">' +
           '<label class="quote-pax-label">' + t('quotePaxEmergencyContactPhone') + '</label>' +
-          '<input type="tel" class="quote-pax-input" name="emergencyContactPhone-' + index + '">';
+          '<input type="tel" class="quote-pax-input" name="emergencyContactPhone-' + index + '">' +
+          // Solo en el primer pasajero — copia SU contacto de emergencia a
+          // los demás del mismo camarote al tildarla (no hace falta
+          // tipearlo repetido para cada uno). Mismo criterio que MSC.
+          (index === 0
+            ? '<label class="quote-pax-checkbox-label"><input type="checkbox" data-pax-copy-emergency name="copyEmergencyContact-' + index + '"> ' + t('quotePaxCopyEmergencyContact') + '</label>'
+            : '');
         // El único seguro en el sistema es el que ofrece el Agente en la
         // cotización (con precio, checkbox al aceptar) — no hay un
         // "seguro externo" aparte que el cliente cargue acá.
