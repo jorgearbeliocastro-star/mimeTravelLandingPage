@@ -314,6 +314,20 @@
       <p class="msg" id="addonMsg"></p>
       <div id="addonList" style="margin-top:16px;"></div>
     </div>
+
+    <div class="card">
+      <h2>Precios de camarotes por crucero</h2>
+      <p style="font-size:12.5px; color:rgba(26,26,26,0.6); margin-top:-6px;">Cargá acá el precio real de cada camarote/tarifa para cada fecha de salida — el cliente lo ve y elige solo, sin que el agente tenga que ponerle precio a mano en cada cotización.</p>
+      <div class="field">
+        <label for="cabinPricesItinerarySelect">Itinerario</label>
+        <select id="cabinPricesItinerarySelect">
+          <option value="">Elegí un itinerario…</option>
+        </select>
+      </div>
+      <div id="cabinPricesGridWrap"></div>
+      <button type="button" class="btn" id="cabinPricesSaveBtn" hidden>Guardar precios</button>
+      <p class="msg" id="cabinPricesMsg"></p>
+    </div>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
