@@ -8804,6 +8804,15 @@
           price.id = 'quoteSinglePriceValue';
           price.textContent = t('quoteStatusPricePrefix') + 'USD ' + quote.quoted_price_usd;
           target().appendChild(price);
+          // Desglose tipo "Amount Due" de MSC — solo en el paso Confirmar
+          // del asistente de crucero. Se arma vacío acá (updateQuotePrice
+          // Display lo llena) porque recién ahí se sabe qué quedó tildado.
+          if (useCruiseWizard) {
+            const breakdown = document.createElement('div');
+            breakdown.className = 'quote-price-breakdown';
+            breakdown.id = 'quoteCruiseBreakdown';
+            target().appendChild(breakdown);
+          }
         }
         // El precio recién puesto arriba es el "base", sin nada marcado —
         // si el cliente ya había elegido seguro/maletas/asiento antes de
