@@ -1048,6 +1048,44 @@
       data.forEach((q) => ensureDocsThumbChannel(q));
     }
 
+    // Marca que el agente ya "atendió" esta cotización de su cola personal
+    // (la abrió, pidió más datos, la cotizó, lo que sea) — reusa
+    // agent_viewing_at, la misma columna que ya usa el latido de "estoy
+    // mirando esta" para desbloquear la subida de documentos (ver
+    // sendAgentViewingHeartbeat más abajo). No bloqueante: si falla, no
+    // corta el flujo real (poner precio, pedir datos, etc.).
+    function markQuoteViewed(quoteId) {
+      supabaseClient.from('quote_requests').update({ agent_viewing_at: new Date().toISOString() }).eq('id', quoteId).then(() => {});
+    }
+
+    // Si tengo algo mío en "Nuevas" sin atender todavía, no puedo tomar
+    // nada del "Pool" — a pedido explícito, para no dejar mi propia cola
+    // de lado. Corre aparte, cada 6s, sin importar qué pestaña tenga
+    // abierta (mismo criterio que pollAcceptedDocsChannels).
+    let hasUntouchedPersonalQueue = false;
+    async function checkPersonalQueueBlock() {
+      const { count, error } = await supabaseClient
+        .from('quote_requests')
+        .select('id', { count: 'exact', head: true })
+        .eq('claimed_by_agent_id', agentId)
+        .eq('client_still_completing', false)
+        .or('status.eq.pending,needs_agent_review.eq.true')
+        .is('agent_viewing_at', null);
+      const nowBlocked = !error && !!count;
+      if (nowBlocked !== hasUntouchedPersonalQueue) {
+        hasUntouchedPersonalQueue = nowBlocked;
+        if (currentTab === 'pool') { lastLoadedQuotesJSON = null; loadQuotes(); }
+      }
+    }
+
+    function buildPoolBlockedNote() {
+      const note = document.createElement('div');
+      note.className = 'meta';
+      note.style.color = '#a15c00';
+      note.textContent = '⚠️ Terminá primero lo que tenés en "Nuevas" antes de tomar algo de acá.';
+      return note;
+    }
+
     function selectTab(tabEl) {
       document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
       tabEl.classList.add('active');
