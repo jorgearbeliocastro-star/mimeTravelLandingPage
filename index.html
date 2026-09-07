@@ -2395,6 +2395,24 @@
     color: var(--primary);
   }
 
+  /* Habitación puntual ya vendida (available:false) — se ve pero no se
+     puede elegir, tachada, igual que "Not Available" en la web real de
+     MSC (ver openCabinSelectModal). Es un <div>, no un <button>, así que
+     no hace falta desactivar cursor por JS. */
+  .quote-status-msc-room-card.unavailable {
+    cursor: default;
+    opacity: 0.55;
+  }
+
+  .quote-status-msc-room-card.unavailable .quote-status-msc-room-name {
+    text-decoration: line-through;
+  }
+
+  .quote-status-msc-room-card.unavailable .quote-status-msc-room-price {
+    font-style: italic;
+    font-weight: 400;
+  }
+
   /* Asistente por pasos (Camarote → Extras → Confirmar), solo cruceros —
      ver useCruiseWizard en el JS. Cada paso vive en su propio panel,
      escondido salvo el activo; arriba la barra de progreso, abajo
