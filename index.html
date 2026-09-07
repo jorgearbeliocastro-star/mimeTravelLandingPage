@@ -2346,6 +2346,109 @@
     color: var(--primary);
   }
 
+  /* Asistente por pasos (Camarote → Extras → Confirmar), solo cruceros —
+     ver useCruiseWizard en el JS. Cada paso vive en su propio panel,
+     escondido salvo el activo; arriba la barra de progreso, abajo
+     Atrás/Continuar. */
+  .quote-wizard-progress {
+    display: flex;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .quote-wizard-step-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .quote-wizard-step-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(27, 58, 92, 0.15);
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .quote-wizard-step-indicator.active .quote-wizard-step-num {
+    background: var(--coral);
+    color: #fff;
+  }
+
+  .quote-wizard-step-indicator.done .quote-wizard-step-num {
+    background: var(--turquesa);
+    color: #fff;
+  }
+
+  .quote-wizard-step-label {
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: rgba(26, 26, 26, 0.5);
+    text-align: center;
+    max-width: 70px;
+  }
+
+  .quote-wizard-step-indicator.active .quote-wizard-step-label {
+    color: var(--dark);
+  }
+
+  .quote-wizard-step-sep {
+    flex: 1 1 auto;
+    height: 2px;
+    background: rgba(27, 58, 92, 0.12);
+    margin: 0 4px;
+    align-self: flex-start;
+    margin-top: 11px;
+  }
+
+  .quote-wizard-step-panel {
+    display: none;
+  }
+
+  .quote-wizard-step-panel.active {
+    display: block;
+  }
+
+  .quote-wizard-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .quote-wizard-back, .quote-wizard-continue {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 9px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .quote-wizard-back {
+    background: none;
+    border: 1.5px solid rgba(27, 58, 92, 0.25);
+    color: var(--primary);
+  }
+
+  .quote-wizard-continue {
+    background: var(--coral);
+    border: none;
+    color: #fff;
+    margin-left: auto;
+  }
+
   /* Preferencias de ubicación del camarote — pedido del cliente, no
      reserva confirmada (ver comentario en el JS). */
   .quote-status-cabin-prefs {
