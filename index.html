@@ -2026,6 +2026,50 @@
     margin-top: auto;
   }
 
+  /* El botón interno ocupa toda la tarjeta (mismo look que antes, cuando
+     la tarjeta entera ERA el botón) — se separó en un <div> + <button>
+     para poder sumarle el control de cantidad debajo sin anidar un
+     <button> dentro de otro <button> (inválido en HTML). */
+  .quote-status-addon-tile-main {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    text-align: left;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: var(--font-body);
+  }
+
+  .quote-status-addon-tile-qty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 8px 8px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--dark);
+  }
+
+  .quote-status-addon-qty-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0, 0, 0, 0.15);
+    background: #fff;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--primary);
+  }
+
+  .quote-status-addon-qty-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
   /* Lightbox de foto — sin fondo oscuro: solo la foto flotando encima,
      dejando ver la página (y el panel de cotización) detrás. */
   .photo-lightbox-overlay {
