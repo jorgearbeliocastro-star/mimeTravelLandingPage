@@ -1816,16 +1816,38 @@
         buildSeatPriceRowsHTML(getSeatTypeOptions('flight')) +
         '</div>'
         : '';
-      // Precio por camarote/nivel de tarifa — solo crucero. Mismas claves
-      // compuestas que ya espera index.html del lado del cliente (ver
-      // getSeatTypeOptions arriba). Vacío = ese camarote no se ofrece (a
-      // diferencia de vuelo, acá no tiene sentido "incluido gratis" —
-      // por eso ninguno viene con precio precargado).
+      // Camarotes puntuales — solo crucero. Reemplaza al viejo esquema de
+      // "un precio por camarote+tarifa fija" (15 casilleros siempre
+      // visibles, con el checkbox "No disponible" de cada uno apretado
+      // contra el de al lado — difícil de leer con varios cargados) por
+      // una lista que el Agente arma a mano, habitación por habitación,
+      // como se ve en la web real de MSC (nombre propio, metros² y precio
+      // cada una). Se guarda en quoted_cabin_options (columna nueva, ver
+      // migración) con un update directo después del RPC de precio —
+      // mismo patrón ya probado que usa quoted_airline más abajo, no pasa
+      // por price_claimed_quote (RPC que no vimos nunca, no se toca a
+      // ciegas).
       const cruiseCabinBlock = quote.category === 'cruise' ?
-        '<label class="price-form-label">Precio por camarote y nivel de tarifa (USD, por persona) — vacío o "No disponible" lo saca de la oferta</label>' +
-        '<div class="price-form-row" style="flex-wrap:wrap;">' +
-        buildSeatPriceRowsHTML(getSeatTypeOptions('cruise')) +
-        '</div>'
+        '<label class="price-form-label">Camarotes a ofrecer (agregá cada habitación puntual con su nombre, metros² opcional y precio)</label>' +
+        '<div class="pf-cabin-add-row">' +
+        '<select class="pf-cabin-new-cabin">' +
+        '<option value="interior">Interior</option>' +
+        '<option value="oceanview">Vista al mar</option>' +
+        '<option value="balcony">Balcón</option>' +
+        '<option value="suite">Suite</option>' +
+        '<option value="yacht_club">MSC Yacht Club</option>' +
+        '</select>' +
+        '<select class="pf-cabin-new-tier">' +
+        '<option value="bella">Bella</option>' +
+        '<option value="fantastica">Fantastica</option>' +
+        '<option value="aurea">Aurea</option>' +
+        '</select>' +
+        '<input type="text" class="pf-cabin-new-name" placeholder="Nombre (ej. Deluxe Balcony Deck 9-15)">' +
+        '<input type="number" inputmode="decimal" class="pf-cabin-new-sqft" placeholder="Metros² (opc.)" min="0" step="1">' +
+        '<input type="number" inputmode="decimal" class="pf-cabin-new-price" placeholder="Precio USD" min="0" step="0.01">' +
+        '<button type="button" class="pf-cabin-add-btn">Agregar</button>' +
+        '</div>' +
+        '<div class="pf-cabin-options-list"></div>'
         : '';
       // Precio por tipo de habitación — solo hotel. Nuevo (no existía en
       // ningún lado, ver comentario en getSeatTypeOptions), mismo
