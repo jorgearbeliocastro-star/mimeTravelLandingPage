@@ -9144,7 +9144,7 @@
         }
         function sumCustomAddons(offered, selections) {
           if (!offered) return 0;
-          return (quote.quoted_custom_addons || []).reduce((sum, a) => sum + (selections[a.label] ? Number(a.priceUSD) : 0), 0);
+          return (quote.quoted_custom_addons || []).reduce((sum, a) => sum + Number(a.priceUSD) * (Number(selections[a.label]) || 0), 0);
         }
         // Cada maleta extra cuesta lo que le toque según su posición (1ra,
         // 2da...) — igual que decide_quote_request_with_tier del lado del
