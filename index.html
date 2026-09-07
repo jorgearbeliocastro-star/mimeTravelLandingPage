@@ -8519,17 +8519,16 @@
         '<div class="quote-pax-block" data-pax-block>' +
         header +
         nameField +
-        '<label class="quote-pax-label">' + t('quotePaxDocument') + '</label>' +
-        '<input type="text" class="quote-pax-input" name="document-' + index + '" required>' +
         dobField +
-        '<label class="quote-pax-label">' + t('quotePaxExpiry') + '</label>' +
-        // El vencimiento del pasaporte siempre es a futuro.
-        buildDateSelectsHTML('expiry', index, nowYear, nowYear + 15) +
         '<label class="quote-pax-label">' + t('quotePaxNationality') + '</label>' +
         buildCountrySelectHTML('nationality', index, true) +
         genderField +
-        '<label class="quote-pax-label">' + t('quotePaxIssuingCountry') + '</label>' +
-        buildCountrySelectHTML('passportIssuingCountry', index, true) +
+        // Número/vencimiento/país emisor del pasaporte NO se piden
+        // escritos — solo por foto, más adelante (ver
+        // docsUploadPassportBtn). El aviso automático de restricciones
+        // migratorias que dependía del país emisor ya no se puede calcular
+        // acá — el Agente lo revisa a mano al ver la foto.
+        '<p class="quote-pax-doc-photo-note">' + t('quotePaxDocPhotoNote') + '</p>' +
         '<div class="quote-pax-warnings" data-pax-warnings></div>' +
         '</div>'
       );
