@@ -1443,7 +1443,30 @@
           badgeHtml;
         list.appendChild(card);
 
-        if (currentTab === 'new') {
+        if (currentTab === 'new' && q.needs_agent_review) {
+          // Ya tiene precio real (el cliente eligió el camarote solo) —
+          // acá no corresponde "Tomar y poner precio" desde cero, solo
+          // confirmar que está bien o corregirlo si hace falta.
+          const confirmBtn = document.createElement('button');
+          confirmBtn.className = 'claim-btn';
+          confirmBtn.textContent = '✅ Confirmar precio y camarote';
+          confirmBtn.addEventListener('click', async () => {
+            confirmBtn.disabled = true;
+            const { error } = await supabaseClient.from('quote_requests').update({ needs_agent_review: false, claimed_by_agent_id: agentId }).eq('id', q.id);
+            if (error) {
+              alert('No se pudo confirmar: ' + error.message);
+              confirmBtn.disabled = false;
+              return;
+            }
+            loadQuotes();
+          });
+          card.appendChild(confirmBtn);
+          const adjustBtn = document.createElement('button');
+          adjustBtn.className = 'claim-btn secondary';
+          adjustBtn.textContent = '✏️ No es correcto, ajustar a mano';
+          adjustBtn.addEventListener('click', () => showPriceForm(card, q));
+          card.appendChild(adjustBtn);
+        } else if (currentTab === 'new') {
           const claimBtn = document.createElement('button');
           claimBtn.className = 'claim-btn';
           claimBtn.textContent = 'Tomar y poner precio';
