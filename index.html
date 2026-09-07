@@ -8656,6 +8656,17 @@
           .then(({ error }) => {
             if (error) throw error;
             showingPassengerForm = false;
+            // Recién ACÁ el cliente terminó de verdad (aceptó + mandó sus
+            // datos) — si esta cotización venía de elegir camarote solo
+            // (needs_agent_review, ver createQuoteRequest) es el momento
+            // de avisarle al agente, no antes.
+            if (mode === 'accept' && activeQuoteNeedsAgentReview) {
+              notifyAgentsOfNewQuote({
+                origin: activeQuoteOrigin,
+                destination: activeQuoteDestination,
+                claimedByAgentId: activeQuoteClaimedByAgentId,
+              });
+            }
             return pollQuote();
           })
           .catch(() => {
