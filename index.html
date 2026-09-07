@@ -2026,9 +2026,10 @@
   }
 
   /* El botón interno ocupa toda la tarjeta (mismo look que antes, cuando
-     la tarjeta entera ERA el botón) — se separó en un <div> + <button>
-     para poder sumarle el control de cantidad debajo sin anidar un
-     <button> dentro de otro <button> (inválido en HTML). */
+     la tarjeta entera era un solo elemento clickeable) — la tarjeta pasó a
+     ser un contenedor div con este botón adentro, para poder sumarle el
+     control de cantidad debajo sin anidar un botón dentro de otro botón
+     (inválido en HTML). */
   .quote-status-addon-tile-main {
     display: flex;
     flex-direction: column;
