@@ -1068,7 +1068,13 @@
         // que se puede tomar sin precio (ver claim_quote_no_price), una
         // pending ya tomada tiene que desaparecer de acá para el resto del
         // equipo aunque siga en status pending.
-        query = query.eq('status', 'pending').is('claimed_by_agent_id', null);
+        // Se suman también las que el cliente ya cotizó solo eligiendo un
+        // camarote real (ver apply_cruise_room_price en index.html) —
+        // quedan en status "quoted" (así el cliente sigue con extras/
+        // seguro/confirmar sin trabarse), pero needs_agent_review=true las
+        // marca como pendientes de que un Agente las mire antes de darlas
+        // por buenas.
+        query = query.is('claimed_by_agent_id', null).or('status.eq.pending,needs_agent_review.eq.true');
       } else if (currentTab === 'accepted') {
         // Aceptadas por el cliente, mías, todavía sin cerrar la venta —
         // antes esta pestaña no tenía filtro propio y mostraba lo mismo
