@@ -9082,7 +9082,7 @@
           notes.className = 'quote-status-notes';
           notes.innerHTML = '<span class="quote-status-notes-label">' + t('quoteAgentNoteLabel') + ':</span> ';
           notes.appendChild(document.createTextNode(quote.agent_notes));
-          quoteStatusBar.appendChild(notes);
+          target().appendChild(notes);
         }
         const actions = document.createElement('div');
         actions.className = 'quote-status-decision';
