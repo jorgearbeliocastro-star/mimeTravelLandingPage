@@ -1074,7 +1074,12 @@
         // seguro/confirmar sin trabarse), pero needs_agent_review=true las
         // marca como pendientes de que un Agente las mire antes de darlas
         // por buenas.
-        query = query.is('claimed_by_agent_id', null).or('status.eq.pending,needs_agent_review.eq.true');
+        // client_still_completing = true = el cliente todavía está en el
+        // medio de llenar extras/pasajeros (ver apply_cruise_room_price /
+        // mark_quote_client_finished en index.html) — no se muestra en
+        // NINGUNA pestaña hasta que el cliente termine de verdad, aunque
+        // ya tenga status "quoted" y needs_agent_review.
+        query = query.is('claimed_by_agent_id', null).eq('client_still_completing', false).or('status.eq.pending,needs_agent_review.eq.true');
       } else if (currentTab === 'accepted') {
         // Aceptadas por el cliente, mías, todavía sin cerrar la venta —
         // antes esta pestaña no tenía filtro propio y mostraba lo mismo
