@@ -2189,6 +2189,11 @@
         if (fareConditionsValue) {
           supabaseClient.from('quote_requests').update({ quoted_fare_conditions: fareConditionsValue }).eq('id', quote.id).then(() => {});
         }
+        // Camarotes puntuales (ver pf-cabin-* arriba) — mismo criterio que
+        // aerolínea: update directo aparte, no pasa por price_claimed_quote.
+        if (quote.category === 'cruise' && row._cabinOptions && row._cabinOptions.length) {
+          supabaseClient.from('quote_requests').update({ quoted_cabin_options: row._cabinOptions }).eq('id', quote.id).then(() => {});
+        }
         // Extras elegidos (ver cruiseAddonsBlock/selectedAddons arriba) —
         // mismo criterio que aerolínea: update directo aparte, no
         // bloqueante. Solo se manda si tildó al menos uno (si no, no
