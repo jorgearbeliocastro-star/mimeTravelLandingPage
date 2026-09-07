@@ -3184,6 +3184,21 @@
     </div>
   </div>
 
+  <!-- ================= MODAL "ELEGIR CAMAROTE" ================= -->
+  <!-- Aparece al tocar una fecha con precios reales ya cargados
+       (cabin_date_prices, ver dueno.html) — el cliente elige camarote+
+       tarifa acá mismo, con precio real, ANTES de mandar el pedido. Si esa
+       fecha todavía no tiene precios cargados, este modal ni se abre (cae
+       al flujo de siempre: pedido en blanco para que el Agente cotice). -->
+  <div class="modal-overlay" id="cabinSelectOverlay" hidden>
+    <div class="modal cabin-select-modal" role="dialog" aria-modal="true" aria-labelledby="cabinSelectTitle">
+      <button type="button" class="modal-close" id="cabinSelectCloseBtn" aria-label="Cerrar" data-i18n-aria="modalCloseAria">✕</button>
+      <h3 id="cabinSelectTitle" data-i18n="cabinSelectTitle">Elegí tu camarote</h3>
+      <p id="cabinSelectSubtitle" class="cabin-select-subtitle"></p>
+      <div id="cabinSelectGridWrap"></div>
+    </div>
+  </div>
+
   <!-- ================= HERO ================= -->
   <section class="hero" id="main-content">
     <div class="container hero-content">
