@@ -7647,12 +7647,6 @@
     // QUOTE_POLL_MS reconstruye el HTML desde cero y las vuelve a colapsar
     // (se veía como que "se abre un segundo y se cierra sola").
     let customAddonsExpandedCategories = {};
-    // Igual que arriba pero por extra individual (no por categoría) — cada
-    // extra es su propio desplegable (foto+descripción ocultas hasta
-    // tocarlo), llave = addon.label. Antes se mostraban todos los extras
-    // de una categoría seguidos uno debajo del otro (con foto y
-    // descripción siempre visibles), lo que hacía la lista muy larga.
-    let customAddonsExpandedItems = {};
     // Mientras la card de datos del pasajero está abierta, el polling no
     // debe pisarla (perdería lo que el cliente ya tipeó) — se congela el
     // status bar hasta que se cancela o se manda el formulario.
