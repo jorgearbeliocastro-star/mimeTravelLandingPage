@@ -1096,7 +1096,10 @@
         // tomé con claim_quote_no_price para pedirle algo al cliente antes
         // de poder cotizar (ver needInfoBtn) — siguen sin precio pero ya
         // son mías, tienen que verse en algún lado.
-        query = query.eq('claimed_by_agent_id', agentId).in('status', ['pending', 'quoted', 'decided']);
+        // Mismo resguardo acá: si esta cotización mía viene de autoservicio
+        // (client_still_completing) y el cliente todavía no terminó, no se
+        // muestra ni acá aunque ya sea "quoted" y esté asignada a mí.
+        query = query.eq('claimed_by_agent_id', agentId).eq('client_still_completing', false).in('status', ['pending', 'quoted', 'decided']);
       }
       if (currentTab !== 'new') query = query.order('created_at', { ascending: false });
       const { data, error } = await query;
