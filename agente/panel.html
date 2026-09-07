@@ -1856,7 +1856,14 @@
         '<input type="number" inputmode="decimal" class="pf-cabin-new-price" placeholder="Precio USD" min="0" step="0.01">' +
         '<button type="button" class="pf-cabin-add-btn">Agregar</button>' +
         '</div>' +
-        '<div class="pf-cabin-options-list"></div>'
+        '<div class="pf-cabin-options-list"></div>' +
+        // El seguro de viaje va acá (con lo demás de crucero), no arriba
+        // mezclado con "Precio base" de vuelo — el cliente lo termina
+        // viendo recién en el paso Confirmar del asistente, no antes.
+        '<label class="price-form-label">Seguro de viaje (USD, opcional)</label>' +
+        '<div class="price-form-row">' +
+        '<input type="number" inputmode="decimal" class="pf-insurance" placeholder="Seguro (opc.)" min="0" step="0.01">' +
+        '</div>'
         : '';
       // Precio por tipo de habitación — solo hotel. Nuevo (no existía en
       // ningún lado, ver comentario en getSeatTypeOptions), mismo
