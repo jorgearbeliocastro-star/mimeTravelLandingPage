@@ -9775,6 +9775,8 @@
           activeQuoteCategory = quote.category || null;
           activeQuoteContactEmail = quote.contact_email || '';
           activeQuoteContactPhone = quote.contact_phone || '';
+          activeQuoteNeedsAgentReview = !!quote.needs_agent_review;
+          activeQuoteClaimedByAgentId = quote.claimed_by_agent_id || null;
           quotePanelRoute.textContent = activeQuoteRouteLabel;
         }
         const { data: messages, error: msgError } = await supabaseClient.rpc('get_quote_request_messages', {
