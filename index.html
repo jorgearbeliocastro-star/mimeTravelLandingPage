@@ -9037,7 +9037,7 @@
             catBody.appendChild(addonGrid);
             addonsWrap.appendChild(catBody);
           });
-          quoteStatusBar.appendChild(addonsWrap);
+          (step2Container || quoteStatusBar).appendChild(addonsWrap);
         } else {
           selectedCustomAddons = {};
           customAddonsExpandedCategories = {};
