@@ -9680,16 +9680,10 @@
           notes.appendChild(document.createTextNode(quote.agent_notes));
           target().appendChild(notes);
         }
-        // Política de cancelación — texto genérico, no inventamos los
-        // plazos/porcentajes reales de cada naviera/aerolínea (eso lo
-        // confirma el agente antes de cerrar, cada proveedor tiene los
-        // suyos). Solo avisa que existe y que hay que consultarla.
-        if (quote.category === 'cruise') {
-          const cancelPolicy = document.createElement('div');
-          cancelPolicy.className = 'quote-cancellation-policy';
-          cancelPolicy.innerHTML = '<strong>' + t('quoteCancellationPolicyTitle') + '</strong><br>' + t('quoteCancellationPolicyBody');
-          target().appendChild(cancelPolicy);
-        }
+        // La política de cancelación se movió al paso final (justo antes
+        // de aceptar, con su propia casilla de "la leí") — ver
+        // renderPassengerFormInner. Repetirla acá también sería mostrarla
+        // dos veces sin necesidad.
         const actions = document.createElement('div');
         actions.className = 'quote-status-decision';
         actions.innerHTML = hasTwoTiers
