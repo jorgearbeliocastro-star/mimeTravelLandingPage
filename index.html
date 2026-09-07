@@ -2661,6 +2661,19 @@
     min-width: 0;
   }
 
+  /* Checkbox de "copiar contacto de emergencia a todos" — no es un campo
+     más de la lista (los .quote-pax-input van uno debajo del otro con su
+     label arriba), es una acción aparte, por eso el estilo distinto. */
+  .quote-pax-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: rgba(26, 26, 26, 0.7);
+    margin-top: 6px;
+    cursor: pointer;
+  }
+
   /* Separador visual entre pasajeros — el primero no lo necesita porque no
      tiene nada arriba dentro del form. */
   .quote-pax-block + .quote-pax-block {
