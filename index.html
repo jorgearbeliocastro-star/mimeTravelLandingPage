@@ -9090,7 +9090,7 @@
           ? '<button type="button" class="quote-decision-btn quote-decision-decline" data-decision="decline">' + t('quoteDecisionDecline') + '</button>'
           : '<button type="button" class="quote-decision-btn quote-decision-accept quote-decision-new" data-decision="accept" data-tier="basic">' + t('quoteDecisionAccept') + '</button>' +
             '<button type="button" class="quote-decision-btn quote-decision-decline" data-decision="decline">' + t('quoteDecisionDecline') + '</button>';
-        quoteStatusBar.appendChild(actions);
+        target().appendChild(actions);
         return;
       }
       if (quote.status === 'decided') {
