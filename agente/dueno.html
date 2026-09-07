@@ -723,7 +723,7 @@
         const shipLabel = ship === '__none__' ? 'Sin barco asignado' : ship;
         const shipKey = ship;
         const shipOpen = !!addonExpandedShips[shipKey];
-        html += '<button type="button" class="addon-category-toggle" data-ship-toggle="' + escapeHtml(shipKey) + '" style="background:var(--primary); color:#fff;' + (shipOpen ? '' : '') + '">' +
+        html += '<button type="button" class="addon-category-toggle" data-ship-toggle="' + escapeHtml(shipKey) + '" style="background:var(--primary); color:#fff;">' +
           '<span>🚢 ' + escapeHtml(shipLabel) + ' (' + shipItems.length + ')</span>' +
           '<span class="addon-category-toggle-arrow">' + (shipOpen ? '▾' : '▸') + '</span>' +
           '</button>';
