@@ -8705,41 +8705,6 @@
           }
           return total;
         }
-        // Cruceros: cada clave disponible es compuesta "camarote_nivel"
-        // (ver cabinTierKey en la app) — se separa para agrupar por
-        // camarote con sus niveles Bella/Fantastica/Aurea adentro, igual
-        // que se ve en la web real de una naviera.
-        // Orden de más caro a más barato — mismo orden que usa MSC.
-        const CABIN_TYPE_ORDER = ['yacht_club', 'suite', 'balcony', 'oceanview', 'interior'];
-        const FARE_TIER_ORDER = ['bella', 'fantastica', 'aurea'];
-        // Yacht Club no tiene Bella/Fantastica/Aurea como los demás
-        // camarotes — en la web real de MSC son 4 habitaciones propias
-        // (General, Royal Suite, Deluxe Suite, Interior Suite), cada una
-        // con un precio único, no niveles de tarifa. Mismo mecanismo de
-        // clave compuesta "yacht_club_<suite>" (ver cabinTierKey en la
-        // app de Agente). Orden = como se ve en la web de MSC (2x2: la
-        // general primero, después de más cara a más barata).
-        // "General" (la página resumen de MSC, no una habitación real) se
-        // sacó a propósito — mostrarla como una 4ta opción daba a entender
-        // que era una habitación distinta, y no existe como tal.
-        const YACHT_CLUB_SUITE_ORDER = ['royal_suite', 'deluxe_suite', 'interior_suite'];
-        // Foto real de cada tipo de camarote (capturas reales de MSC,
-        // recortadas y subidas al bucket público addon-photos).
-        const CABIN_TYPE_PHOTOS = {
-          interior: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/interior.png',
-          oceanview: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/oceanview.png',
-          balcony: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/balcony.png',
-          suite: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/suite.png',
-        };
-        // Yacht Club tiene una foto real DISTINTA por cada una de sus 3
-        // habitaciones (a diferencia de los demás camarotes, donde la
-        // misma foto vale para Bella/Fantastica/Aurea) — por eso va en un
-        // mapa aparte, con clave = suite en vez de tipo de camarote.
-        const YACHT_CLUB_SUITE_PHOTOS = {
-          royal_suite: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/yacht_club_royal_suite.png',
-          deluxe_suite: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/yacht_club_deluxe_suite.png',
-          interior_suite: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/yacht_club_interior_suite.png',
-        };
         function groupCabinKeys(keys) {
           const byCabin = {};
           keys.forEach(function (key) {
