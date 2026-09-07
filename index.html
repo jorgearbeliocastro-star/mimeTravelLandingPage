@@ -7310,9 +7310,26 @@
       cruiseResultsContainer.innerHTML = itineraries
         .map((it, idx) => {
           const datePrices = it.date_prices || {};
+          const cabinDatePrices = it.cabin_date_prices || {};
+          // Antes esto solo miraba date_prices (el precio "resumen" simple)
+          // — si el Dueño ya había cargado el detalle real de habitaciones
+          // (cabin_date_prices) para una fecha pero nunca puso el resumen
+          // aparte, el chip quedaba en N/D y deshabilitado, así que ni
+          // dejaba hacer clic para llegar al selector de camarotes. Ahora,
+          // si falta el resumen, se calcula solo con el precio más barato
+          // de las habitaciones disponibles de esa fecha.
+          function cheapestCabinPriceForDate(d) {
+            const rooms = cabinDatePrices[d];
+            if (!rooms || !rooms.length) return null;
+            const prices = rooms
+              .filter((r) => r.available !== false)
+              .map((r) => Number(r.price))
+              .filter((n) => !isNaN(n));
+            return prices.length ? Math.min(...prices) : null;
+          }
           const dateChips = (it.available_dates || [])
             .map((d) => {
-              const p = datePrices[d];
+              const p = datePrices[d] != null ? datePrices[d] : cheapestCabinPriceForDate(d);
               // Fechas sin precio cargado = esa semana no tiene salida real
               // (igual que MSC las muestra en gris con "N/D") — se ven pero
               // no se pueden elegir.
@@ -7333,9 +7350,12 @@
             })
             .join('');
           // "Desde" usa el precio más bajo real por fecha si ya lo tenemos
-          // cargado (date_prices); si esa ruta todavía no tiene precios por
-          // fecha, cae al precio general del itinerario como antes.
-          const knownPrices = Object.values(datePrices);
+          // cargado (date_prices o, en su falta, cabin_date_prices); si esa
+          // ruta todavía no tiene precios por fecha, cae al precio general
+          // del itinerario como antes.
+          const knownPrices = (it.available_dates || [])
+            .map((d) => (datePrices[d] != null ? datePrices[d] : cheapestCabinPriceForDate(d)))
+            .filter((v) => v != null);
           const fromPrice = knownPrices.length ? Math.min(...knownPrices) : it.price_usd;
           return (
             '<div class="cruise-result-card">' +
