@@ -7453,12 +7453,12 @@
               '<span class="quote-status-msc-room-price">' + (isAvailable ? 'USD ' + room.price : t('cruiseResultNotAvailable')) + '</span>';
             if (isAvailable) {
               card.addEventListener('click', function () {
-                const price = Number(room.price);
-                const confirmMsg = t('cruiseResultConfirmDate')
-                  .replace('{date}', chosenDate)
-                  .replace('{nights}', it.nights)
-                  .replace('{price}', price);
-                if (!window.confirm(confirmMsg)) return;
+                // Ya tenemos el precio real de esta habitación cargado —
+                // no hace falta un "¿confirmás?" nativo que corte el
+                // flujo. Se cierra el modal y se manda directo: el
+                // cliente sigue solo hacia extras/seguro/pasajeros/
+                // confirmar en el mismo asistente (ver renderQuoteStatus),
+                // sin quedar trabado acá.
                 const payload = buildSearchQuotePayload('cruceros', data);
                 payload.searchMode = 'exact_date';
                 payload.searchDate = chosenDate;
