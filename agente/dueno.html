@@ -867,6 +867,13 @@
       renderCabinPricesGrid(itinerary);
     }
 
+    // Habitaciones puntuales de la fecha que está eligiendo ahora mismo —
+    // igual que quoted_cabin_options en panel.html: código (deck/cabina),
+    // camarote, tarifa, nombre, metros², precio y si está disponible o no
+    // (tachada, igual que "Not Available" en la web real de MSC). Vive en
+    // memoria mientras se edita, recién se manda al tocar "Guardar".
+    let currentDateRooms = [];
+
     function renderCabinPricesGrid(itinerary) {
       const wrap = document.getElementById('cabinPricesGridWrap');
       const saveBtn = document.getElementById('cabinPricesSaveBtn');
@@ -876,7 +883,6 @@
         return;
       }
       const dates = (itinerary.available_dates || []).slice().sort();
-      const existing = itinerary.cabin_date_prices || {};
       // Mostrar/ocultar TODO el crucero/ruta — no borra los precios
       // cargados, solo lo saca de lo que ve el cliente (misma columna
       // "active" que ya se usaba para filtrar en index.html).
@@ -890,48 +896,120 @@
       }
       wrap.innerHTML =
         toggleHtml +
-        '<div class="cabin-prices-scroll"><table class="cabin-prices-table"><thead><tr><th>Fecha</th>' +
-        CABIN_TIER_KEYS.map((c) => '<th>' + c.label + '</th>').join('') +
-        '</tr></thead><tbody>' +
-        dates.map((d) =>
-          '<tr><td>' + d + '</td>' +
-          CABIN_TIER_KEYS.map((c) => {
-            const v = existing[d] && existing[d][c.key] != null ? existing[d][c.key] : '';
-            return '<td><input type="number" inputmode="decimal" min="0" step="0.01" data-date="' + d + '" data-cabin-key="' + c.key + '" value="' + v + '"></td>';
-          }).join('') +
-          '</tr>'
-        ).join('') +
-        '</tbody></table></div>';
+        '<div class="field"><label for="cabinPricesDateSelect">Fecha de salida</label>' +
+        '<select id="cabinPricesDateSelect"><option value="">Elegí una fecha…</option>' +
+        dates.map((d) => '<option value="' + d + '">' + d + '</option>').join('') +
+        '</select></div>' +
+        '<div id="cabinRoomsWrap" hidden>' +
+        '<div id="cabinRoomsList"></div>' +
+        '<div class="cabin-room-add-row">' +
+        '<input type="text" id="cabinRoomCode" placeholder="Código (ej. BR3)" style="width:100px;">' +
+        '<select id="cabinRoomCabin">' +
+        '<option value="interior">Interior</option>' +
+        '<option value="oceanview">Vista al mar</option>' +
+        '<option value="balcony">Balcón</option>' +
+        '<option value="suite">Suite</option>' +
+        '<option value="yacht_club">MSC Yacht Club</option>' +
+        '</select>' +
+        '<select id="cabinRoomTier">' +
+        '<option value="bella">Bella</option>' +
+        '<option value="fantastica">Fantastica</option>' +
+        '<option value="aurea">Aurea</option>' +
+        '</select>' +
+        '<input type="text" id="cabinRoomName" placeholder="Nombre (ej. Deluxe Balcony, Decks 14-15)" style="flex:1 1 200px;">' +
+        '<input type="text" id="cabinRoomSqft" placeholder="Metros² (ej. 183 ft2 -Balcony: 32 ft2)" style="flex:1 1 160px;">' +
+        '<input type="number" inputmode="decimal" id="cabinRoomPrice" placeholder="Precio USD" min="0" step="0.01" style="width:110px;">' +
+        '<label style="display:flex; align-items:center; gap:4px; font-size:12px;"><input type="checkbox" id="cabinRoomAvailable" checked> Disponible</label>' +
+        '<button type="button" class="btn" id="cabinRoomAddBtn">Agregar habitación</button>' +
+        '</div>' +
+        '</div>';
       document.getElementById('cabinItineraryToggleBtn').addEventListener('click', () => toggleItineraryActive(itinerary));
+      document.getElementById('cabinPricesDateSelect').addEventListener('change', (e) => selectCabinPricesDate(itinerary, e.target.value));
+      document.getElementById('cabinRoomAddBtn').addEventListener('click', () => {
+        const name = document.getElementById('cabinRoomName').value.trim();
+        const price = Number(document.getElementById('cabinRoomPrice').value);
+        if (!name || !(price > 0)) {
+          alert('Falta el nombre de la habitación o el precio.');
+          return;
+        }
+        currentDateRooms.push({
+          code: document.getElementById('cabinRoomCode').value.trim() || null,
+          cabin: document.getElementById('cabinRoomCabin').value,
+          tier: document.getElementById('cabinRoomTier').value,
+          name,
+          sqft: document.getElementById('cabinRoomSqft').value.trim() || null,
+          price,
+          available: document.getElementById('cabinRoomAvailable').checked,
+        });
+        document.getElementById('cabinRoomCode').value = '';
+        document.getElementById('cabinRoomName').value = '';
+        document.getElementById('cabinRoomSqft').value = '';
+        document.getElementById('cabinRoomPrice').value = '';
+        renderCabinRoomsList();
+      });
+      saveBtn.hidden = true;
+    }
+
+    function selectCabinPricesDate(itinerary, date) {
+      const roomsWrap = document.getElementById('cabinRoomsWrap');
+      const saveBtn = document.getElementById('cabinPricesSaveBtn');
+      if (!date) {
+        roomsWrap.hidden = true;
+        saveBtn.hidden = true;
+        return;
+      }
+      const existing = itinerary.cabin_date_prices || {};
+      currentDateRooms = Array.isArray(existing[date]) ? existing[date].slice() : [];
+      roomsWrap.hidden = false;
       saveBtn.hidden = false;
+      renderCabinRoomsList();
+    }
+
+    function renderCabinRoomsList() {
+      const list = document.getElementById('cabinRoomsList');
+      const CABIN_LABELS = { interior: 'Interior', oceanview: 'Vista al mar', balcony: 'Balcón', suite: 'Suite', yacht_club: 'MSC Yacht Club' };
+      const TIER_LABELS = { bella: 'Bella', fantastica: 'Fantastica', aurea: 'Aurea' };
+      if (!currentDateRooms.length) {
+        list.innerHTML = '<p class="empty">Todavía no cargaste ninguna habitación para esta fecha.</p>';
+        return;
+      }
+      list.innerHTML = currentDateRooms.map((r, idx) =>
+        '<div class="pf-cabin-option-row">' +
+        '<span class="pf-cabin-option-info">' +
+        (r.available ? '' : '<s>') +
+        CABIN_LABELS[r.cabin] + ' ' + TIER_LABELS[r.tier] + ': <strong>' + escapeHtml(r.name) + '</strong>' + (r.code ? ' (' + escapeHtml(r.code) + ')' : '') +
+        (r.sqft ? ' — ' + escapeHtml(r.sqft) : '') + ' — USD ' + r.price +
+        (r.available ? '' : '</s> (agotada)') +
+        '</span>' +
+        '<button type="button" class="pf-cabin-option-delete" data-idx="' + idx + '">🗑</button>' +
+        '</div>'
+      ).join('');
+      list.querySelectorAll('.pf-cabin-option-delete').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          currentDateRooms.splice(Number(btn.dataset.idx), 1);
+          renderCabinRoomsList();
+        });
+      });
     }
 
     document.getElementById('cabinPricesItinerarySelect').addEventListener('change', (e) => {
       const itinerary = cruiseItinerariesCache.find((it) => it.id === e.target.value);
+      currentDateRooms = [];
       renderCabinPricesGrid(itinerary);
     });
 
     document.getElementById('cabinPricesSaveBtn').addEventListener('click', async () => {
-      const select = document.getElementById('cabinPricesItinerarySelect');
-      const itineraryId = select.value;
+      const itineraryId = document.getElementById('cabinPricesItinerarySelect').value;
+      const date = document.getElementById('cabinPricesDateSelect').value;
       const msg = document.getElementById('cabinPricesMsg');
-      if (!itineraryId) return;
+      if (!itineraryId || !date) return;
       const btn = document.getElementById('cabinPricesSaveBtn');
       btn.disabled = true;
       msg.textContent = '';
       msg.className = 'msg';
-      // Arma { fecha: { camarote_tarifa: precio } } — solo con los
-      // casilleros que el Dueño realmente completó (vacío = esa
-      // combinación no se ofrece para esa fecha, no un precio 0).
-      const cabinDatePrices = {};
-      document.querySelectorAll('#cabinPricesGridWrap input').forEach((input) => {
-        const v = Number(input.value);
-        if (!input.value || !(v > 0)) return;
-        const date = input.dataset.date;
-        const key = input.dataset.cabinKey;
-        cabinDatePrices[date] = cabinDatePrices[date] || {};
-        cabinDatePrices[date][key] = v;
-      });
+      const cached = cruiseItinerariesCache.find((it) => it.id === itineraryId);
+      const cabinDatePrices = { ...(cached && cached.cabin_date_prices ? cached.cabin_date_prices : {}) };
+      cabinDatePrices[date] = currentDateRooms;
       const { error } = await supabaseClient.from('cruise_itineraries').update({ cabin_date_prices: cabinDatePrices }).eq('id', itineraryId);
       btn.disabled = false;
       if (error) {
@@ -939,9 +1017,8 @@
         msg.className = 'msg error';
         return;
       }
-      msg.textContent = '✅ Precios guardados.';
+      msg.textContent = '✅ Habitaciones de ' + date + ' guardadas.';
       msg.className = 'msg success';
-      const cached = cruiseItinerariesCache.find((it) => it.id === itineraryId);
       if (cached) cached.cabin_date_prices = cabinDatePrices;
     });
 
