@@ -9284,7 +9284,14 @@
         // que venga gratis por defecto.
         const seatTypeOffered = quote.category === 'flight'
           ? quote.quoted_seat_type !== ''
-          : (quote.quoted_seat_type != null || quote.quoted_seat_type_prices != null);
+          // Faltaba contemplar quoted_cabin_options acá — sin esto, una
+          // cotización de crucero autoservicio (solo con
+          // quoted_cabin_options, sin quoted_seat_type/_prices) caía
+          // siempre al "else" de abajo, que resetea selectedChosenSeatType
+          // a '' en CADA repintado (cada sondeo de 5s) justo después de
+          // haberlo preseleccionado más arriba — perdiendo el precio del
+          // camarote del total apenas pasaba el primer sondeo.
+          : (quote.quoted_seat_type != null || quote.quoted_seat_type_prices != null || !!(quote.quoted_cabin_options && quote.quoted_cabin_options.length));
         if (seatTypeOffered) {
           const availableSeatTypes = quote.quoted_seat_type ? quote.quoted_seat_type.split(',').filter(Boolean) : ['aisle', 'middle', 'window'];
           const seatTypeWrap = document.createElement('div');
