@@ -680,11 +680,19 @@
     // catálogo se vuelve a pintar entero después de activar/desactivar o
     // borrar un extra), si no cada acción cerraría todo de nuevo.
     let addonExpandedCategories = {};
+    // Igual que arriba pero por barco — cada barco es su propio botón
+    // colapsable (ver pedido del dueño: "que no se liguen" los extras de
+    // un crucero con los de otro a medida que se van cargando más).
+    let addonExpandedShips = {};
+    // Si no es null, el formulario de arriba está editando ESTE extra en
+    // vez de agregar uno nuevo (ver startEditAddon/cancelEditAddon).
+    let editingAddonId = null;
 
     async function loadAddonCatalog() {
       const { data, error } = await supabaseClient
         .from('addon_catalog')
         .select('*')
+        .order('ship', { ascending: true })
         .order('category', { ascending: true })
         .order('label', { ascending: true });
       const list = document.getElementById('addonList');
@@ -704,41 +712,75 @@
         list.innerHTML = '<div class="empty">Todavía no cargaste ningún extra.</div>';
         return;
       }
+      // Un extra sin barco cargado (de antes de esta columna) cae bajo
+      // "Sin barco asignado" — no se pierde ni se mezcla a ciegas con
+      // ningún barco real.
+      const ships = Array.from(new Set(addonCatalogCache.map((a) => a.ship || '__none__')));
       let html = '';
-      ADDON_CATEGORY_ORDER.forEach((cat) => {
-        const items = addonCatalogCache.filter((a) => a.category === cat);
-        if (!items.length) return;
-        const isOpen = !!addonExpandedCategories[cat];
-        html += '<button type="button" class="addon-category-toggle' + (isOpen ? ' open' : '') + '" data-cat-toggle="' + cat + '">' +
-          '<span>' + ADDON_CATEGORY_LABELS[cat] + ' (' + items.length + ')</span>' +
-          '<span class="addon-category-toggle-arrow">▾</span>' +
+      ships.forEach((ship) => {
+        const shipItems = addonCatalogCache.filter((a) => (a.ship || '__none__') === ship);
+        if (!shipItems.length) return;
+        const shipLabel = ship === '__none__' ? 'Sin barco asignado' : ship;
+        const shipKey = ship;
+        const shipOpen = !!addonExpandedShips[shipKey];
+        html += '<button type="button" class="addon-category-toggle" data-ship-toggle="' + escapeHtml(shipKey) + '" style="background:var(--primary); color:#fff;' + (shipOpen ? '' : '') + '">' +
+          '<span>🚢 ' + escapeHtml(shipLabel) + ' (' + shipItems.length + ')</span>' +
+          '<span class="addon-category-toggle-arrow">' + (shipOpen ? '▾' : '▸') + '</span>' +
           '</button>';
-        html += '<div class="addon-category-body' + (isOpen ? ' open' : '') + '" data-cat-body="' + cat + '">';
-        html += items.map((a) => {
-          const photo = a.photo_url ? '<img src="' + a.photo_url + '" alt="">' : '<div style="width:56px;height:56px;border-radius:8px;background:var(--arena);flex-shrink:0;"></div>';
-          return '<div class="addon-row">' + photo +
-            '<div class="addon-info">' +
-              '<div class="addon-label">' + escapeHtml(a.label) + (a.active ? '' : ' <span style="color:rgba(26,26,26,0.4);font-weight:400;">(inactivo)</span>') + '</div>' +
-              '<div class="addon-price">USD ' + a.price_usd + '</div>' +
-              (a.description ? '<div class="addon-desc">' + escapeHtml(a.description) + '</div>' : '') +
-            '</div>' +
-            '<div style="display:flex; flex-direction:column; gap:4px;">' +
-              '<button type="button" class="role-tag" data-addon-toggle="' + a.id + '" style="border:none; cursor:pointer;">' + (a.active ? '🚫' : '✅') + '</button>' +
-              '<button type="button" class="role-tag" data-addon-delete="' + a.id + '" style="border:none; cursor:pointer;">🗑</button>' +
-            '</div>' +
-          '</div>';
-        }).join('');
+        html += '<div class="addon-category-body' + (shipOpen ? ' open' : '') + '" data-ship-body="' + escapeHtml(shipKey) + '" style="padding-left:10px;">';
+        ADDON_CATEGORY_ORDER.forEach((cat) => {
+          const items = shipItems.filter((a) => a.category === cat);
+          if (!items.length) return;
+          const catKey = shipKey + '::' + cat;
+          const isOpen = !!addonExpandedCategories[catKey];
+          html += '<button type="button" class="addon-category-toggle' + (isOpen ? ' open' : '') + '" data-cat-toggle="' + escapeHtml(catKey) + '">' +
+            '<span>' + ADDON_CATEGORY_LABELS[cat] + ' (' + items.length + ')</span>' +
+            '<span class="addon-category-toggle-arrow">▾</span>' +
+            '</button>';
+          html += '<div class="addon-category-body' + (isOpen ? ' open' : '') + '" data-cat-body="' + escapeHtml(catKey) + '">';
+          html += items.map((a) => {
+            const photo = a.photo_url ? '<img src="' + a.photo_url + '" alt="">' : '<div style="width:56px;height:56px;border-radius:8px;background:var(--arena);flex-shrink:0;"></div>';
+            return '<div class="addon-row">' + photo +
+              '<div class="addon-info">' +
+                '<div class="addon-label">' + escapeHtml(a.label) + (a.active ? '' : ' <span style="color:rgba(26,26,26,0.4);font-weight:400;">(inactivo)</span>') + '</div>' +
+                '<div class="addon-price">USD ' + a.price_usd + '</div>' +
+                (a.description ? '<div class="addon-desc">' + escapeHtml(a.description) + '</div>' : '') +
+              '</div>' +
+              // Separados con gap y un divisor visual entre "editar" y las
+              // otras dos (ocultar/borrar) — a pedido explícito, estaban
+              // demasiado juntos y era fácil tocar el que no era.
+              '<div style="display:flex; flex-direction:column; gap:10px;">' +
+                '<button type="button" class="role-tag" data-addon-edit="' + a.id + '" style="border:none; cursor:pointer;" title="Editar">✏️</button>' +
+                '<div style="height:1px; background:rgba(26,26,26,0.12);"></div>' +
+                '<button type="button" class="role-tag" data-addon-toggle="' + a.id + '" style="border:none; cursor:pointer;" title="' + (a.active ? 'Ocultar' : 'Reactivar') + '">' + (a.active ? '🚫' : '✅') + '</button>' +
+                '<button type="button" class="role-tag" data-addon-delete="' + a.id + '" style="border:none; cursor:pointer;" title="Borrar">🗑</button>' +
+              '</div>' +
+            '</div>';
+          }).join('');
+          html += '</div>';
+        });
         html += '</div>';
       });
       list.innerHTML = html;
+      list.querySelectorAll('[data-ship-toggle]').forEach((toggle) => {
+        toggle.addEventListener('click', () => {
+          const shipKey = toggle.dataset.shipToggle;
+          const nowOpen = !addonExpandedShips[shipKey];
+          addonExpandedShips = { ...addonExpandedShips, [shipKey]: nowOpen };
+          renderAddonCatalog();
+        });
+      });
       list.querySelectorAll('[data-cat-toggle]').forEach((toggle) => {
         toggle.addEventListener('click', () => {
-          const cat = toggle.dataset.catToggle;
-          const nowOpen = !addonExpandedCategories[cat];
-          addonExpandedCategories = { ...addonExpandedCategories, [cat]: nowOpen };
+          const catKey = toggle.dataset.catToggle;
+          const nowOpen = !addonExpandedCategories[catKey];
+          addonExpandedCategories = { ...addonExpandedCategories, [catKey]: nowOpen };
           toggle.classList.toggle('open', nowOpen);
-          list.querySelector('[data-cat-body="' + cat + '"]').classList.toggle('open', nowOpen);
+          list.querySelector('[data-cat-body="' + CSS.escape(catKey) + '"]').classList.toggle('open', nowOpen);
         });
+      });
+      list.querySelectorAll('[data-addon-edit]').forEach((btn) => {
+        btn.addEventListener('click', () => startEditAddon(btn.dataset.addonEdit));
       });
       list.querySelectorAll('[data-addon-toggle]').forEach((btn) => {
         btn.addEventListener('click', () => toggleAddonActive(btn.dataset.addonToggle));
@@ -750,21 +792,52 @@
 
     // Activo/inactivo en vez de borrar directo para "sacarlo de oferta" —
     // borrar de una es un paso aparte (deleteAddonCatalogItem), a
-    // propósito más difícil de deshacer.
+    // propósito más difícil de deshacer. Pide confirmación igual que
+    // borrar — a pedido explícito, para no tocarlo sin querer.
     async function toggleAddonActive(id) {
       const item = addonCatalogCache.find((a) => a.id === id);
       if (!item) return;
+      const verb = item.active ? 'ocultar' : 'reactivar';
+      if (!confirm('¿Seguro que querés ' + verb + ' "' + item.label + '"? El cliente ' + (item.active ? 'dejará' : 'volverá') + ' de verlo como opción.')) return;
       const { error } = await supabaseClient.from('addon_catalog').update({ active: !item.active, updated_at: new Date().toISOString() }).eq('id', id);
       if (error) { alert('No se pudo actualizar: ' + error.message); return; }
       loadAddonCatalog();
     }
 
     async function deleteAddonCatalogItem(id) {
-      if (!confirm('¿Borrar este extra del catálogo del todo? No se puede deshacer.')) return;
+      const item = addonCatalogCache.find((a) => a.id === id);
+      if (!confirm('¿Borrar "' + (item ? item.label : 'este extra') + '" del catálogo del todo? No se puede deshacer.')) return;
       const { error } = await supabaseClient.from('addon_catalog').delete().eq('id', id);
       if (error) { alert('No se pudo borrar: ' + error.message); return; }
+      if (editingAddonId === id) cancelEditAddon();
       loadAddonCatalog();
     }
+
+    // Precarga el formulario de arriba con los datos de este extra y lo
+    // pone en modo "editar" — la foto no se prellena (el input file no
+    // puede hacerlo), se deja como está salvo que se elija una nueva.
+    function startEditAddon(id) {
+      const item = addonCatalogCache.find((a) => a.id === id);
+      if (!item) return;
+      editingAddonId = id;
+      document.getElementById('addonShip').value = item.ship || 'MSC Seaside';
+      document.getElementById('addonCategory').value = item.category;
+      document.getElementById('addonLabel').value = item.label;
+      document.getElementById('addonPrice').value = item.price_usd;
+      document.getElementById('addonDescription').value = item.description || '';
+      document.getElementById('addonPhoto').value = '';
+      document.getElementById('addonSubmitBtn').textContent = 'Guardar cambios';
+      document.getElementById('addonCancelEditBtn').style.display = '';
+      document.getElementById('addonForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function cancelEditAddon() {
+      editingAddonId = null;
+      document.getElementById('addonForm').reset();
+      document.getElementById('addonSubmitBtn').textContent = 'Agregar al catálogo';
+      document.getElementById('addonCancelEditBtn').style.display = 'none';
+    }
+    document.getElementById('addonCancelEditBtn').addEventListener('click', cancelEditAddon);
 
     document.getElementById('addonForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -774,13 +847,14 @@
       msg.className = 'msg';
       btn.disabled = true;
       try {
+        const ship = document.getElementById('addonShip').value;
         const category = document.getElementById('addonCategory').value;
         const label = document.getElementById('addonLabel').value.trim();
         const priceUsd = Number(document.getElementById('addonPrice').value);
         const description = document.getElementById('addonDescription').value.trim() || null;
         const fileInput = document.getElementById('addonPhoto');
         const file = fileInput.files && fileInput.files[0];
-        let photoUrl = null;
+        let photoUrl = editingAddonId ? undefined : null; // undefined = no tocar la foto ya guardada al editar, salvo que se suba una nueva
         if (file) {
           // Nombre de archivo saneado + timestamp para no pisar una foto
           // existente si dos extras usan un nombre parecido (ej. dos
@@ -792,17 +866,28 @@
           const { data: pub } = supabaseClient.storage.from('addon-photos').getPublicUrl(path);
           photoUrl = pub && pub.publicUrl ? pub.publicUrl : null;
         }
-        const { error: insertError } = await supabaseClient.from('addon_catalog').insert({
-          category,
-          label,
-          price_usd: priceUsd,
-          description,
-          photo_url: photoUrl,
-        });
-        if (insertError) throw new Error(insertError.message);
-        msg.textContent = '✅ Agregado al catálogo.';
-        msg.className = 'msg success';
-        document.getElementById('addonForm').reset();
+        if (editingAddonId) {
+          const patch = { ship, category, label, price_usd: priceUsd, description, updated_at: new Date().toISOString() };
+          if (photoUrl !== undefined) patch.photo_url = photoUrl;
+          const { error: updateError } = await supabaseClient.from('addon_catalog').update(patch).eq('id', editingAddonId);
+          if (updateError) throw new Error(updateError.message);
+          msg.textContent = '✅ Cambios guardados.';
+          msg.className = 'msg success';
+          cancelEditAddon();
+        } else {
+          const { error: insertError } = await supabaseClient.from('addon_catalog').insert({
+            ship,
+            category,
+            label,
+            price_usd: priceUsd,
+            description,
+            photo_url: photoUrl === null ? null : photoUrl,
+          });
+          if (insertError) throw new Error(insertError.message);
+          msg.textContent = '✅ Agregado al catálogo.';
+          msg.className = 'msg success';
+          document.getElementById('addonForm').reset();
+        }
         loadAddonCatalog();
       } catch (err) {
         msg.textContent = '⚠️ ' + (err && err.message ? err.message : 'Error desconocido.');
