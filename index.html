@@ -7534,10 +7534,16 @@
         gridWrap.appendChild(cabinGroup);
       });
       overlay.hidden = false;
+      pushMimeScreen('cabinModal');
     }
 
     document.getElementById('cabinSelectCloseBtn').addEventListener('click', () => {
-      document.getElementById('cabinSelectOverlay').hidden = true;
+      // Va por "Atrás" del navegador (ver popstate cerca de mimeNavStack)
+      // en vez de cerrar directo, para que quede sincronizado con el
+      // historial — si por lo que sea ya no es el tope de la pila, cierra
+      // directo igual (ej. se llegó acá por otro camino).
+      if (mimeNavStack[mimeNavStack.length - 1] === 'cabinModal') history.back();
+      else document.getElementById('cabinSelectOverlay').hidden = true;
     });
 
     searchForm.addEventListener('submit', function (e) {
