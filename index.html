@@ -7979,6 +7979,32 @@
       }, 300);
     });
 
+    // Historial propio para el selector de camarote y el panel de
+    // cotización — sin esto, el botón "Atrás" del navegador (no el ❌ de
+    // la pantalla) sacaba al cliente del sitio entero en vez de cerrar
+    // esa pantalla nada más, como sí hace cualquier web de reservaciones
+    // real. Cada vez que se abre una de estas dos pantallas se empuja un
+    // paso al historial (sin cambiar la URL); "Atrás" dispara popstate,
+    // que cierra la pantalla que corresponda según el tope de esta pila.
+    let mimeNavStack = [];
+    function pushMimeScreen(name) {
+      mimeNavStack.push(name);
+      try {
+        history.pushState({ mimeScreen: name }, '', location.href);
+      } catch {
+        // no bloqueante — algún navegador viejo sin soporte de History API
+      }
+    }
+    window.addEventListener('popstate', function () {
+      const top = mimeNavStack.pop();
+      if (top === 'cabinModal') {
+        const overlay = document.getElementById('cabinSelectOverlay');
+        if (overlay) overlay.hidden = true;
+      } else if (top === 'quotePanel') {
+        closeQuotePanel();
+      }
+    });
+
     let activeQuoteId = null;
     let activeQuoteRouteLabel = '';
     // Origen/destino sueltos (además del texto combinado de arriba) — hace
