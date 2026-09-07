@@ -8595,7 +8595,57 @@
           const SEAT_TYPE_OPTION_PREFIX = { hotel: 'roomTypeOption_', car: 'carTypeOption_' };
           label.textContent = t(SEAT_TYPE_LABEL_KEY[quote.category] || 'quoteSeatTypeLabel');
           seatTypeWrap.appendChild(label);
-          if (quote.category === 'cruise') {
+          if (quote.category === 'cruise' && quote.quoted_cabin_options && quote.quoted_cabin_options.length) {
+            // Camarotes puntuales cargados por el Agente (nombre, metros² y
+            // precio propio cada uno, no un precio único por tarifa) — como
+            // se ve en la web real de MSC, agrupados por tipo de camarote y
+            // coloreados por tarifa. Reemplaza al bloque de abajo (3
+            // tarjetas Bella/Fantastica/Aurea) SOLO cuando el Agente cargó
+            // esto — una cotización vieja sigue viéndose como antes.
+            const byCabin = {};
+            quote.quoted_cabin_options.forEach(function (o) {
+              (byCabin[o.cabin] = byCabin[o.cabin] || []).push(o);
+            });
+            function mscTierBadge(cabin, tier) {
+              if (cabin === 'yacht_club') return { cls: 'msc-tier-yachtclub', label: t('cabinTypeOption_yacht_club').toUpperCase() };
+              if (tier === 'aurea') return { cls: 'msc-tier-aurea', label: t('fareTierOption_aurea').toUpperCase() };
+              if (tier === 'fantastica') return { cls: 'msc-tier-fantastica', label: t('fareTierOption_fantastica').toUpperCase() };
+              return { cls: 'msc-tier-bella', label: t('fareTierOption_bella').toUpperCase() };
+            }
+            CABIN_TYPE_ORDER.filter((c) => byCabin[c]).forEach(function (cabin) {
+              // Más caro primero — mismo orden que se ve en la web de MSC.
+              const options = byCabin[cabin].slice().sort((a, b) => Number(b.price) - Number(a.price));
+              const cabinGroup = document.createElement('div');
+              cabinGroup.className = 'quote-status-cabin-group';
+              const cabinTitle = document.createElement('div');
+              cabinTitle.className = 'quote-status-cabin-group-title';
+              cabinTitle.textContent = t('cabinTypeOption_' + cabin).toUpperCase();
+              cabinGroup.appendChild(cabinTitle);
+              const grid = document.createElement('div');
+              grid.className = 'quote-status-msc-room-grid';
+              options.forEach(function (opt) {
+                const selected = selectedChosenSeatType === opt.id;
+                const badge = mscTierBadge(cabin, opt.tier);
+                const card = document.createElement('button');
+                card.type = 'button';
+                card.className = 'quote-status-msc-room-card' + (selected ? ' active' : '');
+                card.innerHTML =
+                  '<span class="quote-status-msc-room-tier ' + badge.cls + '">' + badge.label + '</span>' +
+                  '<span class="quote-status-msc-room-name">' + opt.name + '</span>' +
+                  (opt.sqft ? '<span class="quote-status-msc-room-sqft">' + t('quoteCabinSqftLabel').replace('{sqft}', opt.sqft) + '</span>' : '') +
+                  '<span class="quote-status-msc-room-price">USD ' + opt.price + '</span>';
+                card.addEventListener('click', function () {
+                  selectedChosenSeatType = selectedChosenSeatType === opt.id ? '' : opt.id;
+                  grid.querySelectorAll('.quote-status-msc-room-card').forEach((c) => c.classList.remove('active'));
+                  if (selectedChosenSeatType === opt.id) card.classList.add('active');
+                  updateQuotePriceDisplay();
+                });
+                grid.appendChild(card);
+              });
+              cabinGroup.appendChild(grid);
+              seatTypeWrap.appendChild(cabinGroup);
+            });
+          } else if (quote.category === 'cruise') {
             // Agrupado por camarote, con sus niveles Bella/Fantastica/Aurea
             // adentro (color por nivel) — como se ve en la web real de una
             // naviera, en vez de radio-botones en lista.
