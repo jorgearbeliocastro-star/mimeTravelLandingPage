@@ -8204,6 +8204,10 @@
     // cerrar la venta.
     let selectedCabinDeckPreference = '';
     let selectedCabinPositionPreference = '';
+    // El campo de texto (número/referencia del otro camarote) solo se
+    // muestra si esta casilla está marcada — antes aparecía siempre
+    // suelto, sin dejar en claro que era opcional.
+    let selectedCabinWantsConnecting = false;
     let selectedCabinConnectingWith = '';
     let selectedCabinBedConfig = '';
     // Extras personalizados (excursiones, paquetes, etc. de un crucero) —
