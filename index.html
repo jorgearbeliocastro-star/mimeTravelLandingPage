@@ -10427,7 +10427,11 @@
           return resolveWebClientLanguage().then((clientLanguage) => {
             return supabaseClient.from('quote_requests').insert({
               client_token: clientToken,
-              claimed_by_agent_id: preferredAgentId || null,
+              // Mismo criterio que createQuoteRequest: no se pre-asigna
+              // agente al crearla, para que entre a la fila de "Nuevas"
+              // como cualquier otra — el agente preferido solo se usa para
+              // el aviso push de abajo (le suena primero a él).
+              claimed_by_agent_id: null,
               category: 'package',
               origin: null,
               // No es un destino real — es la etiqueta que identifica esta
