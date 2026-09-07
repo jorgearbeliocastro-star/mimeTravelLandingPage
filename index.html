@@ -6954,8 +6954,10 @@
           select.innerHTML = field.options.map(o => '<option value="' + o + '">' + o + '</option>').join('');
           if (isNewFieldIdentity && field.default) select.value = field.default;
           select.disabled = false;
+          select.required = !!field.required;
           select.style.display = '';
           input.disabled = true;
+          input.required = false;
           input.style.display = 'none';
           if (checklist) checklist.style.display = 'none';
           group.classList.add('search-field--compact');
