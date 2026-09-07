@@ -8472,15 +8472,15 @@
           '<input type="text" class="quote-pax-input" name="placeOfBirth-' + index + '">' +
           '<label class="quote-pax-label">' + t('quotePaxLanguage') + '</label>' +
           '<input type="text" class="quote-pax-input" name="language-' + index + '">' +
-          // Los datos del documento en sí (tipo/número/fechas) NO se piden
-          // escritos — solo por foto, más adelante en este mismo proceso
-          // (ver docsUploadPassportBtn). Escribirlos a mano significaría
-          // mandar ese número por la web, algo que se decidió evitar. El
-          // país emisor sí queda (es solo elegir un país, no un número
-          // sensible) porque lo usa el aviso de restricciones migratorias.
+          // Los datos del documento (tipo/número/fechas/país emisor) NO se
+          // piden escritos acá — todo eso lo carga el Agente después,
+          // mirando la foto del pasaporte (ver docsUploadPassportBtn).
+          // Escribirlos a mano significaría mandar esos datos por la web,
+          // algo que se decidió evitar del todo. Por esto mismo, el aviso
+          // automático de restricciones migratorias (nacionalidad + país
+          // emisor) no se puede calcular en este paso — el Agente lo revisa
+          // a mano cuando ve la foto.
           '<p class="quote-pax-doc-photo-note">' + t('quotePaxDocPhotoNote') + '</p>' +
-          '<label class="quote-pax-label">' + t('quotePaxIssuingCountry') + '</label>' +
-          buildCountrySelectHTML('passportIssuingCountry', index) +
           // Orden lógico: primero la calle, después en qué ciudad, después
           // el código postal — como en cualquier formulario de dirección
           // real (antes estaba Ciudad → Código postal → Dirección, al
