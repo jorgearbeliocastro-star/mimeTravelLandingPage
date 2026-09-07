@@ -6727,9 +6727,9 @@
       vuelos: {
         label: 'Vols',
         fields: [
-          { label: 'Origine', name: 'origen', placeholder: 'D’où partez-vous ?', type: 'text', country: true, geoMode: 'airport' },
-          { label: 'Destination', name: 'destino', placeholder: 'Où allez-vous ?', type: 'text', country: true, geoMode: 'airport' },
-          { label: 'Date de départ', name: 'fecha_ida', placeholder: 'Quand partez-vous ?', type: 'date' },
+          { label: 'Origine', name: 'origen', placeholder: 'D’où partez-vous ?', type: 'text', country: true, geoMode: 'airport', required: true },
+          { label: 'Destination', name: 'destino', placeholder: 'Où allez-vous ?', type: 'text', country: true, geoMode: 'airport', required: true },
+          { label: 'Date de départ', name: 'fecha_ida', placeholder: 'Quand partez-vous ?', type: 'date', required: true },
           { label: 'Date de retour', name: 'fecha_vuelta', placeholder: 'Quand revenez-vous ?', type: 'date' },
           { label: 'Classe', name: 'clase', type: 'select', options: ['Économique', 'Premium Economy', 'Affaires', 'Première Classe'] },
           { label: 'Adultes', name: 'adultos', type: 'select', default: '1', options: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10+'] },
