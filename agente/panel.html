@@ -1398,11 +1398,26 @@
         }
         const datesHtml = fmtDates(q);
         const numberPrefix = currentTab === 'new' ? '#' + (i + 1) + ' — ' : '';
+        // Camarote que el cliente ya eligió solo (ver openCabinSelectModal/
+        // apply_cruise_room_price en index.html) — antes solo se veía
+        // mezclado en el texto de "notes", ahora tiene su propia tarjeta
+        // arriba de todo, para que salte a la vista de una sin tener que
+        // leer el párrafo entero.
+        const cabinChoice = q.quoted_cabin_options && q.quoted_cabin_options.length ? q.quoted_cabin_options[0] : null;
+        const cabinChoiceHtml = cabinChoice ?
+          '<div class="agent-cabin-choice">' +
+          '<div class="agent-cabin-choice-label">🛏️ Camarote elegido por el cliente</div>' +
+          '<div class="agent-cabin-choice-name">' + escapeHtml(cabinChoice.name || '') + '</div>' +
+          (cabinChoice.sqft ? '<div class="agent-cabin-choice-sqft">' + escapeHtml(cabinChoice.sqft) + '</div>' : '') +
+          '<div class="agent-cabin-choice-price">USD ' + cabinChoice.price + '</div>' +
+          '</div>'
+          : '';
         card.innerHTML =
           '<div class="route">' + numberPrefix + fmtRoute(q) + '</div>' +
           '<div class="meta">' + escapeHtml(q.category || '') + ' · ' + escapeHtml(q.contact_name || 'Sin nombre') + (q.contact_phone ? ' · ' + escapeHtml(q.contact_phone) : '') + (q.contact_email ? ' · ' + escapeHtml(q.contact_email) : '') + '</div>' +
           (datesHtml ? '<div class="meta">' + escapeHtml(datesHtml) + '</div>' : '') +
           (partyHtml ? '<div class="meta">' + escapeHtml(partyHtml) + '</div>' : '') +
+          cabinChoiceHtml +
           (q.notes ? '<div class="notes">' + escapeHtml(q.notes) + '</div>' : '') +
           passengersHtml +
           buildRestrictionWarningsHtml(q) +
