@@ -860,9 +860,10 @@
         return;
       }
       itinerary.active = nextActive;
-      loadCruiseItineraries().then(() => {
-        document.getElementById('cabinPricesItinerarySelect').value = itinerary.id;
-      });
+      // Actualiza el texto de la opción ya elegida en el desplegable, sin
+      // recargar toda la lista (evitaba perder la selección actual).
+      const opt = document.querySelector('#cabinPricesItinerarySelect option[value="' + itinerary.id + '"]');
+      if (opt) opt.textContent = itinerary.title + (itinerary.active ? '' : ' (oculto)');
       renderCabinPricesGrid(itinerary);
     }
 
