@@ -6482,9 +6482,9 @@
       vuelos: {
         label: 'Vuelos',
         fields: [
-          { label: 'Origen', name: 'origen', placeholder: '¿Desde dónde?', type: 'text', country: true, geoMode: 'airport' },
-          { label: 'Destino', name: 'destino', placeholder: '¿Hacia dónde?', type: 'text', country: true, geoMode: 'airport' },
-          { label: 'Fecha de ida', name: 'fecha_ida', placeholder: '¿Cuándo te vas?', type: 'date' },
+          { label: 'Origen', name: 'origen', placeholder: '¿Desde dónde?', type: 'text', country: true, geoMode: 'airport', required: true },
+          { label: 'Destino', name: 'destino', placeholder: '¿Hacia dónde?', type: 'text', country: true, geoMode: 'airport', required: true },
+          { label: 'Fecha de ida', name: 'fecha_ida', placeholder: '¿Cuándo te vas?', type: 'date', required: true },
           { label: 'Fecha de vuelta', name: 'fecha_vuelta', placeholder: '¿Cuándo regresas?', type: 'date' },
           { label: 'Clase', name: 'clase', type: 'select', options: ['Económica', 'Premium Economy', 'Business', 'Primera Clase'] },
           // El Agente cotizaba a ciegas sin saber cuántos viajan — se agrega
