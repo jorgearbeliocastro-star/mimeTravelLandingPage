@@ -327,7 +327,10 @@
           <label for="addonPhoto">Foto (opcional)</label>
           <input type="file" id="addonPhoto" accept="image/*">
         </div>
-        <button type="submit" class="btn" id="addonSubmitBtn">Agregar al catálogo</button>
+        <div style="display:flex; gap:8px;">
+          <button type="submit" class="btn" id="addonSubmitBtn">Agregar al catálogo</button>
+          <button type="button" class="btn" id="addonCancelEditBtn" style="display:none; background:rgba(26,26,26,0.08); color:var(--dark);">Cancelar edición</button>
+        </div>
       </form>
       <p class="msg" id="addonMsg"></p>
       <div id="addonList" style="margin-top:16px;"></div>
