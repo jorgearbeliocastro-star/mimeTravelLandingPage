@@ -9028,8 +9028,12 @@
       // verdad — se esconden los botones, solo queda el mensaje de abajo
       // (renderDocsUploadStatus) invitando a cerrar.
       const allReceived = docsDataUrls.passport && docsDataUrls.card && docsReceivedByAgent.passport && docsReceivedByAgent.card;
+      // Ojo: .docs-upload-buttons ya tiene su propio "display: flex" con la
+      // misma especificidad que la regla nativa de [hidden] — el atributo
+      // hidden solo no alcanzaría para ocultarlo, por eso se pisa el
+      // display directo acá.
       const buttonsRow = passportBtn.closest('.docs-upload-buttons');
-      if (buttonsRow) buttonsRow.hidden = !!allReceived;
+      if (buttonsRow) buttonsRow.style.display = allReceived ? 'none' : '';
     }
 
     // Repinta solo el cartel de estado de documentos, sin tocar el resto
