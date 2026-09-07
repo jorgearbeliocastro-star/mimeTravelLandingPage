@@ -8637,6 +8637,23 @@
         form.appendChild(cubaWrap);
       }
 
+      // Política de cancelación — se lee y se marca acá mismo, justo antes
+      // de aceptar (antes vivía suelta más arriba, en la pantalla de
+      // precio, sin ninguna confirmación de que el cliente la haya leído).
+      // Solo texto genérico (ver comentario original) — no inventamos los
+      // plazos/porcentajes reales de cada naviera/aerolínea.
+      if (mode === 'accept' && activeQuoteCategory === 'cruise') {
+        const cancelWrap = document.createElement('div');
+        cancelWrap.className = 'quote-cancellation-policy';
+        cancelWrap.innerHTML =
+          '<strong>' + t('quoteCancellationPolicyTitle') + '</strong><br>' + t('quoteCancellationPolicyBody') +
+          '<label class="quote-pax-consent" style="margin-top:10px;">' +
+            '<input type="checkbox" id="cancellationPolicyReadCheck" required> ' +
+            '<span>' + t('quoteCancellationPolicyReadLabel') + '</span>' +
+          '</label>';
+        form.appendChild(cancelWrap);
+      }
+
       // Consentimiento de cobro — solo al aceptar de verdad (mode='accept'),
       // no al "solo enviar mis datos". El agente cobra por teléfono/video,
       // no hay un link de pago seguro de por medio (ver payment_consent_at):
