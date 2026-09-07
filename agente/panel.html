@@ -994,6 +994,19 @@
     document.getElementById('availabilityCard').addEventListener('click', async () => {
       const card = document.getElementById('availabilityCard');
       const nowUnavailable = document.getElementById('availabilityIcon').textContent === '🟢';
+      // Solo se chequea al pasar de disponible a NO disponible — volverse
+      // disponible de nuevo nunca hace falta bloquearlo. No se puede
+      // desconectar dejando cosas propias sin atender en "Nuevas": hay
+      // que reasignarlas a otro agente o terminarlas primero.
+      if (nowUnavailable) {
+        card.disabled = true;
+        const pending = await countUntouchedPersonalQueue();
+        card.disabled = false;
+        if (pending > 0) {
+          alert('Tenés ' + pending + ' cotización' + (pending === 1 ? '' : 'es') + ' sin atender en "Nuevas". Reasignala a otro agente o terminala antes de marcarte no disponible.');
+          return;
+        }
+      }
       card.disabled = true;
       const { error } = await supabaseClient.from('profiles').update({ is_available: !nowUnavailable }).eq('id', agentId);
       card.disabled = false;
