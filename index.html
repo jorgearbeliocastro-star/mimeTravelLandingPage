@@ -1754,6 +1754,40 @@
     margin-bottom: 8px;
   }
 
+  /* Desglose "Amount Due" (paso Confirmar del asistente de crucero) — cada
+     ítem tildado con su precio, más el total abajo separado por una línea. */
+  .quote-price-breakdown {
+    margin-bottom: 12px;
+    font-size: 12.5px;
+  }
+
+  .quote-price-breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    color: rgba(26, 26, 26, 0.7);
+  }
+
+  .quote-price-breakdown-total {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin-top: 4px;
+    padding-top: 6px;
+    font-weight: 700;
+    color: var(--dark);
+  }
+
+  /* Política de cancelación — aviso genérico, no un texto legal inventado
+     (ver comentario en el JS). */
+  .quote-cancellation-policy {
+    font-size: 11px;
+    line-height: 1.5;
+    color: rgba(26, 26, 26, 0.6);
+    background: rgba(27, 58, 92, 0.04);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+  }
+
   /* Nota del agente: a propósito NO se ve como un campo de formulario (sin
      fondo tipo input, con etiqueta y borde lateral) — antes usaba la misma
      caja con fondo/bordes redondeados que un <input>, y confundía (parecía
