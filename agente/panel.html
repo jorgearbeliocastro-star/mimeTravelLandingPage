@@ -614,7 +614,22 @@
       <div class="empty" id="emptyMsg">No hay nada acá.</div>
     </div>
 
-    <p class="note">Falta todavía: en cotizaciones — extras/camarotes/asientos (solo hay precio simple por ahora).</p>
+    <!-- Precios de camarote por crucero — cualquier agente puede
+         actualizar un precio que cambió (no solo el Dueño); es la MISMA
+         tabla que ve el cliente (cabin_date_prices), así que el cambio
+         queda vigente para la próxima cotización sin guardar nada aparte. -->
+    <div class="cabin-prices-section">
+      <h3>Precios de camarotes por crucero</h3>
+      <p class="cabin-prices-hint">Actualizá acá el precio de un camarote/fecha que haya cambiado — lo ve el próximo cliente que busque este crucero.</p>
+      <div class="field">
+        <select id="cabinPricesItinerarySelect">
+          <option value="">Elegí un itinerario…</option>
+        </select>
+      </div>
+      <div id="cabinPricesGridWrap"></div>
+      <button type="button" class="btn" id="cabinPricesSaveBtn" hidden>Guardar precios</button>
+      <p class="msg" id="cabinPricesMsg"></p>
+    </div>
   </main>
 
   <!-- Llamada entrante — antes solo se avisaba con un numerito chico en la
