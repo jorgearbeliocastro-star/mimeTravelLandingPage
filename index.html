@@ -8306,6 +8306,44 @@
     // countryNamesData[currentLang] tiene que estar ya cargado antes de
     // llamar esto (ver renderPassengerForm) — si por algo no cargó,
     // igual se arma vacío en vez de romper el formulario entero.
+    // Idioma principal por país (código ISO2) — cobertura acotada a los
+    // países más comunes para esta agencia (Miami, Caribe, Latinoamérica,
+    // Europa). A propósito NO es exhaustiva: mejor dejar el campo vacío
+    // (el cliente lo escribe a mano) que inventar el idioma de un país que
+    // no cubrimos acá.
+    const COUNTRY_LANGUAGE_KEY = {
+      CU: 'es', US: 'en', CA: 'en', MX: 'es', AR: 'es', CO: 'es', VE: 'es', PE: 'es',
+      CL: 'es', EC: 'es', BO: 'es', PY: 'es', UY: 'es', PA: 'es', CR: 'es', NI: 'es',
+      HN: 'es', GT: 'es', SV: 'es', DO: 'es', PR: 'es', ES: 'es',
+      FR: 'fr', IT: 'it', PT: 'pt', BR: 'pt', GB: 'en', IE: 'en', AU: 'en', NZ: 'en', DE: 'de',
+    };
+    // Nombre del idioma según el idioma en que está la web en ese momento
+    // (currentLang) — el VALOR que se autocompleta es libre (texto), no
+    // tiene que coincidir con uno de los 5 idiomas del sitio.
+    const LANGUAGE_LABELS = {
+      es: { es: 'Español', en: 'Inglés', fr: 'Francés', it: 'Italiano', pt: 'Portugués', de: 'Alemán' },
+      en: { es: 'Spanish', en: 'English', fr: 'French', it: 'Italian', pt: 'Portuguese', de: 'German' },
+      fr: { es: 'Espagnol', en: 'Anglais', fr: 'Français', it: 'Italien', pt: 'Portugais', de: 'Allemand' },
+      it: { es: 'Spagnolo', en: 'Inglese', fr: 'Francese', it: 'Italiano', pt: 'Portoghese', de: 'Tedesco' },
+      pt: { es: 'Espanhol', en: 'Inglês', fr: 'Francês', it: 'Italiano', pt: 'Português', de: 'Alemão' },
+    };
+    // Busca el código ISO2 de un país escrito a mano (el campo "País de
+    // nacimiento" es texto libre, no un <select>) comparando contra los
+    // nombres ya cargados de countryNamesData — primero en el idioma
+    // actual, después en español/inglés como respaldo (por si lo escribió
+    // en otro idioma del que tiene puesta la web). null si no lo encuentra
+    // — no autocompleta nada en ese caso, no inventa una coincidencia.
+    function findCountryIsoByName(text) {
+      const q = normalizeText((text || '').trim());
+      if (!q) return null;
+      const pools = [countryNamesData[currentLang], countryNamesData.es, countryNamesData.en].filter(Boolean);
+      for (const pool of pools) {
+        const found = Object.keys(pool).find((iso) => normalizeText(pool[iso]) === q);
+        if (found) return found;
+      }
+      return null;
+    }
+
     function buildCountrySelectHTML(name, index, required) {
       const names = countryNamesData[currentLang] || countryNamesData.es || {};
       const options = Object.keys(names)
