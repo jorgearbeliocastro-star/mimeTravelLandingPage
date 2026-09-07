@@ -5548,13 +5548,23 @@
         }
       }
 
-      // No bloqueante — si falla, la cotización ya quedó guardada igual,
-      // solo no sonó ningún aviso.
-      notifyAgentsOfNewQuote({
-        origin: payload.origin,
-        destination: payload.destination,
-        claimedByAgentId: preferredAgentId,
-      });
+      // Si el cliente ya eligió camarote real (autoservicio), NO se avisa
+      // al agente todavía — la cotización sigue incompleta (faltan
+      // extras/seguro/datos del pasajero). El aviso se manda recién
+      // cuando el cliente de verdad termina de llenar todo y confirma
+      // (ver renderPassengerFormInner) — así el agente nunca ve algo a
+      // medias. Para el resto de los flujos (sin precio propio, el
+      // Agente tiene que cotizar a mano) el aviso sigue siendo inmediato,
+      // como siempre — ahí sí hace falta que el agente se entere ya.
+      if (!payload.cabinRoomMeta) {
+        // No bloqueante — si falla, la cotización ya quedó guardada
+        // igual, solo no sonó ningún aviso.
+        notifyAgentsOfNewQuote({
+          origin: payload.origin,
+          destination: payload.destination,
+          claimedByAgentId: preferredAgentId,
+        });
+      }
 
       return inserted ? inserted.id : null;
     }
