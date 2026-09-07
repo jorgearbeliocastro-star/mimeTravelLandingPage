@@ -5559,7 +5559,16 @@
       // se recupera aparte, con el mismo RPC que ya usa el resto de la web.
       const { error } = await supabaseClient.from('quote_requests').insert({
         client_token: clientToken,
-        claimed_by_agent_id: preferredAgentId,
+        // Ya NO se pone el agente preferido acá — eso hacía que una
+        // cotización de un cliente repetido saltara la fila de "Nuevas"
+        // (ver panel.html, esa pestaña solo muestra las que no tienen
+        // agente puesto). Toda cotización nueva entra sin reclamar, para
+        // cualquier categoría, y espera su turno igual que las demás. El
+        // agente preferido sigue usándose para el aviso push de abajo
+        // (le suena primero a él si está conectado; si no, cae al pool
+        // general solo) — pero eso no le da ningún atajo para saltarse
+        // la fila, solo se entera antes de que existe.
+        claimed_by_agent_id: null,
         category: payload.category,
         origin: payload.origin,
         destination: payload.destination,
