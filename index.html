@@ -8569,11 +8569,15 @@
           nationality: val('nationality') || null,
           placeOfBirth: val('placeOfBirth') || null,
           language: val('language') || null,
-          documentType: val('documentType') || null,
-          documentNumber: val('documentNumber') || null,
-          issueDate: readDateSelects(block, 'issueDate', index) || null,
-          passportExpiry: readDateSelects(block, 'docExpiry', index) || null,
-          passportIssuingCountry: val('passportIssuingCountry') || null,
+          // El documento en sí (tipo/número/fechas/país emisor) ya no se
+          // pide escrito acá — el Agente lo carga a mano al ver la foto
+          // del pasaporte (ver docsUploadPassportBtn). Se mandan en null
+          // para no cambiar la forma que espera submit_quote_passengers.
+          documentType: null,
+          documentNumber: null,
+          issueDate: null,
+          passportExpiry: null,
+          passportIssuingCountry: null,
           city: val('city') || null,
           zipCode: val('zipCode') || null,
           address: val('address') || null,
