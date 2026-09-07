@@ -6695,9 +6695,9 @@
       hoteles: {
         label: 'Hotéis',
         fields: [
-          { label: 'Destino', name: 'destino', placeholder: 'Onde você vai ficar?', type: 'text', country: true },
-          { label: 'Check-in', name: 'fecha_entrada', placeholder: 'Check-in', type: 'date' },
-          { label: 'Check-out', name: 'fecha_salida', placeholder: 'Check-out', type: 'date' },
+          { label: 'Destino', name: 'destino', placeholder: 'Onde você vai ficar?', type: 'text', country: true, required: true },
+          { label: 'Check-in', name: 'fecha_entrada', placeholder: 'Check-in', type: 'date', required: true },
+          { label: 'Check-out', name: 'fecha_salida', placeholder: 'Check-out', type: 'date', required: true },
           { label: 'Adultos', name: 'huespedes', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
           { label: 'Crianças', name: 'ninos', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
           { label: 'Quartos', name: 'habitaciones', type: 'select', options: ['1 quarto', '2 quartos', '3 quartos', '4+ quartos'] },
