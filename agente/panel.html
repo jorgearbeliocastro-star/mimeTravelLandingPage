@@ -2280,6 +2280,13 @@
         if (quote.category === 'cruise' && row._cabinOptions && row._cabinOptions.length) {
           supabaseClient.from('quote_requests').update({ quoted_cabin_options: row._cabinOptions }).eq('id', quote.id).then(() => {});
         }
+        // Si esta cotización venía marcada "necesita revisión" (el cliente
+        // había elegido un camarote solo, ver needs_agent_review) y el
+        // Agente terminó cargando un precio a mano en vez de confirmar el
+        // del cliente tal cual, ya quedó revisada — se apaga la marca.
+        if (quote.needs_agent_review) {
+          supabaseClient.from('quote_requests').update({ needs_agent_review: false }).eq('id', quote.id).then(() => {});
+        }
         // Extras elegidos (ver cruiseAddonsBlock/selectedAddons arriba) —
         // mismo criterio que aerolínea: update directo aparte, no
         // bloqueante. Solo se manda si tildó al menos uno (si no, no
