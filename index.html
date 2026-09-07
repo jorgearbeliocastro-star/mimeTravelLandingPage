@@ -2397,8 +2397,9 @@
 
   /* Habitación puntual ya vendida (available:false) — se ve pero no se
      puede elegir, tachada, igual que "Not Available" en la web real de
-     MSC (ver openCabinSelectModal). Es un <div>, no un <button>, así que
-     no hace falta desactivar cursor por JS. */
+     MSC (ver openCabinSelectModal, arma un elemento distinto — sin
+     interacción — para las agotadas, no hace falta desactivar cursor
+     por JS). */
   .quote-status-msc-room-card.unavailable {
     cursor: default;
     opacity: 0.55;
