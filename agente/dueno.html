@@ -217,15 +217,15 @@
   .addon-category-body { display: none; }
   .addon-category-body.open { display: block; }
 
-  /* Grilla de precios de camarote por fecha (ver #cabinPricesGridWrap) —
-     filas = fechas de salida, columnas = camarote+tarifa. Con hasta 15
-     columnas necesita scroll horizontal en el celular. */
-  .cabin-prices-scroll { overflow-x: auto; margin-top: 12px; }
-  .cabin-prices-table { border-collapse: collapse; font-size: 11px; white-space: nowrap; }
-  .cabin-prices-table th, .cabin-prices-table td { border: 1px solid rgba(27,58,92,0.12); padding: 4px; text-align: center; }
-  .cabin-prices-table th { background: rgba(27,58,92,0.05); font-weight: 700; color: var(--primary); position: sticky; top: 0; }
-  .cabin-prices-table td:first-child, .cabin-prices-table th:first-child { position: sticky; left: 0; background: #fff; font-weight: 700; z-index: 1; }
-  .cabin-prices-table input { width: 62px; padding: 3px; border: 1px solid rgba(27,58,92,0.15); border-radius: 4px; font-size: 11px; text-align: right; }
+  /* Habitaciones puntuales por fecha (ver #cabinPricesGridWrap) — fila
+     para agregar una nueva, y la lista de las ya agregadas debajo, mismo
+     criterio que pf-cabin-* en panel.html (agregar camarotes a una
+     cotización), reusado acá para el catálogo por fecha. */
+  .cabin-room-add-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .cabin-room-add-row select, .cabin-room-add-row input { padding: 6px 8px; border: 1px solid rgba(27,58,92,0.2); border-radius: 6px; font-size: 12.5px; }
+  .pf-cabin-option-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px solid rgba(27,58,92,0.06); font-size: 12.5px; }
+  .pf-cabin-option-info { flex: 1; }
+  .pf-cabin-option-delete { background: none; border: none; cursor: pointer; font-size: 14px; flex-shrink: 0; }
 </style>
 </head>
 <body>
