@@ -801,6 +801,125 @@
       }
     });
 
+    // Precios de camarote por fecha, por itinerario — reemplaza a que el
+    // agente tenga que ponerle precio a mano a cada cotización: el Dueño
+    // carga acá, una sola vez por itinerario, el precio real de cada
+    // camarote/tarifa para cada fecha de salida (cabin_date_prices,
+    // columna nueva — ver migración). Mismas 15 combinaciones que ya usa
+    // panel.html (getSeatTypeOptions('cruise')) e index.html
+    // (CABIN_TYPE_ORDER/FARE_TIER_ORDER), para que después el cliente
+    // pueda elegir con el mismo esquema de claves.
+    const CABIN_TIER_KEYS = (() => {
+      const cabins = [
+        { key: 'interior', label: 'Interior' },
+        { key: 'oceanview', label: 'Vista al mar' },
+        { key: 'balcony', label: 'Balcón' },
+        { key: 'suite', label: 'Suite' },
+      ];
+      const tiers = [
+        { key: 'bella', label: 'Bella' },
+        { key: 'fantastica', label: 'Fantastica' },
+        { key: 'aurea', label: 'Aurea' },
+      ];
+      const keys = [];
+      cabins.forEach((cabin) => tiers.forEach((tier) => keys.push({ key: cabin.key + '_' + tier.key, label: cabin.label + ' ' + tier.label })));
+      [
+        { key: 'royal_suite', label: 'Yacht Club Royal' },
+        { key: 'deluxe_suite', label: 'Yacht Club Deluxe' },
+        { key: 'interior_suite', label: 'Yacht Club Interior' },
+      ].forEach((s) => keys.push({ key: 'yacht_club_' + s.key, label: s.label }));
+      return keys;
+    })();
+    let cruiseItinerariesCache = [];
+
+    async function loadCruiseItineraries() {
+      const { data, error } = await supabaseClient
+        .from('cruise_itineraries')
+        .select('id, title, available_dates, cabin_date_prices')
+        .eq('active', true)
+        .order('title', { ascending: true });
+      const select = document.getElementById('cabinPricesItinerarySelect');
+      if (error) {
+        // Si "cabin_date_prices" todavía no existe (falta correr la
+        // migración), no romper el resto de la pantalla.
+        document.getElementById('cabinPricesMsg').textContent = '⚠️ No se pudo cargar la lista de itinerarios (' + error.message + ').';
+        return;
+      }
+      cruiseItinerariesCache = data || [];
+      select.innerHTML = '<option value="">Elegí un itinerario…</option>' +
+        cruiseItinerariesCache.map((it) => '<option value="' + it.id + '">' + escapeHtml(it.title) + '</option>').join('');
+    }
+
+    function renderCabinPricesGrid(itinerary) {
+      const wrap = document.getElementById('cabinPricesGridWrap');
+      const saveBtn = document.getElementById('cabinPricesSaveBtn');
+      if (!itinerary) {
+        wrap.innerHTML = '';
+        saveBtn.hidden = true;
+        return;
+      }
+      const dates = (itinerary.available_dates || []).slice().sort();
+      if (!dates.length) {
+        wrap.innerHTML = '<p class="empty">Este itinerario todavía no tiene fechas disponibles cargadas.</p>';
+        saveBtn.hidden = true;
+        return;
+      }
+      const existing = itinerary.cabin_date_prices || {};
+      wrap.innerHTML =
+        '<div class="cabin-prices-scroll"><table class="cabin-prices-table"><thead><tr><th>Fecha</th>' +
+        CABIN_TIER_KEYS.map((c) => '<th>' + c.label + '</th>').join('') +
+        '</tr></thead><tbody>' +
+        dates.map((d) =>
+          '<tr><td>' + d + '</td>' +
+          CABIN_TIER_KEYS.map((c) => {
+            const v = existing[d] && existing[d][c.key] != null ? existing[d][c.key] : '';
+            return '<td><input type="number" inputmode="decimal" min="0" step="0.01" data-date="' + d + '" data-cabin-key="' + c.key + '" value="' + v + '"></td>';
+          }).join('') +
+          '</tr>'
+        ).join('') +
+        '</tbody></table></div>';
+      saveBtn.hidden = false;
+    }
+
+    document.getElementById('cabinPricesItinerarySelect').addEventListener('change', (e) => {
+      const itinerary = cruiseItinerariesCache.find((it) => it.id === e.target.value);
+      renderCabinPricesGrid(itinerary);
+    });
+
+    document.getElementById('cabinPricesSaveBtn').addEventListener('click', async () => {
+      const select = document.getElementById('cabinPricesItinerarySelect');
+      const itineraryId = select.value;
+      const msg = document.getElementById('cabinPricesMsg');
+      if (!itineraryId) return;
+      const btn = document.getElementById('cabinPricesSaveBtn');
+      btn.disabled = true;
+      msg.textContent = '';
+      msg.className = 'msg';
+      // Arma { fecha: { camarote_tarifa: precio } } — solo con los
+      // casilleros que el Dueño realmente completó (vacío = esa
+      // combinación no se ofrece para esa fecha, no un precio 0).
+      const cabinDatePrices = {};
+      document.querySelectorAll('#cabinPricesGridWrap input').forEach((input) => {
+        const v = Number(input.value);
+        if (!input.value || !(v > 0)) return;
+        const date = input.dataset.date;
+        const key = input.dataset.cabinKey;
+        cabinDatePrices[date] = cabinDatePrices[date] || {};
+        cabinDatePrices[date][key] = v;
+      });
+      const { error } = await supabaseClient.from('cruise_itineraries').update({ cabin_date_prices: cabinDatePrices }).eq('id', itineraryId);
+      btn.disabled = false;
+      if (error) {
+        msg.textContent = '⚠️ ' + error.message;
+        msg.className = 'msg error';
+        return;
+      }
+      msg.textContent = '✅ Precios guardados.';
+      msg.className = 'msg success';
+      const cached = cruiseItinerariesCache.find((it) => it.id === itineraryId);
+      if (cached) cached.cabin_date_prices = cabinDatePrices;
+    });
+
     document.getElementById('createAgentForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('createAgentBtn');
