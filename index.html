@@ -8894,7 +8894,15 @@
         // appendChild. Duplica acá la condición de si hay camarote para
         // ofrecer (la versión "oficial", seatTypeOffered, se calcula más
         // abajo) porque este bloque tiene que armarse antes.
-        const useCruiseWizard = quote.category === 'cruise';
+        // El asistente por pasos (Camarote → Extras → Confirmar, con
+        // botones "Continuar"/"Atrás") se sacó a pedido explícito — el
+        // cliente tiene que poder llenar todo de corrido, sin tener que ir
+        // "confirmando" cada paso para avanzar. Queda en false a propósito
+        // (no se borra el bloque de abajo por si hace falta reactivarlo)
+        // y todo cae al mismo diseño de una sola pantalla que ya usan
+        // vuelos/hoteles/autos — target() default (quoteStatusBar) y los
+        // "|| quoteStatusBar" de abajo ya cubren este caso.
+        const useCruiseWizard = false;
         const cruiseCabinStepOffered = quote.quoted_seat_type != null || quote.quoted_seat_type_prices != null || !!(quote.quoted_cabin_options && quote.quoted_cabin_options.length);
         let step1Container = null;
         let step2Container = null;
