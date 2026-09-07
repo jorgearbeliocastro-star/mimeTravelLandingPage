@@ -8384,6 +8384,78 @@
         const extraBagOffered = quote.category === 'flight' || !!(quote.quoted_extra_bag_prices && quote.quoted_extra_bag_prices.length);
         const refundableOffered = quote.quoted_refundable_price_usd != null;
         const customAddonsOffered = !!(quote.quoted_custom_addons && quote.quoted_custom_addons.length);
+        // Asistente por pasos (Camarote → Extras → Confirmar), solo para
+        // cruceros — el resto de las categorías sigue viendo todo en una
+        // sola pantalla como siempre. Se arma ACÁ (antes de que empiece a
+        // agregarse contenido a quoteStatusBar) para poder redirigir todo
+        // lo de abajo (precio, seguro, extras, botón de aceptar) al
+        // contenedor del paso que corresponda en vez de a quoteStatusBar
+        // directo — "target()" reemplaza a "quoteStatusBar" en esos
+        // appendChild. Duplica acá la condición de si hay camarote para
+        // ofrecer (la versión "oficial", seatTypeOffered, se calcula más
+        // abajo) porque este bloque tiene que armarse antes.
+        const useCruiseWizard = quote.category === 'cruise';
+        const cruiseCabinStepOffered = quote.quoted_seat_type != null || quote.quoted_seat_type_prices != null || !!(quote.quoted_cabin_options && quote.quoted_cabin_options.length);
+        let step1Container = null;
+        let step2Container = null;
+        let target = () => quoteStatusBar;
+        if (useCruiseWizard) {
+          const wizardSteps = [];
+          if (cruiseCabinStepOffered) wizardSteps.push({ key: 'cabin', label: t('quoteWizardStepCabin') });
+          if (customAddonsOffered) wizardSteps.push({ key: 'extras', label: t('quoteWizardStepExtras') });
+          wizardSteps.push({ key: 'confirm', label: t('quoteWizardStepConfirm') });
+          if (quoteWizardStep >= wizardSteps.length) quoteWizardStep = wizardSteps.length - 1;
+          if (quoteWizardStep < 0) quoteWizardStep = 0;
+          const shell = document.createElement('div');
+          shell.className = 'quote-wizard';
+          const progress = document.createElement('div');
+          progress.className = 'quote-wizard-progress';
+          progress.innerHTML = wizardSteps.map((s, i) =>
+            '<div class="quote-wizard-step-indicator' + (i === quoteWizardStep ? ' active' : '') + (i < quoteWizardStep ? ' done' : '') + '" data-step-i="' + i + '">' +
+            '<span class="quote-wizard-step-num">' + (i + 1) + '</span>' +
+            '<span class="quote-wizard-step-label">' + s.label + '</span>' +
+            '</div>' + (i < wizardSteps.length - 1 ? '<div class="quote-wizard-step-sep"></div>' : '')
+          ).join('');
+          shell.appendChild(progress);
+          const stepsWrap = document.createElement('div');
+          stepsWrap.className = 'quote-wizard-steps';
+          const containers = wizardSteps.map((s, i) => {
+            const c = document.createElement('div');
+            c.className = 'quote-wizard-step-panel' + (i === quoteWizardStep ? ' active' : '');
+            stepsWrap.appendChild(c);
+            return c;
+          });
+          shell.appendChild(stepsWrap);
+          const nav = document.createElement('div');
+          nav.className = 'quote-wizard-nav';
+          shell.appendChild(nav);
+          quoteStatusBar.appendChild(shell);
+          wizardSteps.forEach((s, i) => {
+            if (s.key === 'cabin') step1Container = containers[i];
+            if (s.key === 'extras') step2Container = containers[i];
+          });
+          const confirmIdx = wizardSteps.findIndex((s) => s.key === 'confirm');
+          target = () => containers[confirmIdx];
+          function goToStep(i) {
+            quoteWizardStep = i;
+            containers.forEach((c, idx) => c.classList.toggle('active', idx === i));
+            progress.querySelectorAll('.quote-wizard-step-indicator').forEach((el, idx) => {
+              el.classList.toggle('active', idx === i);
+              el.classList.toggle('done', idx < i);
+            });
+            renderNav();
+          }
+          function renderNav() {
+            nav.innerHTML =
+              (quoteWizardStep > 0 ? '<button type="button" class="quote-wizard-back">' + t('quoteWizardBack') + '</button>' : '<span></span>') +
+              (quoteWizardStep < wizardSteps.length - 1 ? '<button type="button" class="quote-wizard-continue">' + t('quoteWizardContinue') + '</button>' : '<span></span>');
+            const backBtn = nav.querySelector('.quote-wizard-back');
+            if (backBtn) backBtn.addEventListener('click', () => goToStep(quoteWizardStep - 1));
+            const contBtn = nav.querySelector('.quote-wizard-continue');
+            if (contBtn) contBtn.addEventListener('click', () => goToStep(quoteWizardStep + 1));
+          }
+          renderNav();
+        }
         function sumCustomAddons(offered, selections) {
           if (!offered) return 0;
           return (quote.quoted_custom_addons || []).reduce((sum, a) => sum + (selections[a.label] ? Number(a.priceUSD) : 0), 0);
