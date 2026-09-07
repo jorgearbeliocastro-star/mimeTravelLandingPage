@@ -8662,7 +8662,7 @@
           row.innerHTML =
             '<input type="checkbox" id="' + checkboxId + '"' + (checked ? ' checked' : '') + '> ' +
             '<span>' + t(labelKey).replace('{amount}', priceValue) + '</span>';
-          quoteStatusBar.appendChild(row);
+          target().appendChild(row);
           row.querySelector('#' + checkboxId).addEventListener('change', function (e) {
             onToggle(e.target.checked);
             updateQuotePriceDisplay();
@@ -8704,7 +8704,7 @@
           row.innerHTML =
             '<span>' + t(labelKey) + '</span>' +
             '<div class="quote-status-qty-chips" id="' + idPrefix + 'Chips">' + chips + '</div>';
-          quoteStatusBar.appendChild(row);
+          target().appendChild(row);
           const chipsEl = row.querySelector('#' + idPrefix + 'Chips');
           chipsEl.querySelectorAll('.quote-status-qty-chip').forEach((chip) => {
             chip.addEventListener('click', () => {
