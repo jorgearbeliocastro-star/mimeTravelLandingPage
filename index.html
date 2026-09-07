@@ -9495,6 +9495,15 @@
             cabinPrefsWrap.querySelector('#cabinConnectingInput').addEventListener('input', function (e) {
               selectedCabinConnectingWith = e.target.value;
             });
+            cabinPrefsWrap.querySelector('#cabinConnectingCheckbox').addEventListener('change', function (e) {
+              selectedCabinWantsConnecting = e.target.checked;
+              const input = cabinPrefsWrap.querySelector('#cabinConnectingInput');
+              input.style.display = selectedCabinWantsConnecting ? '' : 'none';
+              if (!selectedCabinWantsConnecting) {
+                selectedCabinConnectingWith = '';
+                input.value = '';
+              }
+            });
           } else {
             availableSeatTypes.forEach(function (seatType) {
               const price = seatTypePrices[seatType];
