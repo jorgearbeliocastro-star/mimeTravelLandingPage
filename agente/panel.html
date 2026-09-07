@@ -1938,6 +1938,65 @@
           toggle.classList.toggle('open', open);
         });
       });
+      // Lista de camarotes puntuales (ver cruiseCabinBlock más arriba) —
+      // vive en memoria mientras el formulario está abierto, se manda
+      // recién al tocar "Enviar". Si la cotización ya tenía camarotes
+      // cargados de una vez anterior, arranca con esos (para agregar más
+      // o corregir sin perder lo que ya había).
+      if (quote.category === 'cruise') {
+        row._cabinOptions = Array.isArray(quote.quoted_cabin_options) ? quote.quoted_cabin_options.slice() : [];
+        const cabinList = row.querySelector('.pf-cabin-options-list');
+        const cabinSelect = row.querySelector('.pf-cabin-new-cabin');
+        const tierSelect = row.querySelector('.pf-cabin-new-tier');
+        const nameInput = row.querySelector('.pf-cabin-new-name');
+        const sqftInput = row.querySelector('.pf-cabin-new-sqft');
+        const priceInput = row.querySelector('.pf-cabin-new-price');
+        const CABIN_LABELS = { interior: 'Interior', oceanview: 'Vista al mar', balcony: 'Balcón', suite: 'Suite', yacht_club: 'MSC Yacht Club' };
+        const TIER_LABELS = { bella: 'Bella', fantastica: 'Fantastica', aurea: 'Aurea' };
+        function renderCabinList() {
+          cabinList.innerHTML = row._cabinOptions.map((o, idx) =>
+            '<div class="pf-cabin-option-row">' +
+            '<span class="pf-cabin-option-info">' + CABIN_LABELS[o.cabin] + ' — ' + (o.cabin === 'yacht_club' ? 'Yacht Club' : TIER_LABELS[o.tier]) + ': <strong>' + escapeHtml(o.name) + '</strong>' +
+            (o.sqft ? ' (' + o.sqft + ' m²)' : '') + ' — USD ' + o.price + '</span>' +
+            '<button type="button" class="pf-cabin-option-delete" data-idx="' + idx + '">🗑</button>' +
+            '</div>'
+          ).join('');
+          cabinList.querySelectorAll('.pf-cabin-option-delete').forEach((delBtn) => {
+            delBtn.addEventListener('click', () => {
+              row._cabinOptions.splice(Number(delBtn.dataset.idx), 1);
+              renderCabinList();
+            });
+          });
+        }
+        // Yacht Club no tiene niveles Bella/Fantastica/Aurea (son
+        // habitaciones propias) — se esconde el selector de tarifa y se
+        // guarda "aurea" fijo (mismo color que usa index.html para
+        // Yacht Club, ver mscTierBadge ahí).
+        cabinSelect.addEventListener('change', () => {
+          tierSelect.style.display = cabinSelect.value === 'yacht_club' ? 'none' : '';
+        });
+        row.querySelector('.pf-cabin-add-btn').addEventListener('click', () => {
+          const name = nameInput.value.trim();
+          const price = Number(priceInput.value);
+          if (!name || !(price > 0)) {
+            alert('Falta el nombre de la habitación o el precio.');
+            return;
+          }
+          row._cabinOptions.push({
+            id: 'c' + Date.now() + Math.random().toString(36).slice(2, 7),
+            cabin: cabinSelect.value,
+            tier: cabinSelect.value === 'yacht_club' ? 'aurea' : tierSelect.value,
+            name,
+            sqft: sqftInput.value ? Number(sqftInput.value) : null,
+            price,
+          });
+          nameInput.value = '';
+          sqftInput.value = '';
+          priceInput.value = '';
+          renderCabinList();
+        });
+        renderCabinList();
+      }
       // Cada checkbox "No disponible" apaga y vacía su input de precio al
       // lado — así queda claro que ese tipo/maleta se sacó de la oferta,
       // no que el agente simplemente no llenó el campo todavía.
