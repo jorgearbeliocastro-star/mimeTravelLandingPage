@@ -9055,14 +9055,16 @@
     // Aviso fuerte si el cliente intenta salir con algo subido pero
     // todavía no recibido — no lo bloquea del todo (los navegadores no
     // dejan poner un mensaje custom hace años), pero sí frena el cierre
-    // accidental con la confirmación nativa.
-    // Sigue avisando hasta que se confirme la compra (no solo hasta que
-    // lleguen las fotos) — el agente puede tardar en verificar los datos
-    // antes de emitir el boleto, y el cliente no debería irse antes.
+    // accidental con la confirmación nativa. Deja de avisar apenas las
+    // fotos que subió ya llegaron de verdad al agente (docsReceivedByAgent)
+    // — a partir de ahí no se pierde nada si cierra, no hace falta que
+    // espere a que el agente termine de cobrar/emitir el boleto.
     let quotePurchasedFlag = false;
     window.addEventListener('beforeunload', function (e) {
-      const anyUploaded = docsDataUrls.passport || docsDataUrls.card;
-      if (anyUploaded && !quotePurchasedFlag) {
+      const pendingUpload =
+        (docsDataUrls.passport && !docsReceivedByAgent.passport) ||
+        (docsDataUrls.card && !docsReceivedByAgent.card);
+      if (pendingUpload && !quotePurchasedFlag) {
         e.preventDefault();
         e.returnValue = '';
       }
