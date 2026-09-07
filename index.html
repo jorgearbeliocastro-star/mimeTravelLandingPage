@@ -6707,9 +6707,9 @@
       autos: {
         label: 'Aluguel de carros',
         fields: [
-          { label: 'Retirar em', name: 'ciudad_recogida', placeholder: 'Onde você retira o carro?', type: 'text', country: true, airportCode: false },
-          { label: 'Devolver em', name: 'ciudad_entrega', placeholder: 'Onde você devolve?', type: 'text', country: true, airportCode: false },
-          { label: 'Data de retirada', name: 'fechas', placeholder: 'Retirada', type: 'date' },
+          { label: 'Retirar em', name: 'ciudad_recogida', placeholder: 'Onde você retira o carro?', type: 'text', country: true, airportCode: false, required: true },
+          { label: 'Devolver em', name: 'ciudad_entrega', placeholder: 'Onde você devolve?', type: 'text', country: true, airportCode: false, required: true },
+          { label: 'Data de retirada', name: 'fechas', placeholder: 'Retirada', type: 'date', required: true },
           { label: 'Tipo de carro', name: 'tipo_auto', type: 'select', options: ['Qualquer tipo', 'Econômico', 'Compacto', 'Intermediário / Sedã', 'Padrão', 'Full size', 'SUV compacto', 'SUV grande', 'Minivan / Van', 'Pickup', 'Luxo', 'Conversível'] }
         ]
       },
