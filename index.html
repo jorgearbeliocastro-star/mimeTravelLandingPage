@@ -6639,9 +6639,9 @@
       hoteles: {
         label: 'Hotel',
         fields: [
-          { label: 'Destinazione', name: 'destino', placeholder: 'Dove soggiorni?', type: 'text', country: true },
-          { label: 'Check-in', name: 'fecha_entrada', placeholder: 'Check-in', type: 'date' },
-          { label: 'Check-out', name: 'fecha_salida', placeholder: 'Check-out', type: 'date' },
+          { label: 'Destinazione', name: 'destino', placeholder: 'Dove soggiorni?', type: 'text', country: true, required: true },
+          { label: 'Check-in', name: 'fecha_entrada', placeholder: 'Check-in', type: 'date', required: true },
+          { label: 'Check-out', name: 'fecha_salida', placeholder: 'Check-out', type: 'date', required: true },
           { label: 'Adulti', name: 'huespedes', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
           { label: 'Bambini', name: 'ninos', type: 'select', options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '10+'] },
           { label: 'Camere', name: 'habitaciones', type: 'select', options: ['1 camera', '2 camere', '3 camere', '4+ camere'] },
