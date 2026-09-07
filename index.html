@@ -8639,7 +8639,7 @@
           price.className = 'quote-status-price';
           price.id = 'quoteSinglePriceValue';
           price.textContent = t('quoteStatusPricePrefix') + 'USD ' + quote.quoted_price_usd;
-          quoteStatusBar.appendChild(price);
+          target().appendChild(price);
         }
         // El precio recién puesto arriba es el "base", sin nada marcado —
         // si el cliente ya había elegido seguro/maletas/asiento antes de
