@@ -9024,6 +9024,12 @@
       cardBtn.textContent = label('card', 'Tarjeta de pago');
       cardBtn.disabled = anyPending;
       cardBtn.classList.toggle('uploaded', !!docsDataUrls.card);
+      // Ya no hay nada para tocar acá una vez que las dos llegaron de
+      // verdad — se esconden los botones, solo queda el mensaje de abajo
+      // (renderDocsUploadStatus) invitando a cerrar.
+      const allReceived = docsDataUrls.passport && docsDataUrls.card && docsReceivedByAgent.passport && docsReceivedByAgent.card;
+      const buttonsRow = passportBtn.closest('.docs-upload-buttons');
+      if (buttonsRow) buttonsRow.hidden = !!allReceived;
     }
 
     // Repinta solo el cartel de estado de documentos, sin tocar el resto
