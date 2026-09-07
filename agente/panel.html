@@ -1442,7 +1442,7 @@
             '</div>';
         }
         const datesHtml = fmtDates(q);
-        const numberPrefix = currentTab === 'new' ? '#' + (i + 1) + ' — ' : '';
+        const numberPrefix = (currentTab === 'new' || currentTab === 'pool') ? '#' + (i + 1) + ' — ' : '';
         // Camarote que el cliente ya eligió solo (ver openCabinSelectModal/
         // apply_cruise_room_price en index.html) — antes solo se veía
         // mezclado en el texto de "notes", ahora tiene su propia tarjeta
