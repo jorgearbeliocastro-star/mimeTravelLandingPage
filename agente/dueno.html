@@ -833,10 +833,12 @@
     let cruiseItinerariesCache = [];
 
     async function loadCruiseItineraries() {
+      // Sin filtrar por "active" — acá tiene que aparecer TAMBIÉN el
+      // itinerario que está oculto, para poder reactivarlo (ver botón
+      // Activo/Inactivo en renderCabinPricesGrid).
       const { data, error } = await supabaseClient
         .from('cruise_itineraries')
-        .select('id, title, available_dates, cabin_date_prices')
-        .eq('active', true)
+        .select('id, title, active, available_dates, cabin_date_prices')
         .order('title', { ascending: true });
       const select = document.getElementById('cabinPricesItinerarySelect');
       if (error) {
@@ -847,7 +849,21 @@
       }
       cruiseItinerariesCache = data || [];
       select.innerHTML = '<option value="">Elegí un itinerario…</option>' +
-        cruiseItinerariesCache.map((it) => '<option value="' + it.id + '">' + escapeHtml(it.title) + '</option>').join('');
+        cruiseItinerariesCache.map((it) => '<option value="' + it.id + '">' + escapeHtml(it.title) + (it.active ? '' : ' (oculto)') + '</option>').join('');
+    }
+
+    async function toggleItineraryActive(itinerary) {
+      const nextActive = !itinerary.active;
+      const { error } = await supabaseClient.from('cruise_itineraries').update({ active: nextActive }).eq('id', itinerary.id);
+      if (error) {
+        alert('No se pudo cambiar: ' + error.message);
+        return;
+      }
+      itinerary.active = nextActive;
+      loadCruiseItineraries().then(() => {
+        document.getElementById('cabinPricesItinerarySelect').value = itinerary.id;
+      });
+      renderCabinPricesGrid(itinerary);
     }
 
     function renderCabinPricesGrid(itinerary) {
@@ -859,13 +875,20 @@
         return;
       }
       const dates = (itinerary.available_dates || []).slice().sort();
+      const existing = itinerary.cabin_date_prices || {};
+      // Mostrar/ocultar TODO el crucero/ruta — no borra los precios
+      // cargados, solo lo saca de lo que ve el cliente (misma columna
+      // "active" que ya se usaba para filtrar en index.html).
+      const toggleHtml = '<button type="button" class="btn" id="cabinItineraryToggleBtn" style="margin-bottom:10px; background:' + (itinerary.active ? '#c0392b' : '#2e7d32') + ';">' +
+        (itinerary.active ? '🚫 Ocultar este crucero a los clientes' : '✅ Volver a mostrar este crucero') + '</button>';
       if (!dates.length) {
-        wrap.innerHTML = '<p class="empty">Este itinerario todavía no tiene fechas disponibles cargadas.</p>';
+        wrap.innerHTML = toggleHtml + '<p class="empty">Este itinerario todavía no tiene fechas disponibles cargadas.</p>';
+        document.getElementById('cabinItineraryToggleBtn').addEventListener('click', () => toggleItineraryActive(itinerary));
         saveBtn.hidden = true;
         return;
       }
-      const existing = itinerary.cabin_date_prices || {};
       wrap.innerHTML =
+        toggleHtml +
         '<div class="cabin-prices-scroll"><table class="cabin-prices-table"><thead><tr><th>Fecha</th>' +
         CABIN_TIER_KEYS.map((c) => '<th>' + c.label + '</th>').join('') +
         '</tr></thead><tbody>' +
