@@ -8629,6 +8629,25 @@
         blocksWrap.querySelectorAll('[name^="emergencyContactName-"]').forEach((el) => { if (el.name !== 'emergencyContactName-0') el.value = nameVal; });
         blocksWrap.querySelectorAll('[name^="emergencyContactPhone-"]').forEach((el) => { if (el.name !== 'emergencyContactPhone-0') el.value = phoneVal; });
       });
+      // Si nació en tal país, lo más probable es que la nacionalidad y el
+      // idioma sean los de ese mismo país — se autocompleta apenas escribe
+      // el país de nacimiento, PERO solo si Nacionalidad/Idioma todavía
+      // están vacíos (nunca pisa algo que el cliente ya tocó a mano) — a
+      // pedido explícito, tiene que poder cambiarlo después sin pelea (ej.
+      // nació en Cuba pero prefiere responder en inglés).
+      blocksWrap.addEventListener('change', function (e) {
+        if (!e.target.matches('[name^="countryOfBirth-"]')) return;
+        const index = e.target.name.split('-')[1];
+        const iso = findCountryIsoByName(e.target.value);
+        if (!iso) return;
+        const nationalitySelect = blocksWrap.querySelector('[name="nationality-' + index + '"]');
+        if (nationalitySelect && !nationalitySelect.value) nationalitySelect.value = iso;
+        const languageInput = blocksWrap.querySelector('[name="language-' + index + '"]');
+        const langKey = COUNTRY_LANGUAGE_KEY[iso];
+        if (languageInput && !languageInput.value && langKey) {
+          languageInput.value = (LANGUAGE_LABELS[currentLang] || LANGUAGE_LABELS.es)[langKey] || '';
+        }
+      });
 
       // Categoría de Licencia General de la OFAC — una sola para todo el
       // viaje (es del origen/destino, no de cada pasajero — ver
