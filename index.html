@@ -7865,6 +7865,25 @@
     // vuelve a pintar desde cero cada 5s (polling); sin esto, cada
     // repintado lo mandaba de vuelta al paso 1.
     let quoteWizardStep = 0;
+    // Camarotes de crucero: orden y fotos — antes vivían adentro de
+    // renderQuoteStatus (se re-declaraban en cada repintado); ahora
+    // también los usa renderCruiseResults/openCabinSelectModal (la
+    // selección de camarote con precio real ANTES de mandar el pedido),
+    // así que quedan acá arriba, compartidos por los dos.
+    const CABIN_TYPE_ORDER = ['yacht_club', 'suite', 'balcony', 'oceanview', 'interior'];
+    const FARE_TIER_ORDER = ['bella', 'fantastica', 'aurea'];
+    const YACHT_CLUB_SUITE_ORDER = ['royal_suite', 'deluxe_suite', 'interior_suite'];
+    const CABIN_TYPE_PHOTOS = {
+      interior: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/interior.png',
+      oceanview: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/oceanview.png',
+      balcony: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/balcony.png',
+      suite: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/suite.png',
+    };
+    const YACHT_CLUB_SUITE_PHOTOS = {
+      royal_suite: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/yacht_club_royal_suite.png',
+      deluxe_suite: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/yacht_club_deluxe_suite.png',
+      interior_suite: 'https://ihrfaprvzdafclquuhlh.supabase.co/storage/v1/object/public/addon-photos/cabin-types/yacht_club_interior_suite.png',
+    };
     let selectedWantsRefundable = false;
     // Preferencias de ubicación de camarote (solo cruceros) — un PEDIDO del
     // cliente, no una reserva confirmada: no tenemos el plano de
