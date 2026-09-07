@@ -9037,14 +9037,19 @@
         el.textContent = '';
         return;
       }
-      // Ojo: aunque ya lleguen las fotos, NO se invita a cerrar acá — el
-      // agente recién termina cuando confirma la venta (emite el boleto),
-      // ahí el estado pasa a "purchased" y el mensaje de compra confirmada
-      // (más abajo, quoteStatusPurchased) ya avisa que puede cerrar.
-      el.textContent = allReceived
-        ? '⚠️ NO CIERRES ESTA PANTALLA — seguí esperando, tu compra recién se completa cuando el agente confirme.'
-        : '⚠️ NO CIERRES NI CAMBIES DE PÁGINA — si cerrás ahora, tu compra NO se puede completar y vas a tener que volver a mandar tus documentos.';
-      el.className = 'docs-upload-status waiting';
+      // Antes esto seguía diciendo "no cierres" incluso con las dos fotos
+      // ya recibidas — pero una vez que llegan de verdad no se pierde nada
+      // si cierra: los datos del pasajero ya quedaron guardados y las
+      // fotos ya se entregaron. El agente sigue el resto (cobrar, emitir
+      // el boleto) sin necesitar que el cliente siga con la pestaña
+      // abierta — le va a escribir cuando esté listo.
+      if (allReceived) {
+        el.textContent = '✅ Ya recibimos todo — ya podés cerrar esta pantalla, tu agente te va a escribir en cuanto esté todo confirmado.';
+        el.className = 'docs-upload-status';
+      } else {
+        el.textContent = '⚠️ NO CIERRES NI CAMBIES DE PÁGINA — si cerrás ahora, tu compra NO se puede completar y vas a tener que volver a mandar tus documentos.';
+        el.className = 'docs-upload-status waiting';
+      }
     }
 
     // Aviso fuerte si el cliente intenta salir con algo subido pero
