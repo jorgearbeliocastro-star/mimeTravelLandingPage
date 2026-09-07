@@ -7645,6 +7645,11 @@
     // Tipo de asiento elegido (uno solo, como cualquier selección real de
     // asiento) — '' = todavía no eligió.
     let selectedChosenSeatType = '';
+    // En qué paso del asistente (Camarote/Extras/Confirmar, solo cruceros)
+    // está el cliente — se guarda acá afuera porque el panel entero se
+    // vuelve a pintar desde cero cada 5s (polling); sin esto, cada
+    // repintado lo mandaba de vuelta al paso 1.
+    let quoteWizardStep = 0;
     let selectedWantsRefundable = false;
     // Preferencias de ubicación de camarote (solo cruceros) — un PEDIDO del
     // cliente, no una reserva confirmada: no tenemos el plano de
