@@ -1921,18 +1921,15 @@
         '</div>'
         : '';
       // En crucero el precio ya no es "un base + agregados" — cada
-      // camarote cargado más abajo (cruiseCabinBlock) trae SU propio
-      // precio completo, así que pedir acá un "Precio base" aparte es
-      // redundante (y confuso, parecía obligatorio como en vuelos). Para
-      // crucero queda solo el seguro (opcional); el precio base se manda
-      // en 0 sin pedírselo al agente (ver validación del botón Enviar).
+      // camarote cargado más abajo (cruiseCabinBlock, que ahora también
+      // trae el seguro, ver ahí) tiene SU propio precio completo, así que
+      // pedir acá un "Precio base" aparte es redundante (y confuso,
+      // parecía obligatorio como en vuelos). El precio base se manda en 0
+      // sin pedírselo al agente (ver validación del botón Enviar).
       row.innerHTML =
         stopsBlock +
         (quote.category === 'cruise'
-          ? '<label class="price-form-label">Seguro de viaje (USD, opcional)</label>' +
-            '<div class="price-form-row">' +
-            '<input type="number" inputmode="decimal" class="pf-insurance" placeholder="Seguro (opc.)" min="0" step="0.01">' +
-            '</div>'
+          ? ''
           : '<label class="price-form-label">Precio base y seguro de viaje (USD)</label>' +
             '<div class="price-form-row">' +
             '<input type="number" inputmode="decimal" class="pf-base" placeholder="Precio" min="1" step="0.01">' +
