@@ -8701,6 +8701,13 @@
           window.alert(t('quotePaxMissing'));
           return;
         }
+        // Sin haber marcado que leyó la política de cancelación, tampoco
+        // se manda — ver comentario arriba de dónde se arma el checkbox.
+        const cancelPolicyCheck = document.getElementById('cancellationPolicyReadCheck');
+        if (mode === 'accept' && cancelPolicyCheck && !cancelPolicyCheck.checked) {
+          window.alert(t('quoteCancellationPolicyMissing'));
+          return;
+        }
         // Sin el consentimiento marcado, no se manda la aceptación — ver
         // comentario arriba de dónde se arma el checkbox (payment_consent_at).
         if (mode === 'accept' && !document.getElementById('paymentConsentCheck')?.checked) {
