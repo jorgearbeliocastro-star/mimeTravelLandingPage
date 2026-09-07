@@ -8595,7 +8595,8 @@
           const SEAT_TYPE_OPTION_PREFIX = { hotel: 'roomTypeOption_', car: 'carTypeOption_' };
           label.textContent = t(SEAT_TYPE_LABEL_KEY[quote.category] || 'quoteSeatTypeLabel');
           seatTypeWrap.appendChild(label);
-          if (quote.category === 'cruise' && quote.quoted_cabin_options && quote.quoted_cabin_options.length) {
+          if (quote.category === 'cruise') {
+          if (quote.quoted_cabin_options && quote.quoted_cabin_options.length) {
             // Camarotes puntuales cargados por el Agente (nombre, metros² y
             // precio propio cada uno, no un precio único por tarifa) — como
             // se ve en la web real de MSC, agrupados por tipo de camarote y
