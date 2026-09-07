@@ -9095,7 +9095,7 @@
           // Desglose tipo "Amount Due" de MSC — solo en el paso Confirmar
           // del asistente de crucero. Se arma vacío acá (updateQuotePrice
           // Display lo llena) porque recién ahí se sabe qué quedó tildado.
-          if (useCruiseWizard) {
+          if (quote.category === 'cruise') {
             const breakdown = document.createElement('div');
             breakdown.className = 'quote-price-breakdown';
             breakdown.id = 'quoteCruiseBreakdown';
