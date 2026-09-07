@@ -2077,11 +2077,17 @@
           });
         });
       }
-      baseInput.focus();
+      if (baseInput) baseInput.focus();
       btn.addEventListener('click', async () => {
-        const price = Number(baseInput.value);
-        if (!price || price <= 0) {
+        // Crucero no tiene .pf-base (ver arriba) — el precio sale de los
+        // camarotes cargados, se manda 0 sin pedírselo al agente.
+        const price = baseInput ? Number(baseInput.value) : 0;
+        if (baseInput && (!price || price <= 0)) {
           alert('Poné un precio base válido.');
+          return;
+        }
+        if (quote.category === 'cruise' && !(row._cabinOptions && row._cabinOptions.length)) {
+          alert('Cargá al menos un camarote antes de enviar.');
           return;
         }
         // Obligatoria para vuelos — se estaban mandando cotizaciones sin
