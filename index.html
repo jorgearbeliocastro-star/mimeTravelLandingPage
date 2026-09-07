@@ -9623,6 +9623,12 @@
         // los cargó a mano para esta cotización puntual, el cliente los
         // marca como casillas igual que el seguro.
         if (customAddonsOffered) {
+          // Tope de cuántas unidades de un mismo extra se pueden pedir —
+          // no tiene sentido comprar más paquetes de bebidas que personas
+          // viajando. Se usa la cantidad pedida en la búsqueda inicial
+          // (requested_adults/requested_children) — a esta altura todavía
+          // no se cargaron los pasajeros completos.
+          const maxAddonQty = Math.max(1, (Number(quote.requested_adults) || 0) + (Number(quote.requested_children) || 0));
           const addonsWrap = document.createElement('div');
           addonsWrap.className = 'quote-status-seat-type';
           const addonsLabel = document.createElement('div');
