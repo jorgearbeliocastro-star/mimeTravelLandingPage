@@ -8184,6 +8184,18 @@
         const blockEl = e.target.closest('[data-pax-block]');
         if (blockEl) renderPassengerWarnings(blockEl);
       });
+      // Copiar contacto de emergencia del pasajero 1 a los demás del mismo
+      // camarote (ver checkbox en buildPassengerBlockHTML) — copia lo que
+      // ya está tipeado en ese momento, no queda sincronizado en vivo
+      // después (si agrega más pasajeros o sigue editando, hay que volver
+      // a destildar/tildar para copiar de nuevo).
+      blocksWrap.addEventListener('change', function (e) {
+        if (!e.target.matches('[data-pax-copy-emergency]') || !e.target.checked) return;
+        const nameVal = blocksWrap.querySelector('[name="emergencyContactName-0"]')?.value || '';
+        const phoneVal = blocksWrap.querySelector('[name="emergencyContactPhone-0"]')?.value || '';
+        blocksWrap.querySelectorAll('[name^="emergencyContactName-"]').forEach((el) => { if (el.name !== 'emergencyContactName-0') el.value = nameVal; });
+        blocksWrap.querySelectorAll('[name^="emergencyContactPhone-"]').forEach((el) => { if (el.name !== 'emergencyContactPhone-0') el.value = phoneVal; });
+      });
 
       // Categoría de Licencia General de la OFAC — una sola para todo el
       // viaje (es del origen/destino, no de cada pasajero — ver
