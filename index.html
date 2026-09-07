@@ -9053,7 +9053,7 @@
           if (quote.quoted_stops && quote.quoted_stops === 'Directo') lines.push(t('quoteFlightDirectLabel'));
           if (quote.quoted_fare_conditions) lines.push(t('quoteFlightFareLabel') + ': ' + quote.quoted_fare_conditions);
           flightInfo.textContent = lines.join(' · ');
-          quoteStatusBar.appendChild(flightInfo);
+          target().appendChild(flightInfo);
           // Itinerario con cada escala en su propio renglón (país — cuánto
           // dura la espera), en vez de metido en la misma línea que
           // aerolínea/horarios — así se entiende de un vistazo dónde se va
