@@ -9078,7 +9078,11 @@
           // claro de dónde sale el total antes de confirmar.
           const breakdownEl = document.getElementById('quoteCruiseBreakdown');
           if (breakdownEl) {
-            const lines = [[t('quoteBreakdownBase'), Number(quote.quoted_price_usd)]];
+            // Sin línea de "Precio base" cuando es 0 — en cruceros con
+            // camarote elegido por el cliente mismo (ver
+            // apply_cruise_room_price) el precio del camarote ES el total,
+            // no hay una base aparte a la que se le suma.
+            const lines = Number(quote.quoted_price_usd) > 0 ? [[t('quoteBreakdownBase'), Number(quote.quoted_price_usd)]] : [];
             if (selectedChosenSeatType && seatPrice) lines.push([t('quoteBreakdownCabin'), seatPrice]);
             if (insuranceOffered && selectedWantsInsurance) lines.push([t('quoteBreakdownInsurance'), Number(quote.quoted_insurance_price_usd)]);
             const addonsTotal = sumCustomAddons(customAddonsOffered, selectedCustomAddons);
