@@ -9927,7 +9927,13 @@
       if (activeQuoteId) quoteReopenBtn.hidden = false;
     }
 
-    quotePanelClose.addEventListener('click', closeQuotePanel);
+    // Va por "Atrás" del navegador (ver popstate arriba) en vez de cerrar
+    // directo — así el ❌ y el botón físico "Atrás" hacen exactamente lo
+    // mismo, sin desincronizar la pila de mimeNavStack.
+    quotePanelClose.addEventListener('click', function () {
+      if (mimeNavStack[mimeNavStack.length - 1] === 'quotePanel') history.back();
+      else closeQuotePanel();
+    });
 
     quoteChatToggleBtn.addEventListener('click', function () {
       quoteChatSection.hidden = false;
