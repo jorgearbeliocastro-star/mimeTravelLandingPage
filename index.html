@@ -8835,22 +8835,6 @@
         return;
       }
       if (quote.status === 'pending') {
-        // Si el cliente ya eligió una habitación real con precio (ver
-        // openCabinSelectModal/apply_cruise_room_price), NO queda en
-        // blanco esperando — se le muestra lo que eligió, aclarando que
-        // falta que el Agente lo confirme (a propósito sigue "pending":
-        // el precio que ve el cliente puede no estar actualizado, el
-        // Agente lo revisa antes de que cuente como cotizado de verdad).
-        if (quote.quoted_price_usd != null && quote.quoted_cabin_options && quote.quoted_cabin_options.length) {
-          const preselected = document.createElement('div');
-          preselected.className = 'quote-status-preselected';
-          preselected.innerHTML =
-            '<div class="quote-status-preselected-room">' + quote.quoted_cabin_options[0].name + '</div>' +
-            '<div class="quote-status-preselected-price">USD ' + quote.quoted_price_usd + '</div>' +
-            '<div class="quote-status-preselected-note">' + t('quotePreselectedPendingNote') + '</div>';
-          quoteStatusBar.appendChild(preselected);
-          return;
-        }
         const span = document.createElement('span');
         span.className = 'quote-status-searching';
         span.textContent = t('quoteStatusSearching');
