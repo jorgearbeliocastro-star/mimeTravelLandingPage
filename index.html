@@ -2258,6 +2258,76 @@
     margin-top: 8px;
   }
 
+  /* Camarotes puntuales estilo MSC (quoted_cabin_options) — varias
+     habitaciones reales dentro de cada tipo de camarote, cada una con su
+     franja de color según la tarifa (Aurea/Fantastica/Bella/Yacht Club),
+     nombre, metros² y precio propio. Reemplaza a las 3 tarjetas fijas
+     Bella/Fantastica/Aurea cuando el Agente cargó esto. */
+  .quote-status-msc-room-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .quote-status-msc-room-card {
+    flex: 1 1 140px;
+    min-width: 140px;
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    font-family: var(--font-body);
+    text-align: left;
+    padding: 0;
+  }
+
+  .quote-status-msc-room-card.active {
+    border-color: var(--turquesa);
+    box-shadow: 0 0 0 1.5px var(--turquesa);
+  }
+
+  .quote-status-msc-room-tier {
+    display: block;
+    padding: 5px 10px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: #fff;
+    text-align: center;
+  }
+
+  .msc-tier-aurea, .msc-tier-yachtclub { background: #a3672f; }
+  .msc-tier-fantastica { background: #2f7a4f; }
+  .msc-tier-bella { background: var(--primary); }
+
+  .quote-status-msc-room-name {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--dark);
+    padding: 8px 10px 0;
+  }
+
+  .quote-status-msc-room-sqft {
+    font-size: 11px;
+    color: rgba(26, 26, 26, 0.55);
+    padding: 2px 10px 0;
+  }
+
+  .quote-status-msc-room-price {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dark);
+    padding: 6px 10px 10px;
+    margin-top: auto;
+  }
+
+  .quote-status-msc-room-card.active .quote-status-msc-room-price {
+    color: var(--primary);
+  }
+
   /* Preferencias de ubicación del camarote — pedido del cliente, no
      reserva confirmada (ver comentario en el JS). */
   .quote-status-cabin-prefs {
