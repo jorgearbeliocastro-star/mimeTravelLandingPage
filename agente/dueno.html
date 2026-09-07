@@ -901,6 +901,7 @@
           '</tr>'
         ).join('') +
         '</tbody></table></div>';
+      document.getElementById('cabinItineraryToggleBtn').addEventListener('click', () => toggleItineraryActive(itinerary));
       saveBtn.hidden = false;
     }
 
