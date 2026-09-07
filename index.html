@@ -7971,6 +7971,14 @@
     // tiene sentido volver a pedir el mismo dato que ya escribió.
     let activeQuoteContactEmail = '';
     let activeQuoteContactPhone = '';
+    // Cotización de crucero autoservicio (ver openCabinSelectModal /
+    // apply_cruise_room_price): se crea SIN avisar al agente todavía —
+    // recién se avisa cuando el cliente termina de verdad (acepta +
+    // manda sus datos de pasajero), no apenas elige el camarote. Estos
+    // dos se usan en ese momento (ver renderPassengerFormInner) para
+    // saber si corresponde avisar ahí y a quién.
+    let activeQuoteNeedsAgentReview = false;
+    let activeQuoteClaimedByAgentId = null;
     // 'quote' = pedido de viaje normal (precio, aceptar/rechazar, etc.);
     // 'support' = consulta general ("Necesito ayuda") — mismo panel y
     // mismo chat, pero sin nada de precio/decisión, porque no aplica.
