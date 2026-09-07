@@ -5513,6 +5513,16 @@
         passenger_nationality: null,
       });
       if (error) throw error;
+
+      // El id hace falta para abrir el panel de chat acá mismo en la web,
+      // y también (ver más abajo) para poder "subirle" el precio si el
+      // cliente ya eligió una habitación real. Se busca apenas se
+      // confirma el guardado — si por lo que sea falla, no se rompe el
+      // flujo: el pedido ya quedó guardado, simplemente no se abre el
+      // panel de chat ni se le sube el precio.
+      const { data: myQuotes, error: fetchError } = await supabaseClient.rpc('get_quote_requests_by_token', { p_token: clientToken });
+      const inserted = !fetchError && myQuotes && myQuotes.length ? myQuotes[0] : null;
+
       // Si el cliente ya eligió una habitación real (ver
       // openCabinSelectModal), acá se le "sube" el precio — no se puede
       // mandar ya cotizada en el insert de arriba: la política de
@@ -5523,41 +5533,28 @@
       // cabin_date_prices) antes de marcarla "quoted" — no bloqueante: si
       // falla, la cotización ya quedó creada igual, solo se pierde el
       // "ya viene con precio" y el Agente la cotiza a mano como siempre.
-      if (payload.cabinRoomMeta) {
+      if (payload.cabinRoomMeta && inserted) {
         try {
-          const quoteId = await getQuoteIdJustCreated(clientToken);
-          if (quoteId) {
-            await supabaseClient.rpc('apply_cruise_room_price', {
-              p_quote_id: quoteId,
-              p_client_token: clientToken,
-              p_itinerary_id: payload.cabinRoomMeta.itineraryId,
-              p_date: payload.cabinRoomMeta.date,
-              p_room_code: payload.cabinRoomMeta.roomCode,
-            });
-          }
+          await supabaseClient.rpc('apply_cruise_room_price', {
+            p_quote_id: inserted.id,
+            p_client_token: clientToken,
+            p_itinerary_id: payload.cabinRoomMeta.itineraryId,
+            p_date: payload.cabinRoomMeta.date,
+            p_room_code: payload.cabinRoomMeta.roomCode,
+          });
         } catch {
           // no bloqueante — ver comentario arriba
         }
       }
 
-      // El aviso sale YA, apenas se confirma el guardado — antes esperaba
-      // una consulta extra (buscar el id de la fila recién creada) de por
-      // medio, un paso que las llamadas no tienen y que sumaba demora y un
-      // punto más donde algo podía trabarse. El push real (send-web-push)
-      // no necesita el id de la cotización para nada, así que no hace
-      // falta esperarlo.
+      // No bloqueante — si falla, la cotización ya quedó guardada igual,
+      // solo no sonó ningún aviso.
       notifyAgentsOfNewQuote({
         origin: payload.origin,
         destination: payload.destination,
         claimedByAgentId: preferredAgentId,
       });
 
-      // El id sí hace falta para abrir el panel de chat acá mismo en la
-      // web — se busca aparte, sin bloquear el aviso de arriba. Si por lo
-      // que sea falla, no se rompe el flujo: el pedido ya quedó guardado,
-      // simplemente no se abre el panel de chat.
-      const { data: myQuotes, error: fetchError } = await supabaseClient.rpc('get_quote_requests_by_token', { p_token: clientToken });
-      const inserted = !fetchError && myQuotes && myQuotes.length ? myQuotes[0] : null;
       return inserted ? inserted.id : null;
     }
 
