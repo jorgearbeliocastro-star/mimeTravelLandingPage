@@ -7462,24 +7462,21 @@
                 payload.searchMode = 'exact_date';
                 payload.searchDate = chosenDate;
                 payload.searchMonth = null;
-                // Ya viene con el precio completo — el cliente eligió una
-                // habitación puntual real, no hace falta que el Agente le
-                // ponga precio (ver createQuoteRequest/status más abajo,
-                // entra directo como "quoted").
-                payload.fullPriceUSD = price;
-                payload.cabinOption = {
-                  id: 'c' + Date.now().toString(36),
-                  cabin: cabin,
-                  tier: room.tier,
-                  name: room.name + (room.code ? ' (' + room.code + ')' : ''),
-                  sqft: room.sqft || null,
-                  price: price,
+                // El precio se valida y se aplica del lado del servidor
+                // recién después de crear el pedido (ver createQuoteRequest
+                // / apply_cruise_room_price) — quote_requests no deja
+                // insertar una fila que ya venga con precio puesto.
+                payload.cabinRoomMeta = {
+                  itineraryId: it.id,
+                  date: chosenDate,
+                  roomCode: room.code,
                 };
+                const roomLabel = room.name + (room.code ? ' (' + room.code + ')' : '');
                 payload.notes = buildQuoteNotes([
                   'Itinerario: ' + it.title,
                   'Barco preferido: ' + it.ship,
                   it.ports_visited ? 'Puertos: ' + it.ports_visited : null,
-                  'Camarote elegido por el cliente: ' + payload.cabinOption.name + ' — USD ' + price + ' por persona',
+                  'Camarote elegido por el cliente: ' + roomLabel + ' — USD ' + price + ' por persona',
                 ]);
                 overlay.hidden = true;
                 submitQuoteRequest(form, payload);
