@@ -7285,12 +7285,6 @@
           form.reset();
           cruiseResultsContainer.hidden = true;
           cruiseResultsContainer.innerHTML = '';
-          // Si el camarote ya se eligió antes de mandar esto (ver
-          // openCabinSelectModal / cabinRoomMeta), no tiene sentido volver
-          // a mostrárselo como un paso aparte del asistente con su propio
-          // "Continuar" — arranca directo en el siguiente paso (Extras, o
-          // Confirmar si no hay extras para ofrecer).
-          if (payload.cabinRoomMeta) quoteWizardStep = 1;
           openQuotePanel(quoteId, payload.origin ? payload.origin + ' → ' + payload.destination : payload.destination);
         })
         .catch(() => {
