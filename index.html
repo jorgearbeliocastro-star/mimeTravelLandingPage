@@ -7370,7 +7370,13 @@
     // pedido (ver arriba) — agrupa cabinPrices (mapa camarote_tarifa ->
     // precio para ESTA fecha) igual que ya agrupa groupCabinKeys para
     // mostrarlo en la cotización, reusando las mismas fotos/orden.
-    function openCabinSelectModal(it, chosenDate, cabinPrices, form, data) {
+    // cabinRooms = lista de habitaciones puntuales para ESTA fecha (ver
+    // dueno.html) — cada una: {code, cabin, tier, name, sqft, price,
+    // available}. Ya no es "un precio por camarote+tarifa": puede haber
+    // varias habitaciones del mismo camarote+tarifa con precio distinto
+    // (según el piso), y algunas ya vendidas (available:false) — igual
+    // que se ve en la web real de MSC, tachadas y sin poder elegirlas.
+    function openCabinSelectModal(it, chosenDate, cabinRooms, form, data) {
       const overlay = document.getElementById('cabinSelectOverlay');
       document.getElementById('cabinSelectSubtitle').textContent =
         it.title + ' · ' + it.ship + ' · ' + chosenDate;
@@ -7382,61 +7388,70 @@
         if (tier === 'fantastica') return { cls: 'msc-tier-fantastica', label: t('fareTierOption_fantastica').toUpperCase() };
         return { cls: 'msc-tier-bella', label: t('fareTierOption_bella').toUpperCase() };
       }
-      groupCabinKeys(Object.keys(cabinPrices)).forEach(function (group) {
+      const byCabin = {};
+      cabinRooms.forEach(function (room) {
+        (byCabin[room.cabin] = byCabin[room.cabin] || []).push(room);
+      });
+      CABIN_TYPE_ORDER.filter((c) => byCabin[c]).forEach(function (cabin) {
         const cabinGroup = document.createElement('div');
         cabinGroup.className = 'quote-status-cabin-group';
         const cabinTitle = document.createElement('div');
         cabinTitle.className = 'quote-status-cabin-group-title';
-        cabinTitle.textContent = t('cabinTypeOption_' + group.cabin).toUpperCase();
+        cabinTitle.textContent = t('cabinTypeOption_' + cabin).toUpperCase();
         cabinGroup.appendChild(cabinTitle);
         const grid = document.createElement('div');
         grid.className = 'quote-status-msc-room-grid';
-        group.tiers
+        // Disponibles primero (ordenadas por precio ascendente), las
+        // agotadas al final — igual que se lee más natural que MSC.
+        byCabin[cabin]
           .slice()
-          .sort((a, b) => Number(cabinPrices[b.key]) - Number(cabinPrices[a.key]))
-          .forEach(function (entry) {
-            const price = cabinPrices[entry.key];
-            const badge = mscTierBadge(group.cabin, entry.tier);
-            const label = group.isYachtClubSuites ? t('yachtClubSuiteOption_' + entry.tier) : t('fareTierOption_' + entry.tier);
-            const card = document.createElement('button');
-            card.type = 'button';
-            card.className = 'quote-status-msc-room-card';
+          .sort((a, b) => (a.available === b.available ? Number(a.price) - Number(b.price) : (a.available ? -1 : 1)))
+          .forEach(function (room) {
+            const badge = mscTierBadge(cabin, room.tier);
+            const isAvailable = room.available !== false;
+            const card = document.createElement(isAvailable ? 'button' : 'div');
+            if (isAvailable) card.type = 'button';
+            card.className = 'quote-status-msc-room-card' + (isAvailable ? '' : ' unavailable');
             card.innerHTML =
               '<span class="quote-status-msc-room-tier ' + badge.cls + '">' + badge.label + '</span>' +
-              '<span class="quote-status-msc-room-name">' + t('cabinTypeOption_' + group.cabin) + ' — ' + label + '</span>' +
-              '<span class="quote-status-msc-room-price">USD ' + price + '</span>';
-            card.addEventListener('click', function () {
-              const confirmMsg = t('cruiseResultConfirmDate')
-                .replace('{date}', chosenDate)
-                .replace('{nights}', it.nights)
-                .replace('{price}', price);
-              if (!window.confirm(confirmMsg)) return;
-              const payload = buildSearchQuotePayload('cruceros', data);
-              payload.searchMode = 'exact_date';
-              payload.searchDate = chosenDate;
-              payload.searchMonth = null;
-              // Ya viene con el precio completo — el cliente eligió
-              // camarote+tarifa con precio real, no hace falta que el
-              // Agente le ponga precio (ver createQuoteRequest/status más
-              // abajo, entra directo como "quoted").
-              payload.fullPriceUSD = Number(price);
-              payload.cabinOption = {
-                id: 'c' + Date.now().toString(36),
-                cabin: group.cabin,
-                tier: entry.tier,
-                name: t('cabinTypeOption_' + group.cabin) + ' — ' + label,
-                sqft: null,
-                price: Number(price),
-              };
-              payload.notes = buildQuoteNotes([
-                'Itinerario: ' + it.title,
-                'Barco preferido: ' + it.ship,
-                it.ports_visited ? 'Puertos: ' + it.ports_visited : null,
-                'Camarote elegido por el cliente: ' + payload.cabinOption.name + ' — USD ' + price + ' por persona',
-              ]);
-              overlay.hidden = true;
-              submitQuoteRequest(form, payload);
-            });
+              '<span class="quote-status-msc-room-name">' + room.name + (room.code ? ' (' + room.code + ')' : '') + '</span>' +
+              (room.sqft ? '<span class="quote-status-msc-room-sqft">' + t('quoteCabinSqftLabel').replace('{sqft}', room.sqft) + '</span>' : '') +
+              '<span class="quote-status-msc-room-price">' + (isAvailable ? 'USD ' + room.price : t('cruiseResultNotAvailable')) + '</span>';
+            if (isAvailable) {
+              card.addEventListener('click', function () {
+                const price = Number(room.price);
+                const confirmMsg = t('cruiseResultConfirmDate')
+                  .replace('{date}', chosenDate)
+                  .replace('{nights}', it.nights)
+                  .replace('{price}', price);
+                if (!window.confirm(confirmMsg)) return;
+                const payload = buildSearchQuotePayload('cruceros', data);
+                payload.searchMode = 'exact_date';
+                payload.searchDate = chosenDate;
+                payload.searchMonth = null;
+                // Ya viene con el precio completo — el cliente eligió una
+                // habitación puntual real, no hace falta que el Agente le
+                // ponga precio (ver createQuoteRequest/status más abajo,
+                // entra directo como "quoted").
+                payload.fullPriceUSD = price;
+                payload.cabinOption = {
+                  id: 'c' + Date.now().toString(36),
+                  cabin: cabin,
+                  tier: room.tier,
+                  name: room.name + (room.code ? ' (' + room.code + ')' : ''),
+                  sqft: room.sqft || null,
+                  price: price,
+                };
+                payload.notes = buildQuoteNotes([
+                  'Itinerario: ' + it.title,
+                  'Barco preferido: ' + it.ship,
+                  it.ports_visited ? 'Puertos: ' + it.ports_visited : null,
+                  'Camarote elegido por el cliente: ' + payload.cabinOption.name + ' — USD ' + price + ' por persona',
+                ]);
+                overlay.hidden = true;
+                submitQuoteRequest(form, payload);
+              });
+            }
             grid.appendChild(card);
           });
         cabinGroup.appendChild(grid);
