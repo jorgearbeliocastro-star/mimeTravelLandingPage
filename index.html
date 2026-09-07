@@ -1741,27 +1741,6 @@
     50% { opacity: 0.35; }
   }
 
-  /* Habitación que el cliente ya eligió (con precio real), mientras la
-     cotización sigue "pending" esperando que el Agente la confirme — ver
-     quote.status === 'pending' en renderQuoteStatus. */
-  .quote-status-preselected-room {
-    font-weight: 700;
-    color: var(--dark);
-    margin-bottom: 4px;
-  }
-
-  .quote-status-preselected-price {
-    font-family: var(--font-display);
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--primary);
-    margin-bottom: 6px;
-  }
-
-  .quote-status-preselected-note {
-    font-size: 12.5px;
-    color: rgba(26, 26, 26, 0.6);
-  }
 
   /* No podemos garantizar el precio indefinidamente esperando al cliente
      — este reloj se lo deja claro (1 hora desde que el agente lo manda). */
