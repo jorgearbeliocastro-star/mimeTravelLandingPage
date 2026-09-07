@@ -5487,6 +5487,15 @@
         passenger_date_of_birth: null,
         passenger_passport_expiry: null,
         passenger_nationality: null,
+        // Si el cliente ya eligió camarote+tarifa con precio real (ver
+        // openCabinSelectModal), la cotización entra directo "cotizada"
+        // con el precio completo — el Agente ya no tiene que ponerle
+        // precio, solo la ve lista para copiarla a la web de venta. Si no
+        // (fecha sin precios cargados todavía), estos quedan sin mandar y
+        // la cotización arranca "pending" como siempre.
+        status: payload.fullPriceUSD != null ? 'quoted' : undefined,
+        quoted_price_usd: payload.fullPriceUSD != null ? payload.fullPriceUSD : undefined,
+        quoted_cabin_options: payload.cabinOption ? [payload.cabinOption] : undefined,
       });
       if (error) throw error;
 
