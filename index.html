@@ -8724,7 +8724,7 @@
           const extrasLabel = document.createElement('div');
           extrasLabel.className = 'quote-status-seat-type-label';
           extrasLabel.textContent = t('quoteExtrasLabel');
-          quoteStatusBar.appendChild(extrasLabel);
+          target().appendChild(extrasLabel);
         }
         renderAddonCheckbox(insuranceOffered, selectedWantsInsurance, quote.quoted_insurance_price_usd, 'quoteInsuranceCheckboxLabel', 'quoteInsuranceCheckbox', (v) => { selectedWantsInsurance = v; });
         renderAddonCheckbox(carryOnOffered, selectedWantsCarryOn, quote.quoted_carry_on_price_usd, 'quoteCarryOnCheckboxLabel', 'quoteCarryOnCheckbox', (v) => { selectedWantsCarryOn = v; });
