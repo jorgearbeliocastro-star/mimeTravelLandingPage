@@ -6934,7 +6934,9 @@
           group.classList.remove('search-field--compact');
           input.value = '';
           input.disabled = true;
+          input.required = false;
           select.disabled = true;
+          select.required = false;
           if (checklist) checklist.style.display = 'none';
           continue;
         }
