@@ -8382,7 +8382,14 @@
         // (seguro/equipaje) — se llama tanto al pintar como al tocar
         // cualquier checkbox, así el cliente ve el total real subir/bajar
         // sin esperar otro poll.
-        const seatTypePrices = quote.quoted_seat_type_prices || {};
+        // Cruceros con camarotes puntuales cargados (quoted_cabin_options,
+        // ver renderizado más abajo) usan un mapa id-de-opción -> precio en
+        // vez del viejo camarote+tarifa fijo — así toda la lógica de acá
+        // abajo (precio total, preselección del más barato) sigue
+        // funcionando igual sin tener que duplicarla.
+        const seatTypePrices = (quote.quoted_cabin_options && quote.quoted_cabin_options.length)
+          ? Object.fromEntries(quote.quoted_cabin_options.map((o) => [o.id, o.price]))
+          : (quote.quoted_seat_type_prices || {});
         // Cruceros: el precio del camarote ES el precio completo (no un
         // extra sobre una base) — sin elegir ninguno el total mostrado
         // sería USD 0, algo raro. Mientras el cliente no haya tocado nada
