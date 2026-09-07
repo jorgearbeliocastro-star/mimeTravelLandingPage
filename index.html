@@ -9549,7 +9549,7 @@
         // plazos/porcentajes reales de cada naviera/aerolínea (eso lo
         // confirma el agente antes de cerrar, cada proveedor tiene los
         // suyos). Solo avisa que existe y que hay que consultarla.
-        if (useCruiseWizard) {
+        if (quote.category === 'cruise') {
           const cancelPolicy = document.createElement('div');
           cancelPolicy.className = 'quote-cancellation-policy';
           cancelPolicy.innerHTML = '<strong>' + t('quoteCancellationPolicyTitle') + '</strong><br>' + t('quoteCancellationPolicyBody');
