@@ -6651,9 +6651,9 @@
       autos: {
         label: 'Noleggio auto',
         fields: [
-          { label: 'Ritiro a', name: 'ciudad_recogida', placeholder: 'Dove ritiri l\'auto?', type: 'text', country: true, airportCode: false },
-          { label: 'Riconsegna a', name: 'ciudad_entrega', placeholder: 'Dove la riconsegni?', type: 'text', country: true, airportCode: false },
-          { label: 'Data di ritiro', name: 'fechas', placeholder: 'Ritiro', type: 'date' },
+          { label: 'Ritiro a', name: 'ciudad_recogida', placeholder: 'Dove ritiri l\'auto?', type: 'text', country: true, airportCode: false, required: true },
+          { label: 'Riconsegna a', name: 'ciudad_entrega', placeholder: 'Dove la riconsegni?', type: 'text', country: true, airportCode: false, required: true },
+          { label: 'Data di ritiro', name: 'fechas', placeholder: 'Ritiro', type: 'date', required: true },
           { label: 'Tipo di auto', name: 'tipo_auto', type: 'select', options: ['Qualsiasi tipo', 'Economica', 'Compatta', 'Intermedia / Berlina', 'Standard', 'Full size', 'SUV compatto', 'SUV grande', 'Minivan / Van', 'Pickup', 'Lusso', 'Cabrio'] }
         ]
       },
