@@ -7498,12 +7498,14 @@
                   date: chosenDate,
                   roomCode: room.code,
                 };
-                const roomLabel = room.name + (room.code ? ' (' + room.code + ')' : '');
+                // El camarote elegido NO va acá en texto — panel.html ya
+                // lo muestra en su propia tarjeta (ver quoted_cabin_options
+                // / apply_cruise_room_price), repetirlo en notas sería
+                // duplicar la misma info dos veces.
                 payload.notes = buildQuoteNotes([
                   'Itinerario: ' + it.title,
                   'Barco preferido: ' + it.ship,
                   it.ports_visited ? 'Puertos: ' + it.ports_visited : null,
-                  'Camarote elegido por el cliente: ' + roomLabel + ' — USD ' + price + ' por persona',
                 ]);
                 overlay.hidden = true;
                 submitQuoteRequest(form, payload);
