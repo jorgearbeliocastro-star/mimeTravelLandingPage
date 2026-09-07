@@ -1469,15 +1469,21 @@
           badgeHtml;
         list.appendChild(card);
 
-        if (currentTab === 'new' && q.needs_agent_review) {
+        if ((currentTab === 'new' || currentTab === 'pool') && q.needs_agent_review) {
           // Ya tiene precio real (el cliente eligió el camarote solo) —
           // acá no corresponde "Tomar y poner precio" desde cero, solo
-          // confirmar que está bien o corregirlo si hace falta.
+          // confirmar que está bien o corregirlo si hace falta. En "Pool"
+          // esto solo puede pasar si el cliente no tenía agente conectado
+          // — se respeta igual la restricción de "terminá lo tuyo primero".
+          const poolBlocked = currentTab === 'pool' && hasUntouchedPersonalQueue;
           const confirmBtn = document.createElement('button');
           confirmBtn.className = 'claim-btn';
           confirmBtn.textContent = '✅ Confirmar precio y camarote';
+          confirmBtn.disabled = poolBlocked;
+          confirmBtn.title = poolBlocked ? 'Terminá primero lo que tenés en Nuevas' : '';
           confirmBtn.addEventListener('click', async () => {
             confirmBtn.disabled = true;
+            markQuoteViewed(q.id);
             const { error } = await supabaseClient.from('quote_requests').update({ needs_agent_review: false, claimed_by_agent_id: agentId }).eq('id', q.id);
             if (error) {
               alert('No se pudo confirmar: ' + error.message);
@@ -1487,28 +1493,41 @@
             loadQuotes();
           });
           card.appendChild(confirmBtn);
+          if (poolBlocked) card.appendChild(buildPoolBlockedNote());
           const adjustBtn = document.createElement('button');
           adjustBtn.className = 'claim-btn secondary';
           adjustBtn.textContent = '✏️ No es correcto, ajustar a mano';
-          adjustBtn.addEventListener('click', () => showPriceForm(card, q));
+          adjustBtn.disabled = poolBlocked;
+          adjustBtn.addEventListener('click', () => { markQuoteViewed(q.id); showPriceForm(card, q); });
           card.appendChild(adjustBtn);
-        } else if (currentTab === 'new') {
+        } else if (currentTab === 'new' || currentTab === 'pool') {
+          // En "Pool" (sin agente asignado todavía) rige la restricción:
+          // si tengo algo mío sin tocar en "Nuevas", no puedo tomar nada
+          // de acá hasta atenderlo (aunque sea solo abrirlo o pedirle más
+          // datos al cliente) — a pedido explícito, para no dejar mi
+          // propia cola de lado por ir a buscar algo "más fácil" al pool.
+          const poolBlocked = currentTab === 'pool' && hasUntouchedPersonalQueue;
           const claimBtn = document.createElement('button');
           claimBtn.className = 'claim-btn';
           claimBtn.textContent = 'Tomar y poner precio';
-          claimBtn.addEventListener('click', () => showPriceForm(card, q));
+          claimBtn.disabled = poolBlocked;
+          claimBtn.title = poolBlocked ? 'Terminá primero lo que tenés en Nuevas' : '';
+          claimBtn.addEventListener('click', () => { markQuoteViewed(q.id); showPriceForm(card, q); });
           card.appendChild(claimBtn);
+          if (poolBlocked) card.appendChild(buildPoolBlockedNote());
           // Para cuando hace falta pedirle algo al cliente (fecha ambigua,
           // escala rara, lo que sea) antes de poder cotizar de verdad —
           // "tomarla" sin precio todavía saca esta cotización de la lista
           // de entrantes para el resto del equipo (deja de contar como
           // "la más vieja esperando"), pero sigue siendo mía: la sigo
-          // viendo en "Cotizadas" hasta que le ponga precio.
+          // viendo en "Nuevas" hasta que le ponga precio.
           const needInfoBtn = document.createElement('button');
           needInfoBtn.className = 'claim-btn secondary';
           needInfoBtn.textContent = '🔍 Necesito más datos del cliente';
+          needInfoBtn.disabled = poolBlocked;
           needInfoBtn.addEventListener('click', async () => {
             needInfoBtn.disabled = true;
+            markQuoteViewed(q.id);
             const { error } = await supabaseClient.rpc('claim_quote_no_price', { p_agent_id: agentId, p_quote_id: q.id });
             if (error) {
               alert('No se pudo tomar: ' + error.message);
