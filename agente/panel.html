@@ -1026,6 +1026,25 @@
       badge.classList.add('needs-price');
     }
 
+    // ensureDocsThumbChannel (más abajo) antes solo se disparaba para las
+    // cotizaciones que la pestaña ACTUAL tenía cargadas en pantalla — si el
+    // agente se quedaba en "Nuevas" mientras el cliente ya había aceptado
+    // y subido sus documentos en OTRA cotización, ese pedido nunca salía
+    // hasta que alguien entraba a "Cotizadas"/"Aceptadas". Esto corre
+    // aparte, sin importar qué pestaña esté abierta, para que el cliente
+    // no se quede esperando sin necesidad.
+    async function pollAcceptedDocsChannels() {
+      const { data, error } = await supabaseClient
+        .from('quote_requests')
+        .select('id')
+        .eq('claimed_by_agent_id', agentId)
+        .eq('status', 'decided')
+        .eq('client_decision', 'accepted')
+        .eq('client_docs_ready', true);
+      if (error || !data) return;
+      data.forEach((q) => ensureDocsThumbChannel(q));
+    }
+
     function selectTab(tabEl) {
       document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
       tabEl.classList.add('active');
