@@ -6886,13 +6886,14 @@
     // completando puerto por puerto a medida que se confirma la info real;
     // el puerto que no está acá todavía deja los destinos sin filtrar (no
     // inventamos qué destinos tiene un puerto que no chequeamos).
-    // Índices sobre la lista de opciones de "Destino": 0=Cualquier,
-    // 1=Alaska, 2=Asia, 3=Caribe y Bahamas, 4=Mediterráneo,
-    // 5=MSC Grand Voyages, 6=Norte de Europa, 7=Canal de Panamá,
-    // 8=Sudamérica, 9=MSC World Cruise.
+    // Índices sobre la lista de opciones de "Destino" (ya sin "Cualquier
+    // destino" — una reserva siempre es hacia un destino real, no
+    // "cualquiera"): 0=Alaska, 1=Asia, 2=Caribe y Bahamas, 3=Mediterráneo,
+    // 4=MSC Grand Voyages, 5=Norte de Europa, 6=Canal de Panamá,
+    // 7=Sudamérica, 8=MSC World Cruise.
     const PORT_DESTINATION_INDEXES = {
-      'Miami': [3, 5, 7],
-      'Buenos Aires': [5, 8, 9],
+      'Miami': [2, 4, 6],
+      'Buenos Aires': [4, 7, 8],
     };
     // Se llama tanto en el evento "change" del puerto como apenas se entra
     // a la pestaña Cruceros (ahí el puerto ya arranca en "Miami" por
@@ -6905,11 +6906,15 @@
       const allOptions = Array.from(destinoSelect.options);
       const allowedIndexes = PORT_DESTINATION_INDEXES[portValue];
       allOptions.forEach((opt, idx) => {
-        opt.hidden = !!allowedIndexes && idx !== 0 && !allowedIndexes.includes(idx);
+        opt.hidden = !!allowedIndexes && !allowedIndexes.includes(idx);
       });
-      // Si el destino que tenía elegido ya no aplica a este puerto, vuelve
-      // a "Cualquier destino" en vez de dejar uno oculto seleccionado.
-      if (destinoSelect.selectedOptions[0]?.hidden) destinoSelect.value = allOptions[0].value;
+      // Si el destino que tenía elegido ya no aplica a este puerto, cae al
+      // primero que SÍ siga visible para este puerto (ya no hay "Cualquier
+      // destino" de respaldo) — nunca deja seleccionada una opción oculta.
+      if (destinoSelect.selectedOptions[0]?.hidden) {
+        const firstVisible = allOptions.find((o) => !o.hidden);
+        if (firstVisible) destinoSelect.value = firstVisible.value;
+      }
     }
 
     function applyServiceType(type) {
