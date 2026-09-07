@@ -9468,8 +9468,11 @@
                   '<button type="button" class="quote-status-cabin-pref-chip' + (selectedCabinBedConfig === opt ? ' active' : '') + '" data-value="' + opt + '">' + t('cabinBedConfigOption_' + opt) + '</button>'
                 ).join('') +
               '</div>' +
-              '<div class="quote-status-cabin-prefs-label">' + t('cabinConnectingLabel') + '</div>' +
-              '<input type="text" class="quote-status-cabin-prefs-input" id="cabinConnectingInput" placeholder="' + t('cabinConnectingPlaceholder') + '" value="' + selectedCabinConnectingWith.replace(/"/g, '&quot;') + '">';
+              '<label class="quote-status-insurance">' +
+                '<input type="checkbox" id="cabinConnectingCheckbox"' + (selectedCabinWantsConnecting ? ' checked' : '') + '> ' +
+                '<span>' + t('cabinConnectingLabel') + '</span>' +
+              '</label>' +
+              '<input type="text" class="quote-status-cabin-prefs-input" id="cabinConnectingInput" placeholder="' + t('cabinConnectingPlaceholder') + '" value="' + selectedCabinConnectingWith.replace(/"/g, '&quot;') + '" style="' + (selectedCabinWantsConnecting ? '' : 'display:none;') + '">';
             seatTypeWrap.appendChild(cabinPrefsWrap);
             cabinPrefsWrap.querySelectorAll('[data-cabin-pref="deck"] .quote-status-cabin-pref-chip').forEach((btn) => {
               btn.addEventListener('click', function () {
