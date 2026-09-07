@@ -1386,7 +1386,13 @@
         const card = document.createElement('div');
         card.className = 'quote-card';
         let badgeHtml = '';
-        if (q.status === 'quoted') badgeHtml = '<span class="badge quoted">Esperando al cliente</span>';
+        // needs_agent_review primero: aunque status ya sea "quoted" (el
+        // cliente eligió un camarote real solo, ver
+        // apply_cruise_room_price), esta cotización todavía no la miró
+        // ningún Agente — no corresponde el badge normal de "quoted"
+        // ("esperando al cliente"), que sería al revés de la realidad acá.
+        if (q.needs_agent_review) badgeHtml = '<span class="badge" style="background:#fff3cd; color:#7a5b00;">⚠️ Revisá el precio elegido por el cliente</span>';
+        else if (q.status === 'quoted') badgeHtml = '<span class="badge quoted">Esperando al cliente</span>';
         else if (q.status === 'decided') {
           badgeHtml = q.client_decision === 'accepted'
             ? '<span class="badge decided-accepted">Aceptó — falta cobrar</span>'
