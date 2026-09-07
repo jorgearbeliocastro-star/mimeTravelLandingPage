@@ -8653,14 +8653,21 @@
         const cubaCategorySelect = document.getElementById('cubaOfacCategorySelect');
         decideStep
           .then(() => supabaseClient.rpc('submit_quote_passengers', { p_token: clientToken, p_id: activeQuoteId, p_passengers: passengers, p_travel_reason: cubaCategorySelect ? (cubaCategorySelect.value || null) : null }))
-          .then(({ error }) => {
+          .then(async ({ error }) => {
             if (error) throw error;
             showingPassengerForm = false;
             // Recién ACÁ el cliente terminó de verdad (aceptó + mandó sus
             // datos) — si esta cotización venía de elegir camarote solo
-            // (needs_agent_review, ver createQuoteRequest) es el momento
-            // de avisarle al agente, no antes.
+            // (client_still_completing, ver createQuoteRequest /
+            // apply_cruise_room_price) es el momento de sacarle esa marca
+            // (así deja de estar oculta en TODAS las pestañas del panel,
+            // ver panel.html) y avisarle al agente, no antes.
             if (mode === 'accept' && activeQuoteNeedsAgentReview) {
+              try {
+                await supabaseClient.rpc('mark_quote_client_finished', { p_quote_id: activeQuoteId, p_client_token: clientToken });
+              } catch {
+                // no bloqueante — ver comentario de apply_cruise_room_price
+              }
               notifyAgentsOfNewQuote({
                 origin: activeQuoteOrigin,
                 destination: activeQuoteDestination,
