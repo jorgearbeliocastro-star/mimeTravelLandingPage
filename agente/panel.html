@@ -907,6 +907,16 @@
     });
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
+      // Mismo criterio que marcarse "no disponible": no se puede salir
+      // dejando cosas propias sin atender en "Nuevas".
+      const logoutBtn = document.getElementById('logoutBtn');
+      logoutBtn.disabled = true;
+      const pending = await countUntouchedPersonalQueue();
+      logoutBtn.disabled = false;
+      if (pending > 0) {
+        alert('Tenés ' + pending + ' cotización' + (pending === 1 ? '' : 'es') + ' sin atender en "Nuevas". Reasignala a otro agente o terminala antes de cerrar sesión.');
+        return;
+      }
       await supabaseClient.auth.signOut();
       // Directo a la web del cliente, sin pasar por login.html — a pedido
       // del dueño.
