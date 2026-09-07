@@ -5511,17 +5511,34 @@
         passenger_date_of_birth: null,
         passenger_passport_expiry: null,
         passenger_nationality: null,
-        // Si el cliente ya eligió camarote+tarifa con precio real (ver
-        // openCabinSelectModal), la cotización entra directo "cotizada"
-        // con el precio completo — el Agente ya no tiene que ponerle
-        // precio, solo la ve lista para copiarla a la web de venta. Si no
-        // (fecha sin precios cargados todavía), estos quedan sin mandar y
-        // la cotización arranca "pending" como siempre.
-        status: payload.fullPriceUSD != null ? 'quoted' : undefined,
-        quoted_price_usd: payload.fullPriceUSD != null ? payload.fullPriceUSD : undefined,
-        quoted_cabin_options: payload.cabinOption ? [payload.cabinOption] : undefined,
       });
       if (error) throw error;
+      // Si el cliente ya eligió una habitación real (ver
+      // openCabinSelectModal), acá se le "sube" el precio — no se puede
+      // mandar ya cotizada en el insert de arriba: la política de
+      // seguridad de quote_requests exige que TODA cotización nueva entre
+      // sin precio (a propósito, para que nadie invente un precio
+      // insertando directo). apply_cruise_room_price es una función nueva
+      // aparte que valida el precio real del lado del servidor (contra
+      // cabin_date_prices) antes de marcarla "quoted" — no bloqueante: si
+      // falla, la cotización ya quedó creada igual, solo se pierde el
+      // "ya viene con precio" y el Agente la cotiza a mano como siempre.
+      if (payload.cabinRoomMeta) {
+        try {
+          const quoteId = await getQuoteIdJustCreated(clientToken);
+          if (quoteId) {
+            await supabaseClient.rpc('apply_cruise_room_price', {
+              p_quote_id: quoteId,
+              p_client_token: clientToken,
+              p_itinerary_id: payload.cabinRoomMeta.itineraryId,
+              p_date: payload.cabinRoomMeta.date,
+              p_room_code: payload.cabinRoomMeta.roomCode,
+            });
+          }
+        } catch {
+          // no bloqueante — ver comentario arriba
+        }
+      }
 
       // El aviso sale YA, apenas se confirma el guardado — antes esperaba
       // una consulta extra (buscar el id de la fila recién creada) de por
