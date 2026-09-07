@@ -9678,28 +9678,56 @@
             const addonGrid = document.createElement('div');
             addonGrid.className = 'quote-status-addon-grid';
             group.items.forEach(function (addon) {
-              const selected = !!selectedCustomAddons[addon.label];
-              const tile = document.createElement('button');
-              tile.type = 'button';
+              // selectedCustomAddons ahora guarda una CANTIDAD por extra
+              // (0 = no elegido), no un simple sí/no — así se puede pedir,
+              // por ejemplo, un paquete de bebidas para 1 de 2 pasajeros
+              // en vez de obligar a comprarlo para todos.
+              const qty = Number(selectedCustomAddons[addon.label]) || 0;
+              const selected = qty > 0;
+              const tile = document.createElement('div');
               tile.className = 'quote-status-addon-tile' + (selected ? ' active' : '');
               tile.innerHTML =
-                (addon.photoUrl
-                  ? '<img class="quote-status-addon-tile-photo" alt="">'
-                  : '<div class="quote-status-addon-tile-photo quote-status-addon-tile-photo--empty"></div>') +
-                '<span class="quote-status-addon-tile-name">' + addon.label + '</span>' +
-                (addon.description ? '<span class="quote-status-addon-tile-desc">' + addon.description + '</span>' : '') +
-                '<span class="quote-status-addon-tile-price">+USD ' + addon.priceUSD + '</span>';
+                '<button type="button" class="quote-status-addon-tile-main">' +
+                  (addon.photoUrl
+                    ? '<img class="quote-status-addon-tile-photo" alt="">'
+                    : '<div class="quote-status-addon-tile-photo quote-status-addon-tile-photo--empty"></div>') +
+                  '<span class="quote-status-addon-tile-name">' + addon.label + '</span>' +
+                  (addon.description ? '<span class="quote-status-addon-tile-desc">' + addon.description + '</span>' : '') +
+                  '<span class="quote-status-addon-tile-price">+USD ' + addon.priceUSD + (maxAddonQty > 1 ? ' ' + t('quoteAddonPerPersonSuffix') : '') + '</span>' +
+                '</button>' +
+                (selected && maxAddonQty > 1
+                  ? '<div class="quote-status-addon-tile-qty">' +
+                      '<button type="button" class="quote-status-addon-qty-btn" data-qty-step="-1">−</button>' +
+                      '<span>' + qty + ' / ' + maxAddonQty + '</span>' +
+                      '<button type="button" class="quote-status-addon-qty-btn" data-qty-step="1"' + (qty >= maxAddonQty ? ' disabled' : '') + '>+</button>' +
+                    '</div>'
+                  : '');
               if (addon.photoUrl) {
                 const img = tile.querySelector('.quote-status-addon-tile-photo');
                 cropWhiteBorder(addon.photoUrl).then(function (croppedUrl) {
                   img.src = croppedUrl;
                 });
               }
-              tile.addEventListener('click', function () {
-                const nowSelected = !selectedCustomAddons[addon.label];
-                selectedCustomAddons = { ...selectedCustomAddons, [addon.label]: nowSelected };
-                tile.classList.toggle('active', nowSelected);
+              // Tocar la tarjeta prende/apaga el extra (cantidad 1 al
+              // prenderlo, 0 al apagarlo) — los botones +/- (si hay más de
+              // un pasajero) solo ajustan cuántas unidades, sin desprender
+              // el extra entero.
+              tile.querySelector('.quote-status-addon-tile-main').addEventListener('click', function () {
+                const nowQty = qty > 0 ? 0 : 1;
+                selectedCustomAddons = { ...selectedCustomAddons, [addon.label]: nowQty };
                 updateQuotePriceDisplay();
+                renderAddonsBody();
+              });
+              const stepBtns = tile.querySelectorAll('[data-qty-step]');
+              stepBtns.forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
+                  e.stopPropagation();
+                  const delta = Number(btn.dataset.qtyStep);
+                  const nextQty = Math.min(maxAddonQty, Math.max(1, qty + delta));
+                  selectedCustomAddons = { ...selectedCustomAddons, [addon.label]: nextQty };
+                  updateQuotePriceDisplay();
+                  renderAddonsBody();
+                });
               });
               addonGrid.appendChild(tile);
             });
