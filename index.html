@@ -7305,9 +7305,17 @@
         .then((quoteId) => {
           searchMsg.textContent = t('msgSearchSuccess');
           sendToFormSubmit(form, 'Nueva búsqueda de viaje — Mime Travel').catch(() => {});
-          form.reset();
-          cruiseResultsContainer.hidden = true;
-          cruiseResultsContainer.innerHTML = '';
+          // Si ya eligió camarote (autoservicio), el cliente sigue
+          // trabajando en esta misma cotización — no se resetea el
+          // buscador ni se borran los resultados, para que sigan intactos
+          // si vuelve "Atrás" desde el panel. Para el resto de los casos
+          // (pedido en blanco, ya mandado y listo) se sigue limpiando todo
+          // como siempre.
+          if (!payload.cabinRoomMeta) {
+            form.reset();
+            cruiseResultsContainer.hidden = true;
+            cruiseResultsContainer.innerHTML = '';
+          }
           openQuotePanel(quoteId, payload.origin ? payload.origin + ' → ' + payload.destination : payload.destination);
         })
         .catch(() => {
