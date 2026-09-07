@@ -9716,7 +9716,7 @@
                 const nowQty = qty > 0 ? 0 : 1;
                 selectedCustomAddons = { ...selectedCustomAddons, [addon.label]: nowQty };
                 updateQuotePriceDisplay();
-                renderAddonsBody();
+                renderQuoteStatus(quote);
               });
               const stepBtns = tile.querySelectorAll('[data-qty-step]');
               stepBtns.forEach(function (btn) {
@@ -9726,7 +9726,7 @@
                   const nextQty = Math.min(maxAddonQty, Math.max(1, qty + delta));
                   selectedCustomAddons = { ...selectedCustomAddons, [addon.label]: nextQty };
                   updateQuotePriceDisplay();
-                  renderAddonsBody();
+                  renderQuoteStatus(quote);
                 });
               });
               addonGrid.appendChild(tile);
