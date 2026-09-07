@@ -1077,31 +1077,28 @@
       // abierto se preserva aparte (ver renderList).
       if (cardFormOpenId !== null) return; // no pisar un formulario de card abierto
       let query = supabaseClient.from('quote_requests').select('*').limit(30);
-      if (currentTab === 'new') {
+      if (currentTab === 'pool') {
         // La más vieja primero (orden de llegada) — la numeración de
         // abajo (#1, #2...) depende de este orden, mismo criterio que ya
         // se usa en las llamadas: la que entró primero se atiende
         // primero.
         query = query.order('created_at', { ascending: true });
-        // Nuevas sin tomar todavía — mismo criterio que "Cotizaciones
-        // nuevas" en la app: solo pending, sin agente asignado. El filtro
-        // de claimed_by_agent_id es nuevo: antes "pending" y "sin agente"
-        // eran lo mismo (tomar y cotizar era un solo paso atómico); ahora
-        // que se puede tomar sin precio (ver claim_quote_no_price), una
-        // pending ya tomada tiene que desaparecer de acá para el resto del
-        // equipo aunque siga en status pending.
-        // Se suman también las que el cliente ya cotizó solo eligiendo un
-        // camarote real (ver apply_cruise_room_price en index.html) —
-        // quedan en status "quoted" (así el cliente sigue con extras/
-        // seguro/confirmar sin trabarse), pero needs_agent_review=true las
-        // marca como pendientes de que un Agente las mire antes de darlas
-        // por buenas.
+        // Libres para cualquier agente — sin nadie asignado todavía. Antes
+        // esto era la pestaña "Nuevas"; ahora "Nuevas" pasó a ser la cola
+        // PERSONAL de cada agente (ver más abajo) y esta es la general.
         // client_still_completing = true = el cliente todavía está en el
-        // medio de llenar extras/pasajeros (ver apply_cruise_room_price /
-        // mark_quote_client_finished en index.html) — no se muestra en
-        // NINGUNA pestaña hasta que el cliente termine de verdad, aunque
-        // ya tenga status "quoted" y needs_agent_review.
+        // medio de llenar extras/pasajeros — no se muestra en NINGUNA
+        // pestaña hasta que el cliente termine de verdad.
         query = query.is('claimed_by_agent_id', null).eq('client_still_completing', false).or('status.eq.pending,needs_agent_review.eq.true');
+      } else if (currentTab === 'new') {
+        // Cola PERSONAL: lo que ya viene dirigido a MÍ (el cliente tiene
+        // este agente asignado, ver get_preferred_agent_for_client en
+        // index.html) pero todavía no está resuelto — sin precio (pending)
+        // o con precio puesto por el cliente mismo pero pendiente de que
+        // yo lo confirme (needs_agent_review). La más vieja primero, igual
+        // que el Pool — nadie se salta su propia fila tampoco.
+        query = query.order('created_at', { ascending: true });
+        query = query.eq('claimed_by_agent_id', agentId).eq('client_still_completing', false).or('status.eq.pending,needs_agent_review.eq.true');
       } else if (currentTab === 'accepted') {
         // Aceptadas por el cliente, mías, todavía sin cerrar la venta —
         // antes esta pestaña no tenía filtro propio y mostraba lo mismo
@@ -1112,18 +1109,17 @@
         // termina el viaje (ver migración 0105), acá se ven mientras tanto.
         query = query.eq('claimed_by_agent_id', agentId).eq('status', 'purchased');
       } else {
-        // Ya cotizadas por MÍ (tomadas), esperando o ya con decisión del
-        // cliente — no incluye compradas/expiradas para no acumular ruido
-        // viejo en esta lista básica. 'pending' sumado acá: son las que
-        // tomé con claim_quote_no_price para pedirle algo al cliente antes
-        // de poder cotizar (ver needInfoBtn) — siguen sin precio pero ya
-        // son mías, tienen que verse en algún lado.
+        // Ya cotizadas por MÍ, con precio puesto — esperando o ya con
+        // decisión del cliente. 'pending' YA NO entra acá — eso ahora vive
+        // en "Nuevas" (mi cola personal, ver arriba), esté o no sin tocar
+        // todavía. No incluye compradas/expiradas para no acumular ruido
+        // viejo en esta lista básica.
         // Mismo resguardo acá: si esta cotización mía viene de autoservicio
         // (client_still_completing) y el cliente todavía no terminó, no se
         // muestra ni acá aunque ya sea "quoted" y esté asignada a mí.
-        query = query.eq('claimed_by_agent_id', agentId).eq('client_still_completing', false).in('status', ['pending', 'quoted', 'decided']);
+        query = query.eq('claimed_by_agent_id', agentId).eq('client_still_completing', false).in('status', ['quoted', 'decided']);
       }
-      if (currentTab !== 'new') query = query.order('created_at', { ascending: false });
+      if (currentTab !== 'new' && currentTab !== 'pool') query = query.order('created_at', { ascending: false });
       const { data, error } = await query;
       if (error) return;
       // Cuántos mensajes seguidos del cliente hay al final de CADA
