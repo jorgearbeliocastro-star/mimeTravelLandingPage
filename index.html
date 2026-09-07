@@ -8756,6 +8756,20 @@
             const singleEl = document.getElementById('quoteSinglePriceValue');
             if (singleEl) singleEl.textContent = t('quoteStatusPricePrefix') + 'USD ' + (Number(quote.quoted_price_usd) + add);
           }
+          // Desglose ítem por ítem (ver quoteCruiseBreakdown más arriba) —
+          // solo lo que el cliente realmente tildó/eligió, para que quede
+          // claro de dónde sale el total antes de confirmar.
+          const breakdownEl = document.getElementById('quoteCruiseBreakdown');
+          if (breakdownEl) {
+            const lines = [[t('quoteBreakdownBase'), Number(quote.quoted_price_usd)]];
+            if (selectedChosenSeatType && seatPrice) lines.push([t('quoteBreakdownCabin'), seatPrice]);
+            if (insuranceOffered && selectedWantsInsurance) lines.push([t('quoteBreakdownInsurance'), Number(quote.quoted_insurance_price_usd)]);
+            const addonsTotal = sumCustomAddons(customAddonsOffered, selectedCustomAddons);
+            if (addonsTotal > 0) lines.push([t('quoteBreakdownExtras'), addonsTotal]);
+            breakdownEl.innerHTML =
+              lines.map((l) => '<div class="quote-price-breakdown-row"><span>' + l[0] + '</span><span>USD ' + l[1] + '</span></div>').join('') +
+              '<div class="quote-price-breakdown-row quote-price-breakdown-total"><span>' + t('quoteBreakdownTotal') + '</span><span>USD ' + (Number(quote.quoted_price_usd) + add) + '</span></div>';
+          }
         }
         if (hasTwoTiers) {
           // Si algo va con ✓ (incluido), no puede tener precio al lado —
