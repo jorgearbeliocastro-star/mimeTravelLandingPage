@@ -8593,12 +8593,14 @@
       const warningAck = block.querySelector('[data-pax-warning-ack]');
       return {
         fullName: val('fullName'),
-        document: val('document'),
+        // Número/vencimiento/país emisor del pasaporte ya no se piden
+        // escritos — el Agente los carga a mano al ver la foto.
+        document: null,
         dateOfBirth: readDateSelects(block, 'dob', index),
-        passportExpiry: readDateSelects(block, 'expiry', index),
+        passportExpiry: null,
         nationality: val('nationality'),
         gender: val('gender'),
-        passportIssuingCountry: val('passportIssuingCountry'),
+        passportIssuingCountry: null,
         travelWarningsAcknowledged: warningAck ? warningAck.checked : null,
       };
     }
