@@ -1054,6 +1054,45 @@
       badge.classList.add('needs-price');
     }
 
+    // Mismo criterio para "Nuevas" (mi cola personal) — parpadea porque es
+    // mío y espera a que lo atienda, a pedido explícito ("cuando hubiera
+    // algo en un botón, que ese botón parpadeara y pusiera un número").
+    async function updateNewTabBadge() {
+      const { count, error } = await supabaseClient
+        .from('quote_requests')
+        .select('id', { count: 'exact', head: true })
+        .eq('claimed_by_agent_id', agentId)
+        .eq('client_still_completing', false)
+        .or('status.eq.pending,needs_agent_review.eq.true');
+      const badge = document.getElementById('newTabBadge');
+      if (error || !count) {
+        badge.hidden = true;
+        badge.classList.remove('needs-price');
+        return;
+      }
+      badge.textContent = String(count);
+      badge.hidden = false;
+      badge.classList.add('needs-price');
+    }
+
+    // El Pool no es "mío" todavía, así que solo muestra el número — sin
+    // parpadear, no es una urgencia personal hasta que alguien lo tome.
+    async function updatePoolTabBadge() {
+      const { count, error } = await supabaseClient
+        .from('quote_requests')
+        .select('id', { count: 'exact', head: true })
+        .is('claimed_by_agent_id', null)
+        .eq('client_still_completing', false)
+        .or('status.eq.pending,needs_agent_review.eq.true');
+      const badge = document.getElementById('poolTabBadge');
+      if (error || !count) {
+        badge.hidden = true;
+        return;
+      }
+      badge.textContent = String(count);
+      badge.hidden = false;
+    }
+
     // ensureDocsThumbChannel (más abajo) antes solo se disparaba para las
     // cotizaciones que la pestaña ACTUAL tenía cargadas en pantalla — si el
     // agente se quedaba en "Nuevas" mientras el cliente ya había aceptado
