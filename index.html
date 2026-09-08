@@ -10262,6 +10262,7 @@
           activeQuoteNeedsAgentReview = !!quote.needs_agent_review;
           activeQuoteClaimedByAgentId = quote.claimed_by_agent_id || null;
           quotePanelRoute.textContent = activeQuoteRouteLabel;
+          updateUrgentHelpButton(quote);
         }
         const { data: messages, error: msgError } = await supabaseClient.rpc('get_quote_request_messages', {
           p_token: clientToken,
