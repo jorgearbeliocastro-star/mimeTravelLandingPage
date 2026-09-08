@@ -791,6 +791,10 @@
       pollTimer = setInterval(loadQuotes, 6000);
       updateAcceptedBadge();
       setInterval(updateAcceptedBadge, 6000);
+      updateNewTabBadge();
+      setInterval(updateNewTabBadge, 6000);
+      updatePoolTabBadge();
+      setInterval(updatePoolTabBadge, 6000);
       pollAcceptedDocsChannels();
       setInterval(pollAcceptedDocsChannels, 6000);
       checkPersonalQueueBlock();
