@@ -8363,11 +8363,57 @@
       for (let y = yearFrom; step > 0 ? y <= yearTo : y >= yearTo; y += step) yearOptions += '<option value="' + y + '">' + y + '</option>';
       return (
         '<div class="quote-pax-date-row">' +
-        '<select class="quote-pax-input" name="' + field + 'Day-' + index + '" required>' + dayOptions + '</select>' +
-        '<select class="quote-pax-input" name="' + field + 'Month-' + index + '" required>' + monthOptions + '</select>' +
-        '<select class="quote-pax-input" name="' + field + 'Year-' + index + '" required>' + yearOptions + '</select>' +
+        '<select class="quote-pax-input quote-pax-date-day" name="' + field + 'Day-' + index + '" required>' + dayOptions + '</select>' +
+        '<select class="quote-pax-input quote-pax-date-month" name="' + field + 'Month-' + index + '" required>' + monthOptions + '</select>' +
+        '<select class="quote-pax-input quote-pax-date-year" name="' + field + 'Year-' + index + '" required>' + yearOptions + '</select>' +
         '</div>'
       );
+    }
+
+    // Días reales de un mes — sin año (todavía no elegido) se asume no
+    // bisiesto para febrero, así no deja marcar el 29 de más antes de
+    // tiempo (si después elige un año bisiesto, se vuelve a calcular).
+    function daysInMonth(month, year) {
+      if (!month) return 31;
+      return new Date(year || 2001, month, 0).getDate();
+    }
+    // Sincroniza día ↔ mes/año en los 3 <select> de una fecha (día 31
+    // solo deja elegir meses de 31 días y viceversa) — a pedido explícito,
+    // para que no se pueda armar una fecha que no existe (31 de febrero,
+    // etc.). Se llama tanto al cambiar el mes/año (ajusta qué días se ven)
+    // como al cambiar el día (ajusta qué meses se ven).
+    function syncDateSelectsRow(rowEl) {
+      const daySel = rowEl.querySelector('.quote-pax-date-day');
+      const monthSel = rowEl.querySelector('.quote-pax-date-month');
+      const yearSel = rowEl.querySelector('.quote-pax-date-year');
+      if (!daySel || !monthSel) return;
+      const month = Number(monthSel.value) || null;
+      const year = Number(yearSel && yearSel.value) || null;
+      const maxDay = daysInMonth(month, year);
+      Array.from(daySel.options).forEach((opt) => {
+        if (!opt.value) return;
+        const ok = Number(opt.value) <= maxDay;
+        opt.hidden = !ok;
+        opt.disabled = !ok;
+      });
+      if (daySel.value && Number(daySel.value) > maxDay) daySel.value = '';
+      // Si ya hay un día elegido, los meses que no llegan a tener ese día
+      // (ej. día 31 con Febrero/Abril/Junio/Septiembre/Noviembre) quedan
+      // ocultos — para febrero se usa el año elegido si lo hay, si no
+      // asume no bisiesto (más restrictivo, nunca deja pasar un 29/30/31
+      // de febrero de más).
+      const day = Number(daySel.value) || null;
+      if (day) {
+        Array.from(monthSel.options).forEach((opt) => {
+          if (!opt.value) return;
+          const ok = day <= daysInMonth(Number(opt.value), year);
+          opt.hidden = !ok;
+          opt.disabled = !ok;
+        });
+        if (monthSel.value && day > daysInMonth(Number(monthSel.value), year)) monthSel.value = '';
+      } else {
+        Array.from(monthSel.options).forEach((opt) => { opt.hidden = false; opt.disabled = false; });
+      }
     }
 
     // Desplegable de países (ISO → nombre traducido) para Nacionalidad y
