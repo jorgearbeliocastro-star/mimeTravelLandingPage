@@ -9155,7 +9155,11 @@
       const anyPending = (docsDataUrls.passport && !docsReceivedByAgent.passport) || (docsDataUrls.card && !docsReceivedByAgent.card);
       const label = (docType, text) => {
         if (docsDataUrls[docType] && docsReceivedByAgent[docType]) return '✅ ' + text;
-        if (docsDataUrls[docType]) return '⏳ ' + text;
+        // Antes decía ⏳ (se leía como "se está subiendo todavía") — en
+        // realidad ya terminó de guardarse de este lado, solo falta que
+        // el agente se conecte y la reciba. 💾 deja claro que ya está
+        // lista y guardada, no en curso.
+        if (docsDataUrls[docType]) return '💾 ' + text + ' (guardado)';
         return '📁 ' + text;
       };
       passportBtn.textContent = label('passport', 'Pasaporte');
