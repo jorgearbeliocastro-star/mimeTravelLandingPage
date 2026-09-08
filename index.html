@@ -9192,7 +9192,11 @@
         el.textContent = '✅ Ya recibimos todo — ya podés cerrar esta pantalla, tu agente te va a escribir en cuanto esté todo confirmado.';
         el.className = 'docs-upload-status';
       } else {
-        el.textContent = '⚠️ NO CIERRES NI CAMBIES DE PÁGINA — si cerrás ahora, tu compra NO se puede completar y vas a tener que volver a mandar tus documentos.';
+        // Ya no dice "vas a perder todo" — con el guardado en el propio
+        // equipo del cliente (IndexedDB) ya no se pierde nada si cierra,
+        // solo se demora un poco (le llega una notificación cuando haga
+        // falta que vuelva a abrir la página).
+        el.textContent = 'Estamos mandando tus documentos — si podés, dejá esta pantalla abierta un momento para que se termine de una. Si la cerrás, no se pierde nada: te vamos a avisar con una notificación cuando haga falta que la vuelvas a abrir.';
         el.className = 'docs-upload-status waiting';
       }
     }
