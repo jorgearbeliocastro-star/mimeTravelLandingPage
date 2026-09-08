@@ -1989,6 +1989,33 @@
       ).join('');
     }
 
+    // 3 <select> comunes (hora 1-12 / minuto 00-59 / AM-PM) en vez de
+    // <input type="time"> — ver comentario de CSS (.pf-time-group) sobre
+    // por qué se cambió.
+    function buildTimeSelectHTML(prefix, label) {
+      const hourOptions = Array.from({ length: 12 }, (_, i) => i + 1)
+        .map((h) => '<option value="' + h + '">' + h + '</option>').join('');
+      const minuteOptions = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'))
+        .map((m) => '<option value="' + m + '">' + m + '</option>').join('');
+      return (
+        '<div class="pf-time-group" role="group" aria-label="' + label + '">' +
+        '<select class="' + prefix + '-hour" aria-label="Hora (' + label + ')"><option value="">Hora</option>' + hourOptions + '</select>' +
+        '<select class="' + prefix + '-minute" aria-label="Minuto (' + label + ')"><option value="">Min</option>' + minuteOptions + '</select>' +
+        '<select class="' + prefix + '-ampm" aria-label="AM/PM (' + label + ')"><option value="">--</option><option value="am">AM</option><option value="pm">PM</option></select>' +
+        '</div>'
+      );
+    }
+
+    // Arma "3:05pm" a partir de los 3 <select> de arriba — null si falta
+    // alguno (no se puede armar un horario a medias).
+    function readTimeSelectValue(row, prefix) {
+      const hour = row.querySelector('.' + prefix + '-hour')?.value;
+      const minute = row.querySelector('.' + prefix + '-minute')?.value;
+      const ampm = row.querySelector('.' + prefix + '-ampm')?.value;
+      if (!hour || minute === '' || minute == null || !ampm) return null;
+      return hour + ':' + minute + ampm;
+    }
+
     function showPriceForm(card, quote) {
       if (card.querySelector('.price-form')) return; // ya está abierto
       cardFormOpenId = quote.id;
