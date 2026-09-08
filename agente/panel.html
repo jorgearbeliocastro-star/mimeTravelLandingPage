@@ -1598,6 +1598,36 @@
           badgeHtml;
         list.appendChild(card);
 
+        // Cliente existente pidiendo ayuda puntual (cancelar, cambiar,
+        // etc.) — marca aparte del chat normal (ver quoteUrgentHelpBtn en
+        // index.html), no depende de en qué pestaña esté ni del status.
+        // "Intenté contactar" no resuelve el pedido, solo destraba el
+        // Pool (ver countUntouchedPersonalQueue) — si el cliente vuelve a
+        // escribir/llamar, el cliente puede marcarlo de nuevo.
+        if (q.needs_urgent_help) {
+          const urgentBanner = document.createElement('div');
+          urgentBanner.className = 'restriction-block';
+          urgentBanner.style.background = '#fdecea';
+          urgentBanner.style.borderColor = '#c0392b';
+          urgentBanner.style.color = '#c0392b';
+          urgentBanner.innerHTML = '<strong>🚨 El cliente pidió ayuda urgente</strong>';
+          card.appendChild(urgentBanner);
+          const urgentBtn = document.createElement('button');
+          urgentBtn.className = 'claim-btn secondary';
+          urgentBtn.textContent = 'Intenté contactar — esperando al cliente';
+          urgentBtn.addEventListener('click', async () => {
+            urgentBtn.disabled = true;
+            const { error } = await supabaseClient.from('quote_requests').update({ needs_urgent_help: false }).eq('id', q.id);
+            if (error) {
+              alert('No se pudo actualizar: ' + error.message);
+              urgentBtn.disabled = false;
+              return;
+            }
+            loadQuotes();
+          });
+          card.appendChild(urgentBtn);
+        }
+
         if ((currentTab === 'new' || currentTab === 'pool') && q.needs_agent_review) {
           // Ya tiene precio real (el cliente eligió el camarote solo) —
           // acá no corresponde "Tomar y poner precio" desde cero, solo
