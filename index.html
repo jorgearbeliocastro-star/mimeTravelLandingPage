@@ -9201,23 +9201,13 @@
       }
     }
 
-    // Aviso fuerte si el cliente intenta salir con algo subido pero
-    // todavía no recibido — no lo bloquea del todo (los navegadores no
-    // dejan poner un mensaje custom hace años), pero sí frena el cierre
-    // accidental con la confirmación nativa. Deja de avisar apenas las
-    // fotos que subió ya llegaron de verdad al agente (docsReceivedByAgent)
-    // — a partir de ahí no se pierde nada si cierra, no hace falta que
-    // espere a que el agente termine de cobrar/emitir el boleto.
+    // Antes esto frenaba el cierre con la confirmación nativa del
+    // navegador si había algo subido sin confirmar todavía — hacía falta
+    // porque cerrar significaba perder la foto para siempre. Ahora que se
+    // guarda en el propio equipo del cliente (IndexedDB, ver
+    // saveDocToIDB), cerrar ya no pierde nada — se avisa por notificación
+    // push cuando haga falta reabrir, así que ya no hace falta este aviso.
     let quotePurchasedFlag = false;
-    window.addEventListener('beforeunload', function (e) {
-      const pendingUpload =
-        (docsDataUrls.passport && !docsReceivedByAgent.passport) ||
-        (docsDataUrls.card && !docsReceivedByAgent.card);
-      if (pendingUpload && !quotePurchasedFlag) {
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    });
 
     function renderQuoteStatus(quote) {
       if (showingPassengerForm) return;
