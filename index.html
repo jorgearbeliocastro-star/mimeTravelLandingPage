@@ -9117,7 +9117,15 @@
           // venta (ver showSellForm del lado del agente) — mientras el
           // cliente siga con la pestaña abierta, se puede volver a pedir
           // las veces que haga falta, nunca se sube a ningún lado.
-          if (payload && payload.docType) docsReceivedByAgent[payload.docType] = true;
+          if (payload && payload.docType) {
+            docsReceivedByAgent[payload.docType] = true;
+            // Ya llegó de verdad al agente — se borra del IndexedDB del
+            // cliente (a pedido explícito: "se desaparece del navegador
+            // del cliente cuando la pedimos"). La copia en memoria de
+            // esta misma pestaña sigue viva por si el agente necesita
+            // repedirla en lo que dura esta sesión (ver comentario arriba).
+            deleteDocFromIDB(quoteId, payload.docType);
+          }
           renderDocsUploadStatus();
           renderDocUploadButtons(); // desbloquea el otro botón apenas ésta llega de verdad
         })
