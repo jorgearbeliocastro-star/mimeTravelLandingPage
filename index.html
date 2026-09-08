@@ -10085,6 +10085,11 @@
               // los datos, pero son muchos menos pedazos para mandar por el
               // canal en vivo, así llega más rápido y más entero.
               docsDataUrls[docType] = await downscaleImageFile(file, 1300, 0.78);
+              // Se guarda en el propio equipo del cliente (IndexedDB), no
+              // en ningún servidor — sobrevive si cierra la pestaña antes
+              // de que el agente la pida (ver comentario arriba de
+              // saveDocToIDB).
+              saveDocToIDB(quote.id, docType, docsDataUrls[docType]);
               docsReceivedByAgent[docType] = false;
               const { error: readyError } = await supabaseClient.rpc('set_quote_docs_ready', { p_token: clientToken, p_id: quote.id, p_ready: true });
               if (readyError) {
