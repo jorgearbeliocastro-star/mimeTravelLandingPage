@@ -2006,8 +2006,8 @@
       );
     }
 
-    // Arma "3:05pm" a partir de los 3 <select> de arriba — null si falta
-    // alguno (no se puede armar un horario a medias).
+    // Arma "3:05pm" a partir de los 3 desplegables de arriba — null si
+    // falta alguno (no se puede armar un horario a medias).
     function readTimeSelectValue(row, prefix) {
       const hour = row.querySelector('.' + prefix + '-hour')?.value;
       const minute = row.querySelector('.' + prefix + '-minute')?.value;
