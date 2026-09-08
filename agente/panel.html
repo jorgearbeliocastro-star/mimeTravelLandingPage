@@ -2795,6 +2795,7 @@
       let requestRetryCount = 0;
       function requestMissing() {
         const cache = docsThumbCache[quote.id];
+        console.log('[docs-request] cache=', cache, 'client_token=', quote.client_token, 'retryCount=', requestRetryCount);
         if (!cache) return stopRetrying();
         if (!cache.passport) channel.send({ type: 'broadcast', event: 'request-doc', payload: { docType: 'passport' } });
         if (!cache.card) channel.send({ type: 'broadcast', event: 'request-doc', payload: { docType: 'card' } });
