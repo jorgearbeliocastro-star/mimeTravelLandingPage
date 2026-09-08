@@ -2413,7 +2413,7 @@
           return { label: item.label, priceUSD: item.price_usd, photoUrl: item.photo_url, description: item.description, category: item.category };
         }).filter(Boolean);
         const notes = row.querySelector('.pf-notes').value.trim();
-        // Ya viene armado como "3:05pm" directo de los 3 <select>
+        // Ya viene armado como "3:05pm" directo de los 3 desplegables
         // (readTimeSelectValue arriba) — no hace falta convertir nada.
         const departureValue = readTimeSelectValue(row, 'pf-schedule-departure');
         const arrivalValue = readTimeSelectValue(row, 'pf-schedule-arrival');
