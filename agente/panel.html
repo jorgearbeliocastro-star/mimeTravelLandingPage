@@ -2013,8 +2013,8 @@
           '</div>' +
           '<label class="price-form-label">Horario de salida y llegada</label>' +
           '<div class="price-form-row">' +
-          '<input type="time" class="pf-schedule-departure" aria-label="Hora de salida">' +
-          '<input type="time" class="pf-schedule-arrival" aria-label="Hora de llegada">' +
+          buildTimeSelectHTML('pf-schedule-departure', 'Hora de salida') +
+          buildTimeSelectHTML('pf-schedule-arrival', 'Hora de llegada') +
           '</div>' +
           '<label class="price-form-label">Condiciones de la tarifa (reembolso, cambios, equipaje incluido)</label>' +
           '<textarea class="pf-fare-conditions" rows="2" placeholder="Ej. No reembolsable, permite cambios con cargo, sin equipaje facturado incluido"></textarea>'
