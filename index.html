@@ -9161,11 +9161,13 @@
         if (docsDataUrls[docType]) return '💾 ' + text + ' (guardado)';
         return '📁 ' + text;
       };
+      // Ya no se bloquea el otro botón mientras uno está "guardado pero
+      // no recibido" — subir las dos a su equipo no tiene ningún
+      // problema, la cola de envío (queueDocSend) ya se encarga de
+      // mandarlas de a una cuando un agente las pide, sin mezclarlas.
       passportBtn.textContent = label('passport', 'Pasaporte');
-      passportBtn.disabled = anyPending;
       passportBtn.classList.toggle('uploaded', !!docsDataUrls.passport);
       cardBtn.textContent = label('card', 'Tarjeta de pago');
-      cardBtn.disabled = anyPending;
       cardBtn.classList.toggle('uploaded', !!docsDataUrls.card);
       // Ya no hay nada para tocar acá una vez que las dos llegaron de
       // verdad — se esconden los botones, solo queda el mensaje de abajo
