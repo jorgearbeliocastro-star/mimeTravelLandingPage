@@ -9152,7 +9152,6 @@
       const passportBtn = document.getElementById('docsUploadPassportBtn');
       const cardBtn = document.getElementById('docsUploadCardBtn');
       if (!passportBtn || !cardBtn) return;
-      const anyPending = (docsDataUrls.passport && !docsReceivedByAgent.passport) || (docsDataUrls.card && !docsReceivedByAgent.card);
       const label = (docType, text) => {
         if (docsDataUrls[docType] && docsReceivedByAgent[docType]) return '✅ ' + text;
         // Antes decía ⏳ (se leía como "se está subiendo todavía") — en
