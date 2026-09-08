@@ -8775,6 +8775,13 @@
         const blockEl = e.target.closest('[data-pax-block]');
         if (blockEl) renderPassengerWarnings(blockEl);
       });
+      // Día/mes/año de una misma fecha (ej. nacimiento) se ajustan entre
+      // sí — no se puede armar un 31 de febrero ni parecido.
+      blocksWrap.addEventListener('change', function (e) {
+        if (!e.target.matches('.quote-pax-date-day, .quote-pax-date-month, .quote-pax-date-year')) return;
+        const rowEl = e.target.closest('.quote-pax-date-row');
+        if (rowEl) syncDateSelectsRow(rowEl);
+      });
       // Copiar contacto de emergencia del pasajero 1 a los demás del mismo
       // camarote (ver checkbox en buildPassengerBlockHTML) — copia lo que
       // ya está tipeado en ese momento, no queda sincronizado en vivo
