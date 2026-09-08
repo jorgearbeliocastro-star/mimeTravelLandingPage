@@ -10356,6 +10356,57 @@
       quoteChatInput.focus();
     });
 
+    // Botón aparte del chat normal — el cliente lo marca a mano cuando de
+    // verdad necesita algo puntual (cancelar, cambiar, etc.), en vez de
+    // que el sistema intente "adivinar" leyendo el chat (no es
+    // confiable). Solo tiene sentido si ya hay una cotización real en
+    // curso (no una recién creada sin tocar) y no en modo "consulta"
+    // (ahí ya está directo en el chat).
+    let quoteUrgentHelpInFlight = false;
+    function updateUrgentHelpButton(quote) {
+      if (activePanelMode === 'support' || !quote || !quote.status || quote.status === 'pending') {
+        quoteUrgentHelpBtn.hidden = true;
+        return;
+      }
+      quoteUrgentHelpBtn.hidden = false;
+      if (quote.needs_urgent_help) {
+        quoteUrgentHelpBtn.textContent = '🚨 Ya avisamos a tu agente';
+        quoteUrgentHelpBtn.classList.add('sent');
+      } else {
+        quoteUrgentHelpBtn.textContent = '🚨 Necesito ayuda urgente';
+        quoteUrgentHelpBtn.classList.remove('sent');
+      }
+    }
+    quoteUrgentHelpBtn.addEventListener('click', async function () {
+      if (quoteUrgentHelpInFlight || quoteUrgentHelpBtn.classList.contains('sent') || !activeQuoteId) return;
+      quoteUrgentHelpInFlight = true;
+      quoteUrgentHelpBtn.disabled = true;
+      try {
+        const clientToken = getOrCreateWebClientToken();
+        const { error } = await supabaseClient.rpc('mark_quote_urgent_help', { p_token: clientToken, p_id: activeQuoteId });
+        if (error) throw error;
+        quoteUrgentHelpBtn.textContent = '🚨 Ya avisamos a tu agente';
+        quoteUrgentHelpBtn.classList.add('sent');
+        // Mismo criterio que notifyClientMessageWeb — si ya sabemos el
+        // agente asignado le suena a él primero, si no, a todo el pool.
+        fetch(WEB_PUSH_FUNCTIONS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': WEB_PUSH_WEBHOOK_SECRET },
+          body: JSON.stringify({
+            agentId: activeQuoteClaimedByAgentId || null,
+            title: '🚨 Cliente necesita ayuda urgente',
+            body: activeQuoteRouteLabel || 'Tocá para ver los detalles.',
+            url: '/agente/panel.html',
+          }),
+        }).catch(() => {});
+      } catch (e) {
+        window.alert(e && e.message ? e.message : 'No se pudo avisar, intentá de nuevo.');
+      } finally {
+        quoteUrgentHelpInFlight = false;
+        quoteUrgentHelpBtn.disabled = false;
+      }
+    });
+
     // Tocar afuera del chat (en modo "quote", no en "consulta" — ahí el
     // chat es el punto central del panel y no debería minimizarse solo) lo
     // vuelve a cerrar y deja el botón como estaba.
