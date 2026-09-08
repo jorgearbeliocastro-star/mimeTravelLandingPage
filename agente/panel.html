@@ -2830,6 +2830,7 @@
           }
         })
         .subscribe((status) => {
+          console.log('[docs-channel] ' + quote.id + ' -> ' + status);
           if (status === 'SUBSCRIBED') {
             requestMissing();
             docsThumbRetryTimers[quote.id] = setInterval(requestMissing, 10000);
