@@ -9187,26 +9187,22 @@
       const el = document.getElementById('docsUploadStatus');
       if (!el) return;
       const anyUploaded = docsDataUrls.passport || docsDataUrls.card;
+      const bothUploaded = docsDataUrls.passport && docsDataUrls.card;
       const allReceived = (!docsDataUrls.passport || docsReceivedByAgent.passport) && (!docsDataUrls.card || docsReceivedByAgent.card);
       if (!anyUploaded) {
         el.textContent = '';
         return;
       }
-      // Antes esto seguía diciendo "no cierres" incluso con las dos fotos
-      // ya recibidas — pero una vez que llegan de verdad no se pierde nada
-      // si cierra: los datos del pasajero ya quedaron guardados y las
-      // fotos ya se entregaron. El agente sigue el resto (cobrar, emitir
-      // el boleto) sin necesitar que el cliente siga con la pestaña
-      // abierta — le va a escribir cuando esté listo.
-      if (allReceived) {
-        el.textContent = '✅ Ya recibimos todo — ya podés cerrar esta pantalla, tu agente te va a escribir en cuanto esté todo confirmado.';
+      // Ya no espera a que el agente las reciba de verdad para invitar a
+      // cerrar — apenas terminó de guardar las dos de su lado (IndexedDB,
+      // ver saveDocToIDB) ya está seguro, no hace falta que se quede
+      // mirando la pantalla hasta que un agente se conecte. Eso puede
+      // tardar; el aviso push le llega cuando haga falta que vuelva.
+      if (bothUploaded) {
+        el.textContent = '✅ Ya guardamos tus documentos — ya podés cerrar esta pantalla. Te vamos a avisar con una notificación cuando tu agente necesite algo más para terminar tu cotización.';
         el.className = 'docs-upload-status';
       } else {
-        // Ya no dice "vas a perder todo" — con el guardado en el propio
-        // equipo del cliente (IndexedDB) ya no se pierde nada si cierra,
-        // solo se demora un poco (le llega una notificación cuando haga
-        // falta que vuelva a abrir la página).
-        el.textContent = 'Estamos mandando tus documentos — si podés, dejá esta pantalla abierta un momento para que se termine de una. Si la cerrás, no se pierde nada: te vamos a avisar con una notificación cuando haga falta que la vuelvas a abrir.';
+        el.textContent = 'Todavía falta uno de los dos — subilo cuando puedas, no hace falta que te quedes esperando.';
         el.className = 'docs-upload-status waiting';
       }
     }
