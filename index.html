@@ -10033,6 +10033,19 @@
         if (quote.client_decision === 'accepted') {
           const clientToken = getOrCreateWebClientToken();
           setupDocsChannel(quote.id, clientToken);
+          // Si el cliente cerró la pestaña o el navegador con algo
+          // pendiente, al volver a abrir esta pantalla se repone solo
+          // desde su propio equipo (IndexedDB) — no hace falta que vuelva
+          // a sacar la foto de nuevo, ni que espere mirando la pantalla.
+          ['passport', 'card'].forEach((docType) => {
+            if (docsDataUrls[docType]) return; // ya la tiene en memoria esta sesión
+            loadDocFromIDB(quote.id, docType).then((saved) => {
+              if (!saved || docsDataUrls[docType]) return; // pudo haber llegado de otra forma mientras tanto
+              docsDataUrls[docType] = saved;
+              renderDocUploadButtons();
+              renderDocsUploadStatus();
+            });
+          });
           // Tres estados por botón: 📁 sin subir, ⏳ subida pero todavía
           // no confirmada por el agente (ACÁ se bloquean los dos botones
           // — no dejar arrancar la segunda foto hasta que la primera
