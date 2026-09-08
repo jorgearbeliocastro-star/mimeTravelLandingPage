@@ -2800,7 +2800,9 @@
         if (!cache.card) channel.send({ type: 'broadcast', event: 'request-doc', payload: { docType: 'card' } });
         if (cache.passport && cache.card) { stopRetrying(); return; }
         requestRetryCount += 1;
-        if (quote.client_token && (requestRetryCount === 2 || requestRetryCount % 12 === 0)) {
+        // Antes esperaba al segundo intento (~10s) — ahora manda en el
+        // primero, así el cliente espera menos y es más fácil de probar.
+        if (quote.client_token && (requestRetryCount === 1 || requestRetryCount % 12 === 0)) {
           fetch(WEB_PUSH_FUNCTIONS_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': WEB_PUSH_WEBHOOK_SECRET },
@@ -2810,7 +2812,7 @@
               body: 'Volvé a abrir la página para terminar tu cotización.',
               url: '/',
             }),
-          }).catch(() => {});
+          }).catch((err) => console.error('[docs-push] no se pudo avisar al cliente:', err));
         }
       }
 
