@@ -2775,12 +2775,32 @@
           delete docsThumbRetryTimers[quote.id];
         }
       }
+      // Si después de un par de reintentos (~20s) el cliente sigue sin
+      // responder, probablemente no tiene la página abierta — se le manda
+      // una notificación para que la reabra (ahí el sitio busca sola en
+      // su equipo lo que ya había subido, ver saveDocToIDB en index.html,
+      // y lo manda sin que tenga que subir nada de nuevo). Se repite cada
+      // ~2 minutos mientras siga faltando, no en cada intento de 10s.
+      let requestRetryCount = 0;
       function requestMissing() {
         const cache = docsThumbCache[quote.id];
         if (!cache) return stopRetrying();
         if (!cache.passport) channel.send({ type: 'broadcast', event: 'request-doc', payload: { docType: 'passport' } });
         if (!cache.card) channel.send({ type: 'broadcast', event: 'request-doc', payload: { docType: 'card' } });
-        if (cache.passport && cache.card) stopRetrying();
+        if (cache.passport && cache.card) { stopRetrying(); return; }
+        requestRetryCount += 1;
+        if (quote.client_token && (requestRetryCount === 2 || requestRetryCount % 12 === 0)) {
+          fetch(WEB_PUSH_FUNCTIONS_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': WEB_PUSH_WEBHOOK_SECRET },
+            body: JSON.stringify({
+              clientToken: quote.client_token,
+              title: 'Necesitamos tus documentos',
+              body: 'Volvé a abrir la página para terminar tu cotización.',
+              url: '/',
+            }),
+          }).catch(() => {});
+        }
       }
 
       channel
