@@ -1702,11 +1702,22 @@
           // Regla que quedó definida: sin el consentimiento (fecha + IP)
           // guardado, no se puede cerrar la venta — sin eso no hay
           // respaldo si el cliente después dice que no reconoce el cargo.
+          // Se suma otra: no se puede dar por vendida sin haberla abierto
+          // primero (aunque sea una vez) — a pedido explícito, para que
+          // no se marque como vendida "en frío" sin haber entrado nunca a
+          // verla. Reusa agent_viewing_at (la misma marca de "Abrir
+          // cotización" de arriba) en vez de una columna nueva — no
+          // importa si sigue siendo la que está abierta EN ESTE momento,
+          // alcanza con que se haya abierto alguna vez.
+          const hasBeenOpened = !!q.agent_viewing_at;
           const sellBtn = document.createElement('button');
-          sellBtn.className = 'claim-btn' + (hasConsent ? ' needs-price' : '');
-          sellBtn.textContent = hasConsent ? '✅ Marcar como vendido' : '🔒 Falta consentimiento de cobro';
-          sellBtn.disabled = !hasConsent;
-          if (!hasConsent) sellBtn.style.opacity = '0.5';
+          const canSell = hasConsent && hasBeenOpened;
+          sellBtn.className = 'claim-btn' + (canSell ? ' needs-price' : '');
+          sellBtn.textContent = !hasBeenOpened
+            ? '🔒 Abrí la cotización primero'
+            : (hasConsent ? '✅ Marcar como vendido' : '🔒 Falta consentimiento de cobro');
+          sellBtn.disabled = !canSell;
+          if (!canSell) sellBtn.style.opacity = '0.5';
           sellBtn.addEventListener('click', () => showSellForm(card, q));
           card.appendChild(sellBtn);
           card.appendChild(buildReassignButton(q));
