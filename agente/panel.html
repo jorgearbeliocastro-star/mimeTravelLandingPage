@@ -1149,7 +1149,16 @@
         .eq('client_still_completing', false)
         .or('status.eq.pending,needs_agent_review.eq.true')
         .is('agent_viewing_at', null);
-      return error ? 0 : (count || 0);
+      // Suma lo mismo para "ayuda urgente" sin atender — cliente existente
+      // pidiendo algo puntual (cancelar, cambiar, etc.) también bloquea el
+      // Pool hasta que se lo atienda o se marque "esperando al cliente"
+      // (ver buildUrgentHelpBanner). Cualquier status, no solo pending.
+      const { count: urgentCount, error: urgentError } = await supabaseClient
+        .from('quote_requests')
+        .select('id', { count: 'exact', head: true })
+        .eq('claimed_by_agent_id', agentId)
+        .eq('needs_urgent_help', true);
+      return (error ? 0 : (count || 0)) + (urgentError ? 0 : (urgentCount || 0));
     }
     async function checkPersonalQueueBlock() {
       const count = await countUntouchedPersonalQueue();
