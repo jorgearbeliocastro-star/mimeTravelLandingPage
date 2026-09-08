@@ -3015,6 +3015,26 @@
     font-size: 13.5px;
     cursor: pointer;
   }
+  /* Aparte del chat normal — a propósito, para no depender de que el
+     sistema "entienda" si un mensaje de chat es urgente (no es
+     confiable). Marca explícita del cliente. */
+  .quote-urgent-help-btn {
+    flex: none;
+    margin: 0 18px 14px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 1.5px solid #c0392b;
+    background: rgba(192, 57, 43, 0.08);
+    color: #c0392b;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+  }
+  .quote-urgent-help-btn.sent {
+    cursor: default;
+    opacity: 0.7;
+  }
 
   .quote-chat-toggle-btn[hidden] {
     display: none;
