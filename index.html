@@ -2774,6 +2774,22 @@
     min-width: 0;
   }
 
+  /* Código de país + número de teléfono lado a lado (ver buildPhoneFieldHTML)
+     — el código no necesita tanto ancho como el número. */
+  .quote-pax-phone-row {
+    display: flex;
+    gap: 6px;
+  }
+  .quote-pax-phone-row .quote-pax-phone-code {
+    width: auto;
+    flex: 0 0 110px;
+  }
+  .quote-pax-phone-row .quote-pax-phone-number {
+    width: auto;
+    flex: 1;
+    min-width: 0;
+  }
+
   /* Checkbox de "copiar contacto de emergencia a todos" — no es un campo
      más de la lista (los .quote-pax-input van uno debajo del otro con su
      label arriba), es una acción aparte, por eso el estilo distinto. */
