@@ -8692,7 +8692,7 @@
           '<label class="quote-pax-label">' + t('quotePaxEmail') + '</label>' +
           '<input type="email" class="quote-pax-input" name="email-' + index + '" value="' + (index === 0 ? activeQuoteContactEmail.replace(/"/g, '&quot;') : '') + '" required>' +
           '<label class="quote-pax-label">' + t('quotePaxMobilePhone') + '</label>' +
-          '<input type="tel" class="quote-pax-input" name="mobilePhone-' + index + '" value="' + (index === 0 ? activeQuoteContactPhone.replace(/"/g, '&quot;') : '') + '" required>' +
+          buildPhoneFieldHTML('mobilePhone', index, index === 0 ? activeQuoteContactPhone : '', true) +
           '<label class="quote-pax-label">' + t('quotePaxVoyagersClub') + '</label>' +
           '<input type="text" class="quote-pax-input" name="voyagersClubNumber-' + index + '">' +
           '<label class="quote-pax-label">' + t('quotePaxDiningPreference') + '</label>' +
