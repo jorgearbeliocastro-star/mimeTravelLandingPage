@@ -1213,11 +1213,54 @@
       // cotizaciones o mensajes nuevos, hasta recargar la página entera.
       cardFormOpenId = null;
       openChatQuoteId = null;
-      loadQuotes();
+      return loadQuotes();
     }
     document.querySelectorAll('.tab').forEach((tabEl) => {
       tabEl.addEventListener('click', () => selectTab(tabEl));
     });
+
+    // A qué pestaña pertenece una cotización puntual — mismas reglas que
+    // los filtros de loadQuotes de más abajo, para poder saltar directo
+    // ahí desde un link con ?quoteId= (push de ayuda urgente/chat/decisión
+    // del cliente, ver openQuoteFromDeepLink).
+    function tabForQuote(q) {
+      if (!q.claimed_by_agent_id) return 'pool';
+      if (q.status === 'purchased') return 'sold';
+      if (q.status === 'decided' && q.client_decision === 'accepted') return 'accepted';
+      if (q.status === 'pending' || q.needs_agent_review) return 'new';
+      if (q.status === 'quoted' || q.status === 'decided') return 'mine';
+      return null;
+    }
+
+    // Las notificaciones push que traen ?quoteId= en la URL (ayuda
+    // urgente, mensaje de chat, decisión del cliente) antes solo abrían
+    // el panel en general — el agente tenía que buscar a mano de qué
+    // cotización se trataba. Ahora salta directo a la pestaña correcta y
+    // la resalta.
+    async function openQuoteFromDeepLink() {
+      const params = new URLSearchParams(location.search);
+      const quoteId = params.get('quoteId');
+      if (!quoteId) return;
+      // Se saca de la URL apenas se usa, para que un refresh de la página
+      // después no vuelva a saltar ahí solo.
+      history.replaceState(null, '', location.pathname);
+      const { data: q, error } = await supabaseClient.from('quote_requests').select('*').eq('id', quoteId).maybeSingle();
+      if (error || !q) return;
+      const targetTab = tabForQuote(q);
+      if (!targetTab) return;
+      const tabEl = document.querySelector('.tab[data-tab="' + targetTab + '"]');
+      if (tabEl && !tabEl.classList.contains('active')) {
+        await selectTab(tabEl);
+      } else {
+        await loadQuotes();
+      }
+      const card = document.querySelector('.quote-card[data-quote-id="' + quoteId + '"]');
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.classList.add('quote-card-flash');
+        setTimeout(() => card.classList.remove('quote-card-flash'), 3000);
+      }
+    }
 
     async function loadQuotes() {
       // OJO: openChatQuoteId NO frena esto (a diferencia de cardFormOpenId)
