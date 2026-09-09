@@ -33,6 +33,18 @@
     background: var(--arena);
     color: var(--dark);
     min-height: 100vh;
+    /* Resguardo: sin ningún word-break en toda la hoja de estilos, un
+       mensaje de chat/email/texto largo sin espacios podía ensanchar la
+       card entera y empujar botones ("Llamar", "Enviar", "Confirmar la
+       venta") fuera de la pantalla en el celular — no hacía falta scroll
+       horizontal para notarlo, quedaban directamente inalcanzables. La
+       regla de abajo corta esas palabras largas antes de que pase; esto
+       de acá es el freno final por si algo se escapa de todos modos. */
+    overflow-x: hidden;
+  }
+  .quote-card, .chat-bubble, .meta, .notes, .route {
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
   /* Mismo fondo de playa que la portada pública (mimetravel.com) — con
      degradé oscuro encima para que el texto siga siendo legible. */
