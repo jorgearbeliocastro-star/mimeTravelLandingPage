@@ -5599,6 +5599,24 @@
     // suscripto, esto no hace nada de más (el navegador devuelve la misma
     // suscripción). Todo no bloqueante: si algo falla acá, la cotización
     // ya se mandó igual, el cliente solo se queda sin el aviso push.
+    // Registrar el service worker es lo que hace falta para que Chrome
+    // ofrezca "Instalar app" — antes esto SOLO pasaba dentro de
+    // subscribeClientPush (recién al abrir una cotización), así que un
+    // cliente que solo entraba a la portada sin llegar a cotizar nunca
+    // tenía un service worker activo y el navegador nunca mostraba la
+    // opción de instalar. Registrar el service worker no pide ningún
+    // permiso (es silencioso) — el pedido de notificaciones sigue
+    // pasando solo al abrir el panel de cotización, sin tocar esa regla.
+    let swRegistrationPromise = null;
+    function registerServiceWorker() {
+      if (!('serviceWorker' in navigator)) return Promise.resolve(null);
+      if (!swRegistrationPromise) {
+        swRegistrationPromise = navigator.serviceWorker.register('/sw.js').catch(() => null);
+      }
+      return swRegistrationPromise;
+    }
+    registerServiceWorker();
+
     let clientPushSubscribeAttempted = false;
     async function subscribeClientPush() {
       if (clientPushSubscribeAttempted) return;
@@ -5606,7 +5624,8 @@
       try {
         if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
         if (Notification.permission === 'denied') return;
-        const reg = await navigator.serviceWorker.register('/sw.js');
+        const reg = await registerServiceWorker();
+        if (!reg) return;
         let sub = await reg.pushManager.getSubscription();
         if (!sub) {
           sub = await reg.pushManager.subscribe({
