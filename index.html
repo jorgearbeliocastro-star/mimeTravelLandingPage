@@ -9087,13 +9087,14 @@
       // Política de cancelación — se lee y se marca acá mismo, justo antes
       // de aceptar (antes vivía suelta más arriba, en la pantalla de
       // precio, sin ninguna confirmación de que el cliente la haya leído).
-      // Solo texto genérico (ver comentario original) — no inventamos los
-      // plazos/porcentajes reales de cada naviera/aerolínea.
+      // Texto real si el Dueño cargó una política puntual para esta
+      // categoría/proveedor (ver getCancellationPolicyText, cargado por
+      // dueno.html) — si no cargó ninguna, cae al genérico de siempre.
       if (mode === 'accept') {
         const cancelWrap = document.createElement('div');
         cancelWrap.className = 'quote-cancellation-policy';
         cancelWrap.innerHTML =
-          '<strong>' + t('quoteCancellationPolicyTitle') + '</strong><br>' + t('quoteCancellationPolicyBody') +
+          '<strong>' + t('quoteCancellationPolicyTitle') + '</strong><br>' + escapeHtml(getCancellationPolicyText(activeQuoteCategory, activeQuoteAirline)).replace(/\n/g, '<br>') +
           '<label class="quote-pax-consent" style="margin-top:10px;">' +
             '<input type="checkbox" id="cancellationPolicyReadCheck" required> ' +
             '<span>' + t('quoteCancellationPolicyReadLabel') + '</span>' +
