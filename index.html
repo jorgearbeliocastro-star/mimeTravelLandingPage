@@ -10537,7 +10537,7 @@
             agentId: activeQuoteClaimedByAgentId || null,
             title: '🚨 Cliente necesita ayuda urgente',
             body: activeQuoteRouteLabel || 'Tocá para ver los detalles.',
-            url: '/agente/panel.html',
+            url: '/agente/panel.html?quoteId=' + activeQuoteId,
           }),
         }).catch(() => {});
       } catch (e) {
