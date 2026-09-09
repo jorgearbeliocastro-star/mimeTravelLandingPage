@@ -8498,7 +8498,7 @@
           agentId: null,
           title: 'Tenés un mensaje nuevo',
           body: 'El cliente te escribió sobre su cotización.',
-          url: '/agente/panel.html',
+          url: '/agente/panel.html?quoteId=' + quoteRequestId,
         }),
       }).catch(() => {});
     }
