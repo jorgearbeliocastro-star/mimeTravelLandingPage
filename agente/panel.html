@@ -1671,7 +1671,23 @@
           claimBtn.textContent = 'Tomar y poner precio';
           claimBtn.disabled = poolBlocked;
           claimBtn.title = poolBlocked ? 'Terminá primero lo que tenés en Nuevas' : '';
-          claimBtn.addEventListener('click', () => { markQuoteViewed(q.id); showPriceForm(card, q); });
+          claimBtn.addEventListener('click', async () => {
+            // Reservarla apenas se toca el botón, antes de abrir el
+            // formulario — si no, quedaba "disponible" en el Pool de los
+            // demás agentes mientras uno recién estaba llenando el precio,
+            // y dos agentes podían terminar cotizando lo mismo. Mismo RPC
+            // que ya usa "Necesito más datos" (claim_quote_no_price); si
+            // alguien se la llevó primero, avisa y no abre el formulario.
+            claimBtn.disabled = true;
+            markQuoteViewed(q.id);
+            const { error } = await supabaseClient.rpc('claim_quote_no_price', { p_agent_id: agentId, p_quote_id: q.id });
+            if (error) {
+              alert('No se pudo tomar: ' + error.message);
+              loadQuotes();
+              return;
+            }
+            showPriceForm(card, q);
+          });
           card.appendChild(claimBtn);
           if (poolBlocked) card.appendChild(buildPoolBlockedNote());
           // Para cuando hace falta pedirle algo al cliente (fecha ambigua,
