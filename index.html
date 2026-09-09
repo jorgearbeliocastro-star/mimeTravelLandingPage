@@ -8284,6 +8284,10 @@
     // saber si corresponde avisar ahí y a quién.
     let activeQuoteNeedsAgentReview = false;
     let activeQuoteClaimedByAgentId = null;
+    // Aerolínea de ESTA cotización (solo vuelos) — para buscar si el Dueño
+    // cargó una política de cancelación puntual de esa aerolínea (ver
+    // getCancellationPolicyText / cancellation_policies).
+    let activeQuoteAirline = null;
     // 'quote' = pedido de viaje normal (precio, aceptar/rechazar, etc.);
     // 'support' = consulta general ("Necesito ayuda") — mismo panel y
     // mismo chat, pero sin nada de precio/decisión, porque no aplica.
