@@ -5635,6 +5635,18 @@
     // providerName: por ahora solo se usa para vuelos (activeQuoteAirline)
     // — cruceros/hoteles/autos todavía no tienen un campo de proveedor
     // propio, así que siempre caen a la política general de su categoría.
+    // El texto de la política lo carga el Dueño a mano (ver dueno.html) —
+    // puede traer cualquier caracter, hay que escaparlo antes de meterlo
+    // como HTML (no existía ningún escapeHtml acá, a diferencia de
+    // panel.html/dueno.html).
+    function escapeHtml(str) {
+      return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
     function getCancellationPolicyText(category, providerName) {
       const rows = cancellationPoliciesData.filter((p) => p.category === category);
       if (providerName) {
