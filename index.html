@@ -7754,6 +7754,18 @@
       const data = Object.fromEntries(new FormData(form).entries());
 
       if (activeType === 'cruceros') {
+        // El campo de mes es de solo lectura (selector tipo MSC, ver
+        // setupMonthPicker) — algunos navegadores (sobre todo en el
+        // celular) no frenan el submit nativo con "required" en un campo
+        // readonly vacío, así que se validaba solo del lado del servidor y
+        // dejaba pasar cotizaciones de crucero sin ninguna fecha. Se
+        // valida acá explícito, sin depender del navegador.
+        if (!(data.fechas || '').trim()) {
+          searchMsg.textContent = t('msgCruiseDateRequired');
+          const fechasInput = form.querySelector('[name="fechas"]');
+          if (fechasInput) fechasInput.focus();
+          return;
+        }
         searchMsg.textContent = t('msgSearchSending');
         const destinationCanonical = canonicalDestination(data.destino);
         supabaseClient
