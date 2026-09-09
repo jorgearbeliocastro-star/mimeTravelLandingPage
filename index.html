@@ -5617,6 +5617,35 @@
     }
     registerServiceWorker();
 
+    // Políticas de cancelación reales cargadas por el Dueño (ver
+    // dueno.html, tabla cancellation_policies, lectura pública) — se piden
+    // una sola vez apenas carga la página (tabla chica, no hace falta
+    // esperar a que el cliente llegue a la pantalla de aceptar). Si por lo
+    // que sea todavía no llegaron cuando hace falta mostrarlas, se usa el
+    // texto genérico como respaldo (ver getCancellationPolicyText).
+    let cancellationPoliciesData = [];
+    function loadCancellationPolicies() {
+      return supabaseClient.from('cancellation_policies').select('*').then(({ data, error }) => {
+        cancellationPoliciesData = error ? [] : (data || []);
+      }).catch(() => {});
+    }
+    loadCancellationPolicies();
+
+    // category: 'flight'/'cruise'/'hotel'/'car' (ver activeQuoteCategory).
+    // providerName: por ahora solo se usa para vuelos (activeQuoteAirline)
+    // — cruceros/hoteles/autos todavía no tienen un campo de proveedor
+    // propio, así que siempre caen a la política general de su categoría.
+    function getCancellationPolicyText(category, providerName) {
+      const rows = cancellationPoliciesData.filter((p) => p.category === category);
+      if (providerName) {
+        const exact = rows.find((p) => p.provider_name && p.provider_name.trim().toLowerCase() === providerName.trim().toLowerCase());
+        if (exact) return exact.policy_text;
+      }
+      const general = rows.find((p) => !p.provider_name);
+      if (general) return general.policy_text;
+      return t('quoteCancellationPolicyBody');
+    }
+
     let clientPushSubscribeAttempted = false;
     async function subscribeClientPush() {
       if (clientPushSubscribeAttempted) return;
