@@ -10496,6 +10496,19 @@
         quoteUrgentHelpBtn.hidden = true;
         return;
       }
+      // Se queda visible sin límite mientras la cotización siga existiendo
+      // en localStorage, incluso mucho después de terminado el viaje —
+      // "terminada" = venta confirmada o el cliente la rechazó. Un día
+      // después de eso ya no tiene sentido seguir ofreciendo "ayuda
+      // urgente" para ese viaje puntual.
+      const isFinished = quote.status === 'purchased' || (quote.status === 'decided' && quote.client_decision === 'declined');
+      if (isFinished && quote.updated_at) {
+        const oneDayMs = 24 * 60 * 60 * 1000;
+        if (Date.now() - new Date(quote.updated_at).getTime() > oneDayMs) {
+          quoteUrgentHelpBtn.hidden = true;
+          return;
+        }
+      }
       quoteUrgentHelpBtn.hidden = false;
       if (quote.needs_urgent_help) {
         quoteUrgentHelpBtn.textContent = '🚨 Ya avisamos a tu agente';
