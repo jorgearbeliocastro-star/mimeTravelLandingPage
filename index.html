@@ -8601,6 +8601,51 @@
       );
     }
 
+    // Código de país para teléfono — el cliente nunca decía de qué país
+    // era el número (nadie asume que un +54 es Argentina a simple vista),
+    // así que el campo de teléfono ahora es selector de código + número,
+    // no un solo <input> suelto. No depende de countryNamesData (nombres
+    // por idioma) para el código en sí, es un dato fijo universal.
+    const PHONE_DIAL_CODES = [
+      ['+1', 'US/Canada'], ['+52', 'México'], ['+54', 'Argentina'], ['+55', 'Brasil'],
+      ['+56', 'Chile'], ['+57', 'Colombia'], ['+58', 'Venezuela'], ['+51', 'Perú'],
+      ['+593', 'Ecuador'], ['+591', 'Bolivia'], ['+595', 'Paraguay'], ['+598', 'Uruguay'],
+      ['+506', 'Costa Rica'], ['+507', 'Panamá'], ['+502', 'Guatemala'], ['+503', 'El Salvador'],
+      ['+504', 'Honduras'], ['+505', 'Nicaragua'], ['+53', 'Cuba'], ['+1809', 'Rep. Dominicana'],
+      ['+1787', 'Puerto Rico'], ['+34', 'España'], ['+33', 'Francia'], ['+39', 'Italia'],
+      ['+49', 'Alemania'], ['+44', 'Reino Unido'], ['+351', 'Portugal'], ['+31', 'Países Bajos'],
+      ['+32', 'Bélgica'], ['+41', 'Suiza'], ['+43', 'Austria'], ['+46', 'Suecia'],
+      ['+47', 'Noruega'], ['+45', 'Dinamarca'], ['+358', 'Finlandia'], ['+30', 'Grecia'],
+      ['+48', 'Polonia'], ['+353', 'Irlanda'], ['+7', 'Rusia'], ['+380', 'Ucrania'],
+      ['+90', 'Turquía'], ['+971', 'Emiratos Árabes Unidos'], ['+966', 'Arabia Saudita'],
+      ['+972', 'Israel'], ['+20', 'Egipto'], ['+27', 'Sudáfrica'], ['+234', 'Nigeria'],
+      ['+91', 'India'], ['+86', 'China'], ['+81', 'Japón'], ['+82', 'Corea del Sur'],
+      ['+84', 'Vietnam'], ['+66', 'Tailandia'], ['+65', 'Singapur'], ['+63', 'Filipinas'],
+      ['+62', 'Indonesia'], ['+60', 'Malasia'], ['+61', 'Australia'], ['+64', 'Nueva Zelanda'],
+    ];
+    function buildPhoneCodeOptionsHTML(selectedCode) {
+      return PHONE_DIAL_CODES
+        .map(([code, label]) => '<option value="' + code + '"' + (code === selectedCode ? ' selected' : '') + '>' + code + ' ' + label + '</option>')
+        .join('');
+    }
+    // presetPhone: si ya venía un teléfono cargado (el del primer pasajero,
+    // tomado del contacto de la cotización), no sabemos con qué código de
+    // país corresponde — se deja el número tal cual en el campo de número
+    // y el código sin elegir, para que el cliente lo confirme él mismo en
+    // vez de que se lo adivinemos mal.
+    function buildPhoneFieldHTML(name, index, presetPhone, required) {
+      return (
+        '<div class="quote-pax-phone-row">' +
+        '<select class="quote-pax-input quote-pax-phone-code" name="' + name + 'Code-' + index + '"' + (required ? ' required' : '') + '>' +
+        '<option value="">' + t('quotePaxPhoneCodePlaceholder') + '</option>' +
+        buildPhoneCodeOptionsHTML('') +
+        '</select>' +
+        '<input type="tel" class="quote-pax-input quote-pax-phone-number" name="' + name + '-' + index + '" value="' +
+        (presetPhone || '').replace(/"/g, '&quot;') + '"' + (required ? ' required' : '') + '>' +
+        '</div>'
+      );
+    }
+
     function buildPassengerBlockHTML(index) {
       const nowYear = new Date().getFullYear();
       const header = index > 0
