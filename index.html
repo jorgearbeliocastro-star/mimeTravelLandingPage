@@ -10394,6 +10394,7 @@
           activeQuoteContactPhone = quote.contact_phone || '';
           activeQuoteNeedsAgentReview = !!quote.needs_agent_review;
           activeQuoteClaimedByAgentId = quote.claimed_by_agent_id || null;
+          activeQuoteAirline = quote.quoted_airline || null;
           quotePanelRoute.textContent = activeQuoteRouteLabel;
           updateUrgentHelpButton(quote);
         }
