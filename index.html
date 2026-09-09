@@ -10641,6 +10641,23 @@
               : (found.origin ? found.origin + ' → ' + found.destination : found.destination);
             if (found.status === 'quoted' && !found.client_decision) lastKnownPriceExpiresAt = found.price_expires_at || null;
             quoteReopenBtn.hidden = false;
+            // El canal que manda las fotos guardadas (ver setupDocsChannel)
+            // antes SOLO se armaba si el cliente entraba a mirar el panel
+            // de esta cotización — quedó mal, la idea original era que
+            // alcanzara con abrir la web (aunque sea por la notificación
+            // de "volvé a abrir la página") sin tener que entrar a nada.
+            // Se arma acá en segundo plano, sin ninguna pantalla visible,
+            // así el agente puede pedir la foto y llega sola apenas la web
+            // esté abierta en cualquier pestaña/pantalla del sitio.
+            if (found.client_decision === 'accepted') {
+              setupDocsChannel(found.id, clientToken);
+              ['passport', 'card'].forEach((docType) => {
+                if (docsDataUrls[docType]) return;
+                loadDocFromIDB(found.id, docType).then((saved) => {
+                  if (saved && !docsDataUrls[docType]) docsDataUrls[docType] = saved;
+                });
+              });
+            }
           } else {
             localStorage.removeItem(QUOTE_ID_STORAGE_KEY);
             localStorage.removeItem(QUOTE_MODE_STORAGE_KEY);
