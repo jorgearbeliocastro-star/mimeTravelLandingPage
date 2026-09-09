@@ -1564,6 +1564,10 @@
       function renderOneQuoteCard(q, i) {
         const card = document.createElement('div');
         card.className = 'quote-card';
+        // Para poder ubicarla desde afuera (ver openQuoteFromDeepLink) —
+        // la notificación push de "ayuda urgente"/chat ahora puede traer
+        // el id puntual de la cotización en la URL.
+        card.dataset.quoteId = q.id;
         let badgeHtml = '';
         // needs_agent_review primero: aunque status ya sea "quoted" (el
         // cliente eligió un camarote real solo, ver
