@@ -1127,6 +1127,131 @@
       if (cached) cached.cabin_date_prices = cabinDatePrices;
     });
 
+    // Políticas de cancelación reales por categoría/proveedor — antes el
+    // cliente solo veía un texto genérico ("depende del proveedor, tu
+    // agente te lo confirma"). Tabla nueva (ver SQL de cancellation_policies),
+    // lectura pública para que index.html la pueda mostrar sin login,
+    // escritura solo para el Dueño (RLS del lado del servidor).
+    const CANCELLATION_CATEGORY_LABELS = { flight: 'Vuelos', cruise: 'Cruceros', hotel: 'Hoteles', car: 'Autos' };
+    let cancellationPoliciesCache = [];
+    let editingCancellationPolicyId = null;
+
+    async function loadCancellationPolicies() {
+      const { data, error } = await supabaseClient
+        .from('cancellation_policies')
+        .select('*')
+        .order('category', { ascending: true })
+        .order('provider_name', { ascending: true });
+      const list = document.getElementById('cancellationPolicyList');
+      if (error) {
+        list.innerHTML = '<div class="empty">No se pudo cargar (' + error.message + ').</div>';
+        return;
+      }
+      cancellationPoliciesCache = data || [];
+      renderCancellationPolicies();
+    }
+
+    function renderCancellationPolicies() {
+      const list = document.getElementById('cancellationPolicyList');
+      if (!cancellationPoliciesCache.length) {
+        list.innerHTML = '<div class="empty">Todavía no cargaste ninguna política — se sigue mostrando el texto genérico.</div>';
+        return;
+      }
+      list.innerHTML = Object.keys(CANCELLATION_CATEGORY_LABELS).map((cat) => {
+        const items = cancellationPoliciesCache.filter((p) => p.category === cat);
+        if (!items.length) return '';
+        return '<div style="margin-bottom:14px;"><div style="font-weight:700; font-size:13px; color:var(--primary); margin-bottom:6px;">' + CANCELLATION_CATEGORY_LABELS[cat] + '</div>' +
+          items.map((p) => {
+            const providerLabel = p.provider_name ? escapeHtml(p.provider_name) : '<em>General (sin proveedor puntual)</em>';
+            return '<div class="addon-row" style="align-items:flex-start;">' +
+              '<div class="addon-info">' +
+                '<div class="addon-label">' + providerLabel + '</div>' +
+                '<div class="addon-desc" style="white-space:pre-wrap;">' + escapeHtml(p.policy_text) + '</div>' +
+              '</div>' +
+              '<div style="display:flex; flex-direction:column; gap:10px;">' +
+                '<button type="button" class="role-tag" data-policy-edit="' + p.id + '" style="border:none; cursor:pointer;" title="Editar">✏️</button>' +
+                '<button type="button" class="role-tag" data-policy-delete="' + p.id + '" style="border:none; cursor:pointer;" title="Borrar">🗑</button>' +
+              '</div>' +
+            '</div>';
+          }).join('') +
+        '</div>';
+      }).join('');
+      list.querySelectorAll('[data-policy-edit]').forEach((btn) => {
+        btn.addEventListener('click', () => startEditCancellationPolicy(btn.dataset.policyEdit));
+      });
+      list.querySelectorAll('[data-policy-delete]').forEach((btn) => {
+        btn.addEventListener('click', () => deleteCancellationPolicy(btn.dataset.policyDelete));
+      });
+    }
+
+    function startEditCancellationPolicy(id) {
+      const item = cancellationPoliciesCache.find((p) => p.id === id);
+      if (!item) return;
+      editingCancellationPolicyId = id;
+      document.getElementById('cancellationPolicyCategory').value = item.category;
+      document.getElementById('cancellationPolicyProvider').value = item.provider_name || '';
+      document.getElementById('cancellationPolicyText').value = item.policy_text;
+      document.getElementById('cancellationPolicySubmitBtn').textContent = 'Guardar cambios';
+      document.getElementById('cancellationPolicyCancelEditBtn').style.display = '';
+      document.getElementById('cancellationPolicyForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function cancelEditCancellationPolicy() {
+      editingCancellationPolicyId = null;
+      document.getElementById('cancellationPolicyForm').reset();
+      document.getElementById('cancellationPolicySubmitBtn').textContent = 'Guardar';
+      document.getElementById('cancellationPolicyCancelEditBtn').style.display = 'none';
+    }
+    document.getElementById('cancellationPolicyCancelEditBtn').addEventListener('click', cancelEditCancellationPolicy);
+
+    async function deleteCancellationPolicy(id) {
+      const item = cancellationPoliciesCache.find((p) => p.id === id);
+      if (!confirm('¿Borrar esta política (' + (item && item.provider_name ? item.provider_name : 'general') + ')? No se puede deshacer.')) return;
+      const { error } = await supabaseClient.from('cancellation_policies').delete().eq('id', id);
+      if (error) { alert('No se pudo borrar: ' + error.message); return; }
+      if (editingCancellationPolicyId === id) cancelEditCancellationPolicy();
+      loadCancellationPolicies();
+    }
+
+    document.getElementById('cancellationPolicyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('cancellationPolicySubmitBtn');
+      const msg = document.getElementById('cancellationPolicyMsg');
+      msg.textContent = '';
+      msg.className = 'msg';
+      btn.disabled = true;
+      try {
+        const category = document.getElementById('cancellationPolicyCategory').value;
+        const providerName = document.getElementById('cancellationPolicyProvider').value.trim();
+        const policyText = document.getElementById('cancellationPolicyText').value.trim();
+        if (editingCancellationPolicyId) {
+          const { error } = await supabaseClient.from('cancellation_policies')
+            .update({ category, provider_name: providerName, policy_text: policyText, updated_at: new Date().toISOString() })
+            .eq('id', editingCancellationPolicyId);
+          if (error) throw new Error(error.message);
+          msg.textContent = '✅ Cambios guardados.';
+          msg.className = 'msg success';
+          cancelEditCancellationPolicy();
+        } else {
+          // upsert por (category, provider_name) — si ya existía una para
+          // ese mismo proveedor/categoría, la reemplaza en vez de duplicar
+          // (choca con el unique de la tabla si no se usa upsert acá).
+          const { error } = await supabaseClient.from('cancellation_policies')
+            .upsert({ category, provider_name: providerName, policy_text: policyText, updated_at: new Date().toISOString() }, { onConflict: 'category,provider_name' });
+          if (error) throw new Error(error.message);
+          msg.textContent = '✅ Guardado.';
+          msg.className = 'msg success';
+          document.getElementById('cancellationPolicyForm').reset();
+        }
+        loadCancellationPolicies();
+      } catch (err) {
+        msg.textContent = '⚠️ ' + (err && err.message ? err.message : 'Error desconocido.');
+        msg.className = 'msg error';
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
     document.getElementById('createAgentForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('createAgentBtn');
