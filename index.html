@@ -8790,6 +8790,15 @@
     // base (mismas claves que espera submit_quote_passengers).
     function readPassengerBlock(block, index) {
       const val = (name) => block.querySelector('[name="' + name + '-' + index + '"]')?.value?.trim() || '';
+      // Teléfono ahora es código de país + número por separado (ver
+      // buildPhoneFieldHTML) — se combinan en un solo string para no tener
+      // que cambiar submit_quote_passengers del lado del servidor.
+      const phoneVal = (name) => {
+        const number = val(name);
+        if (!number) return '';
+        const code = block.querySelector('[name="' + name + 'Code-' + index + '"]')?.value?.trim() || '';
+        return code ? code + ' ' + number : number;
+      };
       if (activeQuoteCategory === 'cruise') {
         const firstName = val('firstName');
         const lastName = val('lastName');
