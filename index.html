@@ -8481,7 +8481,7 @@
           agentId: null,
           title: accepted ? 'Cliente aceptó la cotización' : 'Cliente rechazó la cotización',
           body: 'Tocá para ver los detalles.',
-          url: '/agente/panel.html',
+          url: '/agente/panel.html?quoteId=' + quoteRequestId,
         }),
       }).catch(() => {});
     }
