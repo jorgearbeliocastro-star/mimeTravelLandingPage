@@ -8726,6 +8726,8 @@
           // revés de como se piensa una dirección).
           '<label class="quote-pax-label">' + t('quotePaxAddress') + '</label>' +
           '<input type="text" class="quote-pax-input" name="address-' + index + '">' +
+          '<label class="quote-pax-label">' + t('quotePaxAddressNumber') + '</label>' +
+          '<input type="text" class="quote-pax-input" name="addressNumber-' + index + '">' +
           '<label class="quote-pax-label">' + t('quotePaxCity') + '</label>' +
           '<input type="text" class="quote-pax-input" name="city-' + index + '">' +
           '<label class="quote-pax-label">' + t('quotePaxZipCode') + '</label>' +
@@ -8733,7 +8735,7 @@
           '<label class="quote-pax-label">' + t('quotePaxEmergencyContactName') + '</label>' +
           '<input type="text" class="quote-pax-input" name="emergencyContactName-' + index + '">' +
           '<label class="quote-pax-label">' + t('quotePaxEmergencyContactPhone') + '</label>' +
-          '<input type="tel" class="quote-pax-input" name="emergencyContactPhone-' + index + '">' +
+          buildPhoneFieldHTML('emergencyContactPhone', index, '', false) +
           // Solo en el primer pasajero — copia SU contacto de emergencia a
           // los demás del mismo camarote al tildarla (no hace falta
           // tipearlo repetido para cada uno). Mismo criterio que MSC.
