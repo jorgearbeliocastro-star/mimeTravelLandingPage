@@ -9056,7 +9056,7 @@
       // precio, sin ninguna confirmación de que el cliente la haya leído).
       // Solo texto genérico (ver comentario original) — no inventamos los
       // plazos/porcentajes reales de cada naviera/aerolínea.
-      if (mode === 'accept' && activeQuoteCategory === 'cruise') {
+      if (mode === 'accept') {
         const cancelWrap = document.createElement('div');
         cancelWrap.className = 'quote-cancellation-policy';
         cancelWrap.innerHTML =
