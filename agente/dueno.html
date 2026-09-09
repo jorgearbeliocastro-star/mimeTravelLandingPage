@@ -349,6 +349,36 @@
       <button type="button" class="btn" id="cabinPricesSaveBtn" hidden>Guardar habitaciones de esta fecha</button>
       <p class="msg" id="cabinPricesMsg"></p>
     </div>
+
+    <div class="card">
+      <h2>Políticas de cancelación</h2>
+      <p style="font-size:12.5px; color:rgba(26,26,26,0.6); margin-top:-6px;">El cliente ve este texto real (en vez del genérico) justo antes de aceptar una cotización, con un checkbox de "leí y entiendo". Dejá "Proveedor" vacío para cargar la política GENERAL de esa categoría (se usa si no hay una puntual); en vuelos, si cargás el nombre exacto de una aerolínea, esa tiene prioridad sobre la general de "Vuelos" para esa aerolínea puntual.</p>
+      <form id="cancellationPolicyForm">
+        <div class="field">
+          <label for="cancellationPolicyCategory">Categoría</label>
+          <select id="cancellationPolicyCategory" required>
+            <option value="flight">Vuelos</option>
+            <option value="cruise">Cruceros</option>
+            <option value="hotel">Hoteles</option>
+            <option value="car">Autos</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="cancellationPolicyProvider">Proveedor (opcional — ej. "Copa Airlines"; vacío = política general de la categoría)</label>
+          <input type="text" id="cancellationPolicyProvider" placeholder="Dejar vacío para la política general">
+        </div>
+        <div class="field">
+          <label for="cancellationPolicyText">Texto de la política</label>
+          <textarea id="cancellationPolicyText" rows="4" required></textarea>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button type="submit" class="btn" id="cancellationPolicySubmitBtn">Guardar</button>
+          <button type="button" class="btn" id="cancellationPolicyCancelEditBtn" style="display:none; background:rgba(26,26,26,0.08); color:var(--dark);">Cancelar edición</button>
+        </div>
+      </form>
+      <p class="msg" id="cancellationPolicyMsg"></p>
+      <div id="cancellationPolicyList" style="margin-top:16px;"></div>
+    </div>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
