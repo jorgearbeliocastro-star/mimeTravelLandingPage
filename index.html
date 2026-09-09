@@ -8974,8 +8974,10 @@
         if (!e.target.matches('[data-pax-copy-emergency]') || !e.target.checked) return;
         const nameVal = blocksWrap.querySelector('[name="emergencyContactName-0"]')?.value || '';
         const phoneVal = blocksWrap.querySelector('[name="emergencyContactPhone-0"]')?.value || '';
+        const phoneCodeVal = blocksWrap.querySelector('[name="emergencyContactPhoneCode-0"]')?.value || '';
         blocksWrap.querySelectorAll('[name^="emergencyContactName-"]').forEach((el) => { if (el.name !== 'emergencyContactName-0') el.value = nameVal; });
         blocksWrap.querySelectorAll('[name^="emergencyContactPhone-"]').forEach((el) => { if (el.name !== 'emergencyContactPhone-0') el.value = phoneVal; });
+        blocksWrap.querySelectorAll('[name^="emergencyContactPhoneCode-"]').forEach((el) => { if (el.name !== 'emergencyContactPhoneCode-0') el.value = phoneCodeVal; });
       });
       // Si nació en tal país, lo más probable es que la nacionalidad y el
       // idioma sean los de ese mismo país — se autocompleta apenas escribe
