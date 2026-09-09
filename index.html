@@ -8830,9 +8830,13 @@
           passportIssuingCountry: null,
           city: val('city') || null,
           zipCode: val('zipCode') || null,
-          address: val('address') || null,
+          // Calle y número de casa/apto eran un solo campo — el cliente
+          // los mezclaba sin saber cuál iba en cuál, así que ahora son dos
+          // <input> en la pantalla pero se combinan en un solo string acá
+          // para no cambiar la columna que espera submit_quote_passengers.
+          address: (val('address') + (val('addressNumber') ? ', ' + val('addressNumber') : '')) || null,
           emergencyContactName: val('emergencyContactName') || null,
-          emergencyContactPhone: val('emergencyContactPhone') || null,
+          emergencyContactPhone: phoneVal('emergencyContactPhone') || null,
         };
       }
       // travelWarningsAcknowledged: solo existe si el bloque de avisos
