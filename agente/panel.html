@@ -805,6 +805,17 @@
       setInterval(pollAcceptedDocsChannels, 6000);
       checkPersonalQueueBlock();
       setInterval(checkPersonalQueueBlock, 6000);
+      // En cuanto CUALQUIER agente reclama algo del Pool (o le cambia el
+      // status), refrescar el Pool al toque en vez de esperar hasta 6s —
+      // si no, dos agentes podían ver la misma cotización "disponible" y
+      // tocarla los dos (el RPC ya lo bloquea del lado de la base, pero
+      // acá evitamos que llegue siquiera a intentarlo).
+      supabaseClient
+        .channel('pool-live-updates')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'quote_requests' }, () => {
+          if (currentTab === 'pool') loadQuotes();
+        })
+        .subscribe();
       // Apenas llega un push (aunque esta pestaña ya esté abierta), el
       // service worker avisa acá — así el número se actualiza al toque,
       // no recién en el próximo sondeo.
