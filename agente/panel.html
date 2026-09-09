@@ -286,6 +286,16 @@
     margin-bottom: 14px;
     box-shadow: 0 3px 14px rgba(27,58,92,0.08);
   }
+  /* Resalta la card a la que se saltó desde un link con ?quoteId= (ver
+     openQuoteFromDeepLink) — para que el agente la encuentre a simple
+     vista entre el resto de la lista, no solo por el scroll. */
+  .quote-card-flash {
+    animation: quoteCardFlash 1.5s ease-in-out 2;
+  }
+  @keyframes quoteCardFlash {
+    0%, 100% { box-shadow: 0 3px 14px rgba(27,58,92,0.08); border-color: rgba(27,58,92,0.06); }
+    50% { box-shadow: 0 0 0 4px rgba(255,122,89,0.45); border-color: var(--coral); }
+  }
   .quote-card .route { font-family: var(--font-display); font-weight: 700; font-size: 16px; color: var(--primary); }
   .quote-card .meta { font-size: 12px; color: rgba(26,26,26,0.55); margin-top: 3px; }
   .quote-card .notes { font-size: 13px; margin-top: 8px; white-space: pre-wrap; }
