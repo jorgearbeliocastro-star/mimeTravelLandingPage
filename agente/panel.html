@@ -806,6 +806,7 @@
       // loadQuotes se salta el repintado si nada cambió.
       await loadCountryNamesEs();
       loadQuotes();
+      openQuoteFromDeepLink();
       loadAddonCatalogForPricing();
       pollTimer = setInterval(loadQuotes, 6000);
       updateAcceptedBadge();
