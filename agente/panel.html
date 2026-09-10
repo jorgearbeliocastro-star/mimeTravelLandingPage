@@ -1160,9 +1160,17 @@
     // aparte, sin importar qué pestaña esté abierta, para que el cliente
     // no se quede esperando sin necesidad.
     async function pollAcceptedDocsChannels() {
+      // OJO: tiene que traer client_token, no solo 'id' — ensureDocsThumbChannel
+      // arma el canal UNA sola vez por cotización (ver el "if
+      // (docsThumbChannels[quote.id]) return" ahí adentro) y lo que sea
+      // que se le pase la primera vez queda fijo para siempre. Si este
+      // sondeo (que corre solo, cada 6s, sin importar la pestaña) le
+      // ganaba la carrera al render de la card real, el canal se armaba
+      // con client_token vacío y el aviso al cliente nunca se mandaba,
+      // sin ningún error visible — bug real, encontrado en vivo.
       const { data, error } = await supabaseClient
         .from('quote_requests')
-        .select('id')
+        .select('id, client_token')
         .eq('claimed_by_agent_id', agentId)
         .eq('status', 'decided')
         .eq('client_decision', 'accepted')
