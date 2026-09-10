@@ -5668,6 +5668,52 @@
       return t('quoteCancellationPolicyBody');
     }
 
+    // Permiso de notificaciones OBLIGATORIO antes de poder mandar una
+    // cotización — a pedido explícito: sin el permiso, el cliente nunca
+    // se entera cuando el agente responde/pide sus documentos, así que no
+    // tiene sentido dejarlo mandar el pedido igual. Solo se aplica en
+    // navegadores que SÍ soportan Notification/Push — Safari de iPhone
+    // sin instalar la web no tiene esta API en absoluto, ese caso queda
+    // sin decidir todavía (se deja pasar por ahora).
+    // Devuelve 'ok' | 'blocked' | 'unsupported'.
+    async function ensurePushPermissionForSubmit() {
+      if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+        return 'unsupported';
+      }
+      if (Notification.permission === 'denied') return 'blocked';
+      if (Notification.permission === 'default') {
+        let result;
+        try {
+          result = await Notification.requestPermission();
+        } catch {
+          return 'unsupported'; // el navegador no dejó ni preguntar — no lo trabamos por eso
+        }
+        if (result !== 'granted') return 'blocked';
+      }
+      // Ya está 'granted' (recién o de antes) — asegura que la suscripción
+      // real exista, sin bloquear el envío si ESTO puntual falla (el
+      // permiso ya está dado, que es lo que de verdad importaba acá).
+      try {
+        const reg = await registerServiceWorker();
+        if (reg) {
+          let sub = await reg.pushManager.getSubscription();
+          if (!sub) {
+            sub = await reg.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: urlBase64ToUint8Array(WEB_PUSH_VAPID_PUBLIC_KEY),
+            });
+          }
+          await supabaseClient.from('client_push_subscriptions').insert({
+            client_token: getOrCreateWebClientToken(),
+            subscription: sub.toJSON(),
+          });
+        }
+      } catch {
+        // no bloqueante
+      }
+      return 'ok';
+    }
+
     let clientPushSubscribeAttempted = false;
     async function subscribeClientPush() {
       if (clientPushSubscribeAttempted) return;
