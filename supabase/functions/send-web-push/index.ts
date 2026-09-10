@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
       .select('id, subscription')
       .eq('client_token', body.clientToken);
     if (clientErr) return new Response(JSON.stringify({ error: clientErr.message }), { status: 500, headers: CORS_HEADERS });
-    const clientPayload = JSON.stringify({ title, body: msgBody, url });
+    const clientPayload = JSON.stringify({ title, body: msgBody, url, tag });
     const clientResults = await Promise.allSettled(
       (clientSubs ?? []).map((row: any) => webpush.sendNotification(row.subscription, clientPayload))
     );
