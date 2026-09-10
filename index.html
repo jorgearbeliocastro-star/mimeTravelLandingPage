@@ -5554,6 +5554,11 @@
         req.onerror = () => reject(req.error);
       });
     }
+    // Devuelve true/false — antes tragaba cualquier error en silencio
+    // (memoria llena, el navegador lo bloquea, etc.) y nadie se enteraba
+    // si el guardado realmente había fallado. Ahora el que llama puede
+    // avisar en pantalla si esto da false, en vez de asumir que se
+    // guardó bien.
     async function saveDocToIDB(quoteId, docType, dataUrl) {
       try {
         const db = await openDocsIDB();
@@ -5563,10 +5568,10 @@
           tx.oncomplete = resolve;
           tx.onerror = () => reject(tx.error);
         });
-      } catch {
-        // no bloqueante — si el navegador no soporta IndexedDB (raro hoy
-        // en día) o algo falla, la foto sigue viva en memoria igual, solo
-        // no sobrevive si cierra la pestaña.
+        return true;
+      } catch (e) {
+        console.error('[docs-idb] no se pudo guardar en el equipo del cliente:', e);
+        return false;
       }
     }
     async function loadDocFromIDB(quoteId, docType) {
