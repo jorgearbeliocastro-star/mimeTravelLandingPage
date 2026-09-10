@@ -2250,8 +2250,18 @@
           '<input type="time" class="pf-schedule-departure" aria-label="Hora de salida">' +
           '<input type="time" class="pf-schedule-arrival" aria-label="Hora de llegada">' +
           '</div>' +
-          '<label class="price-form-label">Condiciones de la tarifa (reembolso, cambios, equipaje incluido)</label>' +
-          '<textarea class="pf-fare-conditions" rows="2" placeholder="Ej. No reembolsable, permite cambios con cargo, sin equipaje facturado incluido"></textarea>'
+          '<label class="price-form-label">¿Es reembolsable?</label>' +
+          '<select class="pf-refundable-choice">' +
+          '<option value="none">No reembolsable</option>' +
+          '<option value="included">Reembolsable, sin cargo adicional</option>' +
+          '<option value="paid">Reembolsable pagando un cargo adicional</option>' +
+          '</select>' +
+          '<div class="pf-refundable-price-row" style="display:none;">' +
+          '<label class="price-form-label">Cargo adicional por reembolso (USD)</label>' +
+          '<input type="number" class="pf-refundable-price" inputmode="decimal" min="0" step="0.01">' +
+          '</div>' +
+          '<label class="price-form-label">Otras condiciones de la tarifa (cambios, equipaje incluido)</label>' +
+          '<textarea class="pf-fare-conditions" rows="2" placeholder="Ej. Permite cambios con cargo, sin equipaje facturado incluido"></textarea>'
         : '';
       // Equipaje de mano/facturado y tipo de asiento son conceptos de
       // avión — no le corresponden a crucero, hotel, auto ni paquete.
