@@ -316,8 +316,38 @@
   }
   .urgent-help-global-row span { flex: 1; min-width: 0; }
   .quote-card .route { font-family: var(--font-display); font-weight: 700; font-size: 16px; color: var(--primary); }
-  .quote-card .meta { font-size: 12px; color: rgba(26,26,26,0.55); margin-top: 3px; }
-  .quote-card .notes { font-size: 13px; margin-top: 8px; white-space: pre-wrap; }
+  /* Antes era una sola línea con todo separado por " · " (categoría,
+     nombre, teléfono, email, fechas, cantidad de viajeros) — se leía
+     amontonado y costaba encontrar un dato puntual. Ahora cada dato es su
+     propia línea con un ícono de referencia (ver meta-line más abajo);
+     .meta se sigue usando para la etiqueta de categoría sola. */
+  .quote-card .meta { font-size: 13.5px; color: rgba(26,26,26,0.75); margin-top: 4px; }
+  .quote-card .meta-line { font-size: 13.5px; color: rgba(26,26,26,0.8); margin-top: 4px; display: flex; align-items: baseline; gap: 6px; }
+  .quote-card .notes {
+    font-size: 14px;
+    color: rgba(26,26,26,0.85);
+    margin-top: 8px;
+    white-space: pre-wrap;
+    line-height: 1.5;
+    /* Mismo criterio visual que .agent-cabin-choice de acá abajo — texto
+       largo (itinerario/notas) como su propia caja, no un párrafo suelto
+       que se mezcla con el resto de la card. */
+    background: rgba(27,58,92,0.04);
+    border: 1px solid rgba(27,58,92,0.1);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .price-accepted-amount { font-size: 15px; font-weight: 700; color: var(--primary); margin-top: 8px; }
+  .consent-badge {
+    display: inline-block;
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-top: 4px;
+  }
+  .consent-badge.ok { background: rgba(46,125,50,0.12); color: #2e7d32; }
+  .consent-badge.warn { background: #fdecea; color: #c0392b; }
   /* Camarote elegido por el cliente (ver cabinChoiceHtml) — tarjeta
      propia arriba de todo, no un párrafo más para leer. */
   .agent-cabin-choice { background: rgba(27,58,92,0.05); border: 1px solid rgba(27,58,92,0.15); border-radius: 8px; padding: 8px 10px; margin-top: 8px; }
