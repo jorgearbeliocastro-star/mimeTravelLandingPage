@@ -28,6 +28,10 @@ self.addEventListener('push', (event) => {
     // config del teléfono) — el sonido en sí lo maneja el sistema, no
     // esta opción.
     vibrate: [200, 100, 200],
+    // Mismo criterio que sw.js del sitio público — si se repite el mismo
+    // aviso, reemplaza al anterior en vez de apilarse (menos "spammy").
+    tag: data.tag || undefined,
+    renotify: !!data.tag,
   };
   event.waitUntil(
     Promise.all([
