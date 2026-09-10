@@ -1954,11 +1954,19 @@
           card.appendChild(info);
           card.appendChild(buildReassignButton(q));
         } else if (q.status === 'decided' && q.client_decision === 'accepted') {
-          const info = document.createElement('div');
-          info.className = 'already-quoted';
+          // Antes era una sola oración larga ("Precio aceptado: USD X —
+          // consentimiento de cobro confirmado/SIN confirmar") — a pedido
+          // explícito, ahora el monto va grande y aparte, y el estado del
+          // consentimiento como una etiqueta de color (verde/rojo) en vez
+          // de texto plano, para que no haya que leer todo para saber si
+          // falta o no.
           const hasConsent = !!(q.payment_consent_at && q.payment_consent_ip);
-          info.textContent = 'Precio aceptado: USD ' + (q.quoted_price_basic_usd ?? q.quoted_price_usd) +
-            (hasConsent ? ' — consentimiento de cobro confirmado' : ' — SIN consentimiento de cobro todavía');
+          const info = document.createElement('div');
+          info.innerHTML =
+            '<div class="price-accepted-amount">💰 USD ' + (q.quoted_price_basic_usd ?? q.quoted_price_usd) + ' aceptado</div>' +
+            '<div class="consent-badge ' + (hasConsent ? 'ok' : 'warn') + '">' +
+            (hasConsent ? '✅ Consentimiento de cobro confirmado' : '⚠️ SIN consentimiento de cobro todavía') +
+            '</div>';
           card.appendChild(info);
 
           // El agente tiene que abrir ESTA cotización puntual para que el
