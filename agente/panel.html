@@ -373,12 +373,6 @@
   .price-form textarea { resize: vertical; }
   .price-form-row { display: flex; gap: 8px; }
   .price-form-row > input { flex: 1; min-width: 0; }
-  /* Reemplaza al <input type="time"> nativo para horario de vuelo — el
-     selector de AM/PM nativo (una flechita chiquita para subir/bajar) era
-     muy incómodo de tocar, a pedido explícito se cambió por 3 desplegables
-     comunes (hora/minuto/AM-PM), mucho más fáciles de usar con el mouse. */
-  .price-form-row > .pf-time-group { flex: 1; min-width: 0; display: flex; align-items: center; gap: 4px; }
-  .pf-time-group select { flex: 1; min-width: 0; }
   .price-form-seat { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
   .price-form-seat input[type="number"] { width: 100%; }
   .price-form-seat input[type="number"]:disabled { background: rgba(0,0,0,0.05); color: rgba(26,26,26,0.4); }
