@@ -7880,7 +7880,7 @@
       else document.getElementById('cabinSelectOverlay').hidden = true;
     });
 
-    searchForm.addEventListener('submit', function (e) {
+    searchForm.addEventListener('submit', async function (e) {
       e.preventDefault();
       const form = this;
       // Compara el correo con su confirmación ANTES de mandar nada — así se
@@ -7892,6 +7892,18 @@
         searchEmailConfirmEl.focus();
         return;
       }
+      // Permiso de notificaciones obligatorio antes de mandar — a pedido
+      // explícito: sin poder avisarle, el cliente nunca se entera cuando
+      // el agente responde o pide sus documentos. "unsupported" (ej.
+      // Safari de iPhone sin instalar la web) se deja pasar por ahora,
+      // caso pendiente de decidir aparte.
+      searchMsg.textContent = t('msgPushRequired');
+      const pushResult = await ensurePushPermissionForSubmit();
+      if (pushResult === 'blocked') {
+        searchMsg.textContent = t('msgPushBlocked');
+        return;
+      }
+      searchMsg.textContent = '';
       const activeType = searchTabs.querySelector('.search-tab.active')?.dataset.type || 'vuelos';
       const data = Object.fromEntries(new FormData(form).entries());
 
