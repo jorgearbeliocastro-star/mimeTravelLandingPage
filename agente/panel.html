@@ -1210,13 +1210,28 @@
     function buildPendingReasonText(newCount, urgentCount) {
       const parts = [];
       if (newCount > 0) parts.push(newCount + ' cotización' + (newCount === 1 ? '' : 'es') + ' sin atender en "Nuevas"');
-      if (urgentCount > 0) parts.push(urgentCount + ' con 🚨 ayuda urgente pendiente (buscá el cartel rojo en tus otras pestañas)');
+      if (urgentCount > 0) parts.push(urgentCount + ' con 🚨 ayuda urgente pendiente (mirá el aviso de arriba para ir directo)');
       return parts.join(' y ');
     }
     let lastPendingReasonCounts = { newCount: 0, urgentCount: 0 };
     async function checkPersonalQueueBlock() {
       const { newCount, urgentCount, total } = await countUntouchedPersonalQueue();
       lastPendingReasonCounts = { newCount, urgentCount };
+      // Trae los datos reales de CADA cotización con ayuda urgente sin
+      // resolver, para el banner fijo (ver renderUrgentHelpGlobalBanner)
+      // — visible en cualquier pestaña mientras siga así, no solo cuando
+      // el agente está mirando Pool.
+      if (urgentCount > 0) {
+        const { data } = await supabaseClient
+          .from('quote_requests')
+          .select('id, origin, destination, contact_name, status, client_decision, claimed_by_agent_id, needs_agent_review')
+          .eq('claimed_by_agent_id', agentId)
+          .eq('needs_urgent_help', true);
+        urgentBlockingQuotes = data || [];
+      } else {
+        urgentBlockingQuotes = [];
+      }
+      renderUrgentHelpGlobalBanner();
       const nowBlocked = total > 0;
       if (nowBlocked !== hasUntouchedPersonalQueue) {
         hasUntouchedPersonalQueue = nowBlocked;
