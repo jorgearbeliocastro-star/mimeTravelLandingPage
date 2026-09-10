@@ -9107,7 +9107,16 @@
 
       const blocksWrap = document.createElement('div');
       blocksWrap.className = 'quote-pax-blocks';
-      blocksWrap.innerHTML = buildPassengerBlockHTML(0);
+      // Antes arrancaba siempre con un solo bloque, sin importar cuántos
+      // adultos/niños había pedido el cliente al principio — si no sabía
+      // que tenía que tocar "Agregar otro pasajero", mandaba la
+      // cotización con los datos de una sola persona aunque el viaje
+      // fuera para varias. Ahora arranca con un bloque por cada pasajero
+      // pedido (mínimo 1, por si esa cotización nunca guardó la cantidad).
+      const initialPaxCount = Math.max(1, activeQuoteRequestedAdults + activeQuoteRequestedChildren);
+      let initialBlocksHtml = '';
+      for (let i = 0; i < initialPaxCount; i++) initialBlocksHtml += buildPassengerBlockHTML(i);
+      blocksWrap.innerHTML = initialBlocksHtml;
       form.appendChild(blocksWrap);
 
       const addBtn = document.createElement('button');
