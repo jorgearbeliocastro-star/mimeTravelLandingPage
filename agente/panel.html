@@ -1268,16 +1268,12 @@
     // el panel en general — el agente tenía que buscar a mano de qué
     // cotización se trataba. Ahora salta directo a la pestaña correcta y
     // la resalta.
-    async function openQuoteFromDeepLink() {
-      const params = new URLSearchParams(location.search);
-      const quoteId = params.get('quoteId');
-      if (!quoteId) return;
-      // Se saca de la URL apenas se usa, para que un refresh de la página
-      // después no vuelva a saltar ahí solo.
-      history.replaceState(null, '', location.pathname);
-      const { data: q, error } = await supabaseClient.from('quote_requests').select('*').eq('id', quoteId).maybeSingle();
-      if (error || !q) return;
-      const targetTab = tabForQuote(q);
+    // Salta a la pestaña correcta de una cotización puntual y la resalta
+    // — reusado por openQuoteFromDeepLink (push con ?quoteId=) y por el
+    // banner de "ayuda urgente pendiente" (ver renderUrgentHelpGlobalBanner),
+    // que antes solo decía "buscá en tus otras pestañas" sin dar ninguna
+    // forma real de encontrarla.
+    async function jumpToQuoteId(quoteId, targetTab) {
       if (!targetTab) return;
       const tabEl = document.querySelector('.tab[data-tab="' + targetTab + '"]');
       if (tabEl && !tabEl.classList.contains('active')) {
@@ -1291,6 +1287,47 @@
         card.classList.add('quote-card-flash');
         setTimeout(() => card.classList.remove('quote-card-flash'), 3000);
       }
+    }
+
+    async function openQuoteFromDeepLink() {
+      const params = new URLSearchParams(location.search);
+      const quoteId = params.get('quoteId');
+      if (!quoteId) return;
+      // Se saca de la URL apenas se usa, para que un refresh de la página
+      // después no vuelva a saltar ahí solo.
+      history.replaceState(null, '', location.pathname);
+      const { data: q, error } = await supabaseClient.from('quote_requests').select('*').eq('id', quoteId).maybeSingle();
+      if (error || !q) return;
+      await jumpToQuoteId(quoteId, tabForQuote(q));
+    }
+
+    // Banner fijo, visible en CUALQUIER pestaña (no solo Pool) mientras
+    // tenga algo con "ayuda urgente" sin resolver — a pedido explícito:
+    // antes el único aviso era el texto "buscá el cartel rojo en tus
+    // otras pestañas" dentro de la nota del Pool, que ni se veía fuera de
+    // ahí ni decía DÓNDE estaba. Se repinta solo, cada 6s (ver
+    // checkPersonalQueueBlock), y desaparece solo apenas se resuelve.
+    let urgentBlockingQuotes = [];
+    function renderUrgentHelpGlobalBanner() {
+      const el = document.getElementById('urgentHelpGlobalBanner');
+      if (!el) return;
+      if (!urgentBlockingQuotes.length) {
+        el.innerHTML = '';
+        el.hidden = true;
+        return;
+      }
+      el.hidden = false;
+      el.innerHTML = urgentBlockingQuotes.map((q) => {
+        const route = q.origin ? q.origin + ' → ' + (q.destination || '') : (q.destination || 'Consulta');
+        const who = q.contact_name || 'Cliente';
+        return '<div class="urgent-help-global-row">' +
+          '<span>🚨 <strong>' + escapeHtml(who) + '</strong> — ' + escapeHtml(route) + ' necesita ayuda urgente</span>' +
+          '<button type="button" class="claim-btn secondary" data-jump-quote="' + q.id + '" data-jump-tab="' + tabForQuote(q) + '">Ir ahí</button>' +
+          '</div>';
+      }).join('');
+      el.querySelectorAll('[data-jump-quote]').forEach((btn) => {
+        btn.addEventListener('click', () => jumpToQuoteId(btn.dataset.jumpQuote, btn.dataset.jumpTab));
+      });
     }
 
     async function loadQuotes() {
