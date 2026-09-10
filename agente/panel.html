@@ -3050,6 +3050,7 @@
           clearInterval(docsThumbRetryTimers[quote.id]);
           delete docsThumbRetryTimers[quote.id];
         }
+        delete docsThumbRequestFns[quote.id];
       }
       // Si después de un par de reintentos (~20s) el cliente sigue sin
       // responder, probablemente no tiene la página abierta — se le manda
