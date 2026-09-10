@@ -8100,12 +8100,21 @@
       if (e.key === 'Escape' && !presaleOverlay.hidden) closePresaleModal();
     });
 
-    presaleForm.addEventListener('submit', function (e) {
+    presaleForm.addEventListener('submit', async function (e) {
       e.preventDefault();
       const presaleEmailConfirmEl = document.getElementById('presaleEmailConfirm');
       if (presaleEmailConfirmEl.value.trim().toLowerCase() !== document.getElementById('presaleEmail').value.trim().toLowerCase()) {
         presaleMsg.textContent = t('msgEmailMismatch');
         presaleEmailConfirmEl.focus();
+        return;
+      }
+      // Mismo permiso obligatorio que el buscador principal (ver
+      // ensurePushPermissionForSubmit) — este formulario también crea una
+      // cotización real, no puede saltearse el mismo requisito.
+      presaleMsg.textContent = t('msgPushRequired');
+      const pushResult = await ensurePushPermissionForSubmit();
+      if (pushResult === 'blocked') {
+        presaleMsg.textContent = t('msgPushBlocked');
         return;
       }
       presaleMsg.textContent = t('msgPresaleSending');
