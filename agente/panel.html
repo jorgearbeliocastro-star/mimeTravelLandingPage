@@ -2498,6 +2498,17 @@
           if (off.checked) input.value = '';
         });
       });
+      // El precio del cargo adicional solo aparece si eligió "reembolsable
+      // pagando un cargo" — antes esto vivía mezclado adentro del texto
+      // libre de condiciones, a pedido explícito ahora es un desplegable
+      // con las 3 posibilidades reales, no texto para escribir a mano.
+      const refundableChoice = row.querySelector('.pf-refundable-choice');
+      const refundablePriceRow = row.querySelector('.pf-refundable-price-row');
+      if (refundableChoice && refundablePriceRow) {
+        refundableChoice.addEventListener('change', () => {
+          refundablePriceRow.style.display = refundableChoice.value === 'paid' ? '' : 'none';
+        });
+      }
       // El bloque de escalas solo aparece si el agente marca "Con
       // escala(s)" — primero elige CUÁNTAS son, y ahí se arma un renglón
       // por cada una para poner el país de esa escala puntual (antes era
