@@ -10404,7 +10404,14 @@
               // await) — si el cliente cerraba la pestaña muy rápido
               // después de subir, el guardado podía quedar cortado a la
               // mitad y la foto se perdía sin ningún error visible.
-              await saveDocToIDB(quote.id, docType, docsDataUrls[docType]);
+              const savedOk = await saveDocToIDB(quote.id, docType, docsDataUrls[docType]);
+              if (!savedOk && statusEl) {
+                // No corta el flujo (la foto sigue viva en memoria y se
+                // puede mandar igual mientras esta pestaña siga abierta)
+                // pero ahora SÍ se avisa — antes esto fallaba en silencio.
+                statusEl.textContent = '⚠️ No se pudo guardar la foto en tu equipo — no cierres esta pantalla hasta que se envíe.';
+                statusEl.className = 'docs-upload-status waiting';
+              }
               docsReceivedByAgent[docType] = false;
               const { error: readyError } = await supabaseClient.rpc('set_quote_docs_ready', { p_token: clientToken, p_id: quote.id, p_ready: true });
               if (readyError) {
