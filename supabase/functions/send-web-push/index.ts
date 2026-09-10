@@ -94,7 +94,7 @@ Deno.serve(async (req) => {
     usedFallback = true;
   }
 
-  const payload = JSON.stringify({ title, body: msgBody, url });
+  const payload = JSON.stringify({ title, body: msgBody, url, tag });
   const results = await Promise.allSettled(
     (subs ?? []).map((row: any) => webpush.sendNotification(row.subscription, payload))
   );
