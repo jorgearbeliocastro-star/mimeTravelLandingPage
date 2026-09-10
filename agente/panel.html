@@ -2606,10 +2606,18 @@
           return { label: item.label, priceUSD: item.price_usd, photoUrl: item.photo_url, description: item.description, category: item.category };
         }).filter(Boolean);
         const notes = row.querySelector('.pf-notes').value.trim();
-        // Ya viene armado como "3:05pm" directo de los 3 desplegables
-        // (readTimeSelectValue arriba) — no hace falta convertir nada.
-        const departureValue = readTimeSelectValue(row, 'pf-schedule-departure');
-        const arrivalValue = readTimeSelectValue(row, 'pf-schedule-arrival');
+        // Convierte "HH:MM" (24h, lo que da un <input type="time">) a
+        // "h:mmam/pm" para mostrarle al cliente, ej. "13:00" -> "1:00pm".
+        const formatTime12h = (value) => {
+          const [h, m] = value.split(':').map(Number);
+          const period = h >= 12 ? 'pm' : 'am';
+          const hour12 = h % 12 === 0 ? 12 : h % 12;
+          return hour12 + ':' + String(m).padStart(2, '0') + period;
+        };
+        const departureInput = row.querySelector('.pf-schedule-departure');
+        const arrivalInput = row.querySelector('.pf-schedule-arrival');
+        const departureValue = departureInput && departureInput.value ? formatTime12h(departureInput.value) : null;
+        const arrivalValue = arrivalInput && arrivalInput.value ? formatTime12h(arrivalInput.value) : null;
         const scheduleValue = departureValue && arrivalValue ? (departureValue + ' ... ' + arrivalValue) : null;
         const airlineInput = row.querySelector('.pf-airline');
         const airlineValue = airlineInput ? airlineInput.value.trim() || null : null;
