@@ -970,10 +970,10 @@
       // dejando cosas propias sin atender en "Nuevas".
       const logoutBtn = document.getElementById('logoutBtn');
       logoutBtn.disabled = true;
-      const pending = await countUntouchedPersonalQueue();
+      const { newCount, urgentCount, total } = await countUntouchedPersonalQueue();
       logoutBtn.disabled = false;
-      if (pending > 0) {
-        alert('Tenés ' + pending + ' cotización' + (pending === 1 ? '' : 'es') + ' sin atender en "Nuevas". Reasignala a otro agente o terminala antes de cerrar sesión.');
+      if (total > 0) {
+        alert('Tenés ' + buildPendingReasonText(newCount, urgentCount) + '. Resolvelo antes de cerrar sesión.');
         return;
       }
       await supabaseClient.auth.signOut();
