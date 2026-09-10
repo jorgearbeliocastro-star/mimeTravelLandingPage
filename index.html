@@ -5903,6 +5903,14 @@
       const clean = parts.filter(Boolean);
       return clean.length ? clean.join(' · ') : null;
     }
+    // Igual que buildQuoteNotes pero cada dato en su propia línea (el
+    // agente ya muestra esto con white-space:pre-wrap) — a pedido
+    // explícito para el detalle del itinerario de crucero, que se leía
+    // todo amontonado en una sola oración con " · ".
+    function buildQuoteNotesLines(parts) {
+      const clean = parts.filter(Boolean);
+      return clean.length ? clean.join('\n') : null;
+    }
 
     // Envío de formularios vía FormSubmit (sin backend propio)
     const FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ajax/contacto@mimetravel.com';
