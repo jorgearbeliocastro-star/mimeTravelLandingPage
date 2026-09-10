@@ -352,13 +352,19 @@
   .badge.quoted { background: #fff3cd; color: #856404; }
   .badge.decided-accepted { background: rgba(95,191,179,0.2); color: #2c7a6f; }
   .badge.decided-declined { background: #f8d7da; color: #c0392b; }
+  /* Apilados uno debajo del otro, ancho completo, como el resto de los
+     botones tipo "pastilla" de la card (.claim-btn) — antes eran flex en
+     una sola fila sin ancho fijo, y con el corte de palabras heredado de
+     .quote-card terminaban partiendo "Confirmar venta"/"Cancelar" letra
+     por letra en vertical. */
   .price-row {
     display: flex;
+    flex-direction: column;
     gap: 8px;
     margin-top: 12px;
   }
   .price-row input {
-    flex: 1;
+    width: 100%;
     padding: 10px 12px;
     border-radius: 8px;
     border: 1.5px solid rgba(27,58,92,0.15);
@@ -366,17 +372,19 @@
     font-family: inherit;
   }
   .price-row button {
-    border: none;
-    background: var(--coral);
-    color: #fff;
-    border-radius: 8px;
-    padding: 0 18px;
+    width: 100%;
+    border: 1.5px solid var(--primary);
+    background: #fff;
+    color: var(--primary);
+    border-radius: 20px;
+    padding: 10px 18px;
     font-weight: 700;
     font-size: 13px;
     cursor: pointer;
+    white-space: nowrap;
   }
   .price-row button:disabled { opacity: 0.5; }
-  .price-row button.price-cancel { background: rgba(27,58,92,0.08); color: var(--primary); }
+  .price-row button.price-cancel { border-color: rgba(27,58,92,0.2); color: rgba(27,58,92,0.7); }
   .docs-btn { margin-left: 8px; }
 
   .price-form { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
