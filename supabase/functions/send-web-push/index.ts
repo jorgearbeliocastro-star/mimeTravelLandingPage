@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
   const body = await req.json().catch(() => null);
   if (!body) return new Response('bad request', { status: 400, headers: CORS_HEADERS });
 
-  const { title, body: msgBody, url } = body;
+  const { title, body: msgBody, url, tag } = body;
 
   // Rama separada: avisarle al CLIENTE en vez de a agentes — sumada
   // 2026-09-03 para poder avisarle en el celular cuando el agente le pone
