@@ -2708,8 +2708,11 @@
         if (airlineValue) {
           supabaseClient.from('quote_requests').update({ quoted_airline: airlineValue }).eq('id', quote.id).then(() => {});
         }
-        if (fareConditionsValue) {
-          supabaseClient.from('quote_requests').update({ quoted_fare_conditions: fareConditionsValue }).eq('id', quote.id).then(() => {});
+        if (fareConditionsValue || refundableChoice) {
+          supabaseClient.from('quote_requests').update({
+            quoted_fare_conditions: fareConditionsValue,
+            quoted_refundable_price_usd: refundablePriceValue,
+          }).eq('id', quote.id).then(() => {});
         }
         // Camarotes puntuales (ver pf-cabin-* arriba) — mismo criterio que
         // aerolínea: update directo aparte, no pasa por price_claimed_quote.
