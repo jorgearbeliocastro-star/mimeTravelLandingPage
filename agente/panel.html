@@ -3078,6 +3078,7 @@
               title: 'Necesitamos tus documentos',
               body: 'Volvé a abrir la página para terminar tu cotización.',
               url: '/',
+              tag: 'docs-' + quote.id,
             }),
           }).catch((err) => console.error('[docs-push] no se pudo avisar al cliente:', err));
         }
