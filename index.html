@@ -7776,9 +7776,13 @@
           payload.searchMode = 'exact_date';
           payload.searchDate = chosenDate;
           payload.searchMonth = null;
-          payload.notes = buildQuoteNotes([
-            'Itinerario: ' + it.title,
-            'Barco preferido: ' + it.ship,
+          // Orden pedido explícito: barco, destino, noches, puertos —
+          // cada uno en su propia línea, no una sola oración con todo
+          // junto separado por " · ".
+          payload.notes = buildQuoteNotesLines([
+            it.ship,
+            it.destination || it.title,
+            it.nights ? it.nights + ' noches' : null,
             it.ports_visited ? 'Puertos: ' + it.ports_visited : null,
             'Precio de referencia: USD ' + chosenPrice + ' por persona',
           ]);
