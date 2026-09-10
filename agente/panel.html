@@ -1800,11 +1800,18 @@
           '<div class="agent-cabin-choice-price">USD ' + cabinChoice.price + '</div>' +
           '</div>'
           : '';
+        // Antes era una sola línea con categoría/nombre/teléfono/email
+        // separados por " · " — a pedido explícito, ahora cada dato tiene
+        // su propia línea con un ícono, para que se pueda encontrar de un
+        // vistazo en vez de tener que leer todo el párrafo seguido.
         card.innerHTML =
           '<div class="route">' + numberPrefix + fmtRoute(q) + '</div>' +
-          '<div class="meta">' + escapeHtml(q.category || '') + ' · ' + escapeHtml(q.contact_name || 'Sin nombre') + (q.contact_phone ? ' · ' + escapeHtml(q.contact_phone) : '') + (q.contact_email ? ' · ' + escapeHtml(q.contact_email) : '') + '</div>' +
-          (datesHtml ? '<div class="meta">' + escapeHtml(datesHtml) + '</div>' : '') +
-          (partyHtml ? '<div class="meta">' + escapeHtml(partyHtml) + '</div>' : '') +
+          '<div class="meta">' + escapeHtml(q.category || '') + '</div>' +
+          '<div class="meta-line">👤 ' + escapeHtml(q.contact_name || 'Sin nombre') + '</div>' +
+          (q.contact_phone ? '<div class="meta-line">📞 ' + escapeHtml(q.contact_phone) + '</div>' : '') +
+          (q.contact_email ? '<div class="meta-line">✉️ ' + escapeHtml(q.contact_email) + '</div>' : '') +
+          (datesHtml ? '<div class="meta-line">📅 ' + escapeHtml(datesHtml) + '</div>' : '') +
+          (partyHtml ? '<div class="meta-line">🧳 ' + escapeHtml(partyHtml) + '</div>' : '') +
           cabinChoiceHtml +
           (q.notes ? '<div class="notes">' + escapeHtml(q.notes) + '</div>' : '') +
           passengersHtml +
