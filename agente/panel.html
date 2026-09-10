@@ -296,6 +296,25 @@
     0%, 100% { box-shadow: 0 3px 14px rgba(27,58,92,0.08); border-color: rgba(27,58,92,0.06); }
     50% { box-shadow: 0 0 0 4px rgba(255,122,89,0.45); border-color: var(--coral); }
   }
+  /* Banner de "ayuda urgente sin resolver" — visible en cualquier pestaña
+     (ver renderUrgentHelpGlobalBanner), no solo cuando el agente está
+     mirando Pool. Sigue ahí mientras el pedido no se resuelva. */
+  #urgentHelpGlobalBanner:not([hidden]) { margin-bottom: 14px; }
+  .urgent-help-global-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: #fdecea;
+    border: 1.5px solid #c0392b;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #c0392b;
+    animation: chatPendingPulse 1.6s ease-in-out infinite;
+  }
+  .urgent-help-global-row span { flex: 1; min-width: 0; }
   .quote-card .route { font-family: var(--font-display); font-weight: 700; font-size: 16px; color: var(--primary); }
   .quote-card .meta { font-size: 12px; color: rgba(26,26,26,0.55); margin-top: 3px; }
   .quote-card .notes { font-size: 13px; margin-top: 8px; white-space: pre-wrap; }
