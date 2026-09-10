@@ -1176,6 +1176,13 @@
     // el sondeo cada 6s (bloquea el Pool) como para el chequeo al toque,
     // en el momento de marcarse "no disponible" o cerrar sesión (ese no
     // puede esperar hasta el próximo sondeo, tiene que ser el dato real).
+    // Devuelve los dos motivos por separado — antes se sumaban en un solo
+    // número y el cartel siempre decía "en Nuevas", aunque el motivo real
+    // fuera una alerta de ayuda urgente en OTRA pestaña (Cotizadas,
+    // Aceptadas, etc. — needs_urgent_help no se limita a status=pending,
+    // puede pasar con una cotización ya cotizada/aceptada). Un agente
+    // podía ver "Nuevas" vacía y el bloqueo igual activo, sin entender
+    // por qué.
     async function countUntouchedPersonalQueue() {
       const { count, error } = await supabaseClient
         .from('quote_requests')
@@ -1187,17 +1194,30 @@
       // Suma lo mismo para "ayuda urgente" sin atender — cliente existente
       // pidiendo algo puntual (cancelar, cambiar, etc.) también bloquea el
       // Pool hasta que se lo atienda o se marque "esperando al cliente"
-      // (ver buildUrgentHelpBanner). Cualquier status, no solo pending.
+      // (ver buildUrgentHelpBanner). Cualquier status, no solo pending —
+      // por eso puede estar en una pestaña distinta a "Nuevas".
       const { count: urgentCount, error: urgentError } = await supabaseClient
         .from('quote_requests')
         .select('id', { count: 'exact', head: true })
         .eq('claimed_by_agent_id', agentId)
         .eq('needs_urgent_help', true);
-      return (error ? 0 : (count || 0)) + (urgentError ? 0 : (urgentCount || 0));
+      const newCount = error ? 0 : (count || 0);
+      const urgent = urgentError ? 0 : (urgentCount || 0);
+      return { newCount, urgentCount: urgent, total: newCount + urgent };
     }
+    // Texto preciso según qué motivo(s) están activos — nunca dice
+    // "Nuevas" si el único motivo es una alerta urgente en otro lado.
+    function buildPendingReasonText(newCount, urgentCount) {
+      const parts = [];
+      if (newCount > 0) parts.push(newCount + ' cotización' + (newCount === 1 ? '' : 'es') + ' sin atender en "Nuevas"');
+      if (urgentCount > 0) parts.push(urgentCount + ' con 🚨 ayuda urgente pendiente (buscá el cartel rojo en tus otras pestañas)');
+      return parts.join(' y ');
+    }
+    let lastPendingReasonCounts = { newCount: 0, urgentCount: 0 };
     async function checkPersonalQueueBlock() {
-      const count = await countUntouchedPersonalQueue();
-      const nowBlocked = count > 0;
+      const { newCount, urgentCount, total } = await countUntouchedPersonalQueue();
+      lastPendingReasonCounts = { newCount, urgentCount };
+      const nowBlocked = total > 0;
       if (nowBlocked !== hasUntouchedPersonalQueue) {
         hasUntouchedPersonalQueue = nowBlocked;
         if (currentTab === 'pool') { lastLoadedQuotesJSON = null; loadQuotes(); }
@@ -1208,7 +1228,7 @@
       const note = document.createElement('div');
       note.className = 'meta';
       note.style.color = '#a15c00';
-      note.textContent = '⚠️ Terminá primero lo que tenés en "Nuevas" antes de tomar algo de acá.';
+      note.textContent = '⚠️ Tenés ' + buildPendingReasonText(lastPendingReasonCounts.newCount, lastPendingReasonCounts.urgentCount) + ' — resolvelo antes de tomar algo de acá.';
       return note;
     }
 
