@@ -7867,9 +7867,13 @@
                 // lo muestra en su propia tarjeta (ver quoted_cabin_options
                 // / apply_cruise_room_price), repetirlo en notas sería
                 // duplicar la misma info dos veces.
-                payload.notes = buildQuoteNotes([
-                  'Itinerario: ' + it.title,
-                  'Barco preferido: ' + it.ship,
+                // Mismo orden que el otro flujo de cruceros (ver más
+                // arriba): barco, destino, noches, puertos, cada uno en
+                // su propia línea.
+                payload.notes = buildQuoteNotesLines([
+                  it.ship,
+                  it.destination || it.title,
+                  it.nights ? it.nights + ' noches' : null,
                   it.ports_visited ? 'Puertos: ' + it.ports_visited : null,
                 ]);
                 overlay.hidden = true;
