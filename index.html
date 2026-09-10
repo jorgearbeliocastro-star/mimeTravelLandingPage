@@ -10532,6 +10532,8 @@
           activeQuoteNeedsAgentReview = !!quote.needs_agent_review;
           activeQuoteClaimedByAgentId = quote.claimed_by_agent_id || null;
           activeQuoteAirline = quote.quoted_airline || null;
+          activeQuoteRequestedAdults = Number(quote.requested_adults) || 0;
+          activeQuoteRequestedChildren = Number(quote.requested_children) || 0;
           quotePanelRoute.textContent = activeQuoteRouteLabel;
           updateUrgentHelpButton(quote);
         }
