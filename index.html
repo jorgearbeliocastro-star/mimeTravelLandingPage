@@ -10395,8 +10395,11 @@
               // Se guarda en el propio equipo del cliente (IndexedDB), no
               // en ningún servidor — sobrevive si cierra la pestaña antes
               // de que el agente la pida (ver comentario arriba de
-              // saveDocToIDB).
-              saveDocToIDB(quote.id, docType, docsDataUrls[docType]);
+              // saveDocToIDB). OJO: antes esto no se esperaba (sin
+              // await) — si el cliente cerraba la pestaña muy rápido
+              // después de subir, el guardado podía quedar cortado a la
+              // mitad y la foto se perdía sin ningún error visible.
+              await saveDocToIDB(quote.id, docType, docsDataUrls[docType]);
               docsReceivedByAgent[docType] = false;
               const { error: readyError } = await supabaseClient.rpc('set_quote_docs_ready', { p_token: clientToken, p_id: quote.id, p_ready: true });
               if (readyError) {
