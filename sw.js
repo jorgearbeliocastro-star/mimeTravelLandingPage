@@ -20,6 +20,12 @@ self.addEventListener('push', (event) => {
     badge: '/icon-192.png',
     data: { url: data.url || '/' },
     requireInteraction: true,
+    // Si el mismo aviso se repite (ej. "necesitamos tus documentos" cada
+    // ~2 min), que reemplace al anterior en vez de apilarse como mensajes
+    // separados — varias notificaciones idénticas seguidas es justo el
+    // patrón que Chrome puede marcar como spam y bloquear el sitio entero.
+    tag: data.tag || undefined,
+    renotify: !!data.tag,
   };
   event.waitUntil(self.registration.showNotification(title, options));
 });
