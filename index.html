@@ -5669,12 +5669,13 @@
     }
 
     // Permiso de notificaciones OBLIGATORIO antes de poder mandar una
-    // cotización — a pedido explícito: sin el permiso, el cliente nunca
-    // se entera cuando el agente responde/pide sus documentos, así que no
-    // tiene sentido dejarlo mandar el pedido igual. Solo se aplica en
-    // navegadores que SÍ soportan Notification/Push — Safari de iPhone
-    // sin instalar la web no tiene esta API en absoluto, ese caso queda
-    // sin decidir todavía (se deja pasar por ahora).
+    // cotización — a pedido explícito, sin excepción: sin el permiso, el
+    // cliente nunca se entera cuando el agente responde o pide sus
+    // documentos, así que no se manda nada. Esto incluye Safari de iPhone
+    // sin instalar la web en la pantalla de inicio (ahí ni existe la API
+    // de notificaciones — Apple solo la habilita para la web instalada
+    // como app, no en una pestaña normal de Safari); a ese caso se le
+    // explica qué tiene que hacer en vez de dejarlo pasar.
     // Devuelve 'ok' | 'blocked' | 'unsupported'.
     async function ensurePushPermissionForSubmit() {
       if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
@@ -5686,7 +5687,7 @@
         try {
           result = await Notification.requestPermission();
         } catch {
-          return 'unsupported'; // el navegador no dejó ni preguntar — no lo trabamos por eso
+          return 'unsupported';
         }
         if (result !== 'granted') return 'blocked';
       }
