@@ -1069,10 +1069,10 @@
       // que reasignarlas a otro agente o terminarlas primero.
       if (nowUnavailable) {
         card.disabled = true;
-        const pending = await countUntouchedPersonalQueue();
+        const { newCount, urgentCount, total } = await countUntouchedPersonalQueue();
         card.disabled = false;
-        if (pending > 0) {
-          alert('Tenés ' + pending + ' cotización' + (pending === 1 ? '' : 'es') + ' sin atender en "Nuevas". Reasignala a otro agente o terminala antes de marcarte no disponible.');
+        if (total > 0) {
+          alert('Tenés ' + buildPendingReasonText(newCount, urgentCount) + '. Resolvelo antes de marcarte no disponible.');
           return;
         }
       }
