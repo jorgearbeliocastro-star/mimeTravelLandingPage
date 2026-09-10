@@ -10868,12 +10868,18 @@
     }, 1000);
 
     // Antes de dejar entrar a llamar.html, chequea que el dispositivo
-    // realmente tenga cámara/micrófono — muchas PC de escritorio no tienen
-    // ninguno de los dos, y sin esto el cliente entraba a la pantalla de
-    // llamada y se quedaba trabado sin entender por qué no conecta.
+    // realmente tenga micrófono — muchas PC de escritorio no tienen
+    // ninguno, y sin esto el cliente entraba a la pantalla de llamada y se
+    // quedaba trabado sin entender por qué no conecta. OJO: acá SOLO se
+    // pide audio, nunca cámara — llamar.html ya tiene su propia pantalla
+    // de elegir "📹 Con video" / "🎤 Solo audio" (ver choiceScreen), y esa
+    // es la que pide cámara, solo si el cliente elige video. Pedir cámara
+    // acá de una, antes de que el cliente elija, le forzaba el permiso
+    // aunque después fuera a elegir solo audio — varios clientes se
+    // asustaban con el cartel doble y no llegaban a llamar.
     document.getElementById('callAgentBtn').addEventListener('click', function (e) {
       e.preventDefault();
-      navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+      navigator.mediaDevices.getUserMedia({ audio: true })
         .then((stream) => {
           stream.getTracks().forEach((t) => t.stop());
           window.location.href = 'llamar.html';
