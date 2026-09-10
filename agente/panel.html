@@ -2995,6 +2995,19 @@
     const docsThumbCache = {}; // quoteId -> { passport: dataUrl|null, card: dataUrl|null }
     const docsThumbChannels = {}; // quoteId -> canal (uno por cotización, para no repetir el pedido)
     const docsIncomingChunks = {};
+    // quoteId -> función requestMissing de ESA cotización — el celular
+    // (sobre todo con la pantalla apagada o el agente mirando otra app)
+    // frena los setInterval en segundo plano para ahorrar batería, así que
+    // el pedido automático de fotos cada 10s se podía quedar pausado sin
+    // ningún error mientras el agente no estaba mirando el panel. Al
+    // volver a la pestaña (ver visibilitychange más abajo) se disparan
+    // todos de una, en vez de esperar a que el timer retome solo.
+    const docsThumbRequestFns = {};
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        Object.values(docsThumbRequestFns).forEach((fn) => fn());
+      }
+    });
 
     function renderDocsThumbs(quoteId) {
       const el = document.getElementById('docsThumbs-' + quoteId);
