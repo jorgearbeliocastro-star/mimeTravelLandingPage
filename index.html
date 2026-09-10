@@ -8424,6 +8424,12 @@
     // cargó una política de cancelación puntual de esa aerolínea (ver
     // getCancellationPolicyText / cancellation_policies).
     let activeQuoteAirline = null;
+    // Cuántos adultos/niños pidió el cliente al principio (ver
+    // parseRequestedParty) — para arrancar el formulario de datos de cada
+    // pasajero con un bloque por persona, en vez de uno solo por defecto
+    // (ver renderPassengerFormInner). Antes esto se ignoraba del todo acá.
+    let activeQuoteRequestedAdults = 0;
+    let activeQuoteRequestedChildren = 0;
     // 'quote' = pedido de viaje normal (precio, aceptar/rechazar, etc.);
     // 'support' = consulta general ("Necesito ayuda") — mismo panel y
     // mismo chat, pero sin nada de precio/decisión, porque no aplica.
