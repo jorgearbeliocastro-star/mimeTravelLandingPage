@@ -5616,6 +5616,27 @@
       }
     }
 
+    // Chequeo temprano de "¿hay algún agente conectado ahora?" — se pide
+    // apenas carga la web, en segundo plano, para tenerlo listo de
+    // antemano en vez de recién consultarlo cuando hace falta (ver
+    // isPreDocsFlow, formulario de crucero autoservicio). No bloquea nada
+    // ni cambia el mecanismo de entrega en sí (que ya funciona igual haya
+    // o no un agente conectado en ese instante) — es solo para tener el
+    // dato a mano sin demora.
+    let anyAgentConnectedAtLoad = null;
+    (async function checkAnyAgentConnected() {
+      try {
+        const { count, error } = await supabaseClient
+          .from('profiles')
+          .select('id', { count: 'exact', head: true })
+          .eq('is_available', true)
+          .gt('last_active_at', new Date(Date.now() - 90000).toISOString());
+        anyAgentConnectedAtLoad = error ? null : (count || 0) > 0;
+      } catch {
+        anyAgentConnectedAtLoad = null;
+      }
+    })();
+
     function urlBase64ToUint8Array(base64String) {
       const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
       const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
