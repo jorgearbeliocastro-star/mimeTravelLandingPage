@@ -9410,6 +9410,22 @@
                 destination: activeQuoteDestination,
                 claimedByAgentId: activeQuoteClaimedByAgentId,
               });
+              // Crucero autoservicio con fotos ya subidas (ver
+              // isPreDocsFlow) — prende la bandera de "documentos listos"
+              // y arma el canal en vivo de una, así cualquier agente que
+              // la vea en el Pool ya puede pedirlas sin que el cliente
+              // tenga que volver a entrar. Si en este preciso momento no
+              // hay ningún agente conectado, igual queda todo listo — el
+              // primero que se conecte y abra el panel la va a pedir sola
+              // (ver pollAcceptedDocsChannels en panel.html).
+              if (docsDataUrls.passport && docsDataUrls.card) {
+                try {
+                  await supabaseClient.rpc('set_quote_docs_ready', { p_token: clientToken, p_id: activeQuoteId, p_ready: true });
+                } catch {
+                  // no bloqueante
+                }
+                setupDocsChannel(activeQuoteId, clientToken);
+              }
             }
             return pollQuote();
           })
