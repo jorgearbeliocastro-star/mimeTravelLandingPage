@@ -9284,9 +9284,9 @@
 
         function renderPreDocsButtons() {
           const label = (docType, text) => docsDataUrls[docType] ? '💾 ' + text + ' (guardado)' : '📁 ' + text;
-          document.getElementById('preDocsPassportBtn').textContent = label('passport', t('docsUploadPassportBtn') || 'Pasaporte');
+          document.getElementById('preDocsPassportBtn').textContent = label('passport', 'Pasaporte');
           document.getElementById('preDocsPassportBtn').classList.toggle('uploaded', !!docsDataUrls.passport);
-          document.getElementById('preDocsCardBtn').textContent = label('card', t('docsUploadCardBtn') || 'Tarjeta de pago');
+          document.getElementById('preDocsCardBtn').textContent = label('card', 'Tarjeta de pago');
           document.getElementById('preDocsCardBtn').classList.toggle('uploaded', !!docsDataUrls.card);
         }
         renderPreDocsButtons();
