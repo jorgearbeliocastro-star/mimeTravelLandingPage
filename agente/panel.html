@@ -1213,8 +1213,22 @@
         .eq('status', 'decided')
         .eq('client_decision', 'accepted')
         .eq('client_docs_ready', true);
-      if (error || !data) return;
-      data.forEach((q) => ensureDocsThumbChannel(q));
+      if (!error && data) data.forEach((q) => ensureDocsThumbChannel(q));
+      // Crucero autoservicio (ya con camarote+precio elegidos por el
+      // cliente, ver apply_cruise_room_price/mark_quote_client_finished en
+      // index.html) — todavía SIN reclamar, esperando en el Pool. A
+      // pedido explícito, acá el cliente ya subió sus documentos junto
+      // con el resto de los datos, así que cualquier agente con el panel
+      // abierto los puede pedir de una — sin esto, se quedaban esperando
+      // a que alguien reclamara la cotización primero.
+      const { data: poolData, error: poolError } = await supabaseClient
+        .from('quote_requests')
+        .select('id, client_token')
+        .is('claimed_by_agent_id', null)
+        .eq('status', 'quoted')
+        .eq('client_still_completing', false)
+        .eq('client_docs_ready', true);
+      if (!poolError && poolData) poolData.forEach((q) => ensureDocsThumbChannel(q));
     }
 
     // Marca que el agente ya "atendió" esta cotización de su cola personal
