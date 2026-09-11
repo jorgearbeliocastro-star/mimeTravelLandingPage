@@ -9350,6 +9350,13 @@
           window.alert(t('quotePaxMissing'));
           return;
         }
+        // Crucero autoservicio: no se manda sin las dos fotos (ver
+        // isPreDocsFlow más arriba) — ya no queda nada más pendiente del
+        // lado del agente, así que tiene sentido pedirlas ya.
+        if (isPreDocsFlow && (!docsDataUrls.passport || !docsDataUrls.card)) {
+          window.alert(t('quotePreDocsMissing'));
+          return;
+        }
         // Sin haber marcado que leyó la política de cancelación, tampoco
         // se manda — ver comentario arriba de dónde se arma el checkbox.
         const cancelPolicyCheck = document.getElementById('cancellationPolicyReadCheck');
