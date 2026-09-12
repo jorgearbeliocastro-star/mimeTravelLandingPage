@@ -9416,12 +9416,33 @@
         img.src = url;
       });
     }
+    // Convierte el blob ya achicado a base64 puro (sin el prefijo
+    // "data:...;base64,") para mandarlo en el JSON del pedido — la función
+    // del servidor decodifica esto de vuelta a bytes antes de guardarlo.
+    function blobToBase64(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(blob);
+      });
+    }
+    // Ya no sube directo al bucket desde el navegador — pasa por
+    // upload-client-doc, que valida que este client_token sea el dueño
+    // real de esta cotización antes de aceptar el archivo (ver la
+    // constante UPLOAD_DOC_FUNCTIONS_URL más arriba).
     async function uploadDocToStorage(quoteId, docType, blob) {
-      const path = quoteId + '/' + docType + '.jpg';
-      const { error } = await supabaseClient.storage
-        .from('client-documents')
-        .upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
-      return !error;
+      try {
+        const dataBase64 = await blobToBase64(blob);
+        const res = await fetch(UPLOAD_DOC_FUNCTIONS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': UPLOAD_DOC_WEBHOOK_SECRET },
+          body: JSON.stringify({ quoteId, clientToken: getOrCreateWebClientToken(), docType, dataBase64 }),
+        });
+        return res.ok;
+      } catch {
+        return false;
+      }
     }
 
     function downscaleImageFile(file, maxDim, quality) {
