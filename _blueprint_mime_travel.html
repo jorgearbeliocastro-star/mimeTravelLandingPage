@@ -352,27 +352,3 @@ sequenceDiagram
     Referencia interna — reflejá el estado del código en <code>mimeTravelLandingPage</code> al momento de escribirse. Actualizar si cambia la arquitectura de documentos o el flujo de pestañas del panel.
   </footer>
 </div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
-<script>
-  function paintMermaid() {
-    var isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
-      (document.documentElement.getAttribute('data-theme') !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    mermaid.initialize({
-      startOnLoad: true,
-      theme: 'base',
-      themeVariables: isDark ? {
-        primaryColor: '#1D2733', primaryTextColor: '#E8E7E2', primaryBorderColor: '#6FA0D6',
-        lineColor: '#6FA0D6', secondaryColor: '#2A2A22', tertiaryColor: '#171F2B',
-        fontFamily: 'Inter, sans-serif', textColor: '#E8E7E2', actorBkg: '#1D2733', actorBorder: '#6FA0D6',
-        actorTextColor: '#E8E7E2', signalColor: '#9AA6B2', signalTextColor: '#E8E7E2', noteBkgColor: '#2A2A22', noteTextColor: '#E8E7E2'
-      } : {
-        primaryColor: '#F3ECDF', primaryTextColor: '#0f2438', primaryBorderColor: '#1B3A5C',
-        lineColor: '#1B3A5C', secondaryColor: '#F5E6D3', tertiaryColor: '#FFFFFF',
-        fontFamily: 'Inter, sans-serif', textColor: '#221D16', actorBkg: '#F3ECDF', actorBorder: '#1B3A5C',
-        actorTextColor: '#0f2438', signalColor: '#6B6355', signalTextColor: '#221D16', noteBkgColor: '#F5E6D3', noteTextColor: '#221D16'
-      }
-    });
-  }
-  paintMermaid();
-</script>
