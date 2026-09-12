@@ -9196,9 +9196,9 @@
       // explícito, acá conviene pedir pasaporte/tarjeta YA, junto con el
       // resto de los datos, en vez de recién después de que un agente la
       // revise: no falta nada más de su lado, ya está todo listo para
-      // cerrar. Mismo mecanismo de guardado local (docsDataUrls/IndexedDB)
-      // que ya usa el paso de después de aceptar — acá es el mismo
-      // pasaporte/tarjeta para toda la reserva, no uno por pasajero.
+      // cerrar. Misma subida a Storage (uploadDocToStorage) que ya usa el
+      // paso de después de aceptar — acá es el mismo pasaporte/tarjeta
+      // para toda la reserva, no uno por pasajero.
       const isPreDocsFlow = mode === 'accept' && activeQuoteNeedsAgentReview;
       if (isPreDocsFlow) {
         const preDocsWrap = document.createElement('div');
