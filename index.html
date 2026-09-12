@@ -9481,8 +9481,8 @@
         return;
       }
       // Ya no espera a que el agente las reciba de verdad para invitar a
-      // cerrar — apenas terminó de guardar las dos de su lado (IndexedDB,
-      // ver saveDocToIDB) ya está seguro, no hace falta que se quede
+      // cerrar — apenas terminó de subirlas al bucket privado
+      // (uploadDocToStorage) ya está seguro, no hace falta que se quede
       // mirando la pantalla hasta que un agente se conecte. Eso puede
       // tardar; el aviso push le llega cuando haga falta que vuelva.
       if (bothUploaded) {
