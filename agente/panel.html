@@ -3049,124 +3049,53 @@
       });
     }
 
-    // Documentos del cliente (pasaporte/tarjeta): llegan por Realtime
-    // mientras el cliente sigue conectado, en pedazos — se arman acá en
-    // memoria del navegador del agente y nunca se guardan en ningún lado.
-    // Se piden los dos SOLOS apenas la card se muestra (sin que el agente
-    // tenga que tocar nada) y se ven como miniatura directo en la card.
-    const docsThumbCache = {}; // quoteId -> { passport: dataUrl|null, card: dataUrl|null }
-    const docsThumbChannels = {}; // quoteId -> canal (uno por cotización, para no repetir el pedido)
-    const docsIncomingChunks = {};
-    // quoteId -> función requestMissing de ESA cotización — el celular
-    // (sobre todo con la pantalla apagada o el agente mirando otra app)
-    // frena los setInterval en segundo plano para ahorrar batería, así que
-    // el pedido automático de fotos cada 10s se podía quedar pausado sin
-    // ningún error mientras el agente no estaba mirando el panel. Al
-    // volver a la pestaña (ver visibilitychange más abajo) se disparan
-    // todos de una, en vez de esperar a que el timer retome solo.
-    const docsThumbRequestFns = {};
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        Object.values(docsThumbRequestFns).forEach((fn) => fn());
-      }
-    });
+    // Documentos del cliente (pasaporte/tarjeta): ahora viven en un bucket
+    // privado del servidor (client-documents, ver el SQL de
+    // client_documents_* policies) — el cliente los sube una sola vez, sin
+    // depender de que el agente esté conectado en ese momento. Acá solo
+    // se pide un link temporal (createSignedUrl, unos minutos de validez)
+    // cada vez que hace falta mostrarlos — no hace falta ningún canal en
+    // vivo ni reintentos.
+    async function fetchDocSignedUrl(quoteId, docType) {
+      const path = quoteId + '/' + docType + '.jpg';
+      const { data, error } = await supabaseClient.storage.from('client-documents').createSignedUrl(path, 300);
+      return error ? null : data.signedUrl;
+    }
 
-    function renderDocsThumbs(quoteId) {
+    async function renderDocsThumbsFromStorage(quoteId) {
+      const [passportUrl, cardUrl] = await Promise.all([
+        fetchDocSignedUrl(quoteId, 'passport'),
+        fetchDocSignedUrl(quoteId, 'card'),
+      ]);
       const el = document.getElementById('docsThumbs-' + quoteId);
       if (!el) return; // la card ya no está en pantalla
-      const cache = docsThumbCache[quoteId] || {};
-      if (!cache.passport && !cache.card) {
-        el.textContent = 'Buscando documentos del cliente…';
+      if (!passportUrl && !cardUrl) {
+        el.textContent = 'Esperando que el cliente suba los documentos…';
         return;
       }
       el.innerHTML = '';
-      ['passport', 'card'].forEach((docType) => {
-        if (!cache[docType]) return;
+      [['passport', passportUrl, 'Pasaporte'], ['card', cardUrl, 'Tarjeta']].forEach(([docType, url, label]) => {
+        if (!url) return;
         const img = document.createElement('img');
-        img.src = cache[docType];
-        img.alt = docType === 'card' ? 'Tarjeta' : 'Pasaporte';
+        img.src = url;
+        img.alt = label;
         img.title = 'Tocá para ver en grande';
-        img.addEventListener('click', () => openDocViewer(cache[docType], img.alt));
+        img.addEventListener('click', () => openDocViewer(url, label));
         el.appendChild(img);
       });
     }
 
-    // Si el primer pedido se pierde (red, el cliente todavía no terminó
-    // de armar su canal, lo que sea), antes se quedaba esperando en
-    // silencio para siempre — ahora reintenta cada 10s lo que falte,
-    // hasta tener las dos.
-    const docsThumbRetryTimers = {};
-
-    function ensureDocsThumbChannel(quote) {
-      if (docsThumbChannels[quote.id]) return; // ya está pidiendo/recibiendo para esta cotización
-      // No pisar lo que ya se recibió antes, si por lo que sea el canal
-      // se armó de nuevo (ej. se limpió y se volvió a crear) — sin esto,
-      // la miniatura ya recibida se borraba sola y volvía a aparecer
-      // recién cuando se recibía de nuevo.
-      if (!docsThumbCache[quote.id]) docsThumbCache[quote.id] = { passport: null, card: null };
-      const channel = supabaseClient.channel('quote-docs:' + quote.id, { config: { broadcast: { self: false } } });
-      docsThumbChannels[quote.id] = channel;
-
-      function stopRetrying() {
-        if (docsThumbRetryTimers[quote.id]) {
-          clearInterval(docsThumbRetryTimers[quote.id]);
-          delete docsThumbRetryTimers[quote.id];
-        }
-        delete docsThumbRequestFns[quote.id];
+    // Se llama al cerrar la venta (ver showSellForm) — ya no hace falta
+    // guardarlos en ningún lado una vez emitido el tiket.
+    async function deleteClientDocs(quoteId) {
+      try {
+        await supabaseClient.storage.from('client-documents').remove([
+          quoteId + '/passport.jpg',
+          quoteId + '/card.jpg',
+        ]);
+      } catch {
+        // no bloqueante — no vale la pena trabar el cierre de venta por esto
       }
-      // Si después de un par de reintentos (~20s) el cliente sigue sin
-      // responder, probablemente no tiene la página abierta — se le manda
-      // una notificación para que la reabra (ahí el sitio busca sola en
-      // su equipo lo que ya había subido, ver saveDocToIDB en index.html,
-      // y lo manda sin que tenga que subir nada de nuevo). Se repite cada
-      // ~2 minutos mientras siga faltando, no en cada intento de 10s.
-      let requestRetryCount = 0;
-      function requestMissing() {
-        const cache = docsThumbCache[quote.id];
-        console.log('[docs-request] cache=', cache, 'client_token=', quote.client_token, 'retryCount=', requestRetryCount);
-        if (!cache) return stopRetrying();
-        if (!cache.passport) channel.send({ type: 'broadcast', event: 'request-doc', payload: { docType: 'passport' } });
-        if (!cache.card) channel.send({ type: 'broadcast', event: 'request-doc', payload: { docType: 'card' } });
-        if (cache.passport && cache.card) { stopRetrying(); return; }
-        requestRetryCount += 1;
-        // Antes esperaba al segundo intento (~10s) — ahora manda en el
-        // primero, así el cliente espera menos y es más fácil de probar.
-        if (quote.client_token && (requestRetryCount === 1 || requestRetryCount % 12 === 0)) {
-          fetch(WEB_PUSH_FUNCTIONS_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': WEB_PUSH_WEBHOOK_SECRET },
-            body: JSON.stringify({
-              clientToken: quote.client_token,
-              title: 'Necesitamos tus documentos',
-              body: 'Volvé a abrir la página para terminar tu cotización.',
-              url: '/',
-              tag: 'docs-' + quote.id,
-            }),
-          }).catch((err) => console.error('[docs-push] no se pudo avisar al cliente:', err));
-        }
-      }
-
-      channel
-        .on('broadcast', { event: 'photo-chunk' }, ({ payload }) => {
-          const buf = docsIncomingChunks[payload.id] || (docsIncomingChunks[payload.id] = { docType: payload.docType, total: payload.total, parts: [] });
-          buf.parts[payload.index] = payload.data;
-          if (buf.parts.filter(Boolean).length === buf.total) {
-            const dataUrl = buf.parts.join('');
-            delete docsIncomingChunks[payload.id];
-            docsThumbCache[quote.id][buf.docType] = dataUrl;
-            renderDocsThumbs(quote.id);
-            channel.send({ type: 'broadcast', event: 'docs-received', payload: { docType: buf.docType } });
-            if (docsThumbCache[quote.id].passport && docsThumbCache[quote.id].card) stopRetrying();
-          }
-        })
-        .subscribe((status) => {
-          console.log('[docs-channel] ' + quote.id + ' -> ' + status);
-          if (status === 'SUBSCRIBED') {
-            docsThumbRequestFns[quote.id] = requestMissing;
-            requestMissing();
-            docsThumbRetryTimers[quote.id] = setInterval(requestMissing, 10000);
-          }
-        });
     }
 
     function openDocViewer(dataUrl, label) {
