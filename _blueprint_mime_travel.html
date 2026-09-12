@@ -284,9 +284,12 @@ flowchart LR
       <pre class="mermaid">
 sequenceDiagram
     participant Cl as Cliente
+    participant Fn as upload-client-doc
     participant St as Bucket privado
     participant Ag as Agente asignado
-    Cl->>St: sube pasaporte.jpg / tarjeta.jpg
+    Cl->>Fn: pasaporte.jpg / tarjeta.jpg + client_token
+    Fn->>Fn: ¿ese token es dueño de esta cotización?
+    Fn->>St: sí → guarda el archivo
     Note over St: nadie puede leerlo todavía
     Ag->>St: reclama la cotización
     Ag->>St: pide un link (createSignedUrl)
