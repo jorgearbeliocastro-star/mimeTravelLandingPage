@@ -1201,7 +1201,7 @@
     // Si tengo algo mío en "Nuevas" sin atender todavía, no puedo tomar
     // nada del "Pool" — a pedido explícito, para no dejar mi propia cola
     // de lado. Corre aparte, cada 6s, sin importar qué pestaña tenga
-    // abierta (mismo criterio que pollAcceptedDocsChannels).
+    // abierta.
     let hasUntouchedPersonalQueue = false;
     // Cuenta lo mío en "Nuevas" que todavía no toqué — se usa tanto para
     // el sondeo cada 6s (bloquea el Pool) como para el chequeo al toque,
