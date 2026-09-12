@@ -8403,15 +8403,10 @@
     // cliente cierre el panel, mostrándolo junto al botón de reabrir.
     let lastKnownPriceExpiresAt = null;
     // Subida de documentos (pasaporte/tarjeta) al aceptar una cotización —
-    // viajan directo al agente por un canal de Supabase Realtime (solo
-    // señal, no un archivo guardado), nunca se suben a Supabase Storage ni
-    // se guardan en ninguna tabla. Viven en memoria de ESTE navegador
-    // mientras el cliente sigue en la página, nada más — por eso el aviso
-    // de "no cierres esta pantalla".
-    let docsChannel = null;
-    let docsChannelQuoteId = null;
+    // van directo a un bucket privado de Supabase Storage (ver
+    // uploadDocToStorage); docsDataUrls acá ya no guarda la imagen en sí,
+    // solo un flag de "ya se subió esta" para pintar los botones.
     let docsDataUrls = { passport: null, card: null };
-    let docsReceivedByAgent = { passport: false, card: false };
     // Aviso de "ya tenés precio" para el cliente que se queda con la
     // pestaña abierta esperando — sin esto, no había sonido ni nada, solo
     // el texto cambiaba en silencio (el correo real es el respaldo si no
