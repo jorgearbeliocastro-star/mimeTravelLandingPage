@@ -5542,6 +5542,14 @@
     // abierta.
     const WEB_PUSH_WEBHOOK_SECRET = '3a61e1f14f2ff3350889bd67cf2250bebde907e17b6d733e';
     const WEB_PUSH_FUNCTIONS_URL = SUPABASE_URL + '/functions/v1/send-web-push';
+    // Sube pasaporte/tarjeta con el mismo criterio que las otras dos: una
+    // función propia (no el navegador subiendo directo al bucket) que sí
+    // valida del lado del servidor que el client_token que manda el
+    // pedido es realmente el dueño de esa cotización, antes de aceptar el
+    // archivo — cierra el hueco de "cualquiera con el UUID de otra
+    // cotización podía pisar su documento" (ver plano de seguridad).
+    const UPLOAD_DOC_WEBHOOK_SECRET = '3a61e1f14f2ff3350889bd67cf2250bebde907e17b6d733e';
+    const UPLOAD_DOC_FUNCTIONS_URL = SUPABASE_URL + '/functions/v1/upload-client-doc';
     // Misma llave pública VAPID que ya usa agente/panel.html — es del
     // proyecto entero, no por rol, así que se reusa tal cual.
     const WEB_PUSH_VAPID_PUBLIC_KEY = 'BGa5n6mV8kYVoF9fYsiEo-2M1jHRWd-pA2OTyLmAWbe1YCNsE3EGZv-ysXU_69iUaxmskaOng0OTfXT5C4M1_80';
