@@ -8193,13 +8193,17 @@
         presaleEmailConfirmEl.focus();
         return;
       }
-      // Mismo permiso obligatorio que el buscador principal (ver
-      // ensurePushPermissionForSubmit) — este formulario también crea una
-      // cotización real, no puede saltearse el mismo requisito.
+      // Mismo criterio que el buscador principal (ver
+      // ensurePushPermissionForSubmit): no exige el permiso en sí, exige
+      // que quede alguna forma de avisarle al cliente — notificaciones
+      // activas o un teléfono/WhatsApp de respaldo.
       presaleMsg.textContent = t('msgPushRequired');
       const pushResult = await ensurePushPermissionForSubmit();
-      if (pushResult === 'blocked') {
-        presaleMsg.textContent = t('msgPushBlocked');
+      const presalePhoneEl = document.getElementById('presalePhone');
+      const presalePhoneVal = presalePhoneEl.value.trim();
+      if (pushResult !== 'ok' && !presalePhoneVal) {
+        presaleMsg.textContent = t('msgPushOrPhoneRequired');
+        presalePhoneEl.focus();
         return;
       }
       presaleMsg.textContent = t('msgPresaleSending');
@@ -8208,7 +8212,7 @@
       const payload = {
         contactName: data.nombre,
         contactEmail: data.email,
-        contactPhone: null,
+        contactPhone: (data.telefono || '').trim() || null,
         category: 'package',
         origin: null,
         destination: data.destino || '',
