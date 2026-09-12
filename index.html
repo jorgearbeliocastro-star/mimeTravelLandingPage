@@ -9651,7 +9651,6 @@
       if (!el) return;
       const anyUploaded = docsDataUrls.passport || docsDataUrls.card;
       const bothUploaded = docsDataUrls.passport && docsDataUrls.card;
-      const allReceived = (!docsDataUrls.passport || docsReceivedByAgent.passport) && (!docsDataUrls.card || docsReceivedByAgent.card);
       if (!anyUploaded) {
         el.textContent = '';
         return;
