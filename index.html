@@ -10504,30 +10504,16 @@
         // aceptada, lo único que importa acá es el estado del pago.
         if (quote.client_decision === 'accepted') {
           const clientToken = getOrCreateWebClientToken();
-          setupDocsChannel(quote.id, clientToken);
-          // Si el cliente cerró la pestaña o el navegador con algo
-          // pendiente, al volver a abrir esta pantalla se repone solo
-          // desde su propio equipo (IndexedDB) — no hace falta que vuelva
-          // a sacar la foto de nuevo, ni que espere mirando la pantalla.
-          ['passport', 'card'].forEach((docType) => {
-            if (docsDataUrls[docType]) return; // ya la tiene en memoria esta sesión
-            loadDocFromIDB(quote.id, docType).then((saved) => {
-              if (!saved || docsDataUrls[docType]) return; // pudo haber llegado de otra forma mientras tanto
-              docsDataUrls[docType] = saved;
-              renderDocUploadButtons();
-              renderDocsUploadStatus();
-            });
-          });
-          // Tres estados por botón: 📁 sin subir, ⏳ subida pero todavía
-          // no confirmada por el agente (ACÁ se bloquean los dos botones
-          // — no dejar arrancar la segunda foto hasta que la primera
-          // llegue de verdad, mandar las dos a la vez rompía el envío),
-          // ✅ ya confirmada. Los botones se arman vacíos, renderDocUploadButtons()
-          // de abajo les pone el texto/bloqueo real.
+          // Nuevo mecanismo: sube directo al bucket privado del servidor
+          // (client-documents) — el agente la busca cuando la necesita,
+          // sin que el cliente tenga que estar conectado en ese momento.
+          // docsDataUrls acá ya no guarda la foto en sí, solo un "true"
+          // para saber que ya se subió (se reusa la misma variable para
+          // no tocar renderDocUploadButtons/renderDocsUploadStatus).
           const block = document.createElement('div');
           block.className = 'docs-upload-block';
           block.innerHTML =
-            '<p class="docs-upload-note">🔔 Te vamos a avisar con una notificación cuando tu agente necesite tus documentos para terminar — no hace falta que te quedes esperando.</p>' +
+            '<p class="docs-upload-note">Tus documentos quedan guardados de forma segura hasta que tu agente los necesite — no hace falta que te quedes esperando.</p>' +
             '<div class="docs-upload-buttons">' +
             '<button type="button" class="docs-upload-btn" id="docsUploadPassportBtn"></button>' +
             '<button type="button" class="docs-upload-btn" id="docsUploadCardBtn"></button>' +
@@ -10554,42 +10540,22 @@
             const docType = pendingDocType;
             const statusEl = document.getElementById('docsUploadStatus');
             try {
-              // Más chica que antes (1800/0.92) — sigue alcanzando para leer
-              // los datos, pero son muchos menos pedazos para mandar por el
-              // canal en vivo, así llega más rápido y más entero.
-              docsDataUrls[docType] = await downscaleImageFile(file, 1300, 0.78);
-              // Se guarda en el propio equipo del cliente (IndexedDB), no
-              // en ningún servidor — sobrevive si cierra la pestaña antes
-              // de que el agente la pida (ver comentario arriba de
-              // saveDocToIDB). OJO: antes esto no se esperaba (sin
-              // await) — si el cliente cerraba la pestaña muy rápido
-              // después de subir, el guardado podía quedar cortado a la
-              // mitad y la foto se perdía sin ningún error visible.
-              const savedOk = await saveDocToIDB(quote.id, docType, docsDataUrls[docType]);
-              if (!savedOk && statusEl) {
-                // No corta el flujo (la foto sigue viva en memoria y se
-                // puede mandar igual mientras esta pestaña siga abierta)
-                // pero ahora SÍ se avisa — antes esto fallaba en silencio.
-                statusEl.textContent = '⚠️ No se pudo guardar la foto en tu equipo — no cierres esta pantalla hasta que se envíe.';
-                statusEl.className = 'docs-upload-status waiting';
-              }
-              docsReceivedByAgent[docType] = false;
-              const { error: readyError } = await supabaseClient.rpc('set_quote_docs_ready', { p_token: clientToken, p_id: quote.id, p_ready: true });
-              if (readyError) {
-                console.error('[docs-upload] set_quote_docs_ready falló:', readyError);
+              const blob = await downscaleImageFileToBlob(file, 1300, 0.85);
+              const uploadedOk = await uploadDocToStorage(quote.id, docType, blob);
+              if (!uploadedOk) {
                 if (statusEl) {
-                  statusEl.textContent = '⚠️ No se pudo avisar al agente: ' + (readyError.message || 'error desconocido');
+                  statusEl.textContent = '⚠️ No se pudo subir la foto — probá de nuevo.';
                   statusEl.className = 'docs-upload-status waiting';
                 }
                 return;
               }
-              // Repinta ya (bloquea el otro botón) — no espera al próximo
-              // sondeo, así el "cargando" se ve al toque.
+              docsDataUrls[docType] = true;
+              const { error: readyError } = await supabaseClient.rpc('set_quote_docs_ready', { p_token: clientToken, p_id: quote.id, p_ready: true });
+              if (readyError) {
+                console.error('[docs-upload] set_quote_docs_ready falló:', readyError);
+              }
               renderQuoteStatus(quote);
             } catch (e) {
-              // Visible en pantalla, no solo en la consola — para no
-              // depender de que el cliente sepa abrir las herramientas de
-              // desarrollador.
               if (statusEl) {
                 statusEl.textContent = '⚠️ No se pudo subir la foto: ' + (e && e.message ? e.message : String(e));
                 statusEl.className = 'docs-upload-status waiting';
