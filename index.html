@@ -9624,27 +9624,18 @@
       const passportBtn = document.getElementById('docsUploadPassportBtn');
       const cardBtn = document.getElementById('docsUploadCardBtn');
       if (!passportBtn || !cardBtn) return;
-      const label = (docType, text) => {
-        if (docsDataUrls[docType] && docsReceivedByAgent[docType]) return '✅ ' + text;
-        // Antes decía ⏳ (se leía como "se está subiendo todavía") — en
-        // realidad ya terminó de guardarse de este lado, solo falta que
-        // el agente se conecte y la reciba. 💾 deja claro que ya está
-        // lista y guardada, no en curso.
-        if (docsDataUrls[docType]) return '💾 ' + text + ' (guardado)';
-        return '📁 ' + text;
-      };
-      // Ya no se bloquea el otro botón mientras uno está "guardado pero
-      // no recibido" — subir las dos a su equipo no tiene ningún
-      // problema, la cola de envío (queueDocSend) ya se encarga de
-      // mandarlas de a una cuando un agente las pide, sin mezclarlas.
+      // Ya subido al bucket = terminado, no hay un paso extra de "recibido
+      // por el agente" — el agente lo busca ahí cuando lo necesite,
+      // ya no depende de que el cliente siga conectado.
+      const label = (docType, text) => docsDataUrls[docType] ? '✅ ' + text + ' (subido)' : '📁 ' + text;
       passportBtn.textContent = label('passport', 'Pasaporte');
       passportBtn.classList.toggle('uploaded', !!docsDataUrls.passport);
       cardBtn.textContent = label('card', 'Tarjeta de pago');
       cardBtn.classList.toggle('uploaded', !!docsDataUrls.card);
-      // Ya no hay nada para tocar acá una vez que las dos llegaron de
-      // verdad — se esconden los botones, solo queda el mensaje de abajo
+      // Ya no hay nada para tocar acá una vez que las dos se subieron —
+      // se esconden los botones, solo queda el mensaje de abajo
       // (renderDocsUploadStatus) invitando a cerrar.
-      const allReceived = docsDataUrls.passport && docsDataUrls.card && docsReceivedByAgent.passport && docsReceivedByAgent.card;
+      const allReceived = docsDataUrls.passport && docsDataUrls.card;
       // Ojo: .docs-upload-buttons ya tiene su propio "display: flex" con la
       // misma especificidad que la regla nativa de [hidden] — el atributo
       // hidden solo no alcanzaría para ocultarlo, por eso se pisa el
