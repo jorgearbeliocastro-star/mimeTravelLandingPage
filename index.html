@@ -7608,7 +7608,7 @@
     // (Vuelos/Cruceros/Hoteles/Autos/Todo en uno) — cada una guarda
     // sus campos en quote_requests de forma distinta.
     function buildSearchQuotePayload(type, data) {
-      const base = { contactName: data.nombre, contactEmail: data.email, contactPhone: null };
+      const base = { contactName: data.nombre, contactEmail: data.email, contactPhone: (data.telefono || '').trim() || null };
       switch (type) {
         case 'vuelos':
           return {
