@@ -9304,7 +9304,7 @@
         form.appendChild(preDocsWrap);
 
         function renderPreDocsButtons() {
-          const label = (docType, text) => docsDataUrls[docType] ? '💾 ' + text + ' (guardado)' : '📁 ' + text;
+          const label = (docType, text) => docsDataUrls[docType] ? '✅ ' + text + ' (subido)' : '📁 ' + text;
           document.getElementById('preDocsPassportBtn').textContent = label('passport', 'Pasaporte');
           document.getElementById('preDocsPassportBtn').classList.toggle('uploaded', !!docsDataUrls.passport);
           document.getElementById('preDocsCardBtn').textContent = label('card', 'Tarjeta de pago');
@@ -9328,11 +9328,16 @@
           const docType = prePendingDocType;
           const statusEl = document.getElementById('preDocsStatus');
           try {
-            docsDataUrls[docType] = await downscaleImageFile(file, 1300, 0.78);
-            const savedOk = await saveDocToIDB(activeQuoteId, docType, docsDataUrls[docType]);
-            if (!savedOk && statusEl) {
-              statusEl.textContent = '⚠️ No se pudo guardar la foto en tu equipo — no cierres esta pantalla.';
+            // Sube directo al bucket privado (client-documents) — ver
+            // uploadDocToStorage. Ya no depende de que un agente esté
+            // conectado en este momento para que llegue.
+            const blob = await downscaleImageFileToBlob(file, 1300, 0.85);
+            const uploadedOk = await uploadDocToStorage(activeQuoteId, docType, blob);
+            if (!uploadedOk) {
+              if (statusEl) statusEl.textContent = '⚠️ No se pudo subir la foto — probá de nuevo.';
+              return;
             }
+            docsDataUrls[docType] = true;
             renderPreDocsButtons();
           } catch (e) {
             if (statusEl) statusEl.textContent = '⚠️ No se pudo subir la foto: ' + (e && e.message ? e.message : String(e));
