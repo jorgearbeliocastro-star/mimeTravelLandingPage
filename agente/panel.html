@@ -1190,47 +1190,6 @@
       badge.hidden = false;
     }
 
-    // ensureDocsThumbChannel (más abajo) antes solo se disparaba para las
-    // cotizaciones que la pestaña ACTUAL tenía cargadas en pantalla — si el
-    // agente se quedaba en "Nuevas" mientras el cliente ya había aceptado
-    // y subido sus documentos en OTRA cotización, ese pedido nunca salía
-    // hasta que alguien entraba a "Cotizadas"/"Aceptadas". Esto corre
-    // aparte, sin importar qué pestaña esté abierta, para que el cliente
-    // no se quede esperando sin necesidad.
-    async function pollAcceptedDocsChannels() {
-      // OJO: tiene que traer client_token, no solo 'id' — ensureDocsThumbChannel
-      // arma el canal UNA sola vez por cotización (ver el "if
-      // (docsThumbChannels[quote.id]) return" ahí adentro) y lo que sea
-      // que se le pase la primera vez queda fijo para siempre. Si este
-      // sondeo (que corre solo, cada 6s, sin importar la pestaña) le
-      // ganaba la carrera al render de la card real, el canal se armaba
-      // con client_token vacío y el aviso al cliente nunca se mandaba,
-      // sin ningún error visible — bug real, encontrado en vivo.
-      const { data, error } = await supabaseClient
-        .from('quote_requests')
-        .select('id, client_token')
-        .eq('claimed_by_agent_id', agentId)
-        .eq('status', 'decided')
-        .eq('client_decision', 'accepted')
-        .eq('client_docs_ready', true);
-      if (!error && data) data.forEach((q) => ensureDocsThumbChannel(q));
-      // Crucero autoservicio (ya con camarote+precio elegidos por el
-      // cliente, ver apply_cruise_room_price/mark_quote_client_finished en
-      // index.html) — todavía SIN reclamar, esperando en el Pool. A
-      // pedido explícito, acá el cliente ya subió sus documentos junto
-      // con el resto de los datos, así que cualquier agente con el panel
-      // abierto los puede pedir de una — sin esto, se quedaban esperando
-      // a que alguien reclamara la cotización primero.
-      const { data: poolData, error: poolError } = await supabaseClient
-        .from('quote_requests')
-        .select('id, client_token')
-        .is('claimed_by_agent_id', null)
-        .eq('status', 'quoted')
-        .eq('client_still_completing', false)
-        .eq('client_docs_ready', true);
-      if (!poolError && poolData) poolData.forEach((q) => ensureDocsThumbChannel(q));
-    }
-
     // Marca que el agente ya "atendió" esta cotización de su cola personal
     // (la abrió, pidió más datos, la cotizó, lo que sea) — reusa
     // agent_viewing_at, la misma columna que ya usa el latido de "estoy
