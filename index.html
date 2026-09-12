@@ -7482,7 +7482,9 @@
       }, 0);
     });
 
-    // Checklists desplegables (ej. "Servicios que buscas" en Todo en uno):
+    // Checklists desplegables (motor genérico para campos type:'checklist' en
+    // SEARCH_FIELD_CONFIG_* — ninguna categoría actual lo usa desde que se
+    // quitó "Todo en uno", queda disponible por si hace falta de nuevo):
     // sincroniza las casillas marcadas con el input oculto que se envía en el formulario
     // y actualiza el texto del botón que las despliega.
     searchForm.addEventListener('click', function (e) {
