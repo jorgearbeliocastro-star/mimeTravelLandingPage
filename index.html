@@ -9462,6 +9462,48 @@
     // Achica una foto/archivo elegido del teléfono o la PC antes de
     // mandarlo — todo pasa en memoria (un <img>/<canvas> temporal), el
     // archivo elegido nunca se sube ni se guarda en ningún lado.
+    // Sube el pasaporte/tarjeta directo al bucket privado del servidor
+    // (client-documents) en vez de guardarlo solo en el equipo del
+    // cliente esperando una conexión en vivo — ver el SQL de
+    // client_documents_* policies. Reemplaza a todo el mecanismo de
+    // canal en vivo/IndexedDB de antes: ahora sube una sola vez y el
+    // archivo se queda esperando en el bucket, protegido por reglas de
+    // acceso (RLS) que solo dejan verlo al agente asignado a esa
+    // cotización (o al dueño) — nadie más, y no hace falta que el
+    // cliente esté conectado cuando el agente la busque después.
+    function downscaleImageFileToBlob(file, maxDim, quality) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          let width = img.naturalWidth, height = img.naturalHeight;
+          if (width > maxDim || height > maxDim) {
+            const scale = maxDim / Math.max(width, height);
+            width = Math.round(width * scale);
+            height = Math.round(height * scale);
+          }
+          const c = document.createElement('canvas');
+          c.width = width;
+          c.height = height;
+          c.getContext('2d').drawImage(img, 0, 0, width, height);
+          URL.revokeObjectURL(url);
+          c.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('No se pudo procesar la imagen'))), 'image/jpeg', quality);
+        };
+        img.onerror = (e) => {
+          URL.revokeObjectURL(url);
+          reject(e);
+        };
+        img.src = url;
+      });
+    }
+    async function uploadDocToStorage(quoteId, docType, blob) {
+      const path = quoteId + '/' + docType + '.jpg';
+      const { error } = await supabaseClient.storage
+        .from('client-documents')
+        .upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
+      return !error;
+    }
+
     function downscaleImageFile(file, maxDim, quality) {
       return new Promise((resolve, reject) => {
         const img = new Image();
