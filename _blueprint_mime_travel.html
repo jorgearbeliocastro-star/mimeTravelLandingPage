@@ -316,8 +316,8 @@ sequenceDiagram
       <li><strong>RLS por fila:</strong> las reglas de Postgres deciden, no el código del navegador — un agente no puede leer la cotización de otro aunque edite el JavaScript de su pantalla.</li>
       <li><strong>Documentos efímeros:</strong> el archivo se borra solo al cerrar la venta; mientras existe, solo el agente asignado (o el dueño) puede pedir un link, y ese link vence en minutos.</li>
     </ul>
-    <div class="callout warn">
-      <strong>Pendiente conocido:</strong> la regla de subida hoy no verifica que el que sube un archivo sea el dueño real de esa cotización — alguien que consiga el ID de otra cotización podría reemplazar su documento. Los IDs son difíciles de adivinar, pero el cierre completo (validar por Edge Function) sigue pendiente.
+    <div class="callout">
+      <strong>Cerrado:</strong> la subida ya no llega directo del navegador al bucket — pasa por la Edge Function <code>upload-client-doc</code>, que valida que el <code>client_token</code> sea el dueño real de esa cotización antes de aceptar el archivo. Antes de esto, alguien con el ID de otra cotización podía reemplazar su documento (no leerlo).
     </div>
   </section>
 
