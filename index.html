@@ -3429,8 +3429,13 @@
           <input type="email" id="searchEmailConfirm" placeholder="tu@email.com" required>
         </div>
         <div class="search-field">
-          <label for="searchPhone" data-i18n="contactPhoneLabel">Tu teléfono / WhatsApp (opcional)</label>
-          <input type="tel" id="searchPhone" name="telefono" placeholder="+54 11 1234 5678" autocomplete="tel" data-i18n-placeholder="contactPhonePlaceholder">
+          <label for="searchPhone" data-i18n="contactPhoneLabel">Tu teléfono (opcional)</label>
+          <div class="quote-pax-phone-row">
+            <select id="searchPhoneCode" class="quote-pax-phone-code" aria-label="Código de país">
+              <option value="" data-i18n="quotePaxPhoneCodePlaceholder">Código</option>
+            </select>
+            <input type="tel" id="searchPhone" name="telefono" placeholder="1234 5678" autocomplete="tel" class="quote-pax-phone-number">
+          </div>
         </div>
         <button type="submit" class="btn btn-coral" data-i18n="searchSubmit">Buscar</button>
       </form>
