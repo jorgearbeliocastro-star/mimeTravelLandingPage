@@ -8120,7 +8120,7 @@
       const payload = {
         contactName: data.nombre,
         contactEmail: data.email,
-        contactPhone: (data.telefono || '').trim() || null,
+        contactPhone: combineContactPhone(data.telefonoCode, data.telefono),
         category: 'package',
         origin: null,
         destination: data.destino || '',
