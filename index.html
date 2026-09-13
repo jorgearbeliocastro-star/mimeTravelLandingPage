@@ -7874,20 +7874,13 @@
     searchForm.addEventListener('submit', async function (e) {
       e.preventDefault();
       const form = this;
-      // Ya no es obligatorio el permiso de notificaciones en sí — lo que
-      // se exige es que quede AL MENOS UNA forma de avisarle al cliente:
-      // notificaciones activas, o un teléfono para que el agente lo
-      // llame. Ambos son opcionales por separado, pero no pueden faltar
-      // los dos a la vez.
+      // El teléfono ya es obligatorio (campo `required`, lo exige el
+      // navegador antes de que este handler corra) — el mismo dato que
+      // igual se pide después para los pasajes, así que no tiene sentido
+      // no pedirlo acá. El permiso de notificaciones se sigue ofreciendo
+      // aparte (mejor si lo acepta), pero ya no bloquea el envío.
       searchMsg.textContent = t('msgPushRequired');
-      const pushResult = await ensurePushPermissionForSubmit();
-      const searchPhoneEl = document.getElementById('searchPhone');
-      const searchPhoneVal = searchPhoneEl.value.trim();
-      if (pushResult !== 'ok' && !searchPhoneVal) {
-        searchMsg.textContent = t('msgPushOrPhoneRequired');
-        searchPhoneEl.focus();
-        return;
-      }
+      await ensurePushPermissionForSubmit();
       searchMsg.textContent = '';
       const activeType = searchTabs.querySelector('.search-tab.active')?.dataset.type || 'vuelos';
       const data = Object.fromEntries(new FormData(form).entries());
