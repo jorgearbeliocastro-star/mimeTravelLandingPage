@@ -768,6 +768,10 @@
     // que recibió una cotización transferida (ver buildReassignButton).
     const WEB_PUSH_WEBHOOK_SECRET = '3a61e1f14f2ff3350889bd67cf2250bebde907e17b6d733e';
     const WEB_PUSH_FUNCTIONS_URL = SUPABASE_URL + '/functions/v1/send-web-push';
+    // Aviso al cliente por correo, en paralelo al push — sumado porque el
+    // push depende de que el cliente lo haya aceptado, y el correo es
+    // obligatorio para todos sin excepción (ver send-client-email).
+    const SEND_CLIENT_EMAIL_URL = SUPABASE_URL + '/functions/v1/send-client-email';
 
     let agentId = null;
     let agentName = '';
