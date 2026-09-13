@@ -9343,6 +9343,14 @@
             passengers[i].diningPreference = passengers[0].diningPreference;
           }
         }
+        // Mismo criterio para el correo: es el de contacto de la reserva
+        // (solo se pide en el pasajero 0, ver buildPassengerBlockHTML), se
+        // copia igual a los demás para no mandarlo vacío.
+        if (passengers.length > 1 && passengers[0] && passengers[0].email) {
+          for (let i = 1; i < passengers.length; i++) {
+            passengers[i].email = passengers[0].email;
+          }
+        }
         // Los campos obligatorios son distintos por categoría. Ya no se
         // exige ningún dato del documento en sí (número/vencimiento/país
         // emisor) en ninguna categoría — eso ahora es solo por foto (ver
