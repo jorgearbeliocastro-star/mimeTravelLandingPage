@@ -10180,18 +10180,6 @@
               '</label>' +
               '<input type="text" class="quote-status-cabin-prefs-input" id="cabinConnectingInput" placeholder="' + t('cabinConnectingPlaceholder') + '" value="' + selectedCabinConnectingWith.replace(/"/g, '&quot;') + '" style="' + (selectedCabinWantsConnecting ? '' : 'display:none;') + '">';
             seatTypeWrap.appendChild(cabinPrefsWrap);
-            cabinPrefsWrap.querySelectorAll('[data-cabin-pref="deck"] .quote-status-cabin-pref-chip').forEach((btn) => {
-              btn.addEventListener('click', function () {
-                selectedCabinDeckPreference = selectedCabinDeckPreference === btn.dataset.value ? '' : btn.dataset.value;
-                cabinPrefsWrap.querySelectorAll('[data-cabin-pref="deck"] .quote-status-cabin-pref-chip').forEach((b) => b.classList.toggle('active', b.dataset.value === selectedCabinDeckPreference));
-              });
-            });
-            cabinPrefsWrap.querySelectorAll('[data-cabin-pref="position"] .quote-status-cabin-pref-chip').forEach((btn) => {
-              btn.addEventListener('click', function () {
-                selectedCabinPositionPreference = selectedCabinPositionPreference === btn.dataset.value ? '' : btn.dataset.value;
-                cabinPrefsWrap.querySelectorAll('[data-cabin-pref="position"] .quote-status-cabin-pref-chip').forEach((b) => b.classList.toggle('active', b.dataset.value === selectedCabinPositionPreference));
-              });
-            });
             cabinPrefsWrap.querySelectorAll('[data-cabin-pref="bedConfig"] .quote-status-cabin-pref-chip').forEach((btn) => {
               btn.addEventListener('click', function () {
                 selectedCabinBedConfig = selectedCabinBedConfig === btn.dataset.value ? '' : btn.dataset.value;
