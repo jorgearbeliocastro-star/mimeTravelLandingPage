@@ -8080,19 +8080,11 @@
 
     presaleForm.addEventListener('submit', async function (e) {
       e.preventDefault();
-      // Mismo criterio que el buscador principal (ver
-      // ensurePushPermissionForSubmit): no exige el permiso en sí, exige
-      // que quede alguna forma de avisarle al cliente — notificaciones
-      // activas o un teléfono de respaldo.
+      // Mismo criterio que el buscador principal: el teléfono ya es
+      // obligatorio (campo `required`), el permiso de notificaciones se
+      // sigue ofreciendo aparte pero ya no bloquea el envío.
       presaleMsg.textContent = t('msgPushRequired');
-      const pushResult = await ensurePushPermissionForSubmit();
-      const presalePhoneEl = document.getElementById('presalePhone');
-      const presalePhoneVal = presalePhoneEl.value.trim();
-      if (pushResult !== 'ok' && !presalePhoneVal) {
-        presaleMsg.textContent = t('msgPushOrPhoneRequired');
-        presalePhoneEl.focus();
-        return;
-      }
+      await ensurePushPermissionForSubmit();
       presaleMsg.textContent = t('msgPresaleSending');
       const form = this;
       const data = Object.fromEntries(new FormData(form).entries());
