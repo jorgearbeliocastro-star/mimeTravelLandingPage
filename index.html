@@ -8402,7 +8402,17 @@
     // van directo a un bucket privado de Supabase Storage (ver
     // uploadDocToStorage); docsDataUrls acá ya no guarda la imagen en sí,
     // solo un flag de "ya se subió esta" para pintar los botones.
-    let docsDataUrls = { passport: null, card: null };
+    // `passport` es un ARRAY (una entrada por pasajero — antes era un solo
+    // boolean para toda la reserva, y con más de un pasajero solo se podía
+    // guardar el último pasaporte subido, pisando el anterior). `card`
+    // sigue siendo un solo boolean: la tarjeta de pago es una sola por
+    // reserva, no una por pasajero.
+    let docsDataUrls = { passport: [], card: false };
+    // Cuántos pasaportes hacen falta — mismo criterio que initialPaxCount
+    // en renderPassengerFormInner (adultos + niños pedidos, mínimo 1).
+    function getExpectedPassportSlots() {
+      return Math.max(1, activeQuoteRequestedAdults + activeQuoteRequestedChildren);
+    }
     // Aviso de "ya tenés precio" para el cliente que se queda con la
     // pestaña abierta esperando — sin esto, no había sonido ni nada, solo
     // el texto cambiaba en silencio (el correo real es el respaldo si no
