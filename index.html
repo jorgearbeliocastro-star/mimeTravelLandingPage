@@ -9421,7 +9421,12 @@
               // bandera de "documentos listos"; el archivo ya está
               // guardado en el servidor esperando, no hace falta que el
               // cliente esté conectado cuando un agente la busque después.
-              if (docsDataUrls.passport && docsDataUrls.card) {
+              // (El chequeo de "faltan documentos" de más arriba ya
+              // garantiza que se llegue hasta acá con todo completo — esto
+              // es nomás una confirmación explícita, no una validación.)
+              const allPassportsUploaded = Array.from({ length: getExpectedPassportSlots() })
+                .every((_, i) => docsDataUrls.passport && docsDataUrls.passport[i]);
+              if (allPassportsUploaded && docsDataUrls.card) {
                 try {
                   await supabaseClient.rpc('set_quote_docs_ready', { p_token: clientToken, p_id: activeQuoteId, p_ready: true });
                 } catch {
