@@ -2785,6 +2785,17 @@
             }),
           }).catch(() => {});
         }
+        // Mismo aviso, en paralelo, por correo — no depende de que el
+        // cliente haya aceptado notificaciones (ver send-client-email).
+        fetch(SEND_CLIENT_EMAIL_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Webhook-Secret': WEB_PUSH_WEBHOOK_SECRET },
+          body: JSON.stringify({
+            quoteId: quote.id,
+            subject: 'Ya tenés precio para tu viaje — Mime Travel',
+            text: 'Tu agente ya te puso precio para ' + fmtRoute(quote) + '. Entrá a mimetravel.com para verlo y decidir.',
+          }),
+        }).catch(() => {});
         cardFormOpenId = null;
         loadQuotes();
       });
