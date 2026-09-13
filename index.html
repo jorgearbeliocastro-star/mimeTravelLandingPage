@@ -10645,22 +10645,22 @@
     // Botón aparte del chat normal — el cliente lo marca a mano cuando de
     // verdad necesita algo puntual (cancelar, cambiar, etc.), en vez de
     // que el sistema intente "adivinar" leyendo el chat (no es
-    // confiable). Solo tiene sentido si ya hay una cotización real en
-    // curso (no una recién creada sin tocar) y no en modo "consulta"
-    // (ahí ya está directo en el chat).
+    // confiable). A pedido explícito: solo tiene sentido una vez que ya
+    // hay una RESERVA PAGADA (status 'purchased') — antes de eso (todavía
+    // cotizando, esperando precio, recién aceptada sin cerrar la venta)
+    // no se muestra, y tampoco en modo "consulta" (ahí ya está directo
+    // en el chat).
     let quoteUrgentHelpInFlight = false;
     function updateUrgentHelpButton(quote) {
-      if (activePanelMode === 'support' || !quote || !quote.status || quote.status === 'pending') {
+      if (activePanelMode === 'support' || !quote || quote.status !== 'purchased') {
         quoteUrgentHelpBtn.hidden = true;
         return;
       }
       // Se queda visible sin límite mientras la cotización siga existiendo
-      // en localStorage, incluso mucho después de terminado el viaje —
-      // "terminada" = venta confirmada o el cliente la rechazó. Un día
-      // después de eso ya no tiene sentido seguir ofreciendo "ayuda
-      // urgente" para ese viaje puntual.
-      const isFinished = quote.status === 'purchased' || (quote.status === 'decided' && quote.client_decision === 'declined');
-      if (isFinished && quote.updated_at) {
+      // en localStorage, incluso mucho después de terminado el viaje — un
+      // día después de la compra ya no tiene sentido seguir ofreciendo
+      // "ayuda urgente" para ese viaje puntual.
+      if (quote.updated_at) {
         const oneDayMs = 24 * 60 * 60 * 1000;
         if (Date.now() - new Date(quote.updated_at).getTime() > oneDayMs) {
           quoteUrgentHelpBtn.hidden = true;
