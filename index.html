@@ -8779,6 +8779,16 @@
         .map(([code, label]) => '<option value="' + code + '"' + (code === selectedCode ? ' selected' : '') + '>' + code + ' ' + label + '</option>')
         .join('');
     }
+    // Los selects de código de país del buscador y de preventa son
+    // estáticos en el HTML (no se reconstruyen en cada render como el
+    // resto de los campos de pasajero) — se les rellenan las opciones acá,
+    // una sola vez, apenas PHONE_DIAL_CODES ya existe. Sin código
+    // preseleccionado a propósito (no se adivina por idioma/ubicación) —
+    // el cliente lo elige siempre a mano.
+    ['searchPhoneCode', 'presalePhoneCode'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.insertAdjacentHTML('beforeend', buildPhoneCodeOptionsHTML(''));
+    });
     // presetPhone: si ya venía un teléfono cargado (el del primer pasajero,
     // tomado del contacto de la cotización), no sabemos con qué código de
     // país corresponde — se deja el número tal cual en el campo de número
