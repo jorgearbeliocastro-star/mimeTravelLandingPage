@@ -10443,7 +10443,12 @@
       if (!window.confirm(t('quoteDecisionConfirm'))) return;
       quoteDecisionInFlight = true;
       const clientToken = getOrCreateWebClientToken();
-      supabaseClient.rpc('decide_quote_request_with_tier', { p_token: clientToken, p_id: activeQuoteId, p_accept: accept, p_tier: 'basic' })
+      // p_custom_addon_qty explícito (aunque vaya null) para que Postgres
+      // no dude entre las dos versiones de esta función que existen en la
+      // base (una vieja sin este parámetro, una nueva con él) — sin esto,
+      // como todos los demás parámetros tienen valor por defecto en las
+      // dos, la llamada quedaba ambigua y el rechazo fallaba siempre.
+      supabaseClient.rpc('decide_quote_request_with_tier', { p_token: clientToken, p_id: activeQuoteId, p_accept: accept, p_tier: 'basic', p_custom_addon_qty: null })
         .then(({ error }) => {
           if (error) throw error;
           notifyQuoteDecisionWeb(activeQuoteId, accept);
