@@ -578,7 +578,11 @@
     async function loadTeamQuotes() {
       let query = supabaseClient.from('quote_requests').select('*').limit(30);
       if (currentTeamTab === 'new') {
-        query = query.eq('status', 'pending').order('created_at', { ascending: true });
+        // Mismo criterio que "Nuevas" en panel.html: ya tomada por un
+        // agente, todavía sin precio — lo sin tomar va aparte, en "Pool".
+        query = query.eq('status', 'pending').not('claimed_by_agent_id', 'is', null).order('created_at', { ascending: true });
+      } else if (currentTeamTab === 'pool') {
+        query = query.eq('status', 'pending').is('claimed_by_agent_id', null).order('created_at', { ascending: true });
       } else if (currentTeamTab === 'accepted') {
         query = query.eq('status', 'decided').eq('client_decision', 'accepted').order('created_at', { ascending: false });
       } else if (currentTeamTab === 'sold') {
