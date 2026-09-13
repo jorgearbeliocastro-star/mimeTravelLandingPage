@@ -2570,7 +2570,11 @@
           });
         });
       }
-      if (baseInput) baseInput.focus();
+      // Antes esto hacía baseInput.focus() apenas se abría el formulario
+      // — el navegador scrolleaba de una hasta el campo de precio, más
+      // abajo en la card, tapando los datos del cliente y la ruta que
+      // están arriba (ver renderOneQuoteCard). Lo primero que tiene que
+      // ver el agente al abrir es esa info, no saltar directo al precio.
       btn.addEventListener('click', async () => {
         // Crucero no tiene .pf-base (ver arriba) — el precio sale de los
         // camarotes cargados, se manda 0 sin pedírselo al agente.
