@@ -2783,6 +2783,14 @@
   .quote-pax-phone-row .quote-pax-phone-code {
     width: auto;
     flex: 0 0 110px;
+    /* Sin esto, el <select> no se achica por debajo de lo que mide su
+       texto ("+1 US/Canada"), así que ignoraba el ancho fijo de arriba y
+       le robaba espacio al número — con min-width:0 sí lo respeta, y el
+       texto que no entra se recorta con "…" en vez de agrandar la caja. */
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .quote-pax-phone-row .quote-pax-phone-number {
     width: auto;
