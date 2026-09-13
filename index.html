@@ -2790,6 +2790,24 @@
     min-width: 0;
   }
 
+  /* El mismo código+número de arriba, pero puesto dentro del buscador del
+     Hero o del modal de preventa (.search-field/.modal-field) — ahí el
+     campo comparte fila con muchos otros y se achica bastante más que en
+     el formulario de pasajeros. Sin esto, el selector de país (110px fijo)
+     dejaba el número apretado a casi nada de ancho, imposible de tocar. */
+  .search-field.field-phone,
+  .modal-field.field-phone {
+    flex-basis: 220px;
+  }
+  .search-field.field-phone .quote-pax-phone-row,
+  .modal-field.field-phone .quote-pax-phone-row {
+    flex-wrap: wrap;
+  }
+  .search-field.field-phone .quote-pax-phone-number,
+  .modal-field.field-phone .quote-pax-phone-number {
+    flex-basis: 100px;
+  }
+
   /* Checkbox de "copiar contacto de emergencia a todos" — no es un campo
      más de la lista (los .quote-pax-input van uno debajo del otro con su
      label arriba), es una acción aparte, por eso el estilo distinto. */
