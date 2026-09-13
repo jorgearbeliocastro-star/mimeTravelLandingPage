@@ -10452,7 +10452,16 @@
         .then(({ error }) => {
           if (error) throw error;
           notifyQuoteDecisionWeb(activeQuoteId, accept);
-          return pollQuote();
+          // A pedido explícito: al rechazar, no tiene sentido dejar el
+          // panel mostrando "Rechazaste esta cotización" ni ofrecer
+          // reabrirla después — se cierra solo y se olvida del todo, como
+          // si el cliente nunca hubiera cotizado, listo para buscar de cero.
+          closeQuotePanel();
+          activeQuoteId = null;
+          activeQuoteRouteLabel = '';
+          quoteReopenBtn.hidden = true;
+          localStorage.removeItem(QUOTE_ID_STORAGE_KEY);
+          localStorage.removeItem(QUOTE_MODE_STORAGE_KEY);
         })
         .catch(() => {
           window.alert(t('quoteDecisionError'));
