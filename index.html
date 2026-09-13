@@ -8078,12 +8078,6 @@
 
     presaleForm.addEventListener('submit', async function (e) {
       e.preventDefault();
-      const presaleEmailConfirmEl = document.getElementById('presaleEmailConfirm');
-      if (presaleEmailConfirmEl.value.trim().toLowerCase() !== document.getElementById('presaleEmail').value.trim().toLowerCase()) {
-        presaleMsg.textContent = t('msgEmailMismatch');
-        presaleEmailConfirmEl.focus();
-        return;
-      }
       // Mismo criterio que el buscador principal (ver
       // ensurePushPermissionForSubmit): no exige el permiso en sí, exige
       // que quede alguna forma de avisarle al cliente — notificaciones
