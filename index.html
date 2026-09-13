@@ -8095,7 +8095,7 @@
       // Mismo criterio que el buscador principal (ver
       // ensurePushPermissionForSubmit): no exige el permiso en sí, exige
       // que quede alguna forma de avisarle al cliente — notificaciones
-      // activas o un teléfono/WhatsApp de respaldo.
+      // activas o un teléfono de respaldo.
       presaleMsg.textContent = t('msgPushRequired');
       const pushResult = await ensurePushPermissionForSubmit();
       const presalePhoneEl = document.getElementById('presalePhone');
