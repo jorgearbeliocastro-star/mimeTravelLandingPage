@@ -7504,11 +7504,20 @@
         : data.ninos != null ? parseCountField(data.ninos, 20) : null;
       return { requestedAdults, requestedChildren };
     }
+    // Combina código de país + número en un solo string para guardar en
+    // contact_phone — si no hay número no importa el código (queda null),
+    // y si hay número sin código elegido, se guarda solo el número tal
+    // cual (el agente lo confirma al llamar).
+    function combineContactPhone(code, number) {
+      const num = (number || '').trim();
+      if (!num) return null;
+      return ((code || '').trim() + ' ' + num).trim();
+    }
     // Arma el pedido de cotización según la pestaña activa
     // (Vuelos/Cruceros/Hoteles/Autos) — cada una guarda sus campos
     // en quote_requests de forma distinta.
     function buildSearchQuotePayload(type, data) {
-      const base = { contactName: data.nombre, contactEmail: data.email, contactPhone: (data.telefono || '').trim() || null };
+      const base = { contactName: data.nombre, contactEmail: data.email, contactPhone: combineContactPhone(data.telefonoCode, data.telefono) };
       switch (type) {
         case 'vuelos':
           return {
