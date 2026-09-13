@@ -10162,18 +10162,12 @@
             cabinPrefsWrap.innerHTML =
               '<div class="quote-status-cabin-prefs-title">' + t('cabinPreferencesTitle') + '</div>' +
               '<div class="quote-status-cabin-prefs-hint">' + t('cabinPreferencesHint') + '</div>' +
-              '<div class="quote-status-cabin-prefs-label">' + t('cabinDeckLabel') + '</div>' +
-              '<div class="quote-status-cabin-prefs-chips" data-cabin-pref="deck">' +
-                ['low', 'mid', 'high'].map((opt) =>
-                  '<button type="button" class="quote-status-cabin-pref-chip' + (selectedCabinDeckPreference === opt ? ' active' : '') + '" data-value="' + opt + '">' + t('cabinDeckOption_' + opt) + '</button>'
-                ).join('') +
-              '</div>' +
-              '<div class="quote-status-cabin-prefs-label">' + t('cabinPositionLabel') + '</div>' +
-              '<div class="quote-status-cabin-prefs-chips" data-cabin-pref="position">' +
-                ['forward', 'mid', 'aft'].map((opt) =>
-                  '<button type="button" class="quote-status-cabin-pref-chip' + (selectedCabinPositionPreference === opt ? ' active' : '') + '" data-value="' + opt + '">' + t('cabinPositionOption_' + opt) + '</button>'
-                ).join('') +
-              '</div>' +
+              // Piso (bajo/medio/alto) y posición en el barco (proa/medio/
+              // popa) — sacados a pedido explícito, no aportan nada real a
+              // la cotización (no hay plano de disponibilidad para
+              // cumplirlos igual). Queda la config. de camas y el pedido
+              // de camarote conectado, que sí importan para armar bien la
+              // reserva.
               '<div class="quote-status-cabin-prefs-label">' + t('cabinBedConfigLabel') + '</div>' +
               '<div class="quote-status-cabin-prefs-chips" data-cabin-pref="bedConfig">' +
                 ['together', 'separate'].map((opt) =>
