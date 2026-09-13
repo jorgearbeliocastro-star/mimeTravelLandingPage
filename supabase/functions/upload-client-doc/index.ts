@@ -45,7 +45,10 @@ Deno.serve(async (req) => {
   if (!quoteId || !clientToken || !docType || !dataBase64) {
     return new Response('missing fields', { status: 400, headers: CORS_HEADERS });
   }
-  if (docType !== 'passport' && docType !== 'card') {
+  // "card" (una sola tarjeta de pago por reserva) o "passport-N" (un
+  // pasaporte POR PASAJERO — antes era un solo "passport" fijo para toda
+  // la reserva, y con más de un pasajero se pisaba el anterior).
+  if (docType !== 'card' && !/^passport-[1-9][0-9]*$/.test(docType)) {
     return new Response('invalid docType', { status: 400, headers: CORS_HEADERS });
   }
 
