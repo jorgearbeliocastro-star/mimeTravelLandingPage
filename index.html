@@ -8834,13 +8834,20 @@
           buildPhoneFieldHTML('mobilePhone', index, index === 0 ? activeQuoteContactPhone : '', true) +
           '<label class="quote-pax-label">' + t('quotePaxVoyagersClub') + '</label>' +
           '<input type="text" class="quote-pax-input" name="voyagersClubNumber-' + index + '">' +
-          '<label class="quote-pax-label">' + t('quotePaxDiningPreference') + '</label>' +
-          '<select class="quote-pax-input" name="diningPreference-' + index + '">' +
-          '<option value="">' + t('quotePaxDiningPlaceholder') + '</option>' +
-          '<option value="shared">' + t('quotePaxDiningShared') + '</option>' +
-          '<option value="private">' + t('quotePaxDiningPrivate') + '</option>' +
-          '<option value="none">' + t('quotePaxDiningNone') + '</option>' +
-          '</select>';
+          // Solo en el primer pasajero — es una preferencia de la mesa del
+          // camarote, no de cada persona; no tiene sentido preguntarla de
+          // nuevo por cada pasajero (el valor que elija acá se copia a
+          // todos los demás del mismo camarote al mandar, ver el submit
+          // del formulario).
+          (index === 0
+            ? '<label class="quote-pax-label">' + t('quotePaxDiningPreference') + '</label>' +
+              '<select class="quote-pax-input" name="diningPreference-' + index + '">' +
+              '<option value="">' + t('quotePaxDiningPlaceholder') + '</option>' +
+              '<option value="shared">' + t('quotePaxDiningShared') + '</option>' +
+              '<option value="private">' + t('quotePaxDiningPrivate') + '</option>' +
+              '<option value="none">' + t('quotePaxDiningNone') + '</option>' +
+              '</select>'
+            : '');
         const extendedTicketData =
           '<label class="quote-pax-label">' + t('quotePaxCountryOfBirth') + '</label>' +
           '<input type="text" class="quote-pax-input" name="countryOfBirth-' + index + '">' +
