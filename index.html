@@ -9541,26 +9541,34 @@
     // resto de quoteStatusBar — se llama tanto al armar el bloque como
     // cuando llega la confirmación del agente por el canal.
     function renderDocUploadButtons() {
-      const passportBtn = document.getElementById('docsUploadPassportBtn');
+      const docsSlots = getExpectedPassportSlots();
       const cardBtn = document.getElementById('docsUploadCardBtn');
-      if (!passportBtn || !cardBtn) return;
+      const firstBtn = document.getElementById('docsUploadPassportBtn-0');
+      if (!cardBtn || !firstBtn) return;
       // Ya subido al bucket = terminado, no hay un paso extra de "recibido
       // por el agente" — el agente lo busca ahí cuando lo necesite,
       // ya no depende de que el cliente siga conectado.
-      const label = (docType, text) => docsDataUrls[docType] ? '✅ ' + text + ' (subido)' : '📁 ' + text;
-      passportBtn.textContent = label('passport', 'Pasaporte');
-      passportBtn.classList.toggle('uploaded', !!docsDataUrls.passport);
-      cardBtn.textContent = label('card', 'Tarjeta de pago');
+      const label = (uploaded, text) => uploaded ? '✅ ' + text + ' (subido)' : '📁 ' + text;
+      let allReceived = !!docsDataUrls.card;
+      for (let i = 0; i < docsSlots; i++) {
+        const btn = document.getElementById('docsUploadPassportBtn-' + i);
+        if (!btn) continue;
+        const uploaded = !!(docsDataUrls.passport && docsDataUrls.passport[i]);
+        const text = docsSlots > 1 ? 'Pasaporte ' + (i + 1) : 'Pasaporte';
+        btn.textContent = label(uploaded, text);
+        btn.classList.toggle('uploaded', uploaded);
+        if (!uploaded) allReceived = false;
+      }
+      cardBtn.textContent = label(!!docsDataUrls.card, 'Tarjeta de pago');
       cardBtn.classList.toggle('uploaded', !!docsDataUrls.card);
-      // Ya no hay nada para tocar acá una vez que las dos se subieron —
-      // se esconden los botones, solo queda el mensaje de abajo
+      // Ya no hay nada para tocar acá una vez que todo se subió — se
+      // esconden los botones, solo queda el mensaje de abajo
       // (renderDocsUploadStatus) invitando a cerrar.
-      const allReceived = docsDataUrls.passport && docsDataUrls.card;
       // Ojo: .docs-upload-buttons ya tiene su propio "display: flex" con la
       // misma especificidad que la regla nativa de [hidden] — el atributo
       // hidden solo no alcanzaría para ocultarlo, por eso se pisa el
       // display directo acá.
-      const buttonsRow = passportBtn.closest('.docs-upload-buttons');
+      const buttonsRow = firstBtn.closest('.docs-upload-buttons');
       if (buttonsRow) buttonsRow.style.display = allReceived ? 'none' : '';
     }
 
@@ -9569,8 +9577,10 @@
     function renderDocsUploadStatus() {
       const el = document.getElementById('docsUploadStatus');
       if (!el) return;
-      const anyUploaded = docsDataUrls.passport || docsDataUrls.card;
-      const bothUploaded = docsDataUrls.passport && docsDataUrls.card;
+      const docsSlots = getExpectedPassportSlots();
+      const passportsUploaded = Array.from({ length: docsSlots }).filter((_, i) => docsDataUrls.passport && docsDataUrls.passport[i]).length;
+      const anyUploaded = passportsUploaded > 0 || docsDataUrls.card;
+      const allUploaded = passportsUploaded === docsSlots && docsDataUrls.card;
       if (!anyUploaded) {
         el.textContent = '';
         return;
@@ -9580,11 +9590,11 @@
       // (uploadDocToStorage) ya está seguro, no hace falta que se quede
       // mirando la pantalla hasta que un agente se conecte. Eso puede
       // tardar; el aviso push le llega cuando haga falta que vuelva.
-      if (bothUploaded) {
+      if (allUploaded) {
         el.textContent = '✅ Ya guardamos tus documentos — ya podés cerrar esta pantalla. Te vamos a avisar con una notificación cuando tu agente necesite algo más para terminar tu cotización.';
         el.className = 'docs-upload-status';
       } else {
-        el.textContent = 'Todavía falta uno de los dos — subilo cuando puedas, no hace falta que te quedes esperando.';
+        el.textContent = 'Todavía falta alguno — subilo cuando puedas, no hace falta que te quedes esperando.';
         el.className = 'docs-upload-status waiting';
       }
     }
