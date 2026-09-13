@@ -9212,30 +9212,41 @@
           '<input type="file" accept="image/*" id="preDocsFileInput" style="display:none;">';
         form.appendChild(preDocsWrap);
 
+        // OJO: acá abajo NO se puede usar document.getElementById — en
+        // este punto `form` todavía no está insertado en la página de
+        // verdad (eso pasa más abajo, ver quoteStatusBar.appendChild(form)
+        // al final de esta función), así que document.getElementById no
+        // encuentra nada todavía y tira una excepción que corta en seco
+        // el resto de la construcción del formulario (pasajeros, botón de
+        // enviar, todo). Se busca escopeado a preDocsWrap en cambio, que
+        // sí existe aunque todavía no esté en el documento.
+        const preDocsPassportBtn = preDocsWrap.querySelector('#preDocsPassportBtn');
+        const preDocsCardBtn = preDocsWrap.querySelector('#preDocsCardBtn');
+        const preDocsFileInput = preDocsWrap.querySelector('#preDocsFileInput');
         function renderPreDocsButtons() {
           const label = (docType, text) => docsDataUrls[docType] ? '✅ ' + text + ' (subido)' : '📁 ' + text;
-          document.getElementById('preDocsPassportBtn').textContent = label('passport', 'Pasaporte');
-          document.getElementById('preDocsPassportBtn').classList.toggle('uploaded', !!docsDataUrls.passport);
-          document.getElementById('preDocsCardBtn').textContent = label('card', 'Tarjeta de pago');
-          document.getElementById('preDocsCardBtn').classList.toggle('uploaded', !!docsDataUrls.card);
+          preDocsPassportBtn.textContent = label('passport', 'Pasaporte');
+          preDocsPassportBtn.classList.toggle('uploaded', !!docsDataUrls.passport);
+          preDocsCardBtn.textContent = label('card', 'Tarjeta de pago');
+          preDocsCardBtn.classList.toggle('uploaded', !!docsDataUrls.card);
         }
         renderPreDocsButtons();
 
         let prePendingDocType = null;
-        document.getElementById('preDocsPassportBtn').addEventListener('click', () => {
+        preDocsPassportBtn.addEventListener('click', () => {
           prePendingDocType = 'passport';
-          document.getElementById('preDocsFileInput').click();
+          preDocsFileInput.click();
         });
-        document.getElementById('preDocsCardBtn').addEventListener('click', () => {
+        preDocsCardBtn.addEventListener('click', () => {
           prePendingDocType = 'card';
-          document.getElementById('preDocsFileInput').click();
+          preDocsFileInput.click();
         });
-        document.getElementById('preDocsFileInput').addEventListener('change', async function () {
+        preDocsFileInput.addEventListener('change', async function () {
           const file = this.files && this.files[0];
           this.value = '';
           if (!file || !prePendingDocType) return;
           const docType = prePendingDocType;
-          const statusEl = document.getElementById('preDocsStatus');
+          const statusEl = preDocsWrap.querySelector('#preDocsStatus');
           try {
             // Sube directo al bucket privado (client-documents) — ver
             // uploadDocToStorage. Ya no depende de que un agente esté
