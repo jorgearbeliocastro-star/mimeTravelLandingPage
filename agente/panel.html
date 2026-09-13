@@ -3025,25 +3025,46 @@
     // se pide un link temporal (createSignedUrl, unos minutos de validez)
     // cada vez que hace falta mostrarlos — no hace falta ningún canal en
     // vivo ni reintentos.
-    async function fetchDocSignedUrl(quoteId, docType) {
-      const path = quoteId + '/' + docType + '.jpg';
+    async function fetchDocSignedUrl(quoteId, fileName) {
+      const path = quoteId + '/' + fileName;
       const { data, error } = await supabaseClient.storage.from('client-documents').createSignedUrl(path, 300);
       return error ? null : data.signedUrl;
     }
 
+    // Lista lo que haya de verdad en la carpeta de esta cotización, en vez
+    // de asumir siempre "passport.jpg" + "card.jpg" fijos — con reservas
+    // de más de un pasajero hay un pasaporte por cada uno
+    // (passport-1.jpg, passport-2.jpg, ...), y esto se adapta solo a
+    // cuántos haya, sin necesidad de saber de antemano cuántos pasajeros
+    // tiene la reserva. "passport.jpg" a secas (sin número) queda
+    // soportado también, por las cotizaciones viejas de antes de este
+    // cambio.
     async function renderDocsThumbsFromStorage(quoteId) {
-      const [passportUrl, cardUrl] = await Promise.all([
-        fetchDocSignedUrl(quoteId, 'passport'),
-        fetchDocSignedUrl(quoteId, 'card'),
-      ]);
       const el = document.getElementById('docsThumbs-' + quoteId);
-      if (!el) return; // la card ya no está en pantalla
-      if (!passportUrl && !cardUrl) {
+      if (!el) return;
+      const { data: files, error } = await supabaseClient.storage.from('client-documents').list(quoteId);
+      if (error || !files || !files.length) {
         el.textContent = 'Esperando que el cliente suba los documentos…';
         return;
       }
+      const passportFiles = files
+        .filter((f) => /^passport(-\d+)?\.jpg$/.test(f.name))
+        .sort((a, b) => {
+          const na = Number((a.name.match(/\d+/) || ['0'])[0]);
+          const nb = Number((b.name.match(/\d+/) || ['0'])[0]);
+          return na - nb;
+        });
+      const cardFile = files.find((f) => f.name === 'card.jpg');
+      const entries = passportFiles.map((f, i) => [f.name, passportFiles.length > 1 ? 'Pasaporte ' + (i + 1) : 'Pasaporte']);
+      if (cardFile) entries.push([cardFile.name, 'Tarjeta']);
+      if (!entries.length) {
+        el.textContent = 'Esperando que el cliente suba los documentos…';
+        return;
+      }
+      const urls = await Promise.all(entries.map(([fileName]) => fetchDocSignedUrl(quoteId, fileName)));
       el.innerHTML = '';
-      [['passport', passportUrl, 'Pasaporte'], ['card', cardUrl, 'Tarjeta']].forEach(([docType, url, label]) => {
+      entries.forEach(([, label], i) => {
+        const url = urls[i];
         if (!url) return;
         const img = document.createElement('img');
         img.src = url;
@@ -3055,13 +3076,15 @@
     }
 
     // Se llama al cerrar la venta (ver showSellForm) — ya no hace falta
-    // guardarlos en ningún lado una vez emitido el tiket.
+    // guardarlos en ningún lado una vez emitido el tiket. Se listan y
+    // borran todos los archivos que haya en la carpeta (cualquier
+    // cantidad de pasaportes + la tarjeta), no un par fijo de nombres.
     async function deleteClientDocs(quoteId) {
       try {
-        await supabaseClient.storage.from('client-documents').remove([
-          quoteId + '/passport.jpg',
-          quoteId + '/card.jpg',
-        ]);
+        const { data: files } = await supabaseClient.storage.from('client-documents').list(quoteId);
+        if (files && files.length) {
+          await supabaseClient.storage.from('client-documents').remove(files.map((f) => quoteId + '/' + f.name));
+        }
       } catch {
         // no bloqueante — no vale la pena trabar el cierre de venta por esto
       }
