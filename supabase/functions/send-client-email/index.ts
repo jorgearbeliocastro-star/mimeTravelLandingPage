@@ -18,8 +18,12 @@ import nodemailer from 'npm:nodemailer@6.9.14';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const WEBHOOK_SECRET = Deno.env.get('WEB_PUSH_WEBHOOK_SECRET')!;
-const GMAIL_USER = Deno.env.get('GMAIL_USER')!;
-const GMAIL_APP_PASSWORD = Deno.env.get('GMAIL_APP_PASSWORD')!;
+// Nombres propios (no GMAIL_USER/GMAIL_APP_PASSWORD a secas) — este mismo
+// proyecto de Supabase ya tenía esos nombres ocupados por otra cosa (ver
+// CLAUDE.md, "la expancion" comparte este proyecto), así que se usan
+// nombres específicos para no pisar ese secreto existente.
+const GMAIL_USER = Deno.env.get('CLIENT_EMAIL_GMAIL_USER')!;
+const GMAIL_APP_PASSWORD = Deno.env.get('CLIENT_EMAIL_GMAIL_APP_PASSWORD')!;
 
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
