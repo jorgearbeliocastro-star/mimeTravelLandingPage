@@ -9217,16 +9217,16 @@
         form.appendChild(consentWrap);
       }
 
-      // Crucero autoservicio (ya eligió camarote + tiene precio final, ver
-      // apply_cruise_room_price/activeQuoteNeedsAgentReview) — a pedido
-      // explícito, acá conviene pedir pasaporte/tarjeta YA, junto con el
-      // resto de los datos, en vez de recién después de que un agente la
-      // revise: no falta nada más de su lado, ya está todo listo para
-      // cerrar. Misma subida a Storage (uploadDocToStorage) que ya usa el
-      // paso de después de aceptar — un pasaporte POR PASAJERO (antes era
-      // uno solo para toda la reserva, y con más de un pasajero se pisaba
-      // el anterior) más una sola tarjeta de pago para toda la reserva.
-      const isPreDocsFlow = mode === 'accept' && activeQuoteNeedsAgentReview;
+      // A pedido explícito: pasaporte/tarjeta se piden YA, junto con el
+      // resto de los datos, ANTES de poder aceptar — en cualquier
+      // categoría (vuelos, hoteles, autos, cruceros cotizados a mano o de
+      // autoservicio), no solo en crucero autoservicio como antes. Ya no
+      // queda como un paso aparte, opcional, después de aceptar. Misma
+      // subida a Storage (uploadDocToStorage) de siempre — un pasaporte
+      // POR PASAJERO (antes era uno solo para toda la reserva, y con más
+      // de un pasajero se pisaba el anterior) más una sola tarjeta de
+      // pago para toda la reserva.
+      const isPreDocsFlow = mode === 'accept';
       if (isPreDocsFlow) {
         const preDocsSlots = getExpectedPassportSlots();
         let preDocsPassportButtonsHTML = '';
