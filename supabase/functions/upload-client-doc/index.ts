@@ -38,17 +38,22 @@ Deno.serve(async (req) => {
   if (req.headers.get('X-Webhook-Secret') !== WEBHOOK_SECRET) {
     return new Response('unauthorized', { status: 401, headers: CORS_HEADERS });
   }
-  const body = await req.json().catch(() => null);
+  const body = await req.json().catch((e) => {
+    console.error('[upload-client-doc] no se pudo parsear el JSON del pedido:', e instanceof Error ? e.message : String(e));
+    return null;
+  });
   if (!body) return new Response('bad request', { status: 400, headers: CORS_HEADERS });
 
   const { quoteId, clientToken, docType, dataBase64 } = body;
   if (!quoteId || !clientToken || !docType || !dataBase64) {
+    console.error('[upload-client-doc] faltan campos:', { hasQuoteId: !!quoteId, hasClientToken: !!clientToken, docType, hasDataBase64: !!dataBase64, dataBase64Len: dataBase64 ? dataBase64.length : 0 });
     return new Response('missing fields', { status: 400, headers: CORS_HEADERS });
   }
   // "card" (una sola tarjeta de pago por reserva) o "passport-N" (un
   // pasaporte POR PASAJERO — antes era un solo "passport" fijo para toda
   // la reserva, y con más de un pasajero se pisaba el anterior).
   if (docType !== 'card' && !/^passport-[1-9][0-9]*$/.test(docType)) {
+    console.error('[upload-client-doc] docType inválido:', docType);
     return new Response('invalid docType', { status: 400, headers: CORS_HEADERS });
   }
 
