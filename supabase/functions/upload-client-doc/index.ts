@@ -74,7 +74,8 @@ Deno.serve(async (req) => {
   let bytes;
   try {
     bytes = Uint8Array.from(atob(dataBase64), (c) => c.charCodeAt(0));
-  } catch {
+  } catch (e) {
+    console.error('[upload-client-doc] dataBase64 inválido (largo:', dataBase64.length, '):', e instanceof Error ? e.message : String(e));
     return new Response('invalid dataBase64', { status: 400, headers: CORS_HEADERS });
   }
 
