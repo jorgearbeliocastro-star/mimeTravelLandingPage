@@ -189,6 +189,23 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_lcWymV25nHd2_iOMjRwD4A_XOXvOdPK';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // Mismo mecanismo de captura de errores que index.html — ver
+    // reportClientError() ahí y la tabla client_errors en Supabase.
+    function reportClientError(message, stack) {
+      try {
+        supabaseClient.from('client_errors').insert({
+          agent_id: (typeof agentId !== 'undefined') ? agentId : null,
+          page: location.pathname,
+          message: String(message || '').slice(0, 2000),
+          stack: String(stack || '').slice(0, 4000),
+          user_agent: navigator.userAgent,
+          url: location.href,
+        }).then(() => {}, () => {});
+      } catch (e) { /* nunca romper la app por esto */ }
+    }
+    window.addEventListener('error', (e) => reportClientError(e.message, e.error && e.error.stack));
+    window.addEventListener('unhandledrejection', (e) => reportClientError('unhandledrejection: ' + (e.reason && e.reason.message || e.reason), e.reason && e.reason.stack));
+
     // Solo LECTURA a propósito — quote_payment_records/sale_payment_records
     // se llenan solas por el aviso automático de Centrav (gmail-push-webhook),
     // nunca a mano desde acá. Mismo criterio que la app (PaymentRecordsScreen).
