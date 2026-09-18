@@ -773,6 +773,23 @@
     // obligatorio para todos sin excepción (ver send-client-email).
     const SEND_CLIENT_EMAIL_URL = SUPABASE_URL + '/functions/v1/send-client-email';
 
+    // Mismo mecanismo de captura de errores que index.html — ver
+    // reportClientError() ahí y la tabla client_errors en Supabase.
+    function reportClientError(message, stack) {
+      try {
+        supabaseClient.from('client_errors').insert({
+          agent_id: (typeof agentId !== 'undefined') ? agentId : null,
+          page: location.pathname,
+          message: String(message || '').slice(0, 2000),
+          stack: String(stack || '').slice(0, 4000),
+          user_agent: navigator.userAgent,
+          url: location.href,
+        }).then(() => {}, () => {});
+      } catch (e) { /* nunca romper la app por esto */ }
+    }
+    window.addEventListener('error', (e) => reportClientError(e.message, e.error && e.error.stack));
+    window.addEventListener('unhandledrejection', (e) => reportClientError('unhandledrejection: ' + (e.reason && e.reason.message || e.reason), e.reason && e.reason.stack));
+
     let agentId = null;
     let agentName = '';
     // Catálogo de extras (excursiones/bebidas/spa/etc.) que carga el Dueño
