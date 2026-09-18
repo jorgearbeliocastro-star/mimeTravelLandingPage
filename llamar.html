@@ -180,6 +180,23 @@
     const WEB_PUSH_FUNCTIONS_URL = SUPABASE_URL + '/functions/v1/send-web-push';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // Mismo mecanismo de captura de errores que index.html — ver
+    // reportClientError() ahí y la tabla client_errors en Supabase.
+    function reportClientError(message, stack) {
+      try {
+        supabaseClient.from('client_errors').insert({
+          client_token: getClientToken(),
+          page: location.pathname,
+          message: String(message || '').slice(0, 2000),
+          stack: String(stack || '').slice(0, 4000),
+          user_agent: navigator.userAgent,
+          url: location.href,
+        }).then(() => {}, () => {});
+      } catch (e) { /* nunca romper la app por esto */ }
+    }
+    window.addEventListener('error', (e) => reportClientError(e.message, e.error && e.error.stack));
+    window.addEventListener('unhandledrejection', (e) => reportClientError('unhandledrejection: ' + (e.reason && e.reason.message || e.reason), e.reason && e.reason.stack));
+
     // Mismo token que usa el resto de la web pública para identificar este
     // navegador como "cliente sin cuenta" (ver getOrCreateWebClientToken en
     // index.html).
